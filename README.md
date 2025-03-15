@@ -17,17 +17,17 @@
 ## 预览
 
 <p align="center">
-    <img src="./assets/img/Screenshot_1.jpg" style="max-width: 15%; height: auto;">
-    <img src="./assets/img/Screenshot_2.jpg" style="max-width: 15%; height: auto;">
-    <img src="./assets/img/Screenshot_3.jpg" style="max-width: 15%; height: auto;">
-    <img src="./assets/img/Screenshot_4.jpg" style="max-width: 15%; height: auto;">
-    <img src="./assets/img/Screenshot_5.jpg" style="max-width: 15%; height: auto;">
-    <img src="./assets/img/Screenshot_6.jpg" style="max-width: 15%; height: auto;">
-    <img src="./assets/img/Screenshot_7.jpg" style="max-width: 15%; height: auto;">
-    <img src="./assets/img/Screenshot_8.jpg" style="max-width: 15%; height: auto;">
-    <img src="./assets/img/Screenshot_9.jpg" style="max-width: 15%; height: auto;">
-    <img src="./assets/img/Screenshot_10.jpg" style="max-width: 15%; height: auto;">
-    <img src="./assets/img/Screenshot_11.jpg" style="max-width: 15%; height: auto;">
+    <img src="./assets/img/Screenshot_1.jpg" style="width: 300; height: auto;">
+    <img src="./assets/img/Screenshot_2.jpg" style="width: 300; height: auto;">
+    <img src="./assets/img/Screenshot_3.jpg" style="width: 300; height: auto;">
+    <img src="./assets/img/Screenshot_4.jpg" style="width: 300; height: auto;">
+    <img src="./assets/img/Screenshot_5.jpg" style="width: 300; height: auto;">
+    <img src="./assets/img/Screenshot_6.jpg" style="width: 300; height: auto;">
+    <img src="./assets/img/Screenshot_7.jpg" style="width: 300; height: auto;">
+    <img src="./assets/img/Screenshot_8.jpg" style="width: 300; height: auto;">
+    <img src="./assets/img/Screenshot_9.jpg" style="width: 300; height: auto;">
+    <img src="./assets/img/Screenshot_10.jpg" style="width: 300; height: auto;">
+    <img src="./assets/img/Screenshot_11.jpg" style="width: 300; height: auto;">
     <img src="./assets/img/Screenshot_12.jpg" style="max-width: 15%; height: auto;">
     <img src="./assets/img/Screenshot_13.jpg" style="max-width: 15%; height: auto;">
 </p>
@@ -72,7 +72,7 @@
 
 - [QQ 交流群1](https://qm.qq.com/q/lgnFYGDHOM)
 
-<img src="./assets/img/qq_1.jpg" style="max-width: 15%; height: auto;">
+<img src="./assets/img/qq_1.jpg" style="width: 300; height: auto;">
 
 
 ## 发电
