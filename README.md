@@ -16,7 +16,7 @@
 
 ## 预览
 
-<p align="center">
+<div style="display: flex;">
     <img src="./assets/img/Screenshot_1.jpg" style="width: 300; height: auto;">
     <img src="./assets/img/Screenshot_2.jpg" style="width: 300; height: auto;">
     <img src="./assets/img/Screenshot_3.jpg" style="width: 300; height: auto;">
@@ -30,7 +30,7 @@
     <img src="./assets/img/Screenshot_11.jpg" style="width: 300; height: auto;">
     <img src="./assets/img/Screenshot_12.jpg" style="max-width: 15%; height: auto;">
     <img src="./assets/img/Screenshot_13.jpg" style="max-width: 15%; height: auto;">
-</p>
+</div>
 
 
 ## 技术栈
@@ -72,8 +72,9 @@
 
 - [QQ 交流群1](https://qm.qq.com/q/lgnFYGDHOM)
 
-<img src="./assets/img/qq_1.jpg" style="width: 300; height: auto;">
-
+<div style="display: flex;">
+    <img src="./assets/img/qq_1.jpg" style="width: 300; height: auto;">
+</div>
 
 ## 发电
 
