@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">bili_tube</string>
+    <string name="str_description">说明</string>
+    <string name="str_reply">评论</string>
+    <string name="str_home">首页</string>
+    <string name="str_mine">我的</string>
+    <string name="str_scrscription">订阅</string>
+    <string name="str_recommend">推荐</string>
+    <string name="str_hots">热门</string>
+    <string name="str_anime">番剧</string>
+    <string name="str_under_deveplment">开发中...</string>
+    <string name="str_shared">分享</string>
+    <string name="str_save_watch_later">保存到”稍后观看“</string>
+    <string name="str_save_playlist">保存到”播放列表“</string>
+    <string name="str_no_interesting">不感兴趣</string>
+    <string name="str_report">举报</string>
+    <string name="str_more_video">更多视频</string>
+    <string name="str_more_video_hint">点按或向上滑动以查看全部</string>
+    <string name="str_double_speed_hint">x2</string>
+    <string name="str_watch_later">稍后观看</string>
+    <string name="str_private">私享</string>
+    <string name="str_public">公开</string>
+    <string name="str_dynamic">动态</string>
+    <string name="str_following">关注</string>
+    <string name="str_follower">粉丝</string>
+    <string name="str_manuscript_management">稿件管理</string>
+    <string name="str_downlaod_management">下载管理</string>
+    <string name="str_feedback">联系客服</string>
+</resources>
