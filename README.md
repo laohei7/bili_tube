@@ -8,30 +8,31 @@
 ::: warning ⚠️声明
 
 1. 本项目遵守 CC-BY-NC 4.0 协议，禁止一切商业使用，如需转载请注明作者 ID
-2. **请勿滥用，本项目仅用于学习和测试！请勿滥用，本项目仅用于学习和测试！请勿滥用，本项目仅用于学习和测试！**
+2. **请勿滥用，本项目仅用于学习和测试！请勿滥用，本项目仅用于学习和测试！请勿滥用，本项目仅用于学习和测试！
+   **
 3. 利用本项目提供的接口、文档等造成不良影响及后果与本人无关
 4. 由于本项目的特殊性，可能随时停止开发或删档
 5. 本项目为开源项目，不接受任何形式的催单和索取行为，更不容许存在付费内容
-6. **上传任何信息时请注意脱敏，删去账户密码、敏感 cookies 等可能泄漏个人信息的数据（例如 `SESSDATA`、`bili_jct` 之类的 cookies）**
+6. **上传任何信息时请注意脱敏，删去账户密码、敏感 cookies
+   等可能泄漏个人信息的数据（例如 `SESSDATA`、`bili_jct` 之类的 cookies）**
 
 ## 预览
 
 <div style="display: flex;">
-    <img src="./assets/img/Screenshot_1.jpg" style="width: 300; height: auto;">
-    <img src="./assets/img/Screenshot_2.jpg" style="width: 300; height: auto;">
-    <img src="./assets/img/Screenshot_3.jpg" style="width: 300; height: auto;">
-    <img src="./assets/img/Screenshot_4.jpg" style="width: 300; height: auto;">
-    <img src="./assets/img/Screenshot_5.jpg" style="width: 300; height: auto;">
-    <img src="./assets/img/Screenshot_6.jpg" style="width: 300; height: auto;">
-    <img src="./assets/img/Screenshot_7.jpg" style="width: 300; height: auto;">
-    <img src="./assets/img/Screenshot_8.jpg" style="width: 300; height: auto;">
-    <img src="./assets/img/Screenshot_9.jpg" style="width: 300; height: auto;">
-    <img src="./assets/img/Screenshot_10.jpg" style="width: 300; height: auto;">
-    <img src="./assets/img/Screenshot_11.jpg" style="width: 300; height: auto;">
-    <img src="./assets/img/Screenshot_12.jpg" style="max-width: 15%; height: auto;">
-    <img src="./assets/img/Screenshot_13.jpg" style="max-width: 15%; height: auto;">
+    <img src="./assets/img/Screenshot_1.jpg" style="width: 300; height: 600">
+    <img src="./assets/img/Screenshot_2.jpg" style="width: 300; height: 600">
+    <img src="./assets/img/Screenshot_3.jpg" style="width: 300; height: 600">
+    <img src="./assets/img/Screenshot_4.jpg" style="width: 300; height: 600">
+    <img src="./assets/img/Screenshot_5.jpg" style="width: 300; height: 600">
+    <img src="./assets/img/Screenshot_6.jpg" style="width: 300; height: 600">
+    <img src="./assets/img/Screenshot_7.jpg" style="width: 300; height: 600">
+    <img src="./assets/img/Screenshot_8.jpg" style="width: 300; height: 600">
+    <img src="./assets/img/Screenshot_9.jpg" style="width: 300; height: 600">
+    <img src="./assets/img/Screenshot_10.jpg" style="width: 300; height: 600">
+    <img src="./assets/img/Screenshot_11.jpg" style="width: 300; height: 600">
+    <img src="./assets/img/Screenshot_12.jpg" style="height:300">
+    <img src="./assets/img/Screenshot_13.jpg" style="height:300">
 </div>
-
 
 ## 技术栈
 
@@ -73,7 +74,7 @@
 - [QQ 交流群1](https://qm.qq.com/q/lgnFYGDHOM)
 
 <div style="display: flex;">
-    <img src="./assets/img/qq_1.jpg" style="width: 300; height: auto;">
+    <img src="./assets/img/qq_1.jpg" style="width: 300; height: 600">
 </div>
 
 ## 发电
