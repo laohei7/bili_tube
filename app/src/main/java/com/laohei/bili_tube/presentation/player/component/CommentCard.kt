@@ -28,7 +28,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.laohei.bili_tube.core.FACE_URL_KEY
 import com.laohei.bili_tube.component.placeholder.CirclePlaceholder
-import com.laohei.bili_tube.utill.getValue
+import com.laohei.bili_tube.core.util.getValue
 
 
 @Composable

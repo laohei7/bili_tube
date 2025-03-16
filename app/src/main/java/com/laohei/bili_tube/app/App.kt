@@ -59,8 +59,8 @@ import com.laohei.bili_tube.presentation.mine.MineScreen
 import com.laohei.bili_tube.presentation.player.PlayerScreen
 import com.laohei.bili_tube.presentation.splash.SplashScreen
 import com.laohei.bili_tube.presentation.subscription.SubscriptionScreen
-import com.laohei.bili_tube.utill.setValue
-import com.laohei.bili_tube.utill.useLightSystemBarIcon
+import com.laohei.bili_tube.core.util.setValue
+import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch

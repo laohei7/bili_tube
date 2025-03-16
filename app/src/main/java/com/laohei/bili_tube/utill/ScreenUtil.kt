@@ -7,6 +7,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import com.laohei.bili_tube.core.util.hasDisplayCutout
+import com.laohei.bili_tube.core.util.isOrientationPortrait
 
 @Deprecated(message = "Use SystemUtil statusBarHeight property")
 @SuppressLint("DiscouragedApi", "InternalInsetResource")

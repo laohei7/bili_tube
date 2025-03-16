@@ -92,7 +92,11 @@ import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.component.video.VideoItem
-import com.laohei.bili_tube.core.SystemUtil
+import com.laohei.bili_tube.core.util.SystemUtil
+import com.laohei.bili_tube.core.util.hideSystemUI
+import com.laohei.bili_tube.core.util.showSystemUI
+import com.laohei.bili_tube.core.util.toggleOrientation
+import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.presentation.player.component.CommentCard
 import com.laohei.bili_tube.presentation.player.component.RelatedHorizontalList
 import com.laohei.bili_tube.presentation.player.component.UserSimpleInfo
@@ -106,13 +110,9 @@ import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManage
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
 import com.laohei.bili_tube.utill.formatDateToString
 import com.laohei.bili_tube.utill.formatTimeString
-import com.laohei.bili_tube.utill.hideSystemUI
 import com.laohei.bili_tube.utill.isOrientationPortrait
-import com.laohei.bili_tube.utill.showSystemUI
 import com.laohei.bili_tube.utill.toTimeAgoString
 import com.laohei.bili_tube.utill.toViewString
-import com.laohei.bili_tube.utill.toggleOrientation
-import com.laohei.bili_tube.utill.useLightSystemBarIcon
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
