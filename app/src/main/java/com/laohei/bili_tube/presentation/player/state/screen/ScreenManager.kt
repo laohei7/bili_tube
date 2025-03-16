@@ -29,4 +29,6 @@ internal interface ScreenManager {
     fun relatedListDragHandle(offset: Float)
 
     fun adjustRelatedListOffset()
+
+    fun caculateScreenSize(vW: Int, vH: Int)
 }

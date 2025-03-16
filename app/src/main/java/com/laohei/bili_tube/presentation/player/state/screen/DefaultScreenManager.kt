@@ -23,26 +23,7 @@ internal class DefaultScreenManager(
     private val height: Int = 1080
 ) : ScreenManager {
 
-    private val _mState = MutableStateFlow(
-        run {
-            val minLimitedHeight = screenWidth * 9f / 16f
-            val maxLimitedHeight = screenHeight * 2 / 3f
-            val originalVideoHeight = (screenWidth * height.toFloat() / width.toFloat())
-                .coerceIn(minLimitedHeight, maxLimitedHeight)
-            val minBoundPx = with(density) { (originalVideoHeight - minLimitedHeight).dp.toPx() }
-            val maxBoundPx = with(density) { screenHeight.dp.toPx() }
-            ScreenState(
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
-                maxLimitedHeight = maxLimitedHeight.dp,
-                minLimitedHeight = minLimitedHeight.dp,
-                videoHeight = originalVideoHeight.dp,
-                listState = LazyListState(),
-                minBound = minBoundPx,
-                maxBound = maxBoundPx
-            )
-        }
-    )
+    private val _mState = MutableStateFlow(getScreenState(screenWidth, screenHeight, width, height))
     override val screenState: StateFlow<ScreenState>
         get() = _mState
     override val nestedScrollConnection: NestedScrollConnection
@@ -254,9 +235,41 @@ internal class DefaultScreenManager(
         _mState.update {
             it.copy(
                 isShowRelatedList = isReachedShow,
-                relatedListOffset = if (isReachedShow) 0f else 500f
+                relatedListOffset = if (isReachedShow) 0f else with(density) { 500.dp.toPx() }
             )
         }
+    }
+
+    override fun caculateScreenSize(vW: Int, vH: Int) {
+        val newState = getScreenState(_mState.value.screenWidth, _mState.value.screenHeight, vW, vH)
+        _mState.update {
+            it.copy(
+                originalVideoHeight = newState.originalVideoHeight,
+                videoHeight = newState.originalVideoHeight,
+                minBound = newState.minBound,
+                maxBound = newState.maxBound
+            )
+        }
+    }
+
+    private fun getScreenState(w: Int, h: Int, vW: Int, vH: Int): ScreenState {
+        val minLimitedHeight = w * 9f / 16f
+        val maxLimitedHeight = h * 2 / 3f
+        val originalVideoHeight = (w * vH.toFloat() / vW.toFloat())
+            .coerceIn(minLimitedHeight, maxLimitedHeight)
+        val minBoundPx = with(density) { (originalVideoHeight - minLimitedHeight).dp.toPx() }
+        val maxBoundPx = with(density) { h.dp.toPx() }
+        return ScreenState(
+            screenWidth = w,
+            screenHeight = h,
+            maxLimitedHeight = maxLimitedHeight.dp,
+            minLimitedHeight = minLimitedHeight.dp,
+            videoHeight = originalVideoHeight.dp,
+            listState = LazyListState(),
+            minBound = -minBoundPx,
+            maxBound = maxBoundPx,
+            relatedListOffset = with(density) { 500.dp.toPx() }
+        )
     }
 
     private fun isShowMask(): Boolean {

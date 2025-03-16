@@ -18,11 +18,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -36,6 +36,7 @@ import com.google.zxing.qrcode.QRCodeWriter
 import com.laohei.bili_sdk.login.QRLogin
 import com.laohei.bili_sdk.model.BiliQRCode
 import com.laohei.bili_sdk.model.BiliQRCodeStatus
+import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.utill.setValue
@@ -44,6 +45,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import android.graphics.Color as original
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.set
 
 private const val TAG = "QRCodeLoginScreen"
 
@@ -85,8 +88,7 @@ fun QRCodeLoginScreen() {
                 verticalArrangement = Arrangement.spacedBy(40.dp)
             ) {
                 Text(
-                    text = "扫描登录",
-                    color = Color.White,
+                    text = stringResource(R.string.str_scan_login),
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -105,8 +107,7 @@ fun QRCodeLoginScreen() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "扫描登录",
-                    color = Color.White,
+                    text = stringResource(R.string.str_scan_login),
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -156,24 +157,21 @@ fun rememberQrBitmapPainter(
                     content, BarcodeFormat.QR_CODE,
                     sizePx, sizePx, encodeHints
                 )
-            } catch (ex: WriterException) {
+            } catch (_: WriterException) {
                 null
             }
             val matrixWidth = bitmapMatrix?.width ?: sizePx
             val matrixHeight = bitmapMatrix?.height ?: sizePx
 
-            val newBitmap = Bitmap.createBitmap(
-                bitmapMatrix?.width ?: sizePx,
-                bitmapMatrix?.height ?: sizePx,
-                Bitmap.Config.ARGB_8888,
-            )
+            val newBitmap =
+                createBitmap(bitmapMatrix?.width ?: sizePx, bitmapMatrix?.height ?: sizePx)
 
             for (x in 0 until matrixWidth) {
                 for (y in 0 until matrixHeight) {
-                    val shouldColorPixel = bitmapMatrix?.get(x, y) ?: false
+                    val shouldColorPixel = bitmapMatrix?.get(x, y) == true
                     val pixelColor = if (shouldColorPixel) original.BLACK else original.WHITE
 
-                    newBitmap.setPixel(x, y, pixelColor)
+                    newBitmap[x, y] = pixelColor
                 }
             }
 
@@ -182,10 +180,7 @@ fun rememberQrBitmapPainter(
     }
 
     return remember(bitmap) {
-        val currentBitmap = bitmap ?: Bitmap.createBitmap(
-            sizePx, sizePx,
-            Bitmap.Config.ARGB_8888,
-        ).apply { eraseColor(original.TRANSPARENT) }
+        val currentBitmap = bitmap ?: createBitmap(sizePx, sizePx).apply { eraseColor(original.TRANSPARENT) }
 
         BitmapPainter(currentBitmap.asImageBitmap())
     }

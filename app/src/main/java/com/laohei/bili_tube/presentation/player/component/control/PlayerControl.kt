@@ -58,11 +58,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.core.SystemUtil
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
 import com.laohei.bili_tube.utill.rememberHasDisplayCutout
-import com.laohei.bili_tube.utill.rememberNavigateBarHeight
-import com.laohei.bili_tube.utill.rememberStatusBarHeight
 
 @Composable
 fun PlayerControl(
@@ -144,7 +143,7 @@ fun PlayerControl(
         AnimatedVisibility(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = rememberStatusBarHeight()),
+                .padding(top = SystemUtil.getStatusBarHeightDp()),
             visible = isLongPress,
             enter = fadeIn(),
             exit = fadeOut()
@@ -225,6 +224,7 @@ private fun BoxScope.TopBar(
     isShowRelatedList: Boolean,
     isFullscreen: Boolean
 ) {
+    val isOrientationPortrait = isOrientationPortrait()
     AnimatedVisibility(
         modifier = Modifier.align(Alignment.TopStart),
         visible = isShowUI && !isShowRelatedList,
@@ -232,14 +232,14 @@ private fun BoxScope.TopBar(
         exit = fadeOut()
     ) {
         val paddingModifier = when {
-            isOrientationPortrait() -> {
-                Modifier.padding(top = rememberStatusBarHeight())
+            isOrientationPortrait && (!isFullscreen || rememberHasDisplayCutout()) -> {
+                Modifier.padding(top = SystemUtil.getStatusBarHeightDp())
             }
 
-            rememberHasDisplayCutout() -> {
+            !isOrientationPortrait && isFullscreen && rememberHasDisplayCutout() -> {
                 Modifier.padding(
-                    start = rememberStatusBarHeight(),
-                    end = rememberNavigateBarHeight()
+                    start = SystemUtil.getStatusBarHeightDp(),
+                    end = SystemUtil.getNavigateBarHeightDp()
                 )
             }
 
@@ -372,14 +372,14 @@ private fun BoxScope.BottomBar(
 ) {
     val paddingModifier = when {
         isFullscreen && isOrientationPortrait() -> {
-            Modifier.padding(bottom = rememberNavigateBarHeight())
+            Modifier.padding(bottom = SystemUtil.getNavigateBarHeightDp())
         }
 
         isOrientationPortrait() -> Modifier
         rememberHasDisplayCutout() -> {
             Modifier.padding(
-                start = rememberStatusBarHeight(),
-                end = rememberNavigateBarHeight()
+                start = SystemUtil.getStatusBarHeightDp(),
+                end = SystemUtil.getNavigateBarHeightDp()
             )
         }
 
@@ -438,8 +438,8 @@ private fun BoxScope.BottomBar(
 
         AnimatedVisibility(
             visible = isFullscreen && isShowUI && !isShowRelatedList,
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically()
+            enter = if(isFullscreen) fadeIn() else fadeIn() + expandVertically(),
+            exit = if(isFullscreen) fadeOut() else fadeOut() + shrinkVertically()
         ) {
             actionContent?.invoke()
                 ?: DefaultBottomBarAction()
