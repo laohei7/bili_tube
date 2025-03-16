@@ -9,9 +9,11 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 
-fun Activity.useLightStatusBarIcon(using: Boolean = true) {
+fun Activity.useLightSystemBarIcon(using: Boolean = true) {
     WindowCompat.getInsetsController(window, window.decorView)
         .isAppearanceLightStatusBars = using
+    WindowCompat.getInsetsController(window,window.decorView)
+        .isAppearanceLightNavigationBars = using
 }
 
 fun Activity.hideSystemUI() {

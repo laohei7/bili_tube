@@ -20,6 +20,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -111,7 +112,7 @@ import com.laohei.bili_tube.utill.showSystemUI
 import com.laohei.bili_tube.utill.toTimeAgoString
 import com.laohei.bili_tube.utill.toViewString
 import com.laohei.bili_tube.utill.toggleOrientation
-import com.laohei.bili_tube.utill.useLightStatusBarIcon
+import com.laohei.bili_tube.utill.useLightSystemBarIcon
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -177,10 +178,12 @@ fun PlayerScreen(
         }
     }
 
+    val isSystemDarkTheme = isSystemInDarkTheme()
+
     DisposableEffect(Unit) {
-        activity?.useLightStatusBarIcon(false)
+        activity?.useLightSystemBarIcon(false)
         onDispose {
-            activity?.useLightStatusBarIcon()
+            activity?.useLightSystemBarIcon(isSystemDarkTheme.not())
         }
     }
 

@@ -9,6 +9,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -16,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Subscriptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -57,6 +60,7 @@ import com.laohei.bili_tube.presentation.player.PlayerScreen
 import com.laohei.bili_tube.presentation.splash.SplashScreen
 import com.laohei.bili_tube.presentation.subscription.SubscriptionScreen
 import com.laohei.bili_tube.utill.setValue
+import com.laohei.bili_tube.utill.useLightSystemBarIcon
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -66,6 +70,7 @@ private const val TAG = "App"
 
 @Composable
 fun App() {
+    val activity = LocalActivity.current
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val navController = rememberNavController()
@@ -88,6 +93,8 @@ fun App() {
             )
         )
     }
+
+    activity?.useLightSystemBarIcon(isSystemInDarkTheme().not())
 
     LaunchedEffect(isLogin) {
         if (isLogin.not()) {
@@ -153,7 +160,6 @@ fun App() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .navigationBarsPadding()
     ) {
         NavHost(
             navController = navController,
@@ -196,7 +202,9 @@ fun App() {
                 ?.hierarchy?.any { it.hasRoute(Route.HomeGraph::class) } == true
             AnimatedVisibility(
                 visible = isHomeGraph,
-                modifier = Modifier.align(Alignment.BottomCenter),
+                modifier = Modifier.align(Alignment.BottomCenter)
+                    .background(MaterialTheme.colorScheme.background)
+                    .navigationBarsPadding(),
                 enter = fadeIn(),
                 exit = fadeOut()
             ) {
