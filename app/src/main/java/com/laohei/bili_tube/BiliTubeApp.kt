@@ -12,6 +12,7 @@ import com.laohei.bili_sdk.wbi.WbiParams
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.core.IMG_URL_KEY
 import com.laohei.bili_tube.core.SUB_URL_KEY
+import com.laohei.bili_tube.core.SystemUtil
 import com.laohei.bili_tube.di.appModule
 import com.laohei.bili_tube.utill.HttpClientFactory
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +31,7 @@ class BiliTubeApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        SystemUtil.init(this)
         startKoin {
             androidContext(this@BiliTubeApp)
             modules(appModule)

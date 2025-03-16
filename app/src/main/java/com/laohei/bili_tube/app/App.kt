@@ -94,7 +94,10 @@ fun App() {
         )
     }
 
-    activity?.useLightSystemBarIcon(isSystemInDarkTheme().not())
+    val isPlayRoute = currentDestination?.destination?.hasRoute<Route.Play>() == true
+    if(isPlayRoute.not()){
+        activity?.useLightSystemBarIcon(isSystemInDarkTheme().not())
+    }
 
     LaunchedEffect(isLogin) {
         if (isLogin.not()) {

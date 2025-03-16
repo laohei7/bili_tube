@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -34,7 +35,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -92,6 +92,7 @@ import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.component.video.VideoItem
+import com.laohei.bili_tube.core.SystemUtil
 import com.laohei.bili_tube.presentation.player.component.CommentCard
 import com.laohei.bili_tube.presentation.player.component.RelatedHorizontalList
 import com.laohei.bili_tube.presentation.player.component.UserSimpleInfo
@@ -107,7 +108,6 @@ import com.laohei.bili_tube.utill.formatDateToString
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.hideSystemUI
 import com.laohei.bili_tube.utill.isOrientationPortrait
-import com.laohei.bili_tube.utill.rememberStatusBarHeight
 import com.laohei.bili_tube.utill.showSystemUI
 import com.laohei.bili_tube.utill.toTimeAgoString
 import com.laohei.bili_tube.utill.toViewString
@@ -117,6 +117,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.math.roundToInt
 
 
 @OptIn(UnstableApi::class)
@@ -128,6 +129,7 @@ fun PlayerScreen(
     val density = LocalDensity.current
     val activity = LocalActivity.current
     val configuration = LocalConfiguration.current
+    val systemBarHeight = SystemUtil.getStatusBarHeightDp() + SystemUtil.getNavigateBarHeightDp()
 //    val screenWidth = configuration.screenWidthDp
 //    val screenHeight = configuration.screenHeightDp
 //    val minLimitedHeight = screenWidth * 9f / 16f
@@ -139,7 +141,7 @@ fun PlayerScreen(
                 params,
                 DefaultScreenManager(
                     density,
-                    configuration.screenHeightDp,
+                    configuration.screenHeightDp + systemBarHeight.value.roundToInt(),
                     configuration.screenWidthDp,
                     params.width,
                     params.height
@@ -163,14 +165,16 @@ fun PlayerScreen(
     val animatedVideoHeight by animateDpAsState(
         targetValue = screenState.videoHeight
     )
+    val animatedContentOffset by animateDpAsState(
+        targetValue = screenState.videoHeight + if (screenState.isFullscreen) 0.dp else SystemUtil.getStatusBarHeightDp()
+    )
 
     val contentModifier = Modifier
-        .padding(top = rememberStatusBarHeight())
         .fillMaxWidth()
         .fillMaxHeight()
     val otherSheetModifier = contentModifier
-        .offset { with(density) { IntOffset(0, animatedVideoHeight.toPx().toInt()) } }
-
+        .offset { with(density) { IntOffset(0, animatedContentOffset.toPx().toInt()) } }
+    val isSystemDarkTheme = isSystemInDarkTheme()
     BackHandler(enabled = screenState.isFullscreen) {
         viewModel.fullscreenChanged(false, screenState.originalVideoHeight, isOrientationPortrait)
         if (!isOrientationPortrait) {
@@ -178,9 +182,8 @@ fun PlayerScreen(
         }
     }
 
-    val isSystemDarkTheme = isSystemInDarkTheme()
 
-    DisposableEffect(Unit) {
+    DisposableEffect (Unit) {
         activity?.useLightSystemBarIcon(false)
         onDispose {
             activity?.useLightSystemBarIcon(isSystemDarkTheme.not())
@@ -189,23 +192,7 @@ fun PlayerScreen(
 
     // video size changed
     LaunchedEffect(mediaState.width, mediaState.height) {
-        val screenWidth = screenState.screenWidth
-        val screenHeight = screenState.screenHeight
-        val minLimitedHeight = screenWidth * 9f / 16f
-        val maxLimitedHeight = screenHeight * 2 / 3f
-        val originalVideoHeight =
-            (screenWidth * mediaState.height.toFloat() / mediaState.width.toFloat())
-                .coerceIn(minLimitedHeight, maxLimitedHeight)
-        val minBoundPx = with(density) { (originalVideoHeight - minLimitedHeight).dp.toPx() }
-        val maxBoundPx = with(density) { screenHeight.dp.toPx() }
-        viewModel.updateState(
-            screenState.copy(
-                originalVideoHeight = originalVideoHeight.dp,
-                videoHeight = originalVideoHeight.dp,
-                minBound = -minBoundPx,
-                maxBound = maxBoundPx
-            )
-        )
+        viewModel.caculateScreenSize(mediaState.width, mediaState.height)
     }
 
     LaunchedEffect(screenState.isFullscreen) {
@@ -283,7 +270,11 @@ fun PlayerScreen(
         if (isOrientationPortrait) {
             VideoContent(
                 modifier = contentModifier
-                    .offset { with(density) { IntOffset(0, animatedVideoHeight.toPx().toInt()) } }
+                    .offset {
+                        with(density) {
+                            IntOffset(0, animatedContentOffset.toPx().roundToInt())
+                        }
+                    }
                     .nestedScroll(connection = nestedScrollConnection)
                     .draggable(
                         orientation = Orientation.Vertical,
@@ -399,8 +390,8 @@ private fun BoxScope.VideoArea(
 
     val videoModifier = if (isOrientationPortrait()) {
         Modifier
-            .statusBarsPadding()
             .height(videoHeight)
+            .width(videoHeight * mediaState.width.toFloat() / mediaState.height)
     } else {
         Modifier
             .fillMaxHeight()
@@ -409,7 +400,7 @@ private fun BoxScope.VideoArea(
     val videoControlModifier = if (isOrientationPortrait()) {
         Modifier
             .fillMaxWidth()
-            .height(videoHeight + rememberStatusBarHeight())
+            .height(IntrinsicSize.Min)
     } else videoModifier
 
     PlayerControl(
@@ -438,17 +429,15 @@ private fun BoxScope.VideoArea(
             )
         }
     ) {
-        val aspectRatio = mediaState.width.toFloat() / mediaState.height
+        val aspectRatio = when {
+            isOrientationPortrait() -> mediaState.width.toFloat() / mediaState.height
+            else -> (mediaState.width.toFloat() / mediaState.height).coerceIn(
+                SystemUtil.MIN_ASPECT_RATIO,
+                SystemUtil.MAX_ASPECT_RATIO
+            )
+        }
         AndroidView(
             modifier = videoModifier
-                .then(
-                    if (!isOrientationPortrait()) {
-                        Modifier
-                            .padding(horizontal = 80.dp)
-                    } else {
-                        Modifier
-                    }
-                )
                 .aspectRatio(aspectRatio),
 
             factory = { _ ->

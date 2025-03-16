@@ -8,7 +8,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 
-
+@Deprecated(message = "Use SystemUtil statusBarHeight property")
 @SuppressLint("DiscouragedApi", "InternalInsetResource")
 @Composable
 fun rememberStatusBarHeight(): Dp {
@@ -19,6 +19,7 @@ fun rememberStatusBarHeight(): Dp {
     return remember { with(density) { heightPx.toDp() } }
 }
 
+@Deprecated(message = "Use SystemUtil navigateBarHeight property")
 @SuppressLint("DiscouragedApi", "InternalInsetResource")
 @Composable
 fun rememberNavigateBarHeight(): Dp {
