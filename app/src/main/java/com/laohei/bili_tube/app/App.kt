@@ -98,7 +98,11 @@ fun App() {
             return@LaunchedEffect
         }
         navController.navigate(Route.Home) {
-            popUpTo<Route.Splash> { inclusive = true }
+            if (isLoginRoute) {
+                popUpTo<Route.Login> { inclusive = true }
+            } else {
+                popUpTo<Route.Splash> { inclusive = true }
+            }
             launchSingleTop = true
         }
     }
