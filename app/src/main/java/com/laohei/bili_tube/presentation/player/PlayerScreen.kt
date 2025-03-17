@@ -105,6 +105,8 @@ import com.laohei.bili_tube.presentation.player.component.VideoMenus
 import com.laohei.bili_tube.presentation.player.component.VideoSimpleInfo
 import com.laohei.bili_tube.presentation.player.component.control.PlayerControl
 import com.laohei.bili_tube.presentation.player.component.reply.VideoReplySheet
+import com.laohei.bili_tube.presentation.player.component.settings.PlaySpeedSheet
+import com.laohei.bili_tube.presentation.player.component.settings.VideoSettingsSheet
 import com.laohei.bili_tube.presentation.player.state.media.MediaState
 import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManager
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
@@ -183,7 +185,7 @@ fun PlayerScreen(
     }
 
 
-    DisposableEffect (Unit) {
+    DisposableEffect(Unit) {
         activity?.useLightSystemBarIcon(false)
         onDispose {
             activity?.useLightSystemBarIcon(isSystemDarkTheme.not())
@@ -192,7 +194,7 @@ fun PlayerScreen(
 
     // video size changed
     LaunchedEffect(mediaState.width, mediaState.height) {
-        viewModel.caculateScreenSize(mediaState.width, mediaState.height)
+        viewModel.calculateScreenSize(mediaState.width, mediaState.height)
     }
 
     LaunchedEffect(screenState.isFullscreen) {
@@ -312,6 +314,7 @@ fun PlayerScreen(
                 like = videoDetail?.view?.stat?.like?.toViewString(),
                 view = videoDetail?.view?.stat?.view?.toViewString(),
                 title = videoDetail?.view?.title,
+                description = videoDetail?.view?.desc,
                 publishDate = videoDetail?.view?.pubdate?.formatDateToString(false),
                 tags = videoDetail?.tags?.fastMap { it.tagName } ?: emptyList(),
                 isShowDetail = screenState.isShowDetailSheet,
@@ -342,6 +345,37 @@ fun PlayerScreen(
             )
         }
 
+        VideoSettingsSheet(
+            isShowSheet = screenState.isShowVideoSettingsSheet,
+            speed = mediaState.speed,
+            onDismiss = {
+                viewModel.screenActionHandle(
+                    ScreenAction.ShowSettingsSheetAction(false),
+                    isOrientationPortrait
+                )
+            },
+            action = { action ->
+                viewModel.screenActionHandle(
+                    ScreenAction.ShowSettingsSheetAction(false),
+                    isOrientationPortrait
+                )
+                viewModel.screenActionHandle(action, isOrientationPortrait)
+            }
+        )
+
+        PlaySpeedSheet(
+            isShowSheet = screenState.isShowSpeedSheet,
+            speed = mediaState.speed,
+            onSpeedChanged = {
+                viewModel.setSpeed(it)
+            },
+            onDismiss = {
+                viewModel.screenActionHandle(
+                    ScreenAction.ShowSpeedSheetAction(false),
+                    isOrientationPortrait
+                )
+            }
+        )
     }
 }
 
@@ -421,6 +455,9 @@ private fun BoxScope.VideoArea(
         onLongPressStart = { setSpeed.invoke(2f) },
         onLongPressEnd = { setSpeed.invoke(1f) },
         onShowUIChanged = onShowUIChanged,
+        settingsClick = {
+            actionClick.invoke(ScreenAction.ShowSettingsSheetAction(true))
+        },
         actionContent = {
             VideoActions(
                 images = images,

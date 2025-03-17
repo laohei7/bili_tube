@@ -222,6 +222,7 @@ internal class DefaultMediaManager(
     }
 
     override fun setSpeed(speed: Float) {
+        _mState.update { it.copy(speed = speed) }
         mExoPlayer.setPlaybackSpeed(speed)
     }
 

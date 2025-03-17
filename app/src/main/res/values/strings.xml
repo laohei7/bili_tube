@@ -27,4 +27,10 @@
     <string name="str_downlaod_management">下载管理</string>
     <string name="str_feedback">联系客服</string>
     <string name="str_scan_login">扫码登录</string>
+    <string name="str_quality">画质</string>
+    <string name="str_play_speed">播放速度</string>
+    <string name="str_screen_lock">锁定屏幕</string>
+    <string name="str_sleep_timer">休眠定时器</string>
+    <string name="str_other_settings">其他设置</string>
+    <string name="str_normal">正常</string>
 </resources>

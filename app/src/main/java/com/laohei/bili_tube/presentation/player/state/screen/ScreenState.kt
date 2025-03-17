@@ -6,7 +6,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 internal data class ScreenState(
-    val screenWidth:Int,
+    val screenWidth: Int,
     val screenHeight: Int,
     val isShowUI: Boolean = false,
     val isFullscreen: Boolean = false,
@@ -24,5 +24,7 @@ internal data class ScreenState(
     val isShowDetailSheet: Boolean = false,
     val maskAlpha: Float = 0f,
     val isShowRelatedList: Boolean = false,
-    val relatedListOffset: Float = 500f
+    val relatedListOffset: Float = 500f,
+    val isShowVideoSettingsSheet: Boolean = false,
+    val isShowSpeedSheet: Boolean = false
 )
