@@ -2,8 +2,8 @@ package com.laohei.bili_sdk.video
 
 import android.util.Log
 import com.laohei.bili_sdk.apis.VIDEO_PLAY_URL
-import com.laohei.bili_sdk.model.BiliResponse
-import com.laohei.bili_sdk.model.BiliVideoURL
+import com.laohei.bili_sdk.module_v2.common.BiliResponse
+import com.laohei.bili_sdk.module_v2.video.VideoURLModel
 import com.laohei.bili_sdk.wbi.Wbi
 import com.laohei.bili_sdk.wbi.WbiParams
 import io.ktor.client.HttpClient
@@ -24,7 +24,7 @@ class PlayURL(private val client: HttpClient) {
         aid: Long,
         bvid: String,
         cid: Long,
-        qn: Int = 116,
+        qn: Int = 127,
         fnval: Int = 4048,
         cookie: String? = null
     ) = withContext(Dispatchers.IO) {
@@ -42,13 +42,14 @@ class PlayURL(private val client: HttpClient) {
                         headers.append(HttpHeaders.Cookie, this)
                     }
                 }
+                Log.d(TAG, "videoUrl: $url")
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
-        Log.d(TAG, "videoUrl: ${response?.bodyAsText()}")
+//        Log.d(TAG, "videoUrl: ${response?.bodyAsText()}")
         response?.run {
-            Json.decodeFromString<BiliResponse<BiliVideoURL>>(bodyAsText())
+            Json.decodeFromString<BiliResponse<VideoURLModel>>(bodyAsText())
         }
     }
 

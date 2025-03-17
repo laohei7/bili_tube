@@ -1,15 +1,13 @@
 package com.laohei.bili_tube.presentation.player
 
 import android.util.Log
-import androidx.compose.ui.unit.Density
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.laohei.bili_tube.app.Route
-import com.laohei.bili_tube.model.SourceType
-import com.laohei.bili_tube.model.VideoSource
 import com.laohei.bili_tube.presentation.player.state.media.DefaultMediaManager
 import com.laohei.bili_tube.presentation.player.state.media.MediaManager
+import com.laohei.bili_tube.presentation.player.state.media.Quality
 import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManager
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenManager
 import com.laohei.bili_tube.repository.BiliPlayRepository
@@ -96,21 +94,25 @@ internal class PlayerViewModel(
             cid = params.cid,
         )
         response?.run {
-            val sources = if (data.dash != null) {
-                data.dash!!.video.zip(data.dash!!.audio) { video, audio ->
-                    VideoSource(
-                        videoUrl = video.baseUrl ?: "",
-                        audioUrl = audio.baseUrl,
-                        width = video.width,
-                        height = video.height,
-                        sourceType = SourceType.Normal
-                    )
-                }
-            } else {
-                data.durl.map { VideoSource(videoUrl = it.url, sourceType = SourceType.Normal) }
-            }
+            val quality = data.supportFormats.map { Pair(it.quality, it.newDescription) }
+            val defaultQuality = quality.find { it.first == data.quality } ?: Quality.first()
+            updateMediaState(state.value.copy(quality = quality, defaultQuality = defaultQuality))
+//            val sources = if (data.dash != null) {
+//                data.dash!!.video.zip(data.dash!!.audio) { video, audio ->
+//                    VideoSource(
+//                        videoUrl = video.baseUrl,
+//                        audioUrl = audio.baseUrl,
+//                        width = video.width,
+//                        height = video.height,
+//                        sourceType = SourceType.Normal
+//                    )
+//                }
+//            } else {
+//                data.durl?.map { VideoSource(videoUrl = it.url, sourceType = SourceType.Normal) }
+//            }
             withContext(Dispatchers.Main) {
-                play(sources)
+//                play(sources ?: emptyList())
+                play(data)
             }
         }
     }

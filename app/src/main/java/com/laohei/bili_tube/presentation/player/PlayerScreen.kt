@@ -106,6 +106,7 @@ import com.laohei.bili_tube.presentation.player.component.VideoSimpleInfo
 import com.laohei.bili_tube.presentation.player.component.control.PlayerControl
 import com.laohei.bili_tube.presentation.player.component.reply.VideoReplySheet
 import com.laohei.bili_tube.presentation.player.component.settings.PlaySpeedSheet
+import com.laohei.bili_tube.presentation.player.component.settings.VideoQualitySheet
 import com.laohei.bili_tube.presentation.player.component.settings.VideoSettingsSheet
 import com.laohei.bili_tube.presentation.player.state.media.MediaState
 import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManager
@@ -348,6 +349,7 @@ fun PlayerScreen(
         VideoSettingsSheet(
             isShowSheet = screenState.isShowVideoSettingsSheet,
             speed = mediaState.speed,
+            quality = mediaState.defaultQuality.second,
             onDismiss = {
                 viewModel.screenActionHandle(
                     ScreenAction.ShowSettingsSheetAction(false),
@@ -374,6 +376,24 @@ fun PlayerScreen(
                     ScreenAction.ShowSpeedSheetAction(false),
                     isOrientationPortrait
                 )
+            }
+        )
+        VideoQualitySheet(
+            isShowSheet = screenState.isShowQualitySheet,
+            quality = mediaState.quality,
+            defaultQuality = mediaState.defaultQuality,
+            onDismiss = {
+                viewModel.screenActionHandle(
+                    ScreenAction.ShowQualitySheetAction(false),
+                    isOrientationPortrait
+                )
+            },
+            onQualityChanged = {
+                viewModel.screenActionHandle(
+                    ScreenAction.ShowQualitySheetAction(false),
+                    isOrientationPortrait
+                )
+                viewModel.switchQuality(it)
             }
         )
     }

@@ -26,5 +26,6 @@ internal data class ScreenState(
     val isShowRelatedList: Boolean = false,
     val relatedListOffset: Float = 500f,
     val isShowVideoSettingsSheet: Boolean = false,
-    val isShowSpeedSheet: Boolean = false
+    val isShowSpeedSheet: Boolean = false,
+    val isShowQualitySheet: Boolean = false,
 )

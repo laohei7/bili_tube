@@ -1,10 +1,13 @@
 package com.laohei.bili_tube.presentation.player.component.settings
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ChevronRight
 import androidx.compose.material.icons.outlined.Lock
@@ -50,93 +53,102 @@ internal fun VideoSettingsSheet(
             containerColor = MaterialTheme.colorScheme.background,
             onDismissRequest = { onDismiss.invoke() }
         ) {
-            ListItem(
-                leadingContent = {
-                    Icon(
-                        imageVector = Icons.Outlined.Tune,
-                        contentDescription = Icons.Outlined.Tune.name,
-                    )
-                },
-                headlineContent = { Text(text = stringResource(R.string.str_quality)) },
-                trailingContent = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(text = quality)
+            Column(
+                modifier = Modifier.verticalScroll(
+                    state = rememberScrollState()
+                )
+            ) {
+                ListItem(
+                    modifier = Modifier.clickable {
+                        action.invoke(ScreenAction.ShowQualitySheetAction(true))
+                    },
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Outlined.Tune,
+                            contentDescription = Icons.Outlined.Tune.name,
+                        )
+                    },
+                    headlineContent = { Text(text = stringResource(R.string.str_quality)) },
+                    trailingContent = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(text = quality)
+                            Icon(
+                                imageVector = Icons.Outlined.ChevronRight,
+                                contentDescription = Icons.Outlined.ChevronRight.name,
+                            )
+                        }
+                    }
+                )
+                ListItem(
+                    modifier = Modifier.clickable {
+                        action.invoke(ScreenAction.ShowSpeedSheetAction(true))
+                    },
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Outlined.SlowMotionVideo,
+                            contentDescription = Icons.Outlined.SlowMotionVideo.name,
+                        )
+                    },
+                    headlineContent = { Text(text = stringResource(R.string.str_play_speed)) },
+                    trailingContent = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(text = "${speed}x")
+                            Icon(
+                                imageVector = Icons.Outlined.ChevronRight,
+                                contentDescription = Icons.Outlined.ChevronRight.name,
+                            )
+                        }
+                    }
+                )
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Outlined.Lock,
+                            contentDescription = Icons.Outlined.Lock.name,
+                        )
+                    },
+                    headlineContent = { Text(text = stringResource(R.string.str_screen_lock)) },
+                )
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Outlined.SleepTimer,
+                            contentDescription = Icons.Outlined.SleepTimer.name,
+                        )
+                    },
+                    headlineContent = { Text(text = stringResource(R.string.str_sleep_timer)) },
+                    trailingContent = {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(text = sleepTimer)
+                            Icon(
+                                imageVector = Icons.Outlined.ChevronRight,
+                                contentDescription = Icons.Outlined.ChevronRight.name,
+                            )
+                        }
+                    }
+                )
+                ListItem(
+                    leadingContent = {
+                        Icon(
+                            imageVector = Icons.Outlined.Settings,
+                            contentDescription = Icons.Outlined.Settings.name,
+                        )
+                    },
+                    headlineContent = { Text(text = stringResource(R.string.str_other_settings)) },
+                    trailingContent = {
                         Icon(
                             imageVector = Icons.Outlined.ChevronRight,
                             contentDescription = Icons.Outlined.ChevronRight.name,
                         )
                     }
-                }
-            )
-            ListItem(
-                modifier = Modifier.clickable {
-                    action.invoke(ScreenAction.ShowSpeedSheetAction(true))
-                },
-                leadingContent = {
-                    Icon(
-                        imageVector = Icons.Outlined.SlowMotionVideo,
-                        contentDescription = Icons.Outlined.SlowMotionVideo.name,
-                    )
-                },
-                headlineContent = { Text(text = stringResource(R.string.str_play_speed)) },
-                trailingContent = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(text = "${speed}x")
-                        Icon(
-                            imageVector = Icons.Outlined.ChevronRight,
-                            contentDescription = Icons.Outlined.ChevronRight.name,
-                        )
-                    }
-                }
-            )
-            ListItem(
-                leadingContent = {
-                    Icon(
-                        imageVector = Icons.Outlined.Lock,
-                        contentDescription = Icons.Outlined.Lock.name,
-                    )
-                },
-                headlineContent = { Text(text = stringResource(R.string.str_screen_lock)) },
-            )
-            ListItem(
-                leadingContent = {
-                    Icon(
-                        imageVector = Icons.Outlined.SleepTimer,
-                        contentDescription = Icons.Outlined.SleepTimer.name,
-                    )
-                },
-                headlineContent = { Text(text = stringResource(R.string.str_sleep_timer)) },
-                trailingContent = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(text = sleepTimer)
-                        Icon(
-                            imageVector = Icons.Outlined.ChevronRight,
-                            contentDescription = Icons.Outlined.ChevronRight.name,
-                        )
-                    }
-                }
-            )
-            ListItem(
-                leadingContent = {
-                    Icon(
-                        imageVector = Icons.Outlined.Settings,
-                        contentDescription = Icons.Outlined.Settings.name,
-                    )
-                },
-                headlineContent = { Text(text = stringResource(R.string.str_other_settings)) },
-                trailingContent = {
-                    Icon(
-                        imageVector = Icons.Outlined.ChevronRight,
-                        contentDescription = Icons.Outlined.ChevronRight.name,
-                    )
-                }
-            )
+                )
+            }
         }
     }
 }

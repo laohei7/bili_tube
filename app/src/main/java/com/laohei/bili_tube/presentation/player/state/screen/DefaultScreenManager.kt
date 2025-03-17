@@ -164,6 +164,9 @@ internal class DefaultScreenManager(
         updateParamsCallback: ((Route.Play) -> Unit)?
     ) {
         when (action) {
+            is ScreenAction.ShowQualitySheetAction->{
+                _mState.update { it.copy(isShowQualitySheet = action.flag) }
+            }
             is ScreenAction.ShowSpeedSheetAction -> {
                 _mState.update { it.copy(isShowSpeedSheet = action.flag) }
             }
