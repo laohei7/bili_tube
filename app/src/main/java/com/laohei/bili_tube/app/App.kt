@@ -49,8 +49,11 @@ import com.laohei.bili_tube.component.appbar.SmallBottomAppBar
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.core.FACE_URL_KEY
 import com.laohei.bili_tube.core.USERNAME_KEY
+import com.laohei.bili_tube.core.VIP_STATUS_KEY
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
+import com.laohei.bili_tube.core.util.setValue
+import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.presentation.dynamic.DynamicScreen
 import com.laohei.bili_tube.presentation.home.HomeScreen
@@ -59,8 +62,6 @@ import com.laohei.bili_tube.presentation.mine.MineScreen
 import com.laohei.bili_tube.presentation.player.PlayerScreen
 import com.laohei.bili_tube.presentation.splash.SplashScreen
 import com.laohei.bili_tube.presentation.subscription.SubscriptionScreen
-import com.laohei.bili_tube.utill.setValue
-import com.laohei.bili_tube.utill.useLightSystemBarIcon
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -95,7 +96,7 @@ fun App() {
     }
 
     val isPlayRoute = currentDestination?.destination?.hasRoute<Route.Play>() == true
-    if(isPlayRoute.not()){
+    if (isPlayRoute.not()) {
         activity?.useLightSystemBarIcon(isSystemInDarkTheme().not())
     }
 
@@ -205,7 +206,8 @@ fun App() {
                 ?.hierarchy?.any { it.hasRoute(Route.HomeGraph::class) } == true
             AnimatedVisibility(
                 visible = isHomeGraph,
-                modifier = Modifier.align(Alignment.BottomCenter)
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
                     .background(MaterialTheme.colorScheme.background)
                     .navigationBarsPadding(),
                 enter = fadeIn(),
@@ -255,6 +257,7 @@ private fun GetAndCacheUserProfile(isLogin: Boolean) {
                     Log.d(TAG, "App: $it")
                     context.setValue(FACE_URL_KEY.name, it.face)
                     context.setValue(USERNAME_KEY.name, it.uname)
+                    context.setValue(VIP_STATUS_KEY.name, it.vipStatus)
                 }
             }
     }

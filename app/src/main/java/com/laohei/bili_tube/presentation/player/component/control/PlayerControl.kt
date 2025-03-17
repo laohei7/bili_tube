@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -58,7 +57,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.core.SystemUtil
+import com.laohei.bili_tube.core.util.SystemUtil
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
 import com.laohei.bili_tube.utill.rememberHasDisplayCutout
@@ -82,6 +81,7 @@ fun PlayerControl(
     onLongPressStart: () -> Unit = {},
     onLongPressEnd: () -> Unit = {},
     onShowUIChanged: (Boolean) -> Unit = {},
+    settingsClick: (() -> Unit)? = null,
     longPressHint: (@Composable () -> Unit)? = null,
     actionContent: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit
@@ -133,7 +133,9 @@ fun PlayerControl(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .statusBarsPadding()
+                .padding(
+                    top = if (isFullscreen) 0.dp else SystemUtil.getStatusBarHeightDp()
+                )
                 .background(color = videoContainerColor),
             contentAlignment = Alignment.Center
         ) {
@@ -167,7 +169,8 @@ fun PlayerControl(
             title = title,
             isShowUI = localIsShowUI,
             isShowRelatedList = isShowRelatedList,
-            isFullscreen = localIsFullscreen
+            isFullscreen = localIsFullscreen,
+            settingsClick = settingsClick
         )
 
         // Center Play or Pause Button
@@ -222,7 +225,8 @@ private fun BoxScope.TopBar(
     title: String,
     isShowUI: Boolean,
     isShowRelatedList: Boolean,
-    isFullscreen: Boolean
+    isFullscreen: Boolean,
+    settingsClick: (() -> Unit)? = null
 ) {
     val isOrientationPortrait = isOrientationPortrait()
     AnimatedVisibility(
@@ -248,15 +252,17 @@ private fun BoxScope.TopBar(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .then(paddingModifier)
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                .then(paddingModifier),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = Icons.Default.KeyboardArrowDown.name,
-                tint = Color.White
-            )
+            IconButton(onClick = {}) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = Icons.Default.KeyboardArrowDown.name,
+                    tint = Color.White
+                )
+            }
 
 
             Text(
@@ -273,16 +279,20 @@ private fun BoxScope.TopBar(
             Row(
                 horizontalArrangement = Arrangement.spacedBy(32.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Cast,
-                    contentDescription = Icons.Default.Cast.name,
-                    tint = Color.White
-                )
-                Icon(
-                    imageVector = Icons.Default.Settings,
-                    contentDescription = Icons.Default.Settings.name,
-                    tint = Color.White
-                )
+                IconButton(onClick = {}) {
+                    Icon(
+                        imageVector = Icons.Default.Cast,
+                        contentDescription = Icons.Default.Cast.name,
+                        tint = Color.White
+                    )
+                }
+                IconButton(onClick = { settingsClick?.invoke() }) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = Icons.Default.Settings.name,
+                        tint = Color.White
+                    )
+                }
             }
         }
     }
@@ -438,8 +448,8 @@ private fun BoxScope.BottomBar(
 
         AnimatedVisibility(
             visible = isFullscreen && isShowUI && !isShowRelatedList,
-            enter = if(isFullscreen) fadeIn() else fadeIn() + expandVertically(),
-            exit = if(isFullscreen) fadeOut() else fadeOut() + shrinkVertically()
+            enter = if (isFullscreen) fadeIn() else fadeIn() + expandVertically(),
+            exit = if (isFullscreen) fadeOut() else fadeOut() + shrinkVertically()
         ) {
             actionContent?.invoke()
                 ?: DefaultBottomBarAction()

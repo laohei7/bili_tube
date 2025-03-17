@@ -164,6 +164,17 @@ internal class DefaultScreenManager(
         updateParamsCallback: ((Route.Play) -> Unit)?
     ) {
         when (action) {
+            is ScreenAction.ShowQualitySheetAction->{
+                _mState.update { it.copy(isShowQualitySheet = action.flag) }
+            }
+            is ScreenAction.ShowSpeedSheetAction -> {
+                _mState.update { it.copy(isShowSpeedSheet = action.flag) }
+            }
+
+            is ScreenAction.ShowSettingsSheetAction -> {
+                _mState.update { it.copy(isShowVideoSettingsSheet = action.flag) }
+            }
+
             ScreenAction.ShowVideoDetailAction -> {
                 _mState.update { it.copy(isShowDetailSheet = true) }
             }
@@ -240,7 +251,7 @@ internal class DefaultScreenManager(
         }
     }
 
-    override fun caculateScreenSize(vW: Int, vH: Int) {
+    override fun calculateScreenSize(vW: Int, vH: Int) {
         val newState = getScreenState(_mState.value.screenWidth, _mState.value.screenHeight, vW, vH)
         _mState.update {
             it.copy(

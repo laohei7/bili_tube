@@ -1,4 +1,4 @@
-package com.laohei.bili_tube.utill
+package com.laohei.bili_tube.core.util
 
 import android.app.Activity
 import android.content.pm.ActivityInfo

@@ -39,7 +39,7 @@ import com.laohei.bili_sdk.model.BiliQRCodeStatus
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.dataStore
-import com.laohei.bili_tube.utill.setValue
+import com.laohei.bili_tube.core.util.setValue
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

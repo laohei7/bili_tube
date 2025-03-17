@@ -1,4 +1,4 @@
-package com.laohei.bili_tube.core
+package com.laohei.bili_tube.core.util
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -28,13 +28,13 @@ object SystemUtil {
     }
 
     @Composable
-    fun getStatusBarHeightDp(): Dp{
+    fun getStatusBarHeightDp(): Dp {
         val density= LocalDensity.current
         return with(density) { statusBarHeight.toDp() }
     }
 
     @Composable
-    fun getNavigateBarHeightDp(): Dp{
+    fun getNavigateBarHeightDp(): Dp {
         val density= LocalDensity.current
         return with(density) { navigateBarHeight.toDp() }
     }

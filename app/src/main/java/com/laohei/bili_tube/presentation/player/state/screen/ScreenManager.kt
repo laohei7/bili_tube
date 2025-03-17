@@ -30,5 +30,5 @@ internal interface ScreenManager {
 
     fun adjustRelatedListOffset()
 
-    fun caculateScreenSize(vW: Int, vH: Int)
+    fun calculateScreenSize(vW: Int, vH: Int)
 }
