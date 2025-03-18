@@ -1,5 +1,6 @@
 package com.laohei.bili_tube.presentation.player.state.screen
 
+import android.util.Log
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
@@ -17,11 +18,15 @@ import kotlinx.coroutines.launch
 
 internal class DefaultScreenManager(
     private val density: Density,
-    private val screenHeight: Int,
-    private val screenWidth: Int,
-    private val width: Int = 1920,
-    private val height: Int = 1080
+    screenHeight: Int,
+    screenWidth: Int,
+    width: Int = 1920,
+    height: Int = 1080
 ) : ScreenManager {
+
+    companion object {
+        private val TAG = DefaultScreenManager::class.simpleName
+    }
 
     private val _mState = MutableStateFlow(getScreenState(screenWidth, screenHeight, width, height))
     override val screenState: StateFlow<ScreenState>
@@ -48,7 +53,7 @@ internal class DefaultScreenManager(
                             it.copy(
                                 videoHeight = newVideoHeight.coerceIn(
                                     it.minLimitedHeight,
-                                    screenHeight.dp
+                                    _mState.value.screenHeight.dp
                                 )
                             )
                         }
@@ -84,10 +89,10 @@ internal class DefaultScreenManager(
                             with(density) { (_mState.value.videoHeight - _mState.value.minLimitedHeight).toPx() }
                         _mState.update {
                             when {
-                                currentHeight >= screenHeight.dp -> {
+                                currentHeight >= _mState.value.screenHeight.dp -> {
                                     it.copy(
                                         isFullscreen = true,
-                                        videoHeight = screenHeight.dp,
+                                        videoHeight = _mState.value.screenHeight.dp,
                                     )
                                 }
 
@@ -164,9 +169,10 @@ internal class DefaultScreenManager(
         updateParamsCallback: ((Route.Play) -> Unit)?
     ) {
         when (action) {
-            is ScreenAction.ShowQualitySheetAction->{
+            is ScreenAction.ShowQualitySheetAction -> {
                 _mState.update { it.copy(isShowQualitySheet = action.flag) }
             }
+
             is ScreenAction.ShowSpeedSheetAction -> {
                 _mState.update { it.copy(isShowSpeedSheet = action.flag) }
             }
@@ -224,7 +230,7 @@ internal class DefaultScreenManager(
         when {
             isShowMask() -> {
                 val maxOffset =
-                    with(density) { (screenHeight.dp - _mState.value.videoHeight).toPx() }
+                    with(density) { (_mState.value.screenHeight.dp - _mState.value.videoHeight).toPx() }
                 _mState.update {
                     it.copy(
                         maskAlpha = (1f - (offset / maxOffset)).coerceIn(0f, 1f)
@@ -264,6 +270,7 @@ internal class DefaultScreenManager(
     }
 
     private fun getScreenState(w: Int, h: Int, vW: Int, vH: Int): ScreenState {
+        Log.d(TAG, "getScreenState: $w $h $vW $vH")
         val minLimitedHeight = w * 9f / 16f
         val maxLimitedHeight = h * 2 / 3f
         val originalVideoHeight = (w * vH.toFloat() / vW.toFloat())
