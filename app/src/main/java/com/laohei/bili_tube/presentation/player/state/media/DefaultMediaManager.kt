@@ -33,7 +33,13 @@ internal class DefaultMediaManager(
     context: Context
 ) : MediaManager {
 
-    private val mExoPlayer = ExoPlayer.Builder(context).build()
+    private val mRenderersFactory = DefaultRenderersFactory(context)
+        .setEnableDecoderFallback(true) // 允许解码器回退
+        .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+
+    private val mExoPlayer = ExoPlayer.Builder(context)
+        .setRenderersFactory(mRenderersFactory)
+        .build()
 
     private var mVideoURLModel: VideoURLModel? = null
     private var mBackVideoSources: List<VideoSource>? = null
