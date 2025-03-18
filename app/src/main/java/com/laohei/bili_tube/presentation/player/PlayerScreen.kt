@@ -111,6 +111,7 @@ import com.laohei.bili_tube.presentation.player.component.settings.VideoSettings
 import com.laohei.bili_tube.presentation.player.state.media.MediaState
 import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManager
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
+import com.laohei.bili_tube.presentation.player.state.screen.ScreenState
 import com.laohei.bili_tube.utill.formatDateToString
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
@@ -179,6 +180,9 @@ fun PlayerScreen(
         .offset { with(density) { IntOffset(0, animatedContentOffset.toPx().toInt()) } }
     val isSystemDarkTheme = isSystemInDarkTheme()
     BackHandler(enabled = screenState.isFullscreen) {
+        if(screenState.isLockScreen){
+            return@BackHandler
+        }
         viewModel.fullscreenChanged(false, screenState.originalVideoHeight, isOrientationPortrait)
         if (!isOrientationPortrait) {
             activity?.toggleOrientation()
@@ -210,12 +214,15 @@ fun PlayerScreen(
         }
     }
 
+    val enabledDraggable =
+        !isOrientationPortrait && screenState.isFullscreen && !screenState.isLockScreen
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
             .draggable(
-                enabled = !isOrientationPortrait && screenState.isFullscreen,
+                enabled = enabledDraggable,
                 state = rememberDraggableState {
                     viewModel.relatedListDragHandle(it)
                 },
@@ -234,10 +241,8 @@ fun PlayerScreen(
             title = playerState.videoDetail?.view?.title ?: "",
             exoPlayer = viewModel.exoPlayer(),
             mediaState = mediaState,
+            screenState=screenState,
             videoHeight = animatedVideoHeight,
-            isShowUI = screenState.isShowUI,
-            isShowRelatedList = screenState.isShowRelatedList,
-            isFullscreen = screenState.isFullscreen,
             images = playerState.videoDetail?.related?.take(3)?.map { it.pic },
             videoFrame = {
                 viewModel.updateState(screenState.copy(bitmap = it))
@@ -329,7 +334,7 @@ fun PlayerScreen(
         val animatedOffset by animateIntAsState(
             targetValue = screenState.relatedListOffset.toInt()
         )
-        if (!isOrientationPortrait) {
+        if (!isOrientationPortrait && !screenState.isLockScreen) {
             RelatedHorizontalList(
                 modifier = Modifier
                     .zIndex(100f)
@@ -359,9 +364,17 @@ fun PlayerScreen(
             action = { action ->
                 viewModel.screenActionHandle(
                     ScreenAction.ShowSettingsSheetAction(false),
-                    isOrientationPortrait
+                    isOrientationPortrait,
                 )
-                viewModel.screenActionHandle(action, isOrientationPortrait)
+                viewModel.screenActionHandle(
+                    action,
+                    isOrientationPortrait,
+                    lockScreenCallback = {
+                        if (isOrientationPortrait) {
+                            activity?.toggleOrientation()
+                        }
+                    }
+                )
             }
         )
 
@@ -406,10 +419,8 @@ private fun BoxScope.VideoArea(
     title: String = "",
     exoPlayer: ExoPlayer,
     mediaState: MediaState,
+    screenState: ScreenState,
     videoHeight: Dp,
-    isShowUI: Boolean,
-    isShowRelatedList: Boolean,
-    isFullscreen: Boolean,
     images: List<String>?,
     videoFrame: (Bitmap) -> Unit = {},
     fullscreen: (Boolean) -> Unit = {},
@@ -462,9 +473,10 @@ private fun BoxScope.VideoArea(
         modifier = videoControlModifier.zIndex(99f),
         progress = mediaState.progress,
         bufferProgress = mediaState.bufferProgress,
-        isShowUI = isShowUI,
-        isShowRelatedList = isShowRelatedList,
-        isFullscreen = isFullscreen,
+        isShowUI = screenState.isShowUI,
+        isShowRelatedList = screenState.isShowRelatedList,
+        isFullscreen = screenState.isFullscreen,
+        isLockScreen = screenState.isLockScreen,
         fullscreen = fullscreen,
         isPlaying = mediaState.isPlaying,
         isLoading = mediaState.isLoading,
@@ -481,9 +493,12 @@ private fun BoxScope.VideoArea(
         actionContent = {
             VideoActions(
                 images = images,
-                showLabel = isFullscreen && !isOrientationPortrait(),
+                showLabel = screenState.isFullscreen && !isOrientationPortrait(),
                 onClick = actionClick
             )
+        },
+        unlockScreenClick = {
+            actionClick.invoke(ScreenAction.LockScreenAction(false))
         }
     ) {
         val aspectRatio = when {

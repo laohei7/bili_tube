@@ -12,4 +12,5 @@ sealed interface ScreenAction {
     data class ShowSettingsSheetAction(val flag: Boolean) : ScreenAction
     data class ShowSpeedSheetAction(val flag: Boolean) : ScreenAction
     data class ShowQualitySheetAction(val flag: Boolean) : ScreenAction
+    data class LockScreenAction(val flag: Boolean) : ScreenAction
 }

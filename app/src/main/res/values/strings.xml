@@ -36,4 +36,6 @@
     <string name="str_current_quarity">当前视频画质 · %s</string>
     <string name="str_quality_hint">此选项只会影响当前视频。如需应用于所有视频，请前往...</string>
     <string name="str_vip">大会员</string>
+    <string name="str_screen_lock_hint">屏幕已锁定，点按解锁</string>
+    <string name="str_screen_unlock_hint">已解锁</string>
 </resources>

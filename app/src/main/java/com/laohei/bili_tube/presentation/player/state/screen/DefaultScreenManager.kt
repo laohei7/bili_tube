@@ -168,9 +168,21 @@ internal class DefaultScreenManager(
         action: ScreenAction,
         isOrientationPortrait: Boolean,
         scope: CoroutineScope?,
-        updateParamsCallback: ((Route.Play) -> Unit)?
+        updateParamsCallback: ((Route.Play) -> Unit)?,
+        lockScreenCallback:(()-> Unit)?
     ) {
         when (action) {
+            is ScreenAction.LockScreenAction -> {
+                _mState.update {
+                    it.copy(
+                        isFullscreen = true,
+                        isLockScreen = action.flag,
+                        isShowUI = false
+                    )
+                }
+                lockScreenCallback?.invoke()
+            }
+
             is ScreenAction.ShowQualitySheetAction -> {
                 _mState.update { it.copy(isShowQualitySheet = action.flag) }
             }
