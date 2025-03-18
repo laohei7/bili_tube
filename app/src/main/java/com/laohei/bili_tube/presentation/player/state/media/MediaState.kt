@@ -8,6 +8,9 @@ internal val Quality = listOf(
     Pair(16, "360P 流畅"),
 )
 
+internal val DolbyAudioQuality = listOf(30250, 30251)
+internal val NormalAudioQuality = listOf(30216, 30232, 30280)
+
 internal data class MediaState(
     val isPlaying: Boolean = false,
     val isLoading: Boolean = true,
@@ -20,5 +23,5 @@ internal data class MediaState(
     val height: Int = 1080,
     val speed: Float = 1.0f,
     val quality: List<Pair<Int, String>> = Quality,
-    val defaultQuality : Pair<Int, String> = Quality.first()
+    val defaultQuality: Pair<Int, String> = Quality.first()
 )

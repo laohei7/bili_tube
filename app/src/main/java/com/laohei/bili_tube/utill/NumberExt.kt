@@ -4,6 +4,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import kotlin.math.abs
 import kotlin.math.round
 
 fun Long.formatTimeString(isMill: Boolean = true): String {
@@ -74,3 +75,9 @@ fun Long.formatDateToString(isMill: Boolean = true): String {
 }
 
 fun Int.formatDateToString(isMill: Boolean = true) = this.toLong().formatDateToString(isMill)
+
+fun Float.areFloatsEqualCompareTo(other: Float?, epsilon: Float = 1e-6f): Boolean {
+    return other?.let {
+        this.compareTo(it) == 0 || abs(this - other) < epsilon
+    } == true
+}

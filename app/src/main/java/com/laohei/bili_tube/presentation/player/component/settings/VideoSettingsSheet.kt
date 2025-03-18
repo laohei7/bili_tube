@@ -1,5 +1,6 @@
 package com.laohei.bili_tube.presentation.player.component.settings
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,6 +45,7 @@ internal fun VideoSettingsSheet(
     onDismiss: () -> Unit = {},
     action: (ScreenAction) -> Unit = {}
 ) {
+    val context = LocalContext.current
     if (isShowSheet) {
         ModalBottomSheet(
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
@@ -105,6 +108,9 @@ internal fun VideoSettingsSheet(
                     }
                 )
                 ListItem(
+                    modifier = Modifier.clickable {
+                        action.invoke(ScreenAction.LockScreenAction(true))
+                    },
                     leadingContent = {
                         Icon(
                             imageVector = Icons.Outlined.Lock,
@@ -114,6 +120,14 @@ internal fun VideoSettingsSheet(
                     headlineContent = { Text(text = stringResource(R.string.str_screen_lock)) },
                 )
                 ListItem(
+                    modifier = Modifier.clickable {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.str_under_deveplment),
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    },
                     leadingContent = {
                         Icon(
                             imageVector = Icons.Outlined.SleepTimer,
@@ -134,6 +148,14 @@ internal fun VideoSettingsSheet(
                     }
                 )
                 ListItem(
+                    modifier = Modifier.clickable {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.str_under_deveplment),
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    },
                     leadingContent = {
                         Icon(
                             imageVector = Icons.Outlined.Settings,

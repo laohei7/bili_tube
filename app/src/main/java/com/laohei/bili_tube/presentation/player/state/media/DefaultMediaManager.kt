@@ -10,6 +10,7 @@ import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.hls.HlsMediaSource
 import androidx.media3.exoplayer.source.MediaSource
@@ -26,18 +27,25 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.math.max
 
 @UnstableApi
 internal class DefaultMediaManager(
     context: Context
 ) : MediaManager {
 
-    private val mExoPlayer = ExoPlayer.Builder(context).build()
+    private val mRenderersFactory = DefaultRenderersFactory(context)
+        .setEnableDecoderFallback(true) // 允许解码器回退
+        .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
+
+    private val mExoPlayer = ExoPlayer.Builder(context)
+        .setRenderersFactory(mRenderersFactory)
+        .build()
 
     private var mVideoURLModel: VideoURLModel? = null
     private var mBackVideoSources: List<VideoSource>? = null
     private var mCurrentSelectedIndex = 0
+    private var mCurrentVideoWidth: Int? = null
+    private var mCurrentVideoHeight: Int? = null
 
     private val mDefaultDataSourceFactory = DefaultHttpDataSource.Factory().apply {
         setDefaultRequestProperties(
@@ -117,23 +125,33 @@ internal class DefaultMediaManager(
 
                 override fun onVideoSizeChanged(videoSize: VideoSize) {
                     super.onVideoSizeChanged(videoSize)
-                    mBackVideoSources?.let { sources ->
-                        if (sources.isEmpty()) {
-                            return@let
-                        }
-                        val video = sources[mCurrentSelectedIndex]
-                        val width = video.width ?: videoSize.width
-                        val height = video.height ?: videoSize.height
-
-                        if (width > 0 && height > 0) {
-                            _mState.update {
-                                it.copy(
-                                    width = width,
-                                    height = height
-                                )
-                            }
+                    val width = mCurrentVideoWidth ?: videoSize.width
+                    val height = mCurrentVideoHeight ?: videoSize.height
+                    if (width > 0 && height > 0) {
+                        _mState.update {
+                            it.copy(
+                                width = width,
+                                height = height
+                            )
                         }
                     }
+//                    mBackVideoSources?.let { sources ->
+//                        if (sources.isEmpty()) {
+//                            return@let
+//                        }
+//                        val video = sources[mCurrentSelectedIndex]
+//                        val width = video.width ?: videoSize.width
+//                        val height = video.height ?: videoSize.height
+//
+//                        if (width > 0 && height > 0) {
+//                            _mState.update {
+//                                it.copy(
+//                                    width = width,
+//                                    height = height
+//                                )
+//                            }
+//                        }
+//                    }
                 }
 
                 override fun onPlayerError(error: PlaybackException) {
@@ -141,7 +159,7 @@ internal class DefaultMediaManager(
                     mBackVideoSources?.let { sources ->
                         if (mCurrentSelectedIndex < sources.size) {
                             mCurrentSelectedIndex++
-                            play()
+                            play(mVideoURLModel!!.lastPlayTime)
                         } else {
                             _mState.update { it.copy(isError = true) }
                             playErrorCallback?.invoke()
@@ -208,7 +226,7 @@ internal class DefaultMediaManager(
         mVideoURLModel = videoURLModel
         mOtherDataSourceFactory = dataSourceFactory
         mCurrentSelectedIndex = 0
-        play()
+        play(mVideoURLModel!!.lastPlayTime)
     }
 
     override fun seekTo(duration: Long) {
@@ -260,7 +278,7 @@ internal class DefaultMediaManager(
         mProgressUpdateJob?.cancel()
     }
 
-    private fun play() {
+    private fun play(initialPosition: Long) {
         Log.d("DefaultMediaManager", "play: ${_mState.value.defaultQuality}")
         Log.d("DefaultMediaManager", "play: ${_mState.value.quality}")
         if (mVideoURLModel!!.dash != null) {
@@ -284,15 +302,29 @@ internal class DefaultMediaManager(
             Log.d("DefaultMediaManager", "play: ${mVideoURLModel?.dash}")
             Log.d("DefaultMediaManager", "play: $currentQualityVideos")
             val videoUrl = currentQualityVideos[mCurrentSelectedIndex].baseUrl
+            val audioItem = mVideoURLModel?.dash?.audio?.let { audioList ->
+                if (_mState.value.defaultQuality.first >= 126) {
+                    audioList.firstOrNull { it.id in DolbyAudioQuality }
+                        ?: audioList.filter { it.id in NormalAudioQuality }.maxByOrNull { it.id }
+                } else {
+                    audioList.filter { it.id in NormalAudioQuality }.maxByOrNull { it.id }
+                }
+            }
+            mCurrentVideoWidth = currentQualityVideos[mCurrentSelectedIndex].width
+            mCurrentVideoHeight = currentQualityVideos[mCurrentSelectedIndex].height
             val video = ProgressiveMediaSource.Factory(
                 mOtherDataSourceFactory ?: mDefaultDataSourceFactory
             )
                 .createMediaSource(MediaItem.fromUri(videoUrl))
-            val audio = ProgressiveMediaSource.Factory(
-                mOtherDataSourceFactory ?: mDefaultDataSourceFactory
-            )
-                .createMediaSource(MediaItem.fromUri(mVideoURLModel!!.dash!!.audio.first().baseUrl))
-            val merge = MergingMediaSource(video, audio)
+            val audio = audioItem?.run {
+                ProgressiveMediaSource.Factory(
+                    mOtherDataSourceFactory ?: mDefaultDataSourceFactory
+                )
+                    .createMediaSource(MediaItem.fromUri(this.baseUrl))
+            }
+            val merge = audio?.run {
+                MergingMediaSource(video, this)
+            } ?: video
             mExoPlayer.setMediaSource(merge)
         } else {
             val currentSources = mVideoURLModel!!.durl!!
@@ -307,7 +339,7 @@ internal class DefaultMediaManager(
             mExoPlayer.setMediaSource(video)
         }
 
-        mExoPlayer.seekTo(max(mVideoURLModel!!.lastPlayTime * 1000, _mState.value.currentDuration))
+        mExoPlayer.seekTo(initialPosition)
         mExoPlayer.prepare()
         mExoPlayer.play()
     }
@@ -327,9 +359,12 @@ internal class DefaultMediaManager(
     }
 
     override fun switchQuality(quality: Pair<Int, String>) {
+        if (quality.first == _mState.value.defaultQuality.first) {
+            return
+        }
         _mState.update { it.copy(defaultQuality = quality) }
         mCurrentSelectedIndex = 0
-        play()
+        play(_mState.value.currentDuration)
     }
 
 

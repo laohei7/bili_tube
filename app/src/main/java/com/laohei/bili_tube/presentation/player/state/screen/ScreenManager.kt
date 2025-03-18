@@ -21,7 +21,8 @@ internal interface ScreenManager {
         action: ScreenAction,
         isOrientationPortrait: Boolean,
         scope: CoroutineScope? = null,
-        updateParamsCallback: ((Route.Play) -> Unit)? = null
+        updateParamsCallback: ((Route.Play) -> Unit)? = null,
+        lockScreenCallback:(()-> Unit)?=null
     )
 
     fun maskAlphaChanged(offset: Float)

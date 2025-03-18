@@ -1,5 +1,6 @@
 package com.laohei.bili_tube.presentation.player.component.control
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.expandVertically
@@ -10,6 +11,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -17,9 +19,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.VolumeOff
@@ -33,7 +38,11 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
 import androidx.compose.material.icons.outlined.KeyboardDoubleArrowRight
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.material.icons.outlined.Speed
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -51,6 +60,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
@@ -61,6 +71,7 @@ import com.laohei.bili_tube.core.util.SystemUtil
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
 import com.laohei.bili_tube.utill.rememberHasDisplayCutout
+import kotlinx.coroutines.delay
 
 @Composable
 fun PlayerControl(
@@ -70,6 +81,7 @@ fun PlayerControl(
     title: String = "",
     isPlaying: Boolean = false,
     isLoading: Boolean = true,
+    isLockScreen: Boolean = false,
     progress: Float = 0f,
     bufferProgress: Float = 0f,
     totalDuration: String = 0.formatTimeString(),
@@ -84,21 +96,33 @@ fun PlayerControl(
     settingsClick: (() -> Unit)? = null,
     longPressHint: (@Composable () -> Unit)? = null,
     actionContent: (@Composable () -> Unit)? = null,
+    unlockScreenClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
     var localIsFullscreen by remember { mutableStateOf(isFullscreen) }
     var localIsPlaying by remember { mutableStateOf(isPlaying) }
     var localIsShowUI by remember { mutableStateOf(isShowUI) }
+    var localIsLockScreen by remember { mutableStateOf(isLockScreen) }
     var isLongPress by remember { mutableStateOf(false) }
+    var isShowUnlockHint by remember { mutableStateOf(false) }
 
     val videoContainerColor by animateColorAsState(
         targetValue = if (localIsFullscreen) Color.Transparent else Color.Black
     )
 
-    LaunchedEffect(isFullscreen, isPlaying, isShowUI) {
+    LaunchedEffect(isFullscreen, isPlaying, isShowUI, isLockScreen) {
         localIsPlaying = isPlaying
         localIsFullscreen = isFullscreen
         localIsShowUI = isShowUI
+        localIsLockScreen = isLockScreen
+    }
+
+    LaunchedEffect(isShowUnlockHint) {
+        if (isShowUnlockHint) {
+            Log.d("TAG", "PlayerControl: click")
+            delay(1000)
+            isShowUnlockHint = false
+        }
     }
 
     Box(
@@ -107,9 +131,18 @@ fun PlayerControl(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
-                        onShowUIChanged.invoke(localIsShowUI.not())
+                        if (localIsLockScreen) {
+                            if (!isShowUnlockHint) {
+                                isShowUnlockHint = true
+                            }
+                        } else {
+                            onShowUIChanged.invoke(localIsShowUI.not())
+                        }
                     },
                     onPress = {
+                        if (localIsLockScreen) {
+                            return@detectTapGestures
+                        }
                         awaitRelease()
                         if (isLongPress) {
                             isLongPress = false
@@ -117,6 +150,9 @@ fun PlayerControl(
                         }
                     },
                     onLongPress = {
+                        if (localIsLockScreen) {
+                            return@detectTapGestures
+                        }
                         isLongPress = true
                         onLongPressStart.invoke()
                     }
@@ -207,7 +243,90 @@ fun PlayerControl(
             actionContent = actionContent
         )
 
+        UnlockButton(
+            isLockScreen = localIsLockScreen,
+            isShowUnlockHint = isShowUnlockHint,
+            onClick = {
+                unlockScreenClick.invoke()
+                isShowUnlockHint = true
+            }
+        )
     }
+}
+
+@Composable
+private fun BoxScope.UnlockButton(
+    isLockScreen: Boolean,
+    isShowUnlockHint: Boolean,
+    onClick: () -> Unit
+) {
+    if (isLockScreen) {
+        Box(
+            modifier = Modifier
+                .padding(bottom = 60.dp)
+                .width(120.dp)
+                .height(40.dp)
+                .align(Alignment.BottomCenter)
+                .clip(CircleShape)
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) { onClick.invoke() },
+        )
+    }
+    AnimatedVisibility(
+        modifier = Modifier
+            .padding(bottom = 80.dp)
+            .align(Alignment.BottomCenter),
+        visible = isShowUnlockHint,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        AssistChip(
+            onClick = {onClick.invoke()},
+            shape = CircleShape,
+            border = AssistChipDefaults.assistChipBorder(
+                enabled = true,
+                borderWidth = 0.dp,
+                borderColor = Color.Transparent
+            ),
+            colors = AssistChipDefaults.assistChipColors(
+                containerColor = Color.White,
+                leadingIconContentColor = Color.Black,
+                labelColor = Color.Black,
+            ),
+            leadingIcon = {
+                if (isLockScreen) {
+                    Icon(
+                        imageVector = Icons.Outlined.Lock,
+                        contentDescription = Icons.Outlined.Lock.name,
+                        modifier = Modifier.size(16.dp)
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Outlined.LockOpen,
+                        contentDescription = Icons.Outlined.LockOpen.name,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            },
+            label = {
+                if (isLockScreen) {
+                    Text(
+                        text = stringResource(R.string.str_screen_lock_hint),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                } else {
+                    Text(
+                        text = stringResource(R.string.str_screen_unlock_hint),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+            }
+        )
+    }
+
+
 }
 
 @Composable
