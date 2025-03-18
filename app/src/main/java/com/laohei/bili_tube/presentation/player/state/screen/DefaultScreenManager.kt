@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.utill.areFloatsEqualCompareTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +29,7 @@ internal class DefaultScreenManager(
         private val TAG = DefaultScreenManager::class.simpleName
     }
 
+    private var _mCurrentAspectRation: Float? = null
     private val _mState = MutableStateFlow(getScreenState(screenWidth, screenHeight, width, height))
     override val screenState: StateFlow<ScreenState>
         get() = _mState
@@ -258,6 +260,11 @@ internal class DefaultScreenManager(
     }
 
     override fun calculateScreenSize(vW: Int, vH: Int) {
+        val newAspectRatio = vW.toFloat() / vH.toFloat()
+        if (newAspectRatio.areFloatsEqualCompareTo(_mCurrentAspectRation)) {
+            return
+        }
+        _mCurrentAspectRation = newAspectRatio
         val newState = getScreenState(_mState.value.screenWidth, _mState.value.screenHeight, vW, vH)
         _mState.update {
             it.copy(
