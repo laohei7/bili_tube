@@ -249,7 +249,7 @@ internal fun VideoDetailSheet(
                             ) {
                                 Text(
                                     text = description ?: "",
-                                    modifier = Modifier.padding(12.dp),
+                                    modifier = Modifier.fillMaxWidth().padding(12.dp),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }
