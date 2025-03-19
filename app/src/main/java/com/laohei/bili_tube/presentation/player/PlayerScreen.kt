@@ -1,6 +1,7 @@
 package com.laohei.bili_tube.presentation.player
 
 import android.graphics.Bitmap
+import android.util.Log
 import android.view.TextureView
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
@@ -74,6 +75,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
@@ -92,6 +94,7 @@ import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.component.video.VideoItem
+import com.laohei.bili_tube.core.util.LifecycleEffect
 import com.laohei.bili_tube.core.util.SystemUtil
 import com.laohei.bili_tube.core.util.hideSystemUI
 import com.laohei.bili_tube.core.util.showSystemUI
@@ -129,6 +132,7 @@ import kotlin.math.roundToInt
 fun PlayerScreen(
     params: Route.Play
 ) {
+    val view = LocalView.current
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val activity = LocalActivity.current
@@ -180,7 +184,7 @@ fun PlayerScreen(
         .offset { with(density) { IntOffset(0, animatedContentOffset.toPx().toInt()) } }
     val isSystemDarkTheme = isSystemInDarkTheme()
     BackHandler(enabled = screenState.isFullscreen) {
-        if(screenState.isLockScreen){
+        if (screenState.isLockScreen) {
             return@BackHandler
         }
         viewModel.fullscreenChanged(false, screenState.originalVideoHeight, isOrientationPortrait)
@@ -214,6 +218,24 @@ fun PlayerScreen(
         }
     }
 
+    DisposableEffect(mediaState.isPlaying, view) {
+        view.keepScreenOn = mediaState.isPlaying
+        onDispose { view.keepScreenOn = false }
+    }
+
+    LifecycleEffect(
+        onResume = {
+            if (!mediaState.isLoading && !mediaState.isPlaying) {
+                viewModel.exoPlayer().play()
+            }
+        },
+        onPause = {
+            if (mediaState.isPlaying) {
+                viewModel.exoPlayer().pause()
+            }
+        }
+    )
+
     val enabledDraggable =
         !isOrientationPortrait && screenState.isFullscreen && !screenState.isLockScreen
 
@@ -241,7 +263,7 @@ fun PlayerScreen(
             title = playerState.videoDetail?.view?.title ?: "",
             exoPlayer = viewModel.exoPlayer(),
             mediaState = mediaState,
-            screenState=screenState,
+            screenState = screenState,
             videoHeight = animatedVideoHeight,
             images = playerState.videoDetail?.related?.take(3)?.map { it.pic },
             videoFrame = {
