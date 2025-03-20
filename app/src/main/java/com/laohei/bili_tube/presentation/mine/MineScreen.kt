@@ -91,8 +91,8 @@ import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.core.FACE_URL_KEY
 import com.laohei.bili_tube.core.USERNAME_KEY
-import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.core.util.getValue
+import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.toViewString
 import org.koin.androidx.compose.koinViewModel
 
@@ -125,7 +125,7 @@ fun MineScreen(
             )
             HistoryWidget(
                 histories = state.historyList,
-                navigateToRoute=navigateToRoute
+                navigateToRoute = navigateToRoute
             )
             Spacer(Modifier.height(12.dp))
             PlaylistWidget(
@@ -329,7 +329,7 @@ private fun ColumnScope.UserDataWidget(
 @Composable
 private fun ColumnScope.HistoryWidget(
     histories: List<HistoryItem>,
-    navigateToRoute:(Route)-> Unit
+    navigateToRoute: (Route) -> Unit
 ) {
     ListItem(
         headlineContent = {
@@ -340,7 +340,7 @@ private fun ColumnScope.HistoryWidget(
             )
         },
         trailingContent = {
-            TextButton(onClick = {navigateToRoute.invoke(Route.History)}) {
+            TextButton(onClick = { navigateToRoute.invoke(Route.History) }) {
                 Text(text = "查看全部")
             }
         }
@@ -498,7 +498,7 @@ private fun OtherWidget() {
             Text(text = stringResource(R.string.str_manuscript_management))
         }
     )
-    HorizontalDivider(color=Color.LightGray)
+    HorizontalDivider(color = Color.LightGray)
     ListItem(
         leadingContent = {
             Icon(
@@ -510,7 +510,7 @@ private fun OtherWidget() {
             Text(text = stringResource(R.string.str_downlaod_management))
         }
     )
-    HorizontalDivider(color=Color.LightGray)
+    HorizontalDivider(color = Color.LightGray)
     ListItem(
         leadingContent = {
             Icon(
@@ -633,7 +633,7 @@ private fun PlaylistItem(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
                     text = label,
@@ -649,7 +649,9 @@ private fun PlaylistItem(
                 }) {
                 Icon(
                     imageVector = Icons.Outlined.MoreVert,
-                    contentDescription = Icons.Outlined.MoreVert.name
+                    contentDescription = Icons.Outlined.MoreVert.name,
+                    modifier = Modifier
+                        .size(16.dp)
                 )
             }
         }
@@ -667,8 +669,9 @@ private fun HistoryItem(
     onClick: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.width(IntrinsicSize.Min)
-            .clickable{onClick.invoke()},
+        modifier = Modifier
+            .width(IntrinsicSize.Min)
+            .clickable { onClick.invoke() },
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         val shape = remember { RoundedCornerShape(12.dp) }
@@ -717,17 +720,19 @@ private fun HistoryItem(
                 )
             }
         }
-        Row(
+        Box(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(end = 22.dp)
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = ownerName,
@@ -739,12 +744,16 @@ private fun HistoryItem(
 
             IconButton(
                 onClick = {},
-                modifier = Modifier.offset {
-                    IntOffset(60, -30)
-                }) {
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset {
+                        IntOffset(60, -30)
+                    }) {
                 Icon(
                     imageVector = Icons.Outlined.MoreVert,
-                    contentDescription = Icons.Outlined.MoreVert.name
+                    contentDescription = Icons.Outlined.MoreVert.name,
+                    modifier = Modifier
+                        .size(16.dp)
                 )
             }
         }
