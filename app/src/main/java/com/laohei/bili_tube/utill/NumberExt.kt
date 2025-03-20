@@ -1,11 +1,20 @@
 package com.laohei.bili_tube.utill
 
+import android.os.Build
 import kotlinx.datetime.Clock
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
+import java.time.format.TextStyle
+import java.util.Calendar
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.round
+
+private val WEEK_DAYS =
+    arrayOf("星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六")
 
 fun Long.formatTimeString(isMill: Boolean = true): String {
     val totalSecond = if (isMill) this / 1000 else this
@@ -64,6 +73,56 @@ fun Long.toTimeAgoString(): String {
 }
 
 fun Int.toTimeAgoString() = this.toLong().toTimeAgoString()
+
+fun Long.formatDateTimeToString(isMill: Boolean = true): String {
+    val dateTime = if (isMill) {
+        Instant.fromEpochMilliseconds(this)
+    } else {
+        Instant.fromEpochSeconds(this)
+    }.toLocalDateTime(TimeZone.currentSystemDefault())
+
+    return "%02d:%02d".format(
+        dateTime.hour,
+        dateTime.minute
+    )
+}
+
+fun Long.toTimeAgoString2(isMill: Boolean = true): String {
+    val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+    val date = if (isMill) {
+        Instant.fromEpochMilliseconds(this)
+    } else {
+        Instant.fromEpochSeconds(this)
+    }.toLocalDateTime(TimeZone.currentSystemDefault()).date
+
+    return when {
+        date == now -> "今天"
+        date == now.minus(1, DateTimeUnit.DAY) -> "昨天"
+        date >= now.minus(now.dayOfWeek.ordinal, DateTimeUnit.DAY) -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.CHINA)
+            } else {
+                this.getWeekdayName()
+            }
+        }
+
+        date.year == now.year -> "%02d月%02d日".format(
+            date.monthNumber,
+            date.dayOfMonth
+        ) // 本年显示 "MM-dd"
+        else -> "%04d年%02d月%02d日".format(
+            date.year,
+            date.monthNumber,
+            date.dayOfMonth
+        ) // 其他年份显示完整日期
+    }
+}
+
+private fun Long.getWeekdayName(isMill: Boolean = true): String {
+    val date = Calendar.getInstance()
+        .apply { timeInMillis = this@getWeekdayName * if (isMill) 1000 else 1 }
+    return WEEK_DAYS[date[Calendar.DAY_OF_WEEK] - 1]
+}
 
 fun Long.formatDateToString(isMill: Boolean = true): String {
     val instant = when {

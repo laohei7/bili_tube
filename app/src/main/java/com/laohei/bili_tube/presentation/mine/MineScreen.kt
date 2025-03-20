@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -87,17 +88,19 @@ import com.laohei.bili_sdk.module_v2.folder.FolderItem
 import com.laohei.bili_sdk.module_v2.history.HistoryItem
 import com.laohei.bili_sdk.module_v2.video.VideoView
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.core.FACE_URL_KEY
 import com.laohei.bili_tube.core.USERNAME_KEY
-import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.core.util.getValue
+import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.toViewString
 import org.koin.androidx.compose.koinViewModel
 
 @Preview
 @Composable
 fun MineScreen(
-    viewModel: MineViewModel = koinViewModel()
+    viewModel: MineViewModel = koinViewModel(),
+    navigateToRoute: (Route) -> Unit = {}
 ) {
     val state by viewModel.mineState.collectAsStateWithLifecycle()
     Scaffold(
@@ -121,7 +124,8 @@ fun MineScreen(
                 following = state.following
             )
             HistoryWidget(
-                histories = state.historyList
+                histories = state.historyList,
+                navigateToRoute = navigateToRoute
             )
             Spacer(Modifier.height(12.dp))
             PlaylistWidget(
@@ -324,7 +328,8 @@ private fun ColumnScope.UserDataWidget(
 
 @Composable
 private fun ColumnScope.HistoryWidget(
-    histories: List<HistoryItem>
+    histories: List<HistoryItem>,
+    navigateToRoute: (Route) -> Unit
 ) {
     ListItem(
         headlineContent = {
@@ -335,7 +340,7 @@ private fun ColumnScope.HistoryWidget(
             )
         },
         trailingContent = {
-            TextButton(onClick = {}) {
+            TextButton(onClick = { navigateToRoute.invoke(Route.History) }) {
                 Text(text = "查看全部")
             }
         }
@@ -352,7 +357,16 @@ private fun ColumnScope.HistoryWidget(
                 title = it.title,
                 ownerName = it.authorName,
                 duration = it.duration.formatTimeString(false),
-                progress = it.progress.toFloat() / it.duration
+                progress = it.progress.toFloat() / it.duration,
+                onClick = {
+                    navigateToRoute.invoke(
+                        Route.Play(
+                            aid = it.history.oid,
+                            bvid = it.history.bvid,
+                            cid = it.history.cid
+                        )
+                    )
+                }
             )
         }
         item { Spacer(Modifier) }
@@ -484,7 +498,7 @@ private fun OtherWidget() {
             Text(text = stringResource(R.string.str_manuscript_management))
         }
     )
-    HorizontalDivider(color=Color.LightGray)
+    HorizontalDivider(color = Color.LightGray)
     ListItem(
         leadingContent = {
             Icon(
@@ -496,7 +510,7 @@ private fun OtherWidget() {
             Text(text = stringResource(R.string.str_downlaod_management))
         }
     )
-    HorizontalDivider(color=Color.LightGray)
+    HorizontalDivider(color = Color.LightGray)
     ListItem(
         leadingContent = {
             Icon(
@@ -619,7 +633,7 @@ private fun PlaylistItem(
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.bodyMedium,
                 )
                 Text(
                     text = label,
@@ -635,7 +649,9 @@ private fun PlaylistItem(
                 }) {
                 Icon(
                     imageVector = Icons.Outlined.MoreVert,
-                    contentDescription = Icons.Outlined.MoreVert.name
+                    contentDescription = Icons.Outlined.MoreVert.name,
+                    modifier = Modifier
+                        .size(16.dp)
                 )
             }
         }
@@ -649,10 +665,13 @@ private fun HistoryItem(
     title: String,
     ownerName: String,
     duration: String,
-    progress: Float
+    progress: Float,
+    onClick: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.width(IntrinsicSize.Min),
+        modifier = Modifier
+            .width(IntrinsicSize.Min)
+            .clickable { onClick.invoke() },
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         val shape = remember { RoundedCornerShape(12.dp) }
@@ -701,17 +720,19 @@ private fun HistoryItem(
                 )
             }
         }
-        Row(
+        Box(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(end = 22.dp)
             ) {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.bodyMedium,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = ownerName,
@@ -723,12 +744,16 @@ private fun HistoryItem(
 
             IconButton(
                 onClick = {},
-                modifier = Modifier.offset {
-                    IntOffset(60, -30)
-                }) {
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .offset {
+                        IntOffset(60, -30)
+                    }) {
                 Icon(
                     imageVector = Icons.Outlined.MoreVert,
-                    contentDescription = Icons.Outlined.MoreVert.name
+                    contentDescription = Icons.Outlined.MoreVert.name,
+                    modifier = Modifier
+                        .size(16.dp)
                 )
             }
         }

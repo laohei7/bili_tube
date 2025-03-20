@@ -15,6 +15,7 @@ import com.laohei.bili_sdk.video.VideoHeartBeat
 import com.laohei.bili_sdk.video.VideoInfo
 import com.laohei.bili_sdk.video.VideoReply
 import com.laohei.bili_tube.presentation.dynamic.DynamicViewModel
+import com.laohei.bili_tube.presentation.history.HistoryViewModel
 import com.laohei.bili_tube.presentation.home.HomeViewModel
 import com.laohei.bili_tube.presentation.home.hot.HotViewModel
 import com.laohei.bili_tube.presentation.home.recommend.RecommendViewModel
@@ -55,6 +56,7 @@ val appModule = module {
     singleOf(::BiliDynamicRepository)
     singleOf(::BiliHistoryRepository)
     singleOf(::BiliMineRepository)
+    singleOf(::BiliHistoryRepository)
 
     factoryOf(::DefaultMediaManager)
 
@@ -64,5 +66,6 @@ val appModule = module {
     viewModelOf(::PlayerViewModel)
     viewModelOf(::DynamicViewModel)
     viewModelOf(::MineViewModel)
+    viewModelOf(::HistoryViewModel)
 
 }

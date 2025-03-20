@@ -17,10 +17,10 @@ data class HistoryModel(
 @Serializable
 @JsonIgnoreUnknownKeys
 data class HistoryCursor(
-    val max: Long,
-    @SerialName("view_at") val viewAt: Long,
-    val business: String,
-    val ps: Int
+    val max: Long?=0,
+    @SerialName("view_at") val viewAt: Long?=0,
+    val business: String?=null,
+    val ps: Int=20
 )
 
 @OptIn(ExperimentalSerializationApi::class)
