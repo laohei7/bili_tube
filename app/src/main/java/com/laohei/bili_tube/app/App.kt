@@ -56,6 +56,7 @@ import com.laohei.bili_tube.core.util.setValue
 import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.presentation.dynamic.DynamicScreen
+import com.laohei.bili_tube.presentation.history.HistoryScreen
 import com.laohei.bili_tube.presentation.home.HomeScreen
 import com.laohei.bili_tube.presentation.login.QRCodeLoginScreen
 import com.laohei.bili_tube.presentation.mine.MineScreen
@@ -196,6 +197,9 @@ fun App() {
             homeGraph(navController)
             composable<Route.Login> { QRCodeLoginScreen() }
             composable<Route.Play> { PlayerScreen(it.toRoute()) }
+            composable<Route.History> { HistoryScreen(
+                navigateToRoute = {navController.navigate(it)}
+            ) }
 
         }
 
@@ -279,7 +283,7 @@ private fun NavGraphBuilder.homeGraph(navController: NavController) {
                 }
             )
         }
-        composable<Route.Mine> { MineScreen() }
+        composable<Route.Mine> { MineScreen(navigateToRoute = { navController.navigate(it) }) }
         composable<Route.Subscription> { SubscriptionScreen() }
         composable<Route.Dynamic> {
             DynamicScreen(

@@ -24,6 +24,8 @@ sealed class Route {
 
     @Serializable
     data object Dynamic:Route()
+    @Serializable
+    data object History:Route()
 
 
     @Serializable
