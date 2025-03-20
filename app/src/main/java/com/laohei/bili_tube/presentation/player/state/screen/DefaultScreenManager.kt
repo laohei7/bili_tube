@@ -196,11 +196,11 @@ internal class DefaultScreenManager(
             }
 
             ScreenAction.ShowVideoDetailAction -> {
-                _mState.update { it.copy(isShowDetailSheet = true) }
+                _mState.update { it.copy(isShowDetailSheet = true, videoHeight = it.minLimitedHeight) }
             }
 
             ScreenAction.ShowReplyAction -> {
-                _mState.update { it.copy(isShowReplySheet = true) }
+                _mState.update { it.copy(isShowReplySheet = true, videoHeight = it.minLimitedHeight) }
             }
 
             is ScreenAction.SwitchVideoAction -> {
