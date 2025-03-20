@@ -164,7 +164,7 @@ fun HistoryScreen(
                                         onClick = {
                                             navigateToRoute.invoke(
                                                 Route.Play(
-                                                    aid = -5,
+                                                    aid = it.history.oid,
                                                     bvid = it.history.bvid,
                                                     cid = it.history.cid
                                                 )
