@@ -61,6 +61,7 @@ import com.laohei.bili_tube.presentation.home.HomeScreen
 import com.laohei.bili_tube.presentation.login.QRCodeLoginScreen
 import com.laohei.bili_tube.presentation.mine.MineScreen
 import com.laohei.bili_tube.presentation.player.PlayerScreen
+import com.laohei.bili_tube.presentation.playlist.PlaylistScreen
 import com.laohei.bili_tube.presentation.splash.SplashScreen
 import com.laohei.bili_tube.presentation.subscription.SubscriptionScreen
 import kotlinx.coroutines.flow.firstOrNull
@@ -197,6 +198,7 @@ fun App() {
             homeGraph(navController)
             composable<Route.Login> { QRCodeLoginScreen() }
             composable<Route.Play> { PlayerScreen(it.toRoute()) }
+            composable<Route.Playlist> { PlaylistScreen() }
             composable<Route.History> { HistoryScreen(
                 navigateToRoute = {navController.navigate(it)}
             ) }

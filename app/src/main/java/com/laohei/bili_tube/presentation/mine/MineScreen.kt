@@ -131,7 +131,8 @@ fun MineScreen(
             PlaylistWidget(
                 watchLaterList = state.watchLaterList,
                 watchLaterCount = state.watchLaterCount,
-                folderList = state.folderList
+                folderList = state.folderList,
+                navigateToRoute = navigateToRoute
             )
             Spacer(Modifier.height(12.dp))
             OtherWidget()
@@ -377,7 +378,8 @@ private fun ColumnScope.HistoryWidget(
 private fun ColumnScope.PlaylistWidget(
     watchLaterList: List<VideoView>,
     watchLaterCount: Int = 0,
-    folderList: List<FolderItem>
+    folderList: List<FolderItem>,
+    navigateToRoute: (Route) -> Unit
 ) {
     ListItem(
         headlineContent = {
@@ -398,7 +400,9 @@ private fun ColumnScope.PlaylistWidget(
                         contentDescription = Icons.Outlined.Add.name,
                     )
                 }
-                TextButton(onClick = {}) {
+                TextButton(onClick = {
+                    navigateToRoute.invoke(Route.Playlist)
+                }) {
                     Text(text = "查看全部")
                 }
             }

@@ -26,6 +26,8 @@ sealed class Route {
     data object Dynamic:Route()
     @Serializable
     data object History:Route()
+    @Serializable
+    data object Playlist:Route()
 
 
     @Serializable

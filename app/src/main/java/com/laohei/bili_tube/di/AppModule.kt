@@ -22,11 +22,13 @@ import com.laohei.bili_tube.presentation.home.recommend.RecommendViewModel
 import com.laohei.bili_tube.presentation.mine.MineViewModel
 import com.laohei.bili_tube.presentation.player.PlayerViewModel
 import com.laohei.bili_tube.presentation.player.state.media.DefaultMediaManager
+import com.laohei.bili_tube.presentation.playlist.PlaylistViewModel
 import com.laohei.bili_tube.repository.BiliDynamicRepository
 import com.laohei.bili_tube.repository.BiliHistoryRepository
 import com.laohei.bili_tube.repository.BiliHomeRepository
 import com.laohei.bili_tube.repository.BiliMineRepository
 import com.laohei.bili_tube.repository.BiliPlayRepository
+import com.laohei.bili_tube.repository.BiliPlaylistRepository
 import com.laohei.bili_tube.utill.HttpClientFactory
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -57,6 +59,7 @@ val appModule = module {
     singleOf(::BiliHistoryRepository)
     singleOf(::BiliMineRepository)
     singleOf(::BiliHistoryRepository)
+    singleOf(::BiliPlaylistRepository)
 
     factoryOf(::DefaultMediaManager)
 
@@ -67,5 +70,6 @@ val appModule = module {
     viewModelOf(::DynamicViewModel)
     viewModelOf(::MineViewModel)
     viewModelOf(::HistoryViewModel)
+    viewModelOf(::PlaylistViewModel)
 
 }
