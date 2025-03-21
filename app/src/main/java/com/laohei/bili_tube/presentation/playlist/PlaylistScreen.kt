@@ -43,25 +43,32 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
+import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.palette.graphics.Palette
+import coil3.asDrawable
 import coil3.compose.AsyncImage
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.utill.toNonHardwareBitmap
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import kotlin.random.Random
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -206,6 +213,9 @@ private fun PlaylistItem(
     label: String,
     icon: @Composable (BoxScope.() -> Unit)? = null
 ) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var dominantColor by remember { mutableStateOf(Color.LightGray) }
     Row(
         modifier = Modifier
             .width(IntrinsicSize.Min)
@@ -231,7 +241,7 @@ private fun PlaylistItem(
                     }
                     .then(coverModifier)
                     .background(
-                        color = Color(Random.nextInt(80,220),Random.nextInt(80,220),Random.nextInt(80,220)),
+                        color = dominantColor,
                         shape = shape
                     ),
             )
@@ -239,6 +249,19 @@ private fun PlaylistItem(
             AsyncImage(
                 model = if (cover.isBlank()) R.drawable.icon_loading else cover,
                 contentDescription = "",
+                onSuccess = {
+                    val drawable = it.result.image.asDrawable(context.resources)
+                    scope.launch {
+                        drawable.toBitmapOrNull()?.toNonHardwareBitmap()?.let {
+                            Palette.from(it).generate { palette ->
+                                dominantColor =
+                                    palette?.getDominantColor(Color.LightGray.toArgb())?.run {
+                                        Color(this)
+                                    } ?: Color.LightGray
+                            }
+                        }
+                    }
+                },
                 modifier = coverModifier
                     .background(
                         color = Color.LightGray
