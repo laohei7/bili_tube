@@ -395,9 +395,7 @@ private fun BoxScope.TopBar(
                     .weight(1f),
             )
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(32.dp)
-            ) {
+            Row {
                 IconButton(onClick = {}) {
                     Icon(
                         imageVector = Icons.Default.Cast,

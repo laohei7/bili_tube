@@ -19,10 +19,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -31,7 +30,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.component.icons.SleepTimer
+import com.laohei.bili_tube.component.sheet.ModalBottomSheet
+import com.laohei.bili_tube.component.sheet.ModalBottomSheetProperties
+import com.laohei.bili_tube.component.sheet.rememberModalBottomSheet
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,15 +49,24 @@ internal fun VideoSettingsSheet(
     action: (ScreenAction) -> Unit = {}
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val sheetState =  rememberModalBottomSheet(skipPartiallyExpanded = true)
+    fun closeSheet(){
+        scope.launch {
+            sheetState.hide()
+            onDismiss.invoke()
+        }
+    }
     if (isShowSheet) {
         ModalBottomSheet(
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            sheetState =sheetState,
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .padding(8.dp)
                 .navigationBarsPadding(),
             containerColor = MaterialTheme.colorScheme.background,
-            onDismissRequest = { onDismiss.invoke() }
+            properties = ModalBottomSheetProperties(shouldDispatcherEvent = false),
+            onDismissRequest = { closeSheet() }
         ) {
             Column(
                 modifier = Modifier.verticalScroll(

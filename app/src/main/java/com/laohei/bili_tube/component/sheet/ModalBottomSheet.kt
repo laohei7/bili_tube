@@ -188,8 +188,9 @@ private fun Scrim(color: Color, onDismissRequest: () -> Unit, visible: Boolean) 
 @Composable
 @ExperimentalMaterial3Api
 fun ModalBottomSheet(
-    onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
+    onDismissRequest: () -> Unit,
+    onBackHandle: (() -> Unit)? = null,
     sheetState: SheetState = rememberModalBottomSheet(),
     sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
     shape: Shape = BottomSheetDefaults.ExpandedShape,
@@ -235,6 +236,7 @@ fun ModalBottomSheet(
                 scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
             }
         },
+        onBackHandle = onBackHandle,
         predictiveBackProgress = predictiveBackProgress,
     ) {
         Scrim(
@@ -433,6 +435,7 @@ internal fun BoxScope.ModalBottomSheetContent(
 @Composable
 internal fun ModalBottomSheetDialog(
     onDismissRequest: () -> Unit,
+    onBackHandle: (() -> Unit)? = null,
     properties: com.laohei.bili_tube.component.sheet.ModalBottomSheetProperties,
     predictiveBackProgress: Animatable<Float, AnimationVector1D>,
     content: @Composable () -> Unit
@@ -450,6 +453,7 @@ internal fun ModalBottomSheetDialog(
         remember(view, density) {
             ModalBottomSheetDialogWrapper(
                 onDismissRequest,
+                onBackHandle,
                 properties,
                 view,
                 layoutDirection,
@@ -495,6 +499,7 @@ internal fun ModalBottomSheetDialog(
 @ExperimentalMaterial3Api
 private class ModalBottomSheetDialogWrapper(
     private var onDismissRequest: () -> Unit,
+    private var onBackHandle: (() -> Unit)? = null,
     private var properties: com.laohei.bili_tube.component.sheet.ModalBottomSheetProperties,
     private val composeView: View,
     layoutDirection: LayoutDirection,
@@ -596,6 +601,8 @@ private class ModalBottomSheetDialogWrapper(
         onBackPressedDispatcher.addCallback(this) {
             if (properties.shouldDismissOnBackPress) {
                 onDismissRequest()
+            } else {
+                onBackHandle?.invoke()
             }
         }
     }
@@ -654,8 +661,14 @@ private class ModalBottomSheetDialogWrapper(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        // 透明区域点击事件交给当前的 activity 处理
-        return activity?.dispatchTouchEvent(event) ?: false
+        if (properties.shouldDispatcherEvent) {
+            // 透明区域点击事件交给当前的 activity 处理
+            return activity?.dispatchTouchEvent(event) ?: false
+        } else {
+            val result = super.onTouchEvent(event)
+            onDismissRequest()
+            return result
+        }
     }
 
     override fun cancel() {
@@ -798,12 +811,15 @@ private class ModalBottomSheetDialogLayout(
 class ModalBottomSheetProperties(
     val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
     val shouldDismissOnBackPress: Boolean = true,
+    val shouldDispatcherEvent: Boolean = true,
 ) {
     constructor(
         shouldDismissOnBackPress: Boolean,
+        shouldDispatcherEvent: Boolean
     ) : this(
         securePolicy = SecureFlagPolicy.Inherit,
-        shouldDismissOnBackPress = shouldDismissOnBackPress
+        shouldDismissOnBackPress = shouldDismissOnBackPress,
+        shouldDispatcherEvent = shouldDispatcherEvent
     )
 
     @Deprecated(
@@ -817,7 +833,8 @@ class ModalBottomSheetProperties(
         securePolicy: SecureFlagPolicy,
         isFocusable: Boolean,
         shouldDismissOnBackPress: Boolean,
-    ) : this(securePolicy, shouldDismissOnBackPress)
+        shouldDispatcherEvent: Boolean
+    ) : this(securePolicy, shouldDismissOnBackPress, shouldDispatcherEvent)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

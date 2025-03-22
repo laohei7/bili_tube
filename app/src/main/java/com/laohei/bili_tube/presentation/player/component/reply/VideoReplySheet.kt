@@ -69,6 +69,7 @@ import com.laohei.bili_tube.R
 import com.laohei.bili_tube.component.animation.slideFadeRightToLeftCanReversed
 import com.laohei.bili_tube.component.placeholder.NoMoreData
 import com.laohei.bili_tube.component.sheet.ModalBottomSheet
+import com.laohei.bili_tube.component.sheet.ModalBottomSheetProperties
 import com.laohei.bili_tube.component.sheet.rememberModalBottomSheet
 import com.laohei.bili_tube.component.text.ExpandedText
 import com.laohei.bili_tube.utill.toTimeAgoString
@@ -98,9 +99,13 @@ fun VideoReplySheet(
     val childLazyLazyListState = rememberLazyListState()
 
     fun closeSheet() {
-        scope.launch {
-            sheetState.hide()
-            onDismiss.invoke()
+        if (isMainReplyList.not()) {
+            isMainReplyList = true
+        } else {
+            scope.launch {
+                sheetState.hide()
+                onDismiss.invoke()
+            }
         }
     }
 
@@ -113,15 +118,19 @@ fun VideoReplySheet(
                     maskAlphaChanged.invoke(offset)
                 }
         }
-        ModalBottomSheet (
+        ModalBottomSheet(
             modifier = modifier,
             sheetState = sheetState,
             containerColor = MaterialTheme.colorScheme.background,
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             scrimColor = Color.Transparent,
+            properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false),
             onDismissRequest = {
                 onDismiss.invoke()
             },
+            onBackHandle = {
+                closeSheet()
+            }
         ) {
             Box(
                 modifier = Modifier

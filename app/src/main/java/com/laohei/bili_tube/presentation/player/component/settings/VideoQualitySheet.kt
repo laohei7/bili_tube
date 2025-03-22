@@ -18,10 +18,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -36,6 +34,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.component.sheet.ModalBottomSheet
+import com.laohei.bili_tube.component.sheet.ModalBottomSheetProperties
+import com.laohei.bili_tube.component.sheet.rememberModalBottomSheet
 import com.laohei.bili_tube.core.VIP_STATUS_KEY
 import com.laohei.bili_tube.core.util.getValue
 
@@ -60,7 +61,8 @@ internal fun VideoQualitySheet(
 
     if (isShowSheet) {
         ModalBottomSheet(
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true),
+            properties = ModalBottomSheetProperties(shouldDispatcherEvent = false),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .padding(8.dp)
