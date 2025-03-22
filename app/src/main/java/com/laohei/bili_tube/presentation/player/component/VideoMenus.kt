@@ -31,7 +31,7 @@ internal fun VideoMenus(
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Spacer(modifier = Modifier)
         ExtendedIconButton(
@@ -41,20 +41,24 @@ internal fun VideoMenus(
             onIcon1Click = {},
             onIcon2Click = {}
         )
+        Spacer(modifier = Modifier)
         ExtendedIconButton(
             icon = Icons.Outlined.Paid,
             label = coin,
             onClick = {}
         )
+        Spacer(modifier = Modifier)
         ExtendedIconButton(
             icon = Icons.Outlined.StarOutline,
             label = star,
             onClick = {}
         )
+        Spacer(modifier = Modifier)
         ExtendedIconButton(
             icon = Icons.Outlined.Share,
             label = share,
             onClick = {}
         )
+        Spacer(modifier = Modifier)
     }
 }

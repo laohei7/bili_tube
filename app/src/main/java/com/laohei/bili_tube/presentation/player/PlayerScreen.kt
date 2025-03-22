@@ -140,10 +140,6 @@ fun PlayerScreen(
     val activity = LocalActivity.current
     val configuration = LocalConfiguration.current
     val systemBarHeight = SystemUtil.getStatusBarHeightDp() + SystemUtil.getNavigateBarHeightDp()
-//    val screenWidth = configuration.screenWidthDp
-//    val screenHeight = configuration.screenHeightDp
-//    val minLimitedHeight = screenWidth * 9f / 16f
-//    val maxLimitedHeight = screenHeight * 2 / 3f
 
     val viewModel =
         koinViewModel<PlayerViewModel> {

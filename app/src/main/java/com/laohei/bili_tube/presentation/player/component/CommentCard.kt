@@ -40,6 +40,7 @@ internal fun CommentCard(
     Card(
         modifier = Modifier
             .padding(horizontal = 8.dp)
+            .padding(top = 8.dp)
             .background(
                 color = MaterialTheme.colorScheme.surfaceContainer,
                 shape = CardDefaults.shape

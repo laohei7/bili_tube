@@ -1,6 +1,5 @@
 package com.laohei.bili_tube.presentation.home
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
@@ -75,8 +74,6 @@ fun HomeScreen(
         maxHeight.toPx()
     }
 
-    Log.d(TAG, "HomeScreen: $homeViewModel")
-
     var rawAlpha by remember { mutableFloatStateOf(1f) }
     val alpha by animateFloatAsState(targetValue = rawAlpha, label = "alpha")
     var rawLogoHeight by remember { mutableIntStateOf(with(density) { 0.dp.toPx() }.toInt()) }
@@ -96,27 +93,22 @@ fun HomeScreen(
                         rawAlpha = abs(dH) / (maxHeightPx - minHeightPx)
                         rawLogoHeight =
                             with(density) { lerp((-40).dp, 0.dp, rawAlpha).toPx().toInt() }
-                        if (available.y > dH) {  // 如果当前可用的滑动距离全部消费都不足以达到最小高度，就将当前可用距离全部消费掉
-                            topHeightPx += available.y
-//                            return Offset(x = 0f, y = available.y)
+                        topHeightPx += if (available.y > dH) {  // 如果当前可用的滑动距离全部消费都不足以达到最小高度，就将当前可用距离全部消费掉
+                            available.y
                         } else {  // 如果当前可用的滑动距离足够达到最小高度，就只消费掉需要的距离。剩余的给到子组件。
-                            topHeightPx += dH
-//                            return Offset(x = 0f, y = dH)
+                            dH
                         }
                     } else { // 下滑
                         val dH = maxHeightPx - topHeightPx  // 向下滑动过程中，还差多少达到最大高度
                         rawAlpha = 1f - abs(dH) / (maxHeightPx - minHeightPx)
                         rawLogoHeight =
                             with(density) { lerp((-40).dp, 0.dp, rawAlpha).toPx().toInt() }
-                        if (available.y < dH) {  // 如果当前可用的滑动距离全部消费都不足以达到最大高度，就将当前可用距离全部消费掉
-                            topHeightPx += available.y
-//                            return Offset(x = 0f, y = available.y)
+                        topHeightPx += if (available.y < dH) {  // 如果当前可用的滑动距离全部消费都不足以达到最大高度，就将当前可用距离全部消费掉
+                            available.y
                         } else {  // 如果当前可用的滑动距离足够达到最大高度，就只消费掉需要的距离。剩余的给到子组件。
-                            topHeightPx += dH
-//                            return Offset(x = 0f, y = dH)
+                            dH
                         }
                     }
-                } else {  // 如果不是滑动事件，就不消费。
                 }
                 return Offset.Zero
 
