@@ -38,3 +38,4 @@ const val HISTORY_URL = "https://api.bilibili.com/x/web-interface/history/cursor
 const val FOLDER_URL = "https://api.bilibili.com/x/v3/fav/folder/list4navigate"
 
 const val USER_STAT_URL = "https://api.bilibili.com/x/web-interface/nav/stat"
+const val VIDEO_ARCHIVE_URL = "https://api.bilibili.com/x/polymer/web-space/seasons_archives_list"

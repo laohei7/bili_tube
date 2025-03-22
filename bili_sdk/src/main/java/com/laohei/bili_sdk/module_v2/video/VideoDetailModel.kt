@@ -30,7 +30,8 @@ data class VideoView(
     val duration: Long,
     val owner: VideoOwner,
     val stat: VideoStat,
-    val dimension: VideoDimension
+    val dimension: VideoDimension,
+    @SerialName("season_id") val seasonId: Long?=null
 )
 
 @OptIn(ExperimentalSerializationApi::class)

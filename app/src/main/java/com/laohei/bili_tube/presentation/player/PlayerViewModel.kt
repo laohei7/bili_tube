@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
+import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.presentation.player.state.media.DefaultMediaManager
 import com.laohei.bili_tube.presentation.player.state.media.MediaManager
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.ceil
 
 @UnstableApi
 internal class PlayerViewModel(
@@ -75,8 +77,10 @@ internal class PlayerViewModel(
             withContext(Dispatchers.Main) {
                 toggleLoading()
             }
-            launch {
-                getVideoURL()
+            if (params.cid != -1L) {
+                launch {
+                    getVideoURL()
+                }
             }
             launch {
                 getVideoDetail()
@@ -122,8 +126,12 @@ internal class PlayerViewModel(
             aid = params.aid,
             bvid = params.bvid,
         )
-
         response?.run {
+            viewModelScope.launch {
+                this@run.data.view.seasonId?.let {
+                    getArchives(mid = this@run.data.view.owner.mid, seasonId = it)
+                }
+            }
             _mPlayerState.update {
                 it.copy(videoDetail = data)
             }
@@ -132,6 +140,47 @@ internal class PlayerViewModel(
                     params.copy(
                         cid = data.view.cid
                     )
+                )
+            }
+        }
+    }
+
+    private suspend fun getArchives(
+        mid: Long,
+        seasonId: Long,
+    ) {
+        val pageNum = 1
+        val pageSize = 30
+        val firstPage = biliPlayRepository.getArchives(
+            mid = mid,
+            seasonId = seasonId,
+            pageNum = pageNum,
+            pageSize = pageSize
+        )
+        firstPage?.run {
+            val count = ceil((this.data.page.total - pageSize) / pageSize.toFloat()).toInt()
+            val leftovers = mutableListOf<ArchiveItem>()
+            for (i in 0 until count) {
+                biliPlayRepository.getArchives(
+                    mid = mid,
+                    seasonId = seasonId,
+                    pageNum = pageNum + i + 1,
+                    pageSize = pageSize
+                )?.let {
+                    leftovers += it.data.archives
+                }
+            }
+
+            val allArchives =
+                this.data.archives + leftovers
+            Log.d(TAG, "getArchives: ${this.data.page.total} ${allArchives.size}")
+            _mPlayerState.update {
+                it.copy(
+                    videoArchiveMeta = this.data.meta,
+                    videoArchives = allArchives,
+                    currentArchiveIndex = allArchives.indexOfFirst { item ->
+                        item.aid == it.videoDetail?.view?.aid
+                    } + 1
                 )
             }
         }

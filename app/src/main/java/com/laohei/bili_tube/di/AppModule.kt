@@ -11,6 +11,7 @@ import com.laohei.bili_sdk.login.QRLogin
 import com.laohei.bili_sdk.recommend.Recommend
 import com.laohei.bili_sdk.user.UserInfo
 import com.laohei.bili_sdk.video.PlayURL
+import com.laohei.bili_sdk.video.VideoArchive
 import com.laohei.bili_sdk.video.VideoHeartBeat
 import com.laohei.bili_sdk.video.VideoInfo
 import com.laohei.bili_sdk.video.VideoReply
@@ -52,6 +53,7 @@ val appModule = module {
     singleOf(::WatchLater)
     singleOf(::History)
     singleOf(::Folder)
+    singleOf(::VideoArchive)
 
     singleOf(::BiliHomeRepository)
     singleOf(::BiliPlayRepository)

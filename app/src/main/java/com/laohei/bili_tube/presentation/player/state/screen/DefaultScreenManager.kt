@@ -169,7 +169,7 @@ internal class DefaultScreenManager(
         isOrientationPortrait: Boolean,
         scope: CoroutineScope?,
         updateParamsCallback: ((Route.Play) -> Unit)?,
-        lockScreenCallback:(()-> Unit)?
+        lockScreenCallback: (() -> Unit)?
     ) {
         when (action) {
             is ScreenAction.LockScreenAction -> {
@@ -195,12 +195,31 @@ internal class DefaultScreenManager(
                 _mState.update { it.copy(isShowVideoSettingsSheet = action.flag) }
             }
 
+            is ScreenAction.ShowArchiveSheetAction -> {
+                _mState.update {
+                    it.copy(
+                        isShowArchiveSheet = action.flag,
+                        videoHeight = it.minLimitedHeight
+                    )
+                }
+            }
+
             ScreenAction.ShowVideoDetailAction -> {
-                _mState.update { it.copy(isShowDetailSheet = true, videoHeight = it.minLimitedHeight) }
+                _mState.update {
+                    it.copy(
+                        isShowDetailSheet = true,
+                        videoHeight = it.minLimitedHeight
+                    )
+                }
             }
 
             ScreenAction.ShowReplyAction -> {
-                _mState.update { it.copy(isShowReplySheet = true, videoHeight = it.minLimitedHeight) }
+                _mState.update {
+                    it.copy(
+                        isShowReplySheet = true,
+                        videoHeight = it.minLimitedHeight
+                    )
+                }
             }
 
             is ScreenAction.SwitchVideoAction -> {
@@ -310,6 +329,6 @@ internal class DefaultScreenManager(
     }
 
     private fun isShowMask(): Boolean {
-        return _mState.value.isShowDetailSheet || _mState.value.isShowReplySheet
+        return _mState.value.isShowDetailSheet || _mState.value.isShowReplySheet || _mState.value.isShowArchiveSheet
     }
 }
