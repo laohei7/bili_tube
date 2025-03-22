@@ -25,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,6 +40,7 @@ import com.laohei.bili_tube.component.sheet.ModalBottomSheetProperties
 import com.laohei.bili_tube.component.sheet.rememberModalBottomSheet
 import com.laohei.bili_tube.core.VIP_STATUS_KEY
 import com.laohei.bili_tube.core.util.getValue
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,16 +61,25 @@ internal fun VideoQualitySheet(
         localDefaultQuality = defaultQuality
     }
 
+    val scope = rememberCoroutineScope()
+    val sheetState =  rememberModalBottomSheet(skipPartiallyExpanded = true)
+    fun closeSheet(){
+        scope.launch {
+            sheetState.hide()
+            onDismiss.invoke()
+        }
+    }
+
     if (isShowSheet) {
         ModalBottomSheet(
-            sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true),
+            sheetState = sheetState,
             properties = ModalBottomSheetProperties(shouldDispatcherEvent = false),
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .padding(8.dp)
                 .navigationBarsPadding(),
             containerColor = MaterialTheme.colorScheme.background,
-            onDismissRequest = { onDismiss.invoke() }
+            onDismissRequest = { closeSheet() }
         ) {
             Column(
                 modifier = Modifier.verticalScroll(
