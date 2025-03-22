@@ -39,4 +39,7 @@
     <string name="str_screen_lock_hint">屏幕已锁定，点按解锁</string>
     <string name="str_screen_unlock_hint">已解锁</string>
     <string name="str_history">历史记录</string>
+    <string name="str_playlist">播放列表</string>
+    <string name="str_all_num_episode">共%d集</string>
+    <string name="str_select_episode">选集</string>
 </resources>

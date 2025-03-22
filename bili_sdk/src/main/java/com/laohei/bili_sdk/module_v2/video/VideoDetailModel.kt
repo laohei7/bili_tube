@@ -30,7 +30,8 @@ data class VideoView(
     val duration: Long,
     val owner: VideoOwner,
     val stat: VideoStat,
-    val dimension: VideoDimension
+    val dimension: VideoDimension,
+    @SerialName("season_id") val seasonId: Long?=null
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -46,15 +47,15 @@ data class VideoOwner(
 @Serializable
 @JsonIgnoreUnknownKeys
 data class VideoStat(
-    val aid: Long,
-    val view: Long,
-    val danmaku: Long,
-    val reply: Long,
-    val favorite: Long,
-    val coin: Long,
-    val share: Long,
-    val like: Long,
-    val dislike: Long
+    val aid: Long = 0L,
+    val view: Long = 0L,
+    val danmaku: Long = 0L,
+    val reply: Long = 0L,
+    val favorite: Long = 0L,
+    val coin: Long = 0L,
+    val share: Long = 0L,
+    val like: Long = 0L,
+    val dislike: Long = 0L
 )
 
 @OptIn(ExperimentalSerializationApi::class)

@@ -31,7 +31,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -292,7 +293,7 @@ private fun VideoItem2(
                             painter = painterResource(R.drawable.icon_up),
                             contentDescription = "up",
                             modifier = Modifier.height(14.dp),
-                            colorFilter = ColorFilter.tint(Color.Gray)
+                            colorFilter = ColorFilter.tint(Color.Red, BlendMode.SrcIn)
                         )
 
                         Text(
@@ -314,11 +315,11 @@ private fun VideoItem2(
                         ) {
 
                             Icon(
-                                imageVector = Icons.Default.PlayArrow,
-                                contentDescription = "play",
+                                imageVector = Icons.Outlined.PlayCircleOutline,
+                                contentDescription = Icons.Outlined.PlayCircleOutline.name,
                                 modifier = Modifier
                                     .size(16.dp),
-                                tint = Color.Gray
+                                tint = Color.Red.copy(alpha = 0.5f)
                             )
 
                             Text(

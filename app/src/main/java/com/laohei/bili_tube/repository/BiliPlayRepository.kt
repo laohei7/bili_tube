@@ -6,6 +6,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.laohei.bili_sdk.model.VideoReplyItem
 import com.laohei.bili_sdk.video.PlayURL
+import com.laohei.bili_sdk.video.VideoArchive
 import com.laohei.bili_sdk.video.VideoHeartBeat
 import com.laohei.bili_sdk.video.VideoInfo
 import com.laohei.bili_sdk.video.VideoReply
@@ -23,7 +24,8 @@ class BiliPlayRepository(
     private val playURL: PlayURL,
     private val videoInfo: VideoInfo,
     private val videoReply: VideoReply,
-    private val videoHeartBeat: VideoHeartBeat
+    private val videoHeartBeat: VideoHeartBeat,
+    private val archive: VideoArchive
 ) {
 
     suspend fun getPlayURL(
@@ -94,5 +96,20 @@ class BiliPlayRepository(
     ) = videoHeartBeat.uploadVideoHistory(
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
         aid, cid, progress
+    )
+
+    suspend fun getArchives(
+        mid: Long,
+        seasonId: Long,
+        pageNum: Int = 1,
+        pageSize: Int = 30,
+        sortReverse: Boolean = true,
+    ) = archive.videoArchive(
+        cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
+        mid = mid,
+        seasonId = seasonId,
+        pageNum = pageNum,
+        pageSize = pageSize,
+        sortReverse = sortReverse
     )
 }

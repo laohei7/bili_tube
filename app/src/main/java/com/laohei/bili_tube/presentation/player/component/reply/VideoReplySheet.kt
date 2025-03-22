@@ -34,12 +34,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -68,9 +66,11 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.laohei.bili_sdk.model.VideoReplyItem
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.component.text.ExpandedText
-import com.laohei.bili_tube.component.placeholder.NoMoreData
 import com.laohei.bili_tube.component.animation.slideFadeRightToLeftCanReversed
+import com.laohei.bili_tube.component.placeholder.NoMoreData
+import com.laohei.bili_tube.component.sheet.ModalBottomSheet
+import com.laohei.bili_tube.component.sheet.rememberModalBottomSheet
+import com.laohei.bili_tube.component.text.ExpandedText
 import com.laohei.bili_tube.utill.toTimeAgoString
 import com.laohei.bili_tube.utill.toViewString
 import kotlinx.coroutines.launch
@@ -86,7 +86,7 @@ fun VideoReplySheet(
     maskAlphaChanged: (Float) -> Unit = { _ -> }
 ) {
 
-    val sheetState = rememberModalBottomSheetState(
+    val sheetState = rememberModalBottomSheet(
         skipPartiallyExpanded = true
     )
     val scope = rememberCoroutineScope()
@@ -113,7 +113,7 @@ fun VideoReplySheet(
                     maskAlphaChanged.invoke(offset)
                 }
         }
-        ModalBottomSheet(
+        ModalBottomSheet (
             modifier = modifier,
             sheetState = sheetState,
             containerColor = MaterialTheme.colorScheme.background,

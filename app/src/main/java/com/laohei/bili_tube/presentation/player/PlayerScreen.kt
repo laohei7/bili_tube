@@ -1,7 +1,6 @@
 package com.laohei.bili_tube.presentation.player
 
 import android.graphics.Bitmap
-import android.util.Log
 import android.view.TextureView
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
@@ -90,6 +89,7 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
+import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
@@ -106,6 +106,8 @@ import com.laohei.bili_tube.presentation.player.component.UserSimpleInfo
 import com.laohei.bili_tube.presentation.player.component.VideoDetailSheet
 import com.laohei.bili_tube.presentation.player.component.VideoMenus
 import com.laohei.bili_tube.presentation.player.component.VideoSimpleInfo
+import com.laohei.bili_tube.presentation.player.component.archive.ArchiveMetaItem
+import com.laohei.bili_tube.presentation.player.component.archive.ArchiveSheet
 import com.laohei.bili_tube.presentation.player.component.control.PlayerControl
 import com.laohei.bili_tube.presentation.player.component.reply.VideoReplySheet
 import com.laohei.bili_tube.presentation.player.component.settings.PlaySpeedSheet
@@ -138,10 +140,6 @@ fun PlayerScreen(
     val activity = LocalActivity.current
     val configuration = LocalConfiguration.current
     val systemBarHeight = SystemUtil.getStatusBarHeightDp() + SystemUtil.getNavigateBarHeightDp()
-//    val screenWidth = configuration.screenWidthDp
-//    val screenHeight = configuration.screenHeightDp
-//    val minLimitedHeight = screenWidth * 9f / 16f
-//    val maxLimitedHeight = screenHeight * 2 / 3f
 
     val viewModel =
         koinViewModel<PlayerViewModel> {
@@ -312,6 +310,8 @@ fun PlayerScreen(
                     ),
                 lazyListState = lazyListState,
                 videoDetail = playerState.videoDetail,
+                videoArchiveMeta = playerState.videoArchiveMeta,
+                currentArchiveIndex = playerState.currentArchiveIndex,
                 onClick = {
                     viewModel.screenActionHandle(
                         it, true, scope,
@@ -351,6 +351,26 @@ fun PlayerScreen(
                 maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
                 bottomPadding = screenState.videoHeight
             )
+
+            if (playerState.videoArchiveMeta != null && playerState.videoArchives != null) {
+                ArchiveSheet(
+                    lazyListState = screenState.archiveListState,
+                    modifier = otherSheetModifier,
+                    archiveMeta = playerState.videoArchiveMeta!!,
+                    archives = playerState.videoArchives!!,
+                    isShowSheet = screenState.isShowArchiveSheet,
+                    maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
+                    onDismiss = {
+                        viewModel.screenActionHandle(
+                            ScreenAction.ShowArchiveSheetAction(false),
+                            true
+                        )
+                    },
+                    onClick = {
+                        scope.launch { viewModel.updateParams(it) }
+                    }
+                )
+            }
 
         }
         val animatedOffset by animateIntAsState(
@@ -550,6 +570,8 @@ private fun VideoContent(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState,
     videoDetail: VideoDetailModel?,
+    videoArchiveMeta: ArchiveMeta?,
+    currentArchiveIndex: Int,
     onClick: (ScreenAction) -> Unit
 ) {
     Surface(
@@ -592,8 +614,18 @@ private fun VideoContent(
                         share = detail.view.stat.share.toViewString(),
                     )
                 }
+                videoArchiveMeta?.let {
+                    item {
+                        ArchiveMetaItem(
+                            archiveMeta = it,
+                            currentArchiveIndex = currentArchiveIndex,
+                            onClick = {
+                                onClick.invoke(ScreenAction.ShowArchiveSheetAction(true))
+                            }
+                        )
+                    }
+                }
                 item {
-                    Spacer(modifier = Modifier.height(8.dp))
                     CommentCard(
                         comments = detail.view.stat.reply.toViewString(),
                         onClick = {
@@ -828,4 +860,3 @@ private fun getIconButtonColor(): IconButtonColors {
         contentColor = Color.White
     )
 }
-

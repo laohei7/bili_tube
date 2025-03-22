@@ -63,12 +63,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -79,7 +81,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.palette.graphics.Palette
+import coil3.asDrawable
 import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
@@ -93,7 +98,9 @@ import com.laohei.bili_tube.core.FACE_URL_KEY
 import com.laohei.bili_tube.core.USERNAME_KEY
 import com.laohei.bili_tube.core.util.getValue
 import com.laohei.bili_tube.utill.formatTimeString
+import com.laohei.bili_tube.utill.toNonHardwareBitmap
 import com.laohei.bili_tube.utill.toViewString
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Preview
@@ -131,7 +138,8 @@ fun MineScreen(
             PlaylistWidget(
                 watchLaterList = state.watchLaterList,
                 watchLaterCount = state.watchLaterCount,
-                folderList = state.folderList
+                folderList = state.folderList,
+                navigateToRoute = navigateToRoute
             )
             Spacer(Modifier.height(12.dp))
             OtherWidget()
@@ -377,7 +385,8 @@ private fun ColumnScope.HistoryWidget(
 private fun ColumnScope.PlaylistWidget(
     watchLaterList: List<VideoView>,
     watchLaterCount: Int = 0,
-    folderList: List<FolderItem>
+    folderList: List<FolderItem>,
+    navigateToRoute: (Route) -> Unit
 ) {
     ListItem(
         headlineContent = {
@@ -398,7 +407,9 @@ private fun ColumnScope.PlaylistWidget(
                         contentDescription = Icons.Outlined.Add.name,
                     )
                 }
-                TextButton(onClick = {}) {
+                TextButton(onClick = {
+                    navigateToRoute.invoke(Route.Playlist)
+                }) {
                     Text(text = "查看全部")
                 }
             }
@@ -581,6 +592,9 @@ private fun PlaylistItem(
     label: String,
     icon: @Composable (BoxScope.() -> Unit)? = null
 ) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var dominantColor by remember { mutableStateOf(Color.LightGray) }
     Column(
         modifier = Modifier.width(IntrinsicSize.Min),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -602,7 +616,7 @@ private fun PlaylistItem(
                     }
                     .then(coverModifier)
                     .background(
-                        color = Color.Gray,
+                        color = dominantColor,
                         shape = shape
                     ),
             )
@@ -610,6 +624,19 @@ private fun PlaylistItem(
             AsyncImage(
                 model = if (cover.isBlank()) R.drawable.icon_loading else cover,
                 contentDescription = "",
+                onSuccess = {
+                    val drawable = it.result.image.asDrawable(context.resources)
+                    scope.launch {
+                        drawable.toBitmapOrNull()?.toNonHardwareBitmap()?.let {
+                            Palette.from(it).generate { palette ->
+                                dominantColor =
+                                    palette?.getDominantColor(Color.LightGray.toArgb())?.run {
+                                        Color(this)
+                                    } ?: Color.LightGray
+                            }
+                        }
+                    }
+                },
                 modifier = coverModifier
                     .background(
                         color = Color.LightGray

@@ -81,7 +81,7 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
 
-
+    implementation(libs.androidx.palette)
 
     implementation(project(":bili_sdk"))
 
