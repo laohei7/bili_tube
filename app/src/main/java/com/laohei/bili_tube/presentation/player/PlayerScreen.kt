@@ -132,7 +132,8 @@ import kotlin.math.roundToInt
 @OptIn(UnstableApi::class)
 @Composable
 fun PlayerScreen(
-    params: Route.Play
+    params: Route.Play,
+    upPress: () -> Unit
 ) {
     val view = LocalView.current
     val scope = rememberCoroutineScope()
@@ -181,14 +182,22 @@ fun PlayerScreen(
     val otherSheetModifier = contentModifier
         .offset { with(density) { IntOffset(0, animatedContentOffset.toPx().toInt()) } }
     val isSystemDarkTheme = isSystemInDarkTheme()
-    BackHandler(enabled = screenState.isFullscreen) {
+
+    fun backPressHandle() {
         if (screenState.isLockScreen) {
-            return@BackHandler
+            return
+        }
+        if (screenState.isFullscreen.not()) {
+            upPress.invoke()
         }
         viewModel.fullscreenChanged(false, screenState.originalVideoHeight, isOrientationPortrait)
         if (!isOrientationPortrait) {
             activity?.toggleOrientation()
         }
+    }
+
+    BackHandler(enabled = screenState.isFullscreen) {
+        backPressHandle()
     }
 
 
@@ -283,6 +292,7 @@ fun PlayerScreen(
             seekTo = viewModel::seekTo,
             setSpeed = viewModel::setSpeed,
             togglePlayPause = viewModel::togglePlayPause,
+            backPressedClick = { backPressHandle() },
             onShowUIChanged = {
                 viewModel.updateState(screenState.copy(isShowUI = it))
             },
@@ -471,6 +481,7 @@ private fun BoxScope.VideoArea(
     setSpeed: (Float) -> Unit,
     togglePlayPause: () -> Unit,
     onShowUIChanged: (Boolean) -> Unit,
+    backPressedClick: (() -> Unit)? = null,
     actionClick: (ScreenAction) -> Unit
 ) {
     val localContext = LocalContext.current
@@ -529,6 +540,7 @@ private fun BoxScope.VideoArea(
         onLongPressStart = { setSpeed.invoke(2f) },
         onLongPressEnd = { setSpeed.invoke(1f) },
         onShowUIChanged = onShowUIChanged,
+        backPressedClick = backPressedClick,
         settingsClick = {
             actionClick.invoke(ScreenAction.ShowSettingsSheetAction(true))
         },

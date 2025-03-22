@@ -197,7 +197,12 @@ fun App() {
             }
             homeGraph(navController)
             composable<Route.Login> { QRCodeLoginScreen() }
-            composable<Route.Play> { PlayerScreen(it.toRoute()) }
+            composable<Route.Play> {
+                PlayerScreen(
+                    params = it.toRoute(),
+                    upPress = {navController.navigateUp()}
+                )
+            }
             composable<Route.Playlist> { PlaylistScreen() }
             composable<Route.History> { HistoryScreen(
                 navigateToRoute = {navController.navigate(it)}

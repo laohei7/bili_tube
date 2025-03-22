@@ -94,6 +94,7 @@ fun PlayerControl(
     onLongPressEnd: () -> Unit = {},
     onShowUIChanged: (Boolean) -> Unit = {},
     settingsClick: (() -> Unit)? = null,
+    backPressedClick:(()->Unit)?=null,
     longPressHint: (@Composable () -> Unit)? = null,
     actionContent: (@Composable () -> Unit)? = null,
     unlockScreenClick: () -> Unit,
@@ -206,7 +207,8 @@ fun PlayerControl(
             isShowUI = localIsShowUI,
             isShowRelatedList = isShowRelatedList,
             isFullscreen = localIsFullscreen,
-            settingsClick = settingsClick
+            settingsClick = settingsClick,
+            backPressedClick = backPressedClick
         )
 
         // Center Play or Pause Button
@@ -345,6 +347,7 @@ private fun BoxScope.TopBar(
     isShowUI: Boolean,
     isShowRelatedList: Boolean,
     isFullscreen: Boolean,
+    backPressedClick:(()->Unit)?=null,
     settingsClick: (() -> Unit)? = null
 ) {
     val isOrientationPortrait = isOrientationPortrait()
@@ -375,7 +378,7 @@ private fun BoxScope.TopBar(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = {}) {
+            IconButton(onClick = {backPressedClick?.invoke()}) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = Icons.Default.KeyboardArrowDown.name,
