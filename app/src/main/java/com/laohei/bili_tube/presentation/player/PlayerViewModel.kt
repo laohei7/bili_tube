@@ -136,11 +136,10 @@ internal class PlayerViewModel(
                 it.copy(videoDetail = data)
             }
             if (params.cid == -1L) {
-                updateParams(
-                    params.copy(
-                        cid = data.view.cid
-                    )
+                params = params.copy(
+                    cid = data.view.cid
                 )
+                getVideoURL()
             }
         }
     }
