@@ -26,10 +26,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -46,6 +44,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.component.color.sheetListItemColors
+import com.laohei.bili_tube.component.sheet.ModalBottomSheet
+import com.laohei.bili_tube.component.sheet.rememberModalBottomSheet
 import com.laohei.bili_tube.presentation.player.MAX_LENGTH
 import com.laohei.bili_tube.utill.formatDateToString
 import com.laohei.bili_tube.utill.toViewString
@@ -147,7 +147,7 @@ internal fun VideoDetailSheet(
     BackHandler(enabled = isShowDetail) {
         onDismiss.invoke()
     }
-    val sheetState = rememberModalBottomSheetState(
+    val sheetState = rememberModalBottomSheet(
         skipPartiallyExpanded = true
     )
     val scope = rememberCoroutineScope()
@@ -159,7 +159,7 @@ internal fun VideoDetailSheet(
                     maskAlphaChanged.invoke(offset)
                 }
         }
-        ModalBottomSheet(
+        ModalBottomSheet (
             modifier = modifier.fillMaxSize(),
             sheetState = sheetState,
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
