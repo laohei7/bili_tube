@@ -102,6 +102,7 @@ import com.laohei.bili_tube.core.util.toggleOrientation
 import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.presentation.player.component.CoinSheet
 import com.laohei.bili_tube.presentation.player.component.CommentCard
+import com.laohei.bili_tube.presentation.player.component.FolderSheet
 import com.laohei.bili_tube.presentation.player.component.RelatedHorizontalList
 import com.laohei.bili_tube.presentation.player.component.UserSimpleInfo
 import com.laohei.bili_tube.presentation.player.component.VideoDetailSheet
@@ -478,6 +479,20 @@ fun PlayerScreen(
             },
             onClick = viewModel::videoMenuActionHandle
         )
+
+        FolderSheet(
+            folders = playerState.folders,
+            isShowSheet = screenState.isShowFolderSheet,
+            onDismiss = {
+                viewModel.screenActionHandle(
+                    ScreenAction.ShowFolderSheetAction(false),
+                    isOrientationPortrait
+                )
+            },
+            onClick = {
+
+            }
+        )
     }
 }
 
@@ -645,8 +660,12 @@ private fun VideoContent(
                         share = detail.view.stat.share.toViewString(),
                         hasLike = playerState.hasLike,
                         hasCoin = playerState.hasCoin,
+                        hasFavoured = playerState.hasFavoured,
                         onClick = videoMenuClick,
-                        coinClick = { onClick.invoke(ScreenAction.ShowCoinSheetAction(true)) }
+                        coinClick = { onClick.invoke(ScreenAction.ShowCoinSheetAction(true)) },
+                        favouredClick = {
+                            onClick.invoke(ScreenAction.ShowFolderSheetAction(true))
+                        }
                     )
                 }
                 videoArchiveMeta?.let {

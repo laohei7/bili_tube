@@ -129,6 +129,13 @@ class BiliPlayRepository(
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
     )
 
+    suspend fun hasFavoured(
+        aid: Long,
+    ) = videoInfo.hasFavoured(
+        aid = aid,
+        cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
+    )
+
     suspend fun videoLike(
         aid: Long,
         bvid: String,

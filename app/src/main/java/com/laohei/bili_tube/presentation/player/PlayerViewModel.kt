@@ -13,6 +13,7 @@ import com.laohei.bili_tube.presentation.player.state.media.Quality
 import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManager
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenManager
 import com.laohei.bili_tube.repository.BiliPlayRepository
+import com.laohei.bili_tube.repository.BiliPlaylistRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -26,6 +27,7 @@ import kotlin.math.ceil
 @UnstableApi
 internal class PlayerViewModel(
     private val biliPlayRepository: BiliPlayRepository,
+    private val playlistRepository: BiliPlaylistRepository,
     private val defaultMediaManager: DefaultMediaManager,
     private var params: Route.Play,
     private val screenManager: DefaultScreenManager,
@@ -45,6 +47,7 @@ internal class PlayerViewModel(
     private val _mPlayerState = MutableStateFlow(PlayerState())
     val playerState = _mPlayerState.onStart {
         updateParams(params)
+        getFolderList()
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
@@ -83,6 +86,8 @@ internal class PlayerViewModel(
             }
             launch {
                 hasLike()
+                hasCoin()
+                hasFavoured()
             }
         }
 
@@ -101,6 +106,14 @@ internal class PlayerViewModel(
             bvid = params.bvid
         )?.apply {
             _mPlayerState.update { it.copy(hasCoin = data.multiply != 0) }
+        }
+    }
+
+    private suspend fun hasFavoured() {
+        biliPlayRepository.hasFavoured(
+            aid = params.aid,
+        )?.apply {
+            _mPlayerState.update { it.copy(hasCoin = data.favoured) }
         }
     }
 
@@ -245,6 +258,14 @@ internal class PlayerViewModel(
                     34002 -> "不能给自己投币"
                     else -> "投币失败"
                 }
+            }
+        }
+    }
+
+    private suspend fun getFolderList() {
+        playlistRepository.getFolderList()?.apply {
+            _mPlayerState.update {
+                it.copy(folders = this)
             }
         }
     }

@@ -50,4 +50,6 @@
     <string name="str_empty">Up很懒，什么都没有留下哦！😜</string>
     <string name="str_coin">%d硬币</string>
     <string name="str_coin_flip">投币</string>
+    <string name="str_save_to">将视频保存至...</string>
+    <string name="str_new_playlist">新建播放列表</string>
 </resources>

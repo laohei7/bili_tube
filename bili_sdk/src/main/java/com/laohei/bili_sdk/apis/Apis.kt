@@ -49,3 +49,5 @@ const val VIDEO_LIKE_URL = "https://api.bilibili.com/x/web-interface/archive/lik
 const val VIDEO_HAS_COIN_URL = "https://api.bilibili.com/x/web-interface/archive/coins"
 
 const val VIDEO_COIN_ADD_URL = "https://api.bilibili.com/x/web-interface/coin/add"
+
+const val VIDEO_HAS_FAVORED_URL = "https://api.bilibili.com/x/v2/fav/video/favoured"

@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Paid
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.StarOutline
@@ -22,10 +24,14 @@ import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,6 +51,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
+import com.laohei.bili_sdk.module_v2.folder.FolderModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.component.animation.APNGAnimationWidget
 import com.laohei.bili_tube.component.button.ExtendedIconButton
@@ -68,14 +76,18 @@ internal fun VideoMenus(
     share: String,
     hasLike: Boolean,
     hasCoin: Boolean,
+    hasFavoured: Boolean,
     onClick: (VideoMenuAction) -> Unit,
-    coinClick: () -> Unit
+    coinClick: () -> Unit,
+    favouredClick: () -> Unit
 ) {
     var localHasLike by remember { mutableStateOf(hasLike) }
     var localHasCoin by remember { mutableStateOf(hasCoin) }
-    LaunchedEffect(hasLike, hasCoin) {
+    var localHasFavoured by remember { mutableStateOf(hasFavoured) }
+    LaunchedEffect(hasLike, hasCoin, hasFavoured) {
         localHasLike = hasLike
         localHasCoin = hasCoin
+        localHasFavoured = hasFavoured
     }
     Row(
         modifier = Modifier
@@ -101,7 +113,7 @@ internal fun VideoMenus(
             label = coin,
             color = if (localHasCoin) Color.Red else MaterialTheme.colorScheme.onBackground,
             onClick = {
-                if(localHasCoin.not()){
+                if (localHasCoin.not()) {
                     coinClick.invoke()
                 }
             }
@@ -109,8 +121,9 @@ internal fun VideoMenus(
         Spacer(modifier = Modifier)
         ExtendedIconButton(
             icon = Icons.Outlined.StarOutline,
+            color = if (hasFavoured) Color.Red else MaterialTheme.colorScheme.onBackground,
             label = star,
-            onClick = {}
+            onClick = { favouredClick.invoke() }
         )
         Spacer(modifier = Modifier)
         ExtendedIconButton(
@@ -250,4 +263,94 @@ private fun CoinItem(
             animationDuration = animationDuration
         )
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun FolderSheet(
+    isShowSheet: Boolean = true,
+    folders: List<FolderModel>,
+    onDismiss: () -> Unit = {},
+    onClick: (VideoMenuAction) -> Unit = {}
+) {
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = false)
+    fun closeSheet() {
+        scope.launch {
+            sheetState.hide()
+            onDismiss.invoke()
+        }
+    }
+    if (isShowSheet) {
+        ModalBottomSheet(
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier
+                .padding(8.dp)
+                .navigationBarsPadding(),
+            containerColor = MaterialTheme.colorScheme.background,
+            properties = ModalBottomSheetProperties(shouldDispatcherEvent = false),
+            onDismissRequest = { closeSheet() }
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(state = rememberScrollState())
+            ) {
+                ListItem(
+                    headlineContent = {
+                        Text(
+                            text = stringResource(R.string.str_save_to),
+                            style = MaterialTheme.typography.titleMedium,
+                        )
+                    },
+                    trailingContent = {
+                        TextButton(onClick = {}) {
+                            Icon(
+                                imageVector = Icons.Outlined.Add,
+                                contentDescription = Icons.Outlined.Add.name,
+                            )
+                            Text(
+                                text = stringResource(R.string.str_new_playlist),
+                                style = MaterialTheme.typography.titleMedium,
+                            )
+                        }
+                    }
+                )
+                folders.fastForEach {
+                    if (it.id == 2) {
+                        GetFolderCheckItem(label = it.name)
+                    } else {
+                        it.mediaListResponse.list?.fastForEach { item->
+                            GetFolderCheckItem(
+                                label = item.title
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+@Composable
+private fun GetFolderCheckItem(
+    label: String
+) {
+    var checked by remember { mutableStateOf(false) }
+    ListItem(
+        modifier = Modifier.clickable { checked = checked.not() },
+        leadingContent = {
+            Checkbox(
+                checked = checked,
+                onCheckedChange = { checked = it }
+            )
+        },
+        headlineContent = {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+    )
 }

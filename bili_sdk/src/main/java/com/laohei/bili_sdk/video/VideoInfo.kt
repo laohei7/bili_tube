@@ -4,6 +4,7 @@ import android.util.Log
 import com.laohei.bili_sdk.apis.VIDEO_COIN_ADD_URL
 import com.laohei.bili_sdk.apis.VIDEO_DETAIL_URL
 import com.laohei.bili_sdk.apis.VIDEO_HAS_COIN_URL
+import com.laohei.bili_sdk.apis.VIDEO_HAS_FAVORED_URL
 import com.laohei.bili_sdk.apis.VIDEO_HAS_LIKE_URL
 import com.laohei.bili_sdk.apis.VIDEO_INFO
 import com.laohei.bili_sdk.apis.VIDEO_LIKE_URL
@@ -12,6 +13,7 @@ import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
 import com.laohei.bili_sdk.module_v2.video.AddCoinModel
 import com.laohei.bili_sdk.module_v2.video.CoinModel
+import com.laohei.bili_sdk.module_v2.video.FavouredModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_sdk.wbi.Wbi
 import com.laohei.bili_sdk.wbi.WbiParams
@@ -140,6 +142,28 @@ class VideoInfo(
         }
         response?.run {
             Json.decodeFromString<BiliResponse<CoinModel>>(bodyAsText())
+        }
+    }
+
+    suspend fun hasFavoured(
+        aid: Long,
+        cookie: String? = null
+    ) = withContext(Dispatchers.IO) {
+        val response = try {
+            client.get(VIDEO_HAS_FAVORED_URL) {
+                url {
+                    cookie?.apply {
+                        headers.append(HttpHeaders.Cookie, this)
+                        parameters.append("aid", aid.toString())
+                    }
+                }
+                Log.d(TAG, "videoInfo: $url")
+            }
+        } catch (e: Exception) {
+            null
+        }
+        response?.run {
+            Json.decodeFromString<BiliResponse<FavouredModel>>(bodyAsText())
         }
     }
 
