@@ -19,32 +19,34 @@
 ## 预览
 
 <div style="display: flex;">
-    <img src="./assets/img/Screenshot_1.jpg" width="300">
-    <img src="./assets/img/Screenshot_2.jpg" width="300">
-    <img src="./assets/img/Screenshot_3.jpg" width="300">
-    <img src="./assets/img/Screenshot_4.jpg" width="300">
-    <img src="./assets/img/Screenshot_5.jpg" width="300">
-    <img src="./assets/img/Screenshot_6.jpg" width="300">
-    <img src="./assets/img/Screenshot_7.jpg" width="300">
-    <img src="./assets/img/Screenshot_8.jpg" width="300">
-    <img src="./assets/img/Screenshot_9.jpg" width="300">
-    <img src="./assets/img/Screenshot_10.jpg" width="300">
-    <img src="./assets/img/Screenshot_11.jpg" width="300">
-    <img src="./assets/img/Screenshot_12.jpg" height="300">
-    <img src="./assets/img/Screenshot_13.jpg" height="300">
+    <img src="./assets/img/Screenshot_1.jpg" width="120">
+    <img src="./assets/img/Screenshot_2.jpg" width="120">
+    <img src="./assets/img/Screenshot_3.jpg" width="120">
+    <img src="./assets/img/Screenshot_4.jpg" width="120">
+    <img src="./assets/img/Screenshot_5.jpg" width="120">
+    <img src="./assets/img/Screenshot_6.jpg" width="120">
+    <img src="./assets/img/Screenshot_7.jpg" width="120">
+    <img src="./assets/img/Screenshot_8.jpg" width="120">
+    <img src="./assets/img/Screenshot_9.jpg" width="120">
+    <img src="./assets/img/Screenshot_10.jpg" width="120">
+    <img src="./assets/img/Screenshot_11.jpg" width="120">
+    <img src="./assets/img/Screenshot_12.jpg" width="120">
+    <img src="./assets/img/Screenshot_13.jpg" width="120">
+    <img src="./assets/img/history_quality_speed_serial.png" width="120">
 </div>
 
 ## 技术栈
 
-🚀 核心框架：Android Compose、Material 3
-💾 数据存储：DataStore、SharedPreferences
-📄 分页加载：Paging 3
-🌐 网络通信：Ktor + Kotlin Serialization
-🖼️ 图片加载：Coil 3
-🧭 导航管理：Navigation
-🛠️ 依赖注入：Koin
-📹 多媒体支持：Media3（视频播放器）
-🔳 二维码处理：ZXing
+- 🚀 核心框架：Android Compose、Material 3
+- 💾 数据存储：DataStore、SharedPreferences
+- 📄 分页加载：Paging 3
+- 🌐 网络通信：Ktor + Kotlin Serialization
+- 🖼️ 图片加载：Coil 3
+- 🧭 导航管理：Navigation
+- 🛠️ 依赖注入：Koin
+- 📹 多媒体支持：Media3（视频播放器）
+- 🔳 二维码处理：ZXing
+- 动画 lottie
 
 ## 说明
 
@@ -74,7 +76,7 @@
 - [QQ 交流群1](https://qm.qq.com/q/lgnFYGDHOM)
 
 <div style="display: flex;">
-    <img src="./assets/img/qq_1.jpg" width="300">
+    <img src="./assets/img/qq_1.jpg" width="120">
 </div>
 
 ## 发电
@@ -86,8 +88,8 @@
 WeChat & Alipay：
 
 <div style="display: flex;">
-    <img src="./assets/img/alipay.jpg" width="300" height="300"/>
-    <img src="./assets/img/weixin.png" width="300" height="300" />
+    <img src="./assets/img/alipay.jpg" width="120" height="120"/>
+    <img src="./assets/img/weixin.png" width="120" height="120" />
 </div>
 
 ## 相关项目
