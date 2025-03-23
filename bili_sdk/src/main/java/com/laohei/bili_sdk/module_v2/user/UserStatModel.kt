@@ -13,3 +13,11 @@ data class UserStatModel(
     val follower: Int,
     @SerialName("dynamic_count") val dynamicCount: Int
 )
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class SpiModel(
+    @SerialName("b_3") val b3: String,
+    @SerialName("b_4") val b4: String
+)

@@ -1,5 +1,7 @@
 package com.laohei.bili_sdk.apis
 
+const val SPI_URL = "https://api.bilibili.com/x/frontend/finger/spi"
+
 const val REQUEST_QRCODE = "https://passport.bilibili.com/x/passport-login/web/qrcode/generate"
 
 const val CHECK_SCAN_STATUS = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll"

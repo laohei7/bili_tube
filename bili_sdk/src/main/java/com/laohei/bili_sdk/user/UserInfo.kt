@@ -1,9 +1,11 @@
 package com.laohei.bili_sdk.user
 
+import com.laohei.bili_sdk.apis.SPI_URL
 import com.laohei.bili_sdk.apis.USER_PROFILE_URL
 import com.laohei.bili_sdk.apis.USER_STAT_URL
 import com.laohei.bili_sdk.model.BiliUserProfile
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
+import com.laohei.bili_sdk.module_v2.user.SpiModel
 import com.laohei.bili_sdk.module_v2.user.UserStatModel
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -49,6 +51,23 @@ class UserInfo(
         }
         response?.run {
             Json.decodeFromString<BiliResponse<UserStatModel>>(bodyAsText())
+        }
+    }
+
+    suspend fun getSpiInfo(cookie: String?=null) = withContext(Dispatchers.IO){
+        val response = try {
+            client.get(SPI_URL) {
+                url {
+                    cookie?.apply {
+                        headers.append(HttpHeaders.Cookie, this)
+                    }
+                }
+            }
+        } catch (_: Exception) {
+            null
+        }
+        response?.run {
+            Json.decodeFromString<BiliResponse<SpiModel>>(bodyAsText())
         }
     }
 
