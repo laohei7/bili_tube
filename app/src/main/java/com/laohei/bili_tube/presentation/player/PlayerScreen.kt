@@ -344,7 +344,7 @@ fun PlayerScreen(
                 onDismiss = { viewModel.updateState(screenState.copy(isShowReplySheet = false)) },
                 modifier = otherSheetModifier,
                 maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
-                bottomPadding = screenState.videoHeight
+                bottomPadding = screenState.videoHeight+80.dp
             )
 
             val videoDetail = playerState.videoDetail
@@ -359,7 +359,7 @@ fun PlayerScreen(
                 onDismiss = { viewModel.updateState(screenState.copy(isShowDetailSheet = false)) },
                 modifier = otherSheetModifier,
                 maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
-                bottomPadding = screenState.videoHeight
+                bottomPadding = screenState.videoHeight+80.dp
             )
 
             if (playerState.videoArchiveMeta != null && playerState.videoArchives != null) {
@@ -378,7 +378,8 @@ fun PlayerScreen(
                     },
                     onClick = {
                         scope.launch { viewModel.updateParams(it) }
-                    }
+                    },
+                    bottomPadding = screenState.videoHeight+80.dp
                 )
             }
 

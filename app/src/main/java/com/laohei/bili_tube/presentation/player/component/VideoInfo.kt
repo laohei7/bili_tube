@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -169,8 +170,7 @@ internal fun VideoDetailSheet(
         ) {
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(bottom = bottomPadding),
+                    .fillMaxHeight(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 stickyHeader {
@@ -178,6 +178,7 @@ internal fun VideoDetailSheet(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(IntrinsicSize.Min)
+                            .background(MaterialTheme.colorScheme.background)
                             .padding(horizontal = 16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -204,7 +205,6 @@ internal fun VideoDetailSheet(
                             )
                         }
                     }
-                    HorizontalDivider()
                 }
                 item {
                     ListItem(
@@ -239,23 +239,26 @@ internal fun VideoDetailSheet(
                     )
                 }
 
-                item {
-                    ListItem(
-                        colors = sheetListItemColors(),
-                        headlineContent = {
-                            Surface(
-                                color = MaterialTheme.colorScheme.surfaceContainer,
-                                shape = RoundedCornerShape(16.dp)
-                            ) {
-                                Text(
-                                    text = description ?: "",
-                                    modifier = Modifier.fillMaxWidth().padding(12.dp),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                description?.let {
+                    item {
+                        ListItem(
+                            colors = sheetListItemColors(),
+                            headlineContent = {
+                                Surface(
+                                    color = MaterialTheme.colorScheme.surfaceContainer,
+                                    shape = RoundedCornerShape(16.dp)
+                                ) {
+                                    Text(
+                                        text = description.ifBlank { stringResource(R.string.str_empty) },
+                                        modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
                             }
-                        }
-                    )
+                        )
+                    }
                 }
+
                 item {
                     ListItem(
                         colors = sheetListItemColors(),
@@ -272,6 +275,7 @@ internal fun VideoDetailSheet(
                         }
                     )
                 }
+                item { Spacer(Modifier.height(bottomPadding)) }
             }
         }
     }

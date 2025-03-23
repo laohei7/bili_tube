@@ -42,4 +42,10 @@
     <string name="str_playlist">播放列表</string>
     <string name="str_all_num_episode">共%d集</string>
     <string name="str_select_episode">选集</string>
+    <string name="str_see_all">查看全部</string>
+    <string name="str_share_channel">分享频道</string>
+    <string name="str_switch_account">切换账号</string>
+    <string name="str_view_channel">查看频道</string>
+    <string name="str_official_member">正式会员</string>
+    <string name="str_empty">Up很懒，什么都没有留下哦！😜</string>
 </resources>

@@ -20,14 +20,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.PlaylistPlay
 import androidx.compose.material.icons.outlined.ArrowBackIosNew
 import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -65,8 +68,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.palette.graphics.Palette
 import coil3.asDrawable
 import coil3.compose.AsyncImage
+import com.laohei.bili_sdk.module_v2.folder.FolderModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.utill.toNonHardwareBitmap
+import com.laohei.bili_tube.utill.toViewString
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -126,35 +131,102 @@ fun PlaylistScreen(
                         if (isEmpty) 16.dp else 0.dp
                     )
                 ) {
-                    state.folderList.fastForEach { folder ->
-                        when (folder.id) {
-                            2 -> {
-                                item {
-                                    PlaylistItem(
-                                        cover = state.watchLaterCover,
-                                        title = folder.name,
-                                        label = stringResource(R.string.str_private)
-                                    )
-                                }
-                            }
-
-                            1 -> {
-                                folder.mediaListResponse.list?.let {
-                                    items(it) {
-                                        PlaylistItem(
-                                            cover = it.cover,
-                                            title = it.title,
-                                            label = stringResource(R.string.str_public),
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    getPlaylistWidget(
+                        folderList = state.folderList,
+                        watchLaterCover = state.watchLaterCover
+                    )
                 }
             }
         }
 
+    }
+}
+
+
+private fun LazyGridScope.getPlaylistWidget(
+    folderList: List<FolderModel>,
+    watchLaterCover: String
+) {
+    folderList.fastForEach { folder ->
+        when (folder.id) {
+            2 -> {
+                item {
+                    PlaylistItem(
+                        cover = watchLaterCover,
+                        title = folder.name,
+                        label = stringResource(R.string.str_private),
+                        icon = {
+                            Column(
+                                modifier = Modifier
+                                    .width(180.dp)
+                                    .aspectRatio(16 / 9f)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(
+                                        color = Color.Black.copy(alpha = 0.5f),
+                                        shape = RoundedCornerShape(12.dp)
+                                    ),
+                                verticalArrangement = Arrangement.spacedBy(
+                                    4.dp,
+                                    Alignment.CenterVertically
+                                ),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.WatchLater,
+                                    contentDescription = Icons.Outlined.WatchLater.name,
+                                    tint = Color.White
+                                )
+
+                                Text(
+                                    text = folder.mediaListResponse.count.toViewString(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = Color.White
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+
+            1 -> {
+                folder.mediaListResponse.list?.let {
+                    items(it) { item ->
+                        PlaylistItem(
+                            cover = item.cover,
+                            title = item.title,
+                            label = stringResource(R.string.str_public),
+                            icon = {
+                                Row(
+                                    modifier = Modifier
+                                        .align(Alignment.BottomEnd)
+                                        .padding(end = 12.dp, bottom = 12.dp)
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(
+                                            color = Color.Black.copy(alpha = 0.5f),
+                                            shape = RoundedCornerShape(4.dp)
+                                        )
+                                        .padding(vertical = 3.dp, horizontal = 4.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Outlined.PlaylistPlay,
+                                        contentDescription = Icons.AutoMirrored.Outlined.PlaylistPlay.name,
+                                        tint = Color.White,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                    Text(
+                                        text = item.mediaCount.toViewString(),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = Color.White
+                                    )
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -247,13 +319,13 @@ private fun PlaylistItem(
             )
 
             AsyncImage(
-                model = if (cover.isBlank()) R.drawable.icon_loading else cover,
+                model = cover.ifBlank { R.drawable.icon_loading },
                 contentDescription = "",
                 onSuccess = {
                     val drawable = it.result.image.asDrawable(context.resources)
                     scope.launch {
-                        drawable.toBitmapOrNull()?.toNonHardwareBitmap()?.let {
-                            Palette.from(it).generate { palette ->
+                        drawable.toBitmapOrNull()?.toNonHardwareBitmap()?.let { bitmap ->
+                            Palette.from(bitmap).generate { palette ->
                                 dominantColor =
                                     palette?.getDominantColor(Color.LightGray.toArgb())?.run {
                                         Color(this)

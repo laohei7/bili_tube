@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,12 +30,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.PlaylistPlay
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Feedback
+import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Search
@@ -126,9 +127,9 @@ fun MineScreen(
             AvatarWidget()
 
             UserDataWidget(
-                dynamicCount = state.dynamicCount,
+                following = state.following,
                 follower = state.follower,
-                following = state.following
+                dynamicCount = state.dynamicCount
             )
             HistoryWidget(
                 histories = state.historyList,
@@ -150,10 +151,10 @@ fun MineScreen(
 }
 
 @Composable
-private fun ColumnScope.AvatarWidget() {
+private fun AvatarWidget() {
     val context = LocalContext.current
-    var avatar by remember { mutableStateOf(context.getValue(FACE_URL_KEY.name, "")) }
-    var username by remember { mutableStateOf(context.getValue(USERNAME_KEY.name, "")) }
+    val avatar by remember { mutableStateOf(context.getValue(FACE_URL_KEY.name, "")) }
+    val username by remember { mutableStateOf(context.getValue(USERNAME_KEY.name, "")) }
     ListItem(
         leadingContent = {
             SubcomposeAsyncImage(
@@ -199,7 +200,7 @@ private fun ColumnScope.AvatarWidget() {
                     shape = RoundedCornerShape(4.dp)
                 ) {
                     Text(
-                        text = "正式会员",
+                        text = stringResource(R.string.str_official_member),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
@@ -211,10 +212,19 @@ private fun ColumnScope.AvatarWidget() {
                         .clip(CircleShape)
                         .background(Color.Red, CircleShape)
                 )
-                Text(
-                    text = "查看频道 >",
-                    style = MaterialTheme.typography.labelSmall,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.str_view_channel),
+                        style = MaterialTheme.typography.labelSmall,
+                    )
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                        contentDescription = Icons.AutoMirrored.Outlined.KeyboardArrowRight.name,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
 
             }
         }
@@ -249,7 +259,7 @@ private fun ColumnScope.AvatarWidget() {
                 )
             },
             label = {
-                Text(text = "切换账号")
+                Text(text = stringResource(R.string.str_switch_account))
 
             }
         )
@@ -272,7 +282,7 @@ private fun ColumnScope.AvatarWidget() {
                 )
             },
             label = {
-                Text(text = "分享频道")
+                Text(text = stringResource(R.string.str_share_channel))
 
             }
         )
@@ -281,7 +291,7 @@ private fun ColumnScope.AvatarWidget() {
 }
 
 @Composable
-private fun ColumnScope.UserDataWidget(
+private fun UserDataWidget(
     following: Int,
     follower: Int,
     dynamicCount: Int
@@ -335,21 +345,21 @@ private fun ColumnScope.UserDataWidget(
 }
 
 @Composable
-private fun ColumnScope.HistoryWidget(
+private fun HistoryWidget(
     histories: List<HistoryItem>,
     navigateToRoute: (Route) -> Unit
 ) {
     ListItem(
         headlineContent = {
             Text(
-                text = "历史记录",
+                text = stringResource(R.string.str_history),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
         },
         trailingContent = {
             TextButton(onClick = { navigateToRoute.invoke(Route.History) }) {
-                Text(text = "查看全部")
+                Text(text = stringResource(R.string.str_see_all))
             }
         }
     )
@@ -382,7 +392,7 @@ private fun ColumnScope.HistoryWidget(
 }
 
 @Composable
-private fun ColumnScope.PlaylistWidget(
+private fun PlaylistWidget(
     watchLaterList: List<VideoView>,
     watchLaterCount: Int = 0,
     folderList: List<FolderItem>,
@@ -391,7 +401,7 @@ private fun ColumnScope.PlaylistWidget(
     ListItem(
         headlineContent = {
             Text(
-                text = "播放列表",
+                text = stringResource(R.string.str_playlist),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -410,7 +420,7 @@ private fun ColumnScope.PlaylistWidget(
                 TextButton(onClick = {
                     navigateToRoute.invoke(Route.Playlist)
                 }) {
-                    Text(text = "查看全部")
+                    Text(text = stringResource(R.string.str_see_all))
                 }
             }
         }
@@ -509,7 +519,7 @@ private fun OtherWidget() {
             Text(text = stringResource(R.string.str_manuscript_management))
         }
     )
-    HorizontalDivider(color = Color.LightGray)
+    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
     ListItem(
         leadingContent = {
             Icon(
@@ -521,7 +531,7 @@ private fun OtherWidget() {
             Text(text = stringResource(R.string.str_downlaod_management))
         }
     )
-    HorizontalDivider(color = Color.LightGray)
+    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
     ListItem(
         leadingContent = {
             Icon(
@@ -535,7 +545,6 @@ private fun OtherWidget() {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MineTopBar() {
     Row(
@@ -622,13 +631,13 @@ private fun PlaylistItem(
             )
 
             AsyncImage(
-                model = if (cover.isBlank()) R.drawable.icon_loading else cover,
+                model = cover.ifBlank { R.drawable.icon_loading },
                 contentDescription = "",
                 onSuccess = {
                     val drawable = it.result.image.asDrawable(context.resources)
                     scope.launch {
-                        drawable.toBitmapOrNull()?.toNonHardwareBitmap()?.let {
-                            Palette.from(it).generate { palette ->
+                        drawable.toBitmapOrNull()?.toNonHardwareBitmap()?.let { bitmap->
+                            Palette.from(bitmap).generate { palette ->
                                 dominantColor =
                                     palette?.getDominantColor(Color.LightGray.toArgb())?.run {
                                         Color(this)

@@ -135,7 +135,6 @@ fun VideoReplySheet(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(bottom = bottomPadding)
             ) {
                 AnimatedContent(
                     targetState = isMainReplyList,
@@ -148,6 +147,7 @@ fun VideoReplySheet(
                             MainReplyList(
                                 lazyListState = mainLazyLazyListState,
                                 replies = replies,
+                                bottomPadding = bottomPadding,
                                 onClick = { action ->
                                     when (action) {
                                         is ReplySheetAction.ToChildReplyListAction -> {
@@ -162,7 +162,8 @@ fun VideoReplySheet(
                         else -> {
                             ChildReplyList(
                                 lazyListState = childLazyLazyListState,
-                                item = currentReplyItem!!
+                                item = currentReplyItem!!,
+                                bottomPadding = bottomPadding,
                             )
                         }
                     }
@@ -193,74 +194,67 @@ private fun ReplyTopBar(
     isMainReplyList: Boolean,
     onClick: () -> Unit
 ) {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                color = MaterialTheme.colorScheme.background
-            )
+            .height(IntrinsicSize.Min)
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(IntrinsicSize.Min)
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            AnimatedContent(
-                transitionSpec = {
-                    slideFadeRightToLeftCanReversed(isMainReplyList.not())
-                },
-                targetState = isMainReplyList,
-                contentAlignment = Alignment.CenterStart
-            ) { target ->
-                when {
-                    target -> {
+        AnimatedContent(
+            modifier = Modifier.weight(1f),
+            transitionSpec = {
+                slideFadeRightToLeftCanReversed(isMainReplyList.not())
+            },
+            targetState = isMainReplyList,
+            contentAlignment = Alignment.CenterStart
+        ) { target ->
+            when {
+                target -> {
+                    Text(
+                        text = stringResource(R.string.str_reply),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+
+                else -> {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        IconButton(
+                            onClick = onClick
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = Icons.AutoMirrored.Filled.ArrowBack.name,
+                            )
+                        }
                         Text(
                             text = stringResource(R.string.str_reply),
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold
-                            ),
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-
-                    else -> {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            IconButton(
-                                onClick = onClick
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = Icons.AutoMirrored.Filled.ArrowBack.name,
-                                )
-                            }
-                            Text(
-                                text = stringResource(R.string.str_reply),
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold
-                                )
                             )
-                        }
+                        )
                     }
                 }
             }
-
-            IconButton(
-                onClick = onClick
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = Icons.Default.Close.name,
-                )
-            }
         }
-        HorizontalDivider()
+
+        IconButton(
+            onClick = onClick
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = Icons.Default.Close.name,
+            )
+        }
     }
 }
 
@@ -268,6 +262,7 @@ private fun ReplyTopBar(
 @Composable
 private fun MainReplyList(
     lazyListState: LazyListState = rememberLazyListState(),
+    bottomPadding: Dp = 0.dp,
     replies: LazyPagingItems<VideoReplyItem>,
     onClick: (ReplySheetAction) -> Unit
 ) {
@@ -306,7 +301,7 @@ private fun MainReplyList(
             item {
                 NoMoreData(replies.loadState.append)
             }
-            item { Spacer(Modifier.height(18.dp)) }
+            item { Spacer(Modifier.height(bottomPadding)) }
         }
     }
 
@@ -315,7 +310,8 @@ private fun MainReplyList(
 @Composable
 private fun ChildReplyList(
     lazyListState: LazyListState = rememberLazyListState(),
-    item: VideoReplyItem
+    item: VideoReplyItem,
+    bottomPadding: Dp = 0.dp,
 ) {
     LazyColumn(
         state = lazyListState,
@@ -343,6 +339,7 @@ private fun ChildReplyList(
                 }
             }
         }
+        item { Spacer(Modifier.height(bottomPadding)) }
     }
 }
 
