@@ -199,6 +199,7 @@ internal fun CoinSheet(
                 ) {
                     Text(text = stringResource(R.string.str_coin_flip))
                 }
+                Spacer(Modifier.height(8.dp))
             }
 
         }
