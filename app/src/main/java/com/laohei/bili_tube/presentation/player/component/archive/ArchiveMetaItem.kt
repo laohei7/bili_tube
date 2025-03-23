@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
@@ -20,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
+import com.laohei.bili_tube.component.lottie.LottieIconPlaying
 
 
 @Composable
@@ -52,6 +54,11 @@ internal fun ArchiveMetaItem(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
+            LottieIconPlaying(
+                Modifier
+                    .padding(end = 4.dp)
+                    .size(16.dp)
+            )
             Text(
                 text = "$currentArchiveIndex/${archiveMeta.total}",
                 style = MaterialTheme.typography.labelSmall.copy(

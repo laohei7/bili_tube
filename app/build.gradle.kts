@@ -83,6 +83,8 @@ dependencies {
 
     implementation(libs.androidx.palette)
 
+    implementation(libs.lottie.compose)
+
     implementation(project(":bili_sdk"))
 
 }

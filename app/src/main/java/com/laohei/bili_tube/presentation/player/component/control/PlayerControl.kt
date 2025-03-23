@@ -61,12 +61,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.component.lottie.LottieIconSpeed
 import com.laohei.bili_tube.core.util.SystemUtil
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
@@ -94,7 +96,7 @@ fun PlayerControl(
     onLongPressEnd: () -> Unit = {},
     onShowUIChanged: (Boolean) -> Unit = {},
     settingsClick: (() -> Unit)? = null,
-    backPressedClick:(()->Unit)?=null,
+    backPressedClick: (() -> Unit)? = null,
     longPressHint: (@Composable () -> Unit)? = null,
     actionContent: (@Composable () -> Unit)? = null,
     unlockScreenClick: () -> Unit,
@@ -182,7 +184,7 @@ fun PlayerControl(
         AnimatedVisibility(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = SystemUtil.getStatusBarHeightDp()),
+                .padding(top = SystemUtil.getStatusBarHeightDp() * 1.5f),
             visible = isLongPress,
             enter = fadeIn(),
             exit = fadeOut()
@@ -285,7 +287,7 @@ private fun BoxScope.UnlockButton(
         exit = fadeOut()
     ) {
         AssistChip(
-            onClick = {onClick.invoke()},
+            onClick = { onClick.invoke() },
             shape = CircleShape,
             border = AssistChipDefaults.assistChipBorder(
                 enabled = true,
@@ -347,7 +349,7 @@ private fun BoxScope.TopBar(
     isShowUI: Boolean,
     isShowRelatedList: Boolean,
     isFullscreen: Boolean,
-    backPressedClick:(()->Unit)?=null,
+    backPressedClick: (() -> Unit)? = null,
     settingsClick: (() -> Unit)? = null
 ) {
     val isOrientationPortrait = isOrientationPortrait()
@@ -378,7 +380,7 @@ private fun BoxScope.TopBar(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = {backPressedClick?.invoke()}) {
+            IconButton(onClick = { backPressedClick?.invoke() }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowDown,
                     contentDescription = Icons.Default.KeyboardArrowDown.name,
@@ -582,10 +584,10 @@ private fun DefaultLongPressHint() {
     Surface(
         color = Color.Black.copy(alpha = 0.5f),
         contentColor = Color.White,
-        shape = RoundedCornerShape(8.dp)
+        shape = RoundedCornerShape(4.dp)
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
         ) {
@@ -594,10 +596,10 @@ private fun DefaultLongPressHint() {
                 style = MaterialTheme.typography.labelMedium
             )
 
-            Icon(
-                imageVector = Icons.Outlined.KeyboardDoubleArrowRight,
-                contentDescription = Icons.Outlined.KeyboardDoubleArrowRight.name,
-                modifier = Modifier.size(16.dp)
+            LottieIconSpeed(
+                modifier = Modifier
+                    .size(20.dp)
+                    .rotate(180f)
             )
         }
     }

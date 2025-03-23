@@ -1,6 +1,5 @@
 package com.laohei.bili_tube.presentation.player.component.archive
 
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
@@ -25,7 +24,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -75,6 +74,7 @@ import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.component.lottie.LottieIconPlaying
 import com.laohei.bili_tube.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.component.sheet.rememberModalBottomSheet
 import com.laohei.bili_tube.utill.formatTimeString
@@ -90,7 +90,8 @@ fun ArchiveSheet(
     archiveMeta: ArchiveMeta,
     archives: List<ArchiveItem>,
     isShowSheet: Boolean = false,
-    lazyListState: LazyListState= rememberLazyListState(),
+    currentArchiveIndex: Int = 0,
+    lazyListState: LazyListState = rememberLazyListState(),
     bottomPadding: Dp = 0.dp,
     onDismiss: () -> Unit = {},
     maskAlphaChanged: (Float) -> Unit = { _ -> },
@@ -159,9 +160,11 @@ fun ArchiveSheet(
         LaunchedEffect(sheetState) {
             snapshotFlow { sheetState.requireOffset() }
                 .collect { offset ->
-                    Log.d("TAG5", "ArchiveSheet: $offset")
                     maskAlphaChanged.invoke(offset)
                 }
+        }
+        LaunchedEffect(currentArchiveIndex) {
+            lazyListState.scrollToItem(currentArchiveIndex)
         }
         ModalBottomSheet(
             modifier = modifier
@@ -255,7 +258,7 @@ fun ArchiveSheet(
                             .padding(vertical = 8.dp)
                     )
                 }
-                items(archives) { item ->
+                itemsIndexed(archives) { index, item ->
                     ArchiveWidgetItem(
                         cover = item.pic,
                         title = item.title,
@@ -263,6 +266,7 @@ fun ArchiveSheet(
                         duration = item.duration.formatTimeString(false),
                         progress = item.playbackPosition.toFloat() / item.duration,
                         pubdate = item.pubdate.toTimeAgoString(),
+                        isCurrentPlaying = index == currentArchiveIndex,
                         onClick = {
                             onClick.invoke(
                                 Route.Play(
@@ -289,6 +293,7 @@ private fun ArchiveWidgetItem(
     duration: String,
     progress: Float,
     pubdate: String,
+    isCurrentPlaying: Boolean,
     onClick: () -> Unit,
 ) {
     Row(
@@ -345,6 +350,10 @@ private fun ArchiveWidgetItem(
                         .wrapContentSize()
                         .padding(3.dp)
                 )
+            }
+
+            if (isCurrentPlaying) {
+                LottieIconPlaying(Modifier.align(Alignment.Center))
             }
         }
         Column(
