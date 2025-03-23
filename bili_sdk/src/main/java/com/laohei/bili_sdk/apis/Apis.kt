@@ -39,3 +39,11 @@ const val FOLDER_URL = "https://api.bilibili.com/x/v3/fav/folder/list4navigate"
 
 const val USER_STAT_URL = "https://api.bilibili.com/x/web-interface/nav/stat"
 const val VIDEO_ARCHIVE_URL = "https://api.bilibili.com/x/polymer/web-space/seasons_archives_list"
+
+const val VIDEO_HAS_LIKE_URL = "https://api.bilibili.com/x/web-interface/archive/has/like"
+
+const val VIDEO_LIKE_URL = "https://api.bilibili.com/x/web-interface/archive/like"
+
+const val VIDEO_HAS_COIN_URL = "https://api.bilibili.com/x/web-interface/archive/coins"
+
+const val VIDEO_COIN_ADD_URL = "https://api.bilibili.com/x/web-interface/coin/add"

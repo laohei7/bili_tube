@@ -10,6 +10,15 @@ import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 data class BiliResponse<T>(
     val code: Int,
     val message: String,
-    val ttl: Int,
+    val ttl: Int = 0,
     val data: T
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@JsonIgnoreUnknownKeys
+@Serializable
+data class BiliResponseNoData(
+    val code: Int,
+    val message: String,
+    val ttl: Int,
 )

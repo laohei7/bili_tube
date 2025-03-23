@@ -30,6 +30,7 @@ import com.laohei.bili_tube.utill.toViewString
 fun ExtendedIconButton(
     icon: ImageVector = Icons.Rounded.Star,
     color: Color = MaterialTheme.colorScheme.onBackground,
+    labelColor:Color = MaterialTheme.colorScheme.onBackground,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     label: String = 999999.toViewString(),
     onClick:(()->Unit)?=null
@@ -55,7 +56,7 @@ fun ExtendedIconButton(
             )
             Text(
                 text = label,
-                color = color,
+                color = labelColor,
                 style = MaterialTheme.typography.labelMedium
             )
         }
@@ -66,6 +67,7 @@ fun ExtendedIconButton(
 fun ExtendedIconButton(
     icon1: ImageVector,
     icon2: ImageVector,
+    icon1Color:Color = MaterialTheme.colorScheme.onBackground,
     color: Color = MaterialTheme.colorScheme.onBackground,
     containerColor: Color = MaterialTheme.colorScheme.surfaceContainer,
     label: String = 999999.toViewString(),
@@ -84,7 +86,7 @@ fun ExtendedIconButton(
         ) {
             ExtendedIconButton(
                 icon = icon1, label = label,
-                color = color,
+                color = icon1Color,
                 onClick = onIcon1Click
             )
 

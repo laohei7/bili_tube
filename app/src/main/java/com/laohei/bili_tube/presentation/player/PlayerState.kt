@@ -8,5 +8,7 @@ data class PlayerState(
     val videoDetail: VideoDetailModel? = null,
     val videoArchives: List<ArchiveItem>? = null,
     val videoArchiveMeta:ArchiveMeta? = null,
-    val currentArchiveIndex: Int = 0
+    val currentArchiveIndex: Int = 0,
+    val hasLike:Boolean = false,
+    val hasCoin:Boolean = false,
 )

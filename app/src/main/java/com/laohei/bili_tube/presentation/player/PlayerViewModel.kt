@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.presentation.player.component.VideoMenuAction
 import com.laohei.bili_tube.presentation.player.state.media.DefaultMediaManager
 import com.laohei.bili_tube.presentation.player.state.media.MediaManager
 import com.laohei.bili_tube.presentation.player.state.media.Quality
@@ -43,16 +44,7 @@ internal class PlayerViewModel(
 
     private val _mPlayerState = MutableStateFlow(PlayerState())
     val playerState = _mPlayerState.onStart {
-        withContext(Dispatchers.IO) {
-            if (params.cid != -1L) {
-                launch {
-                    getVideoURL()
-                }
-            }
-            launch {
-                getVideoDetail()
-            }
-        }
+        updateParams(params)
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
@@ -89,7 +81,28 @@ internal class PlayerViewModel(
                     oid = params.aid.toString()
                 )
             }
+            launch {
+                hasLike()
+            }
         }
+
+    private suspend fun hasLike() {
+        biliPlayRepository.hasLike(
+            aid = params.aid,
+            bvid = params.bvid
+        )?.apply {
+            _mPlayerState.update { it.copy(hasLike = data == 1) }
+        }
+    }
+
+    private suspend fun hasCoin() {
+        biliPlayRepository.hasCoin(
+            aid = params.aid,
+            bvid = params.bvid
+        )?.apply {
+            _mPlayerState.update { it.copy(hasCoin = data.multiply != 0) }
+        }
+    }
 
     private suspend fun getVideoURL() {
         val response = biliPlayRepository.getPlayURL(
@@ -101,21 +114,7 @@ internal class PlayerViewModel(
             val quality = data.supportFormats.map { Pair(it.quality, it.newDescription) }
             val defaultQuality = quality.find { it.first == data.quality } ?: Quality.first()
             updateMediaState(state.value.copy(quality = quality, defaultQuality = defaultQuality))
-//            val sources = if (data.dash != null) {
-//                data.dash!!.video.zip(data.dash!!.audio) { video, audio ->
-//                    VideoSource(
-//                        videoUrl = video.baseUrl,
-//                        audioUrl = audio.baseUrl,
-//                        width = video.width,
-//                        height = video.height,
-//                        sourceType = SourceType.Normal
-//                    )
-//                }
-//            } else {
-//                data.durl?.map { VideoSource(videoUrl = it.url, sourceType = SourceType.Normal) }
-//            }
             withContext(Dispatchers.Main) {
-//                play(sources ?: emptyList())
                 play(data)
             }
         }
@@ -179,7 +178,7 @@ internal class PlayerViewModel(
                     videoArchives = allArchives,
                     currentArchiveIndex = allArchives.indexOfFirst { item ->
                         item.aid == it.videoDetail?.view?.aid
-                    } + 1
+                    }
                 )
             }
         }
@@ -187,12 +186,66 @@ internal class PlayerViewModel(
 
     fun uploadVideoHistory(duration: Long) {
         viewModelScope.launch {
-            Log.d(TAG, "uploadVideoHistory: upload history")
             biliPlayRepository.uploadVideoHistory(
                 aid = params.aid.toString(),
                 cid = params.cid.toString(),
                 progress = duration
             )
+        }
+    }
+
+    fun videoMenuActionHandle(action: VideoMenuAction) {
+        when (action) {
+            is VideoMenuAction.VideoLikeAction -> {
+                videoLike(action.like)
+            }
+
+            is VideoMenuAction.CoinAction -> {
+//                videoCoin(action.coin)
+            }
+
+            VideoMenuAction.CollectAction -> {
+
+            }
+
+            is VideoMenuAction.VideoDislikeAction -> {
+
+            }
+        }
+    }
+
+    private fun videoLike(like: Int) {
+        viewModelScope.launch {
+            biliPlayRepository.videoLike(
+                aid = params.aid,
+                bvid = params.bvid,
+                like = like
+            )?.run {
+                _mPlayerState.update { it.copy(hasLike = like == 1) }
+            }
+        }
+    }
+
+    private fun videoCoin(multiply: Int) {
+        viewModelScope.launch {
+            biliPlayRepository.videoCoin(
+                aid = params.aid,
+                bvid = params.bvid,
+                multiply = multiply
+            )?.run {
+                val msg = when (code) {
+                    0 -> {
+                        _mPlayerState.update { it.copy(hasLike = true) }
+                        "投币成功"
+                    }
+
+                    -101 -> "账号未登录"
+                    -102 -> "账号被封停"
+                    -104 -> "硬币不足"
+                    34002 -> "不能给自己投币"
+                    else -> "投币失败"
+                }
+            }
         }
     }
 

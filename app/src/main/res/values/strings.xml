@@ -48,4 +48,6 @@
     <string name="str_view_channel">查看频道</string>
     <string name="str_official_member">正式会员</string>
     <string name="str_empty">Up很懒，什么都没有留下哦！😜</string>
+    <string name="str_coin">%d硬币</string>
+    <string name="str_coin_flip">投币</string>
 </resources>

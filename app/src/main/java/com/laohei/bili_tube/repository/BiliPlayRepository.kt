@@ -112,4 +112,38 @@ class BiliPlayRepository(
         pageSize = pageSize,
         sortReverse = sortReverse
     )
+
+    suspend fun hasLike(
+        aid: Long,
+        bvid: String,
+    ) = videoInfo.hasLike(
+        aid = aid, bvid = bvid,
+        cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
+    )
+
+    suspend fun hasCoin(
+        aid: Long,
+        bvid: String,
+    ) = videoInfo.hasCoin(
+        aid = aid, bvid = bvid,
+        cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
+    )
+
+    suspend fun videoLike(
+        aid: Long,
+        bvid: String,
+        like: Int
+    ) = videoInfo.videoLike(
+        aid = aid, bvid = bvid, like = like,
+        cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
+    )
+
+    suspend fun videoCoin(
+        aid: Long,
+        bvid: String,
+        multiply: Int
+    ) = videoInfo.videoCoin(
+        aid = aid, bvid = bvid, multiply = multiply,
+        cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
+    )
 }

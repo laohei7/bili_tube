@@ -100,10 +100,12 @@ import com.laohei.bili_tube.core.util.hideSystemUI
 import com.laohei.bili_tube.core.util.showSystemUI
 import com.laohei.bili_tube.core.util.toggleOrientation
 import com.laohei.bili_tube.core.util.useLightSystemBarIcon
+import com.laohei.bili_tube.presentation.player.component.CoinSheet
 import com.laohei.bili_tube.presentation.player.component.CommentCard
 import com.laohei.bili_tube.presentation.player.component.RelatedHorizontalList
 import com.laohei.bili_tube.presentation.player.component.UserSimpleInfo
 import com.laohei.bili_tube.presentation.player.component.VideoDetailSheet
+import com.laohei.bili_tube.presentation.player.component.VideoMenuAction
 import com.laohei.bili_tube.presentation.player.component.VideoMenus
 import com.laohei.bili_tube.presentation.player.component.VideoSimpleInfo
 import com.laohei.bili_tube.presentation.player.component.archive.ArchiveMetaItem
@@ -318,17 +320,19 @@ fun PlayerScreen(
                         orientation = Orientation.Vertical,
                         state = rememberDraggableState { },
                     ),
+                playerState = playerState,
                 lazyListState = lazyListState,
                 videoDetail = playerState.videoDetail,
                 videoArchiveMeta = playerState.videoArchiveMeta,
-                currentArchiveIndex = playerState.currentArchiveIndex,
+                currentArchiveIndex = playerState.currentArchiveIndex + 1,
                 onClick = {
                     viewModel.screenActionHandle(
                         it, true, scope,
                         updateParamsCallback = { newParams ->
                             scope.launch { viewModel.updateParams(newParams) }
                         })
-                }
+                },
+                videoMenuClick = viewModel::videoMenuActionHandle
             )
 
             Box(
@@ -344,7 +348,7 @@ fun PlayerScreen(
                 onDismiss = { viewModel.updateState(screenState.copy(isShowReplySheet = false)) },
                 modifier = otherSheetModifier,
                 maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
-                bottomPadding = screenState.videoHeight+80.dp
+                bottomPadding = screenState.videoHeight + 80.dp
             )
 
             val videoDetail = playerState.videoDetail
@@ -359,13 +363,14 @@ fun PlayerScreen(
                 onDismiss = { viewModel.updateState(screenState.copy(isShowDetailSheet = false)) },
                 modifier = otherSheetModifier,
                 maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
-                bottomPadding = screenState.videoHeight+80.dp
+                bottomPadding = screenState.videoHeight + 80.dp
             )
 
             if (playerState.videoArchiveMeta != null && playerState.videoArchives != null) {
                 ArchiveSheet(
                     lazyListState = screenState.archiveListState,
                     modifier = otherSheetModifier,
+                    currentArchiveIndex = playerState.currentArchiveIndex,
                     archiveMeta = playerState.videoArchiveMeta!!,
                     archives = playerState.videoArchives!!,
                     isShowSheet = screenState.isShowArchiveSheet,
@@ -379,7 +384,7 @@ fun PlayerScreen(
                     onClick = {
                         scope.launch { viewModel.updateParams(it) }
                     },
-                    bottomPadding = screenState.videoHeight+80.dp
+                    bottomPadding = screenState.videoHeight + 80.dp
                 )
             }
 
@@ -461,6 +466,17 @@ fun PlayerScreen(
                 )
                 viewModel.switchQuality(it)
             }
+        )
+
+        CoinSheet(
+            isShowSheet = screenState.isShowCoinSheet,
+            onDismiss = {
+                viewModel.screenActionHandle(
+                    ScreenAction.ShowCoinSheetAction(false),
+                    isOrientationPortrait
+                )
+            },
+            onClick = viewModel::videoMenuActionHandle
         )
     }
 }
@@ -582,10 +598,12 @@ private fun BoxScope.VideoArea(
 private fun VideoContent(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState,
+    playerState: PlayerState,
     videoDetail: VideoDetailModel?,
     videoArchiveMeta: ArchiveMeta?,
     currentArchiveIndex: Int,
-    onClick: (ScreenAction) -> Unit
+    onClick: (ScreenAction) -> Unit,
+    videoMenuClick: (VideoMenuAction) -> Unit,
 ) {
     Surface(
         modifier = modifier,
@@ -625,6 +643,10 @@ private fun VideoContent(
                         coin = detail.view.stat.coin.toViewString(),
                         star = detail.view.stat.favorite.toViewString(),
                         share = detail.view.stat.share.toViewString(),
+                        hasLike = playerState.hasLike,
+                        hasCoin = playerState.hasCoin,
+                        onClick = videoMenuClick,
+                        coinClick = { onClick.invoke(ScreenAction.ShowCoinSheetAction(true)) }
                     )
                 }
                 videoArchiveMeta?.let {

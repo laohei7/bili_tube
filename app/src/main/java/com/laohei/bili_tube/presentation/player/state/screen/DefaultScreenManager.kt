@@ -183,6 +183,10 @@ internal class DefaultScreenManager(
                 lockScreenCallback?.invoke()
             }
 
+            is ScreenAction.ShowCoinSheetAction ->{
+                _mState.update { it.copy(isShowCoinSheet = action.flag) }
+            }
+
             is ScreenAction.ShowQualitySheetAction -> {
                 _mState.update { it.copy(isShowQualitySheet = action.flag) }
             }
