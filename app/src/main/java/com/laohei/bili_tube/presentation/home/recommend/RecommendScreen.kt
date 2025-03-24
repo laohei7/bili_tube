@@ -98,9 +98,6 @@ fun RecommendScreen(
                 } else {
                     items(randomVideos.itemCount) { index ->
                         randomVideos[index]?.let {
-                            if(it.owner==null || it.stat== null){
-                                return@items
-                            }
                             VideoItem(
                                 isSingleLayout = fixedCount == 1,
                                 key = it.bvid,

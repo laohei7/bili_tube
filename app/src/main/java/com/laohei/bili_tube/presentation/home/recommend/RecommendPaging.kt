@@ -1,5 +1,6 @@
 package com.laohei.bili_tube.presentation.home.recommend
 
+import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
@@ -59,7 +60,9 @@ class RecommendPaging(
                 ps = _mParams.ps
             )
 
-            val data = response?.data?.item ?: emptyList()
+            val data = response?.data?.item
+                ?.fastFilter { it.owner!=null && it.stat != null }
+                ?: emptyList()
 
 
             response?.data?.let {
