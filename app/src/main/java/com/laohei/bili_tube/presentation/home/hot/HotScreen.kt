@@ -3,8 +3,8 @@ package com.laohei.bili_tube.presentation.home.hot
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -28,12 +28,11 @@ import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.PlayCircleOutline
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -60,7 +59,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import coil3.compose.SubcomposeAsyncImage
@@ -115,7 +113,6 @@ fun HotScreen(
                 state = gridState,
                 columns = GridCells.Fixed(fixedCount),
                 contentPadding = PaddingValues(horizontal = if (fixedCount == 1) 0.dp else 8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
                 horizontalArrangement = Arrangement.spacedBy(9.dp)
             ) {
                 item(span = { GridItemSpan(fixedCount) }) {
@@ -188,23 +185,14 @@ private fun VideoItem2(
     onClick: () -> Unit,
     onMenuClick: (() -> Unit)? = null
 ) {
-    Card(
-        modifier = Modifier
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ) { onClick.invoke() },
-        shape = RoundedCornerShape(0.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background
-        )
+    Column(
+        modifier = Modifier.padding(top = 4.dp),
     ) {
         Row(
             modifier = Modifier
-                .padding(horizontal = 8.dp)
+                .background(MaterialTheme.colorScheme.background)
+                .clickable { onClick.invoke() }
+                .padding(horizontal = 8.dp, vertical = 4.dp)
                 .height(IntrinsicSize.Min),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp)
@@ -258,10 +246,8 @@ private fun VideoItem2(
                     maxLines = 2,
                     minLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp
-                    )
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
                 )
 
                 Surface(
@@ -299,8 +285,7 @@ private fun VideoItem2(
                         Text(
                             text = ownerName,
                             maxLines = 1,
-                            style = MaterialTheme.typography.labelSmall
-                                .copy(fontSize = 12.sp),
+                            style = MaterialTheme.typography.labelSmall,
                             color = Color.Gray
                         )
                     }
@@ -325,8 +310,7 @@ private fun VideoItem2(
                             Text(
                                 text = "${view}观看 · $publishDate",
                                 maxLines = 1,
-                                style = MaterialTheme.typography.labelSmall
-                                    .copy(fontSize = 12.sp),
+                                style = MaterialTheme.typography.labelSmall,
                                 color = Color.Gray
                             )
                         }
@@ -335,6 +319,8 @@ private fun VideoItem2(
                             contentDescription = Icons.Default.MoreVert.name,
                             modifier = Modifier
                                 .size(16.dp)
+                                .background(MaterialTheme.colorScheme.background)
+                                .clip(CircleShape)
                                 .clickable { onMenuClick?.invoke() },
                             tint = Color.Gray
                         )
@@ -343,10 +329,9 @@ private fun VideoItem2(
             }
         }
         HorizontalDivider(
-            thickness = (0.8).dp,
-            color = Color.LightGray,
+            color = MaterialTheme.colorScheme.surfaceContainer,
             modifier = Modifier
-                .padding(horizontal = 8.dp)
+                .padding(start = 8.dp)
                 .padding(top = 4.dp)
         )
     }

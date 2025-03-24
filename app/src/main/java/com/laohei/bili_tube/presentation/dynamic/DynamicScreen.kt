@@ -30,9 +30,8 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Topic
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -98,7 +97,7 @@ fun DynamicScreen(
             when (event) {
                 is Event.NotificationChildRefresh -> {
                     scope.launch {
-                        gridState.animateScrollToItem(0)
+                        gridState.scrollToItem(0)
                         dynamicList.refresh()
                     }
                 }
@@ -155,9 +154,8 @@ fun DynamicScreen(
                     else -> {
                         items(dynamicList.itemCount) { index ->
                             dynamicList[index]?.let {
-                                Surface(
-                                    modifier = Modifier.padding(vertical = 16.dp),
-                                    color = Color.Transparent
+                                Column (
+                                    modifier = Modifier.padding(vertical = 8.dp),
                                 ) {
                                     GetDynamicItem(
                                         item = it,
@@ -166,6 +164,11 @@ fun DynamicScreen(
                                         onMenuClick = {
                                             isShowMenuSheet = true
                                         }
+                                    )
+
+                                    HorizontalDivider(
+                                        color = MaterialTheme.colorScheme.surfaceContainer,
+                                        modifier = Modifier.padding(top = 8.dp)
                                     )
                                 }
                             }
@@ -202,7 +205,6 @@ private fun GetDynamicItem(
     when (item.type) {
         DynamicItem.DYNAMIC_TYPE_AV -> {
             val archive = item.modules.moduleDynamic.major!!.archive!!
-            Log.d(TAG, "DynamicScreen: ${archive.cover}")
             VideoItem(
                 isSingleLayout = isSingleLayout,
                 key = archive.bvid,
@@ -344,15 +346,11 @@ private fun DRAWItem(
     images: List<String>?,
     onMenuClick: (() -> Unit)? = null
 ) {
-    Card(
-        shape = RoundedCornerShape(0.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background
+    Column(
+        modifier = Modifier.background(
+            MaterialTheme.colorScheme.background
         )
-    ) {
+    )  {
         AuthorBar(
             face = face,
             ownerName = ownerName,
@@ -431,13 +429,9 @@ private fun CommonItem(
     cover: String,
     onMenuClick: (() -> Unit)? = null
 ) {
-    Card(
-        shape = RoundedCornerShape(0.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background
+    Column(
+        modifier = Modifier.background(
+            MaterialTheme.colorScheme.background
         )
     ) {
         AuthorBar(
@@ -516,15 +510,11 @@ private fun TopicItem(
     desc: String,
     onMenuClick: (() -> Unit)? = null
 ) {
-    Card(
-        shape = RoundedCornerShape(0.dp),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp
-        ),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.background
+    Column(
+        modifier = Modifier.background(
+            MaterialTheme.colorScheme.background
         )
-    ) {
+    )  {
         AuthorBar(
             face = face,
             ownerName = ownerName,

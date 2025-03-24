@@ -54,4 +54,5 @@
     <string name="str_new_playlist">新建播放列表</string>
     <string name="str_exit_app_hint">再按一次退出应用</string>
     <string name="str_ok">确定</string>
+    <string name="str_author_view_date">%1s · %2s次观看 · %3s</string>
 </resources>

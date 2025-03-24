@@ -139,7 +139,7 @@ fun HomeScreen(
                 is Event.NotificationChildRefresh -> {
                     val currentState = homeViewModel.gridStates[pagerState.currentPage]
                     scope.launch {
-                        currentState.animateScrollToItem(0)
+                        currentState.scrollToItem(0)
                         when (pagerState.currentPage) {
                             0 -> recommendVideos.refresh()
                             1 -> hotVideos.refresh()
