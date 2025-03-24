@@ -52,4 +52,6 @@
     <string name="str_coin_flip">投币</string>
     <string name="str_save_to">将视频保存至...</string>
     <string name="str_new_playlist">新建播放列表</string>
+    <string name="str_exit_app_hint">再按一次退出应用</string>
+    <string name="str_ok">确定</string>
 </resources>

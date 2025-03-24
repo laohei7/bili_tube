@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.core.correspondence.Event
+import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.presentation.player.component.VideoMenuAction
 import com.laohei.bili_tube.presentation.player.state.media.DefaultMediaManager
 import com.laohei.bili_tube.presentation.player.state.media.MediaManager
@@ -15,6 +17,7 @@ import com.laohei.bili_tube.presentation.player.state.screen.ScreenManager
 import com.laohei.bili_tube.repository.BiliPlayRepository
 import com.laohei.bili_tube.repository.BiliPlaylistRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
@@ -47,7 +50,7 @@ internal class PlayerViewModel(
     private val _mPlayerState = MutableStateFlow(PlayerState())
     val playerState = _mPlayerState.onStart {
         updateParams(params)
-        getFolderList()
+        getFolderSimpleList()
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
@@ -214,11 +217,11 @@ internal class PlayerViewModel(
             }
 
             is VideoMenuAction.CoinAction -> {
-//                videoCoin(action.coin)
+                videoCoin(action.coin)
             }
 
-            VideoMenuAction.CollectAction -> {
-
+            is VideoMenuAction.CollectAction -> {
+                videoFolderDeal(action.addAids, action.delAids)
             }
 
             is VideoMenuAction.VideoDislikeAction -> {
@@ -241,31 +244,57 @@ internal class PlayerViewModel(
 
     private fun videoCoin(multiply: Int) {
         viewModelScope.launch {
-            biliPlayRepository.videoCoin(
-                aid = params.aid,
-                bvid = params.bvid,
-                multiply = multiply
-            )?.run {
-                val msg = when (code) {
-                    0 -> {
-                        _mPlayerState.update { it.copy(hasLike = true) }
-                        "投币成功"
-                    }
+            EventBus.send(Event.PlayerEvent.SnackbarEvent(message = "投币: $multiply"))
+//            biliPlayRepository.videoCoin(
+//                aid = params.aid,
+//                bvid = params.bvid,
+//                multiply = multiply
+//            )?.run {
+//                val msg = when (code) {
+//                    0 -> {
+//                        _mPlayerState.update { it.copy(hasLike = true) }
+//                        "投币成功"
+//                    }
+//
+//                    -101 -> "账号未登录"
+//                    -102 -> "账号被封停"
+//                    -104 -> "硬币不足"
+//                    34002 -> "不能给自己投币"
+//                    else -> "投币失败"
+//                }
+//                EventBus.send(Event.PlayerEvent.SnackbarEvent(message = msg))
+//            }
+        }
+    }
 
-                    -101 -> "账号未登录"
-                    -102 -> "账号被封停"
-                    -104 -> "硬币不足"
-                    34002 -> "不能给自己投币"
-                    else -> "投币失败"
-                }
+    private fun videoFolderDeal(
+        addMediaIds: Set<Long>,
+        delMediaIds: Set<Long>,
+    ) {
+        viewModelScope.launch {
+            val alreadyAdd = _mPlayerState.value.folders.filter { it.favState==1 }.map { it.id }.toSet()
+            Log.d(TAG, "videoFolderDeal1: $alreadyAdd")
+            val temp = addMediaIds.filter { alreadyAdd.contains(it).not() }.toSet()
+            Log.d(TAG, "videoFolderDeal2: $temp")
+            biliPlayRepository.videoFolderDeal(
+                aid = params.aid,
+                addMediaIds = temp,
+                delMediaIds = delMediaIds
+            )?.run {
+                Log.d(TAG, "videoFolderDeal: $this")
+                delay(300)
+                getFolderSimpleList()
             }
         }
     }
 
-    private suspend fun getFolderList() {
-        playlistRepository.getFolderList()?.apply {
+    private suspend fun getFolderSimpleList() {
+        playlistRepository.getFolderSimpleList(params.aid)?.apply {
+            Log.d(TAG, "getFolderSimpleList: $this")
             _mPlayerState.update {
-                it.copy(folders = this)
+                it.copy(
+                    folders = this.list,
+                    hasFavoured = this.list.any { item -> item.favState == 1 })
             }
         }
     }

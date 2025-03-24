@@ -38,6 +38,7 @@ const val WATCH_LATER_URL = "https://api.bilibili.com/x/v2/history/toview"
 const val HISTORY_URL = "https://api.bilibili.com/x/web-interface/history/cursor"
 
 const val FOLDER_URL = "https://api.bilibili.com/x/v3/fav/folder/list4navigate"
+const val FOLDER_SIMPLE_URL = "https://api.bilibili.com/x/v3/fav/folder/created/list-all"
 
 const val USER_STAT_URL = "https://api.bilibili.com/x/web-interface/nav/stat"
 const val VIDEO_ARCHIVE_URL = "https://api.bilibili.com/x/polymer/web-space/seasons_archives_list"
@@ -51,3 +52,5 @@ const val VIDEO_HAS_COIN_URL = "https://api.bilibili.com/x/web-interface/archive
 const val VIDEO_COIN_ADD_URL = "https://api.bilibili.com/x/web-interface/coin/add"
 
 const val VIDEO_HAS_FAVORED_URL = "https://api.bilibili.com/x/v2/fav/video/favoured"
+
+const val VIDEO_FOLDER_DEAL_URL = "https://api.bilibili.com/medialist/gateway/coll/resource/deal"

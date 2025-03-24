@@ -3,6 +3,7 @@ package com.laohei.bili_sdk.video
 import android.util.Log
 import com.laohei.bili_sdk.apis.VIDEO_COIN_ADD_URL
 import com.laohei.bili_sdk.apis.VIDEO_DETAIL_URL
+import com.laohei.bili_sdk.apis.VIDEO_FOLDER_DEAL_URL
 import com.laohei.bili_sdk.apis.VIDEO_HAS_COIN_URL
 import com.laohei.bili_sdk.apis.VIDEO_HAS_FAVORED_URL
 import com.laohei.bili_sdk.apis.VIDEO_HAS_LIKE_URL
@@ -11,6 +12,7 @@ import com.laohei.bili_sdk.apis.VIDEO_LIKE_URL
 import com.laohei.bili_sdk.model.BiliVideoInfo
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
+import com.laohei.bili_sdk.module_v2.folder.FolderDealModel
 import com.laohei.bili_sdk.module_v2.video.AddCoinModel
 import com.laohei.bili_sdk.module_v2.video.CoinModel
 import com.laohei.bili_sdk.module_v2.video.FavouredModel
@@ -178,8 +180,6 @@ class VideoInfo(
                 url {
                     cookie?.apply {
                         headers.append(HttpHeaders.Cookie, this)
-                        parameters.append("aid", aid.toString())
-                        parameters.append("bvid", bvid)
                     }
                 }
                 Log.d(TAG, "videoInfo: $url")
@@ -216,8 +216,6 @@ class VideoInfo(
                 url {
                     cookie?.apply {
                         headers.append(HttpHeaders.Cookie, cookie)
-                        parameters.append("aid", aid.toString())
-                        parameters.append("bvid", bvid)
                     }
                 }
                 Log.d(TAG, "videoInfo: $url")
@@ -241,6 +239,45 @@ class VideoInfo(
         response?.run {
             Log.d(TAG, "videoCoin: ${bodyAsText()}")
             Json.decodeFromString<BiliResponse<AddCoinModel>>(bodyAsText())
+        }
+    }
+
+    suspend fun videoFolderDeal(
+        rid: Long,
+        type: Int = 2,
+        addMediaIds: Set<Long>,
+        delMediaIds: Set<Long>,
+        cookie: String? = null,
+    ) = withContext(Dispatchers.IO) {
+        val response = try {
+            client.post(VIDEO_FOLDER_DEAL_URL) {
+                url {
+                    cookie?.apply {
+                        headers.append(HttpHeaders.Cookie, cookie)
+                    }
+                }
+                Log.d(TAG, "videoInfo: $url")
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    FormDataContent(
+                        Parameters.build {
+                            append("rid", rid.toString())
+                            append("type", type.toString())
+                            append("add_media_ids", addMediaIds.joinToString(","))
+                            append("del_media_ids", delMediaIds.joinToString(","))
+                            append(
+                                "csrf",
+                                cookie?.substringAfter("bili_jct=")?.substringBefore(";") ?: ""
+                            )
+                        }
+                    ))
+            }
+        } catch (e: Exception) {
+            null
+        }
+        response?.run {
+            Log.d(TAG, "videoCoin: ${bodyAsText()}")
+            Json.decodeFromString<BiliResponse<FolderDealModel>>(bodyAsText())
         }
     }
 }

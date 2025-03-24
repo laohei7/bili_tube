@@ -153,4 +153,15 @@ class BiliPlayRepository(
         aid = aid, bvid = bvid, multiply = multiply,
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
     )
+
+    suspend fun videoFolderDeal(
+        aid: Long,
+        addMediaIds: Set<Long>,
+        delMediaIds: Set<Long>,
+    ) = videoInfo.videoFolderDeal(
+        rid = aid,
+        addMediaIds = addMediaIds,
+        delMediaIds = delMediaIds,
+        cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
+    )
 }

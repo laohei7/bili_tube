@@ -19,6 +19,14 @@ data class FolderModel(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
+data class FolderSimpleModel(
+    val count: Int,
+    val list: List<FolderSimpleItem>
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
 data class MediaListModel(
     val count: Int,
     val list: List<FolderItem>? = null,
@@ -38,4 +46,24 @@ data class FolderItem(
     val ctime: Long,
     val mtime: Long,
     @SerialName("media_count") val mediaCount: Int
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class FolderSimpleItem(
+    val id: Long,
+    val fid: Long,
+    val mid: Long,
+    val attr: Int,
+    val title: String,
+    @SerialName("fav_state") val favState: Int,
+    @SerialName("media_count") val mediaCount: Int
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class FolderDealModel(
+    val prompt: Boolean
 )

@@ -478,7 +478,13 @@ fun PlayerScreen(
                     isOrientationPortrait
                 )
             },
-            onClick = viewModel::videoMenuActionHandle
+            onClick = {
+                viewModel.videoMenuActionHandle(it)
+                viewModel.screenActionHandle(
+                    ScreenAction.ShowCoinSheetAction(false),
+                    isOrientationPortrait
+                )
+            }
         )
 
         FolderSheet(
@@ -491,7 +497,11 @@ fun PlayerScreen(
                 )
             },
             onClick = {
-
+                viewModel.videoMenuActionHandle(it)
+                viewModel.screenActionHandle(
+                    ScreenAction.ShowFolderSheetAction(false),
+                    isOrientationPortrait
+                )
             }
         )
 
