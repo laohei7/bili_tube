@@ -103,6 +103,7 @@ import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.presentation.player.component.CoinSheet
 import com.laohei.bili_tube.presentation.player.component.CommentCard
 import com.laohei.bili_tube.presentation.player.component.FolderSheet
+import com.laohei.bili_tube.presentation.player.component.PlayerSnackHost
 import com.laohei.bili_tube.presentation.player.component.RelatedHorizontalList
 import com.laohei.bili_tube.presentation.player.component.UserSimpleInfo
 import com.laohei.bili_tube.presentation.player.component.VideoDetailSheet
@@ -492,6 +493,10 @@ fun PlayerScreen(
             onClick = {
 
             }
+        )
+
+        PlayerSnackHost(
+            modifier = Modifier.align(Alignment.BottomStart)
         )
     }
 }
