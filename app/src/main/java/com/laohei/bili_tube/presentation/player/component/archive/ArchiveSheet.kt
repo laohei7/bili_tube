@@ -179,6 +179,7 @@ fun ArchiveSheet(
             Box(
                 contentAlignment = Alignment.CenterStart,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(start = 16.dp)
             ) {
@@ -298,7 +299,7 @@ private fun ArchiveWidgetItem(
 ) {
     Row(
         modifier = Modifier
-            .width(IntrinsicSize.Min)
+            .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
             .clickable {
                 onClick.invoke()
@@ -322,7 +323,7 @@ private fun ArchiveWidgetItem(
                     .build(),
                 contentDescription = title,
                 modifier = Modifier
-                    .width(180.dp)
+                    .fillMaxWidth()
                     .aspectRatio(16 / 9f)
                     .clip(shape),
                 contentScale = ContentScale.Crop,

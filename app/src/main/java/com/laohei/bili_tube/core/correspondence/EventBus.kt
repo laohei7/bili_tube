@@ -12,6 +12,22 @@ object EventBus {
     }
 }
 
-sealed interface Event {
+interface Event {
     data object NotificationChildRefresh : Event
+
+    sealed interface PlayerEvent : Event {
+        data class SnackbarEvent(
+            val message: String,
+            val actionType: Int = NONE_ACTION
+        ) : PlayerEvent {
+            companion object {
+                const val NONE_ACTION = 0
+                const val FOLDER_ACTION = 1
+            }
+        }
+    }
+
+    sealed interface AppEvent : Event {
+        data class ToastEvent(val message: String) : AppEvent
+    }
 }

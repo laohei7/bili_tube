@@ -48,6 +48,7 @@ import com.laohei.bili_tube.component.appbar.BottomAppBarItem
 import com.laohei.bili_tube.component.appbar.SmallBottomAppBar
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.core.FACE_URL_KEY
+import com.laohei.bili_tube.core.UP_MID_KEY
 import com.laohei.bili_tube.core.USERNAME_KEY
 import com.laohei.bili_tube.core.VIP_STATUS_KEY
 import com.laohei.bili_tube.core.correspondence.Event
@@ -101,6 +102,8 @@ fun App() {
     if (isPlayRoute.not()) {
         activity?.useLightSystemBarIcon(isSystemInDarkTheme().not())
     }
+
+    AppEventListener()
 
     LaunchedEffect(isLogin) {
         if (isLogin.not()) {
@@ -239,6 +242,8 @@ fun App() {
 
 @Composable
 private fun ExitAppHandle() {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     val activity = LocalActivity.current
     var backPressedTime by remember { mutableLongStateOf(0L) }
     BackHandler(enabled = true) {
@@ -249,7 +254,26 @@ private fun ExitAppHandle() {
         } else {
             // 提示用户再按一次退出
             backPressedTime = currentTime
-            Toast.makeText(activity, "再按一次退出应用", Toast.LENGTH_SHORT).show()
+            scope.launch {
+                EventBus.send(Event.AppEvent.ToastEvent(context.getString(R.string.str_exit_app_hint)))
+            }
+        }
+    }
+}
+
+@Composable
+private fun AppEventListener(){
+    val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        EventBus.events.collect { event ->
+            if((event is Event.AppEvent).not()){
+                return@collect
+            }
+            when(val appEvent = event as Event.AppEvent){
+                is Event.AppEvent.ToastEvent -> {
+                    Toast.makeText(context, appEvent.message, Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 }
@@ -266,6 +290,7 @@ private fun GetAndCacheUserProfile(isLogin: Boolean) {
                     cookie = this
                 )?.data?.let {
                     Log.d(TAG, "App: $it")
+                    context.setValue(UP_MID_KEY.name, it.mid)
                     context.setValue(FACE_URL_KEY.name, it.face)
                     context.setValue(USERNAME_KEY.name, it.uname)
                     context.setValue(VIP_STATUS_KEY.name, it.vipStatus)

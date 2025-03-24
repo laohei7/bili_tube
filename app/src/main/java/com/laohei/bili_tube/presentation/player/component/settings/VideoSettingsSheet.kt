@@ -1,6 +1,5 @@
 package com.laohei.bili_tube.presentation.player.component.settings
 
-import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,6 +32,8 @@ import com.laohei.bili_tube.component.icons.SleepTimer
 import com.laohei.bili_tube.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.component.sheet.ModalBottomSheetProperties
 import com.laohei.bili_tube.component.sheet.rememberModalBottomSheet
+import com.laohei.bili_tube.core.correspondence.Event
+import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
 import kotlinx.coroutines.launch
 
@@ -50,8 +51,8 @@ internal fun VideoSettingsSheet(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val sheetState =  rememberModalBottomSheet(skipPartiallyExpanded = true)
-    fun closeSheet(){
+    val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true)
+    fun closeSheet() {
         scope.launch {
             sheetState.hide()
             onDismiss.invoke()
@@ -59,7 +60,7 @@ internal fun VideoSettingsSheet(
     }
     if (isShowSheet) {
         ModalBottomSheet(
-            sheetState =sheetState,
+            sheetState = sheetState,
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier
                 .padding(8.dp)
@@ -133,12 +134,9 @@ internal fun VideoSettingsSheet(
                 )
                 ListItem(
                     modifier = Modifier.clickable {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.str_under_deveplment),
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
+                        scope.launch {
+                            EventBus.send(Event.AppEvent.ToastEvent(context.getString(R.string.str_under_deveplment)))
+                        }
                     },
                     leadingContent = {
                         Icon(
@@ -161,12 +159,9 @@ internal fun VideoSettingsSheet(
                 )
                 ListItem(
                     modifier = Modifier.clickable {
-                        Toast.makeText(
-                            context,
-                            context.getString(R.string.str_under_deveplment),
-                            Toast.LENGTH_SHORT
-                        )
-                            .show()
+                        scope.launch {
+                            EventBus.send(Event.AppEvent.ToastEvent(context.getString(R.string.str_under_deveplment)))
+                        }
                     },
                     leadingContent = {
                         Icon(
