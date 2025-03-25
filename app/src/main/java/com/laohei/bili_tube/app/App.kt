@@ -8,12 +8,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Subscriptions
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
@@ -164,7 +166,7 @@ fun App() {
 private fun MainChildGraph(navController: NavController) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    var bottomAppBarSelectedIndex by remember { mutableIntStateOf(0) }
+    var bottomAppBarSelectedIndex by rememberSaveable  { mutableIntStateOf(0) }
     val bottomAppBarItems = remember {
         listOf(
             BottomAppBarItem(
@@ -234,7 +236,9 @@ private fun MainChildGraph(navController: NavController) {
                 NavigationSuiteType.None,
                 NavigationSuiteType.NavigationBar -> {
                     Surface(
-                        modifier = Modifier.navigationBarsPadding()
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.background)
+                            .navigationBarsPadding()
                     ) {
                         SmallBottomAppBar(
                             items = bottomAppBarItems,

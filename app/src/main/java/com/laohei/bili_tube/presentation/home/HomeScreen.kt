@@ -150,75 +150,72 @@ fun HomeScreen(
         }
     }
 
-    Scaffold(
+    Box(
         modifier = Modifier
             .nestedScroll(connection)
-            .navigationBarsPadding()
-    ) { padding ->
-        Box {
-            HorizontalPager(
-                modifier = Modifier.offset {
-                    IntOffset(0, logoHeight + with(density) { 40.dp.toPx().toInt() })
-                },
-                state = pagerState,
-                beyondViewportPageCount = 2
-            ) { index ->
-                when (index) {
-                    0 -> RecommendScreen(
-                        randomVideos = recommendVideos,
-                        gridState = homeViewModel.gridStates[index],
-                        navigateToRoute = navigateToRoute
-                    )
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        HorizontalPager(
+            modifier = Modifier.offset {
+                IntOffset(0, logoHeight + with(density) { 40.dp.toPx().toInt() })
+            },
+            state = pagerState,
+            beyondViewportPageCount = 2
+        ) { index ->
+            when (index) {
+                0 -> RecommendScreen(
+                    randomVideos = recommendVideos,
+                    gridState = homeViewModel.gridStates[index],
+                    navigateToRoute = navigateToRoute
+                )
 
-                    1 -> HotScreen(
-                        hotVideos = hotVideos,
-                        gridState = homeViewModel.gridStates[index],
-                        navigateToRoute = navigateToRoute
-                    )
+                1 -> HotScreen(
+                    hotVideos = hotVideos,
+                    gridState = homeViewModel.gridStates[index],
+                    navigateToRoute = navigateToRoute
+                )
 
-                    2 -> AnimeScreen(
-                        timelines = timelines
-                    )
-                }
+                2 -> AnimeScreen(
+                    timelines = timelines
+                )
             }
+        }
 
-            Column(
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .offset {
+                    IntOffset(0, logoHeight)
+                }
+                .background(
+                    color = MaterialTheme.colorScheme.background.copy(alpha = 0.989f)
+                )
+        ) {
+            LogoTopAppBar(alpha = alpha)
+
+            PrimaryTabRow(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .offset {
-                        IntOffset(0, logoHeight)
-                    }
-                    .background(
-                        color = MaterialTheme.colorScheme.background.copy(alpha = 0.989f)
-                    )
+                    .height(IntrinsicSize.Min),
+                selectedTabIndex = pagerState.currentPage,
+                containerColor = Color.Transparent,
             ) {
-                LogoTopAppBar(alpha = alpha)
-
-                PrimaryTabRow(
-                    modifier = Modifier
-                        .height(IntrinsicSize.Min),
-                    selectedTabIndex = pagerState.currentPage,
-                    containerColor = Color.Transparent,
-                ) {
-                    tabs.fastForEachIndexed { index, tab ->
-                        Tab(
-                            selected = index == pagerState.currentPage,
-                            onClick = {
-                                scope.launch {
-                                    pagerState.animateScrollToPage(index)
-                                }
+                tabs.fastForEachIndexed { index, tab ->
+                    Tab(
+                        selected = index == pagerState.currentPage,
+                        onClick = {
+                            scope.launch {
+                                pagerState.animateScrollToPage(index)
                             }
-                        ) {
-                            Text(
-                                text = tab,
-                                modifier = Modifier
-                                    .padding(top = 8.dp, bottom = 4.dp)
-                            )
                         }
+                    ) {
+                        Text(
+                            text = tab,
+                            modifier = Modifier
+                                .padding(top = 8.dp, bottom = 4.dp)
+                        )
                     }
                 }
             }
-
         }
 
     }

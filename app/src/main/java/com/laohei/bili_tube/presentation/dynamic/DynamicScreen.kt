@@ -1,6 +1,7 @@
 package com.laohei.bili_tube.presentation.dynamic
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -53,6 +54,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
@@ -62,6 +64,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
 import com.laohei.bili_sdk.module_v2.dynamic.MajorLiveRcmdContent
+import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.component.appbar.LogoTopAppBar
 import com.laohei.bili_tube.component.placeholder.NoMoreData
@@ -129,7 +132,7 @@ fun DynamicScreen(
             }
         ) {
             val isEmpty = dynamicList.itemCount == 0
-            LazyVerticalStaggeredGrid (
+            LazyVerticalStaggeredGrid(
                 modifier = Modifier.background(
                     color = MaterialTheme.colorScheme.background
                 ),
@@ -154,9 +157,9 @@ fun DynamicScreen(
                     else -> {
                         items(dynamicList.itemCount) { index ->
                             dynamicList[index]?.let {
-                                when{
-                                    fixedCount == 1->{
-                                        Column (
+                                when {
+                                    fixedCount == 1 -> {
+                                        Column(
                                             modifier = Modifier.padding(vertical = 8.dp),
                                         ) {
                                             GetDynamicItem(
@@ -174,8 +177,9 @@ fun DynamicScreen(
                                             )
                                         }
                                     }
-                                    else->{
-                                        Card (
+
+                                    else -> {
+                                        Card(
                                             modifier = Modifier.padding(8.dp),
                                             elevation = CardDefaults.elevatedCardElevation(
                                                 defaultElevation = 2.dp
@@ -197,7 +201,7 @@ fun DynamicScreen(
                     }
                 }
 
-                item(span =StaggeredGridItemSpan.FullLine) {
+                item(span = StaggeredGridItemSpan.FullLine) {
                     NoMoreData(dynamicList.loadState.append)
                 }
                 item(span = StaggeredGridItemSpan.FullLine) {
@@ -371,7 +375,7 @@ private fun DRAWItem(
         modifier = Modifier.background(
             MaterialTheme.colorScheme.background
         )
-    )  {
+    ) {
         AuthorBar(
             face = face,
             ownerName = ownerName,
@@ -384,7 +388,8 @@ private fun DRAWItem(
                 .padding(horizontal = 12.dp)
                 .padding(top = 18.dp)
                 .padding(bottom = 12.dp),
-            text = desc, style = MaterialTheme.typography.bodyMedium
+            text = desc, style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         images?.let { list ->
@@ -401,10 +406,15 @@ private fun DRAWItem(
                         .fillMaxWidth(),
                     contentScale = ContentScale.FillHeight,
                     loading = {
-                        Box(
-                            modifier = Modifier
-                                .background(Color.LightGray)
-                                .clip(CircleShape)
+                        Image(
+                            painter = painterResource(R.drawable.icon_loading),
+                            contentDescription = "loading"
+                        )
+                    },
+                    error = {
+                        Image(
+                            painter = painterResource(R.drawable.icon_loading),
+                            contentDescription = "loading"
                         )
                     }
                 )
@@ -424,10 +434,15 @@ private fun DRAWItem(
                                 .clip(RoundedCornerShape(12.dp)),
                             contentScale = ContentScale.Crop,
                             loading = {
-                                Box(
-                                    modifier = Modifier
-                                        .background(Color.LightGray)
-                                        .clip(CircleShape)
+                                Image(
+                                    painter = painterResource(R.drawable.icon_loading),
+                                    contentDescription = "loading"
+                                )
+                            },
+                            error = {
+                                Image(
+                                    painter = painterResource(R.drawable.icon_loading),
+                                    contentDescription = "loading"
                                 )
                             }
                         )
@@ -469,7 +484,8 @@ private fun CommonItem(
                     .padding(top = 18.dp)
                     .padding(bottom = 12.dp),
                 text = it,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
 
@@ -510,7 +526,8 @@ private fun CommonItem(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     text = descSimple,
@@ -535,7 +552,7 @@ private fun TopicItem(
         modifier = Modifier.background(
             MaterialTheme.colorScheme.background
         )
-    )  {
+    ) {
         AuthorBar(
             face = face,
             ownerName = ownerName,
@@ -572,6 +589,7 @@ private fun TopicItem(
                 .padding(top = 18.dp)
                 .padding(bottom = 12.dp),
             text = desc,
+            color = MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.bodyMedium
         )
     }
@@ -617,6 +635,7 @@ private fun AuthorBar(
                 text = ownerName,
                 maxLines = 1,
                 style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold
             )
             Text(
