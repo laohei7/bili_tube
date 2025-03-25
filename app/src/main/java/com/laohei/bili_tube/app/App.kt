@@ -4,19 +4,17 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Subscriptions
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
@@ -35,12 +33,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.laohei.bili_sdk.user.UserInfo
@@ -77,28 +73,10 @@ private const val TAG = "App"
 @Composable
 fun App() {
     val activity = LocalActivity.current
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val navController = rememberNavController()
     val currentDestination by navController.currentBackStackEntryAsState()
     var isLogin by rememberSaveable(Unit) { mutableStateOf(false) }
-    var bottomAppBarSelectedIndex by remember { mutableIntStateOf(0) }
-    val bottomAppBarItems = remember {
-        listOf(
-            BottomAppBarItem(
-                icon = Icons.Outlined.Home,
-                label = context.getString(R.string.str_home)
-            ),
-            BottomAppBarItem(
-                icon = Icons.Outlined.Subscriptions,
-                label = context.getString(R.string.str_scrscription)
-            ),
-            BottomAppBarItem(
-                icon = Icons.Outlined.Person,
-                label = context.getString(R.string.str_mine)
-            )
-        )
-    }
 
     val isPlayRoute = currentDestination?.destination?.hasRoute<Route.Play>() == true
     if (isPlayRoute.not()) {
@@ -115,7 +93,7 @@ fun App() {
         if (isLoginRoute.not()) {
             return@LaunchedEffect
         }
-        navController.navigate(Route.Home) {
+        navController.navigate(Route.HomeGraph) {
             if (isLoginRoute) {
                 popUpTo<Route.Login> { inclusive = true }
             } else {
@@ -137,17 +115,88 @@ fun App() {
 
     ExitAppHandle()
 
+    NavHost(
+        navController = navController,
+        startDestination = Route.Splash,
+        enterTransition = {
+            slideInHorizontally { it }
+        },
+        popExitTransition = {
+            slideOutHorizontally { it }
+        },
+        popEnterTransition = {
+            slideInHorizontally { -it }
+        },
+        exitTransition = {
+            slideOutHorizontally { -it }
+        }
+    ) {
+        composable<Route.Splash>(
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() }
+        ) {
+            SplashScreen {
+                val startRoute = if (isLogin) Route.HomeGraph else Route.Login
+                navController.navigate(startRoute) {
+                    popUpTo<Route.Splash> { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        }
+        composable<Route.Login> { QRCodeLoginScreen() }
+        composable<Route.Play> {
+            PlayerScreen(
+                params = it.toRoute(),
+                upPress = { navController.navigateUp() }
+            )
+        }
+        composable<Route.Playlist> { PlaylistScreen() }
+        composable<Route.History> {
+            HistoryScreen(
+                navigateToRoute = { navController.navigate(it) }
+            )
+        }
+        composable<Route.HomeGraph> { MainChildGraph(navController) }
+    }
+}
+
+@Composable
+private fun MainChildGraph(navController: NavController) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var bottomAppBarSelectedIndex by remember { mutableIntStateOf(0) }
+    val bottomAppBarItems = remember {
+        listOf(
+            BottomAppBarItem(
+                icon = Icons.Outlined.Home,
+                label = context.getString(R.string.str_home)
+            ),
+            BottomAppBarItem(
+                icon = Icons.Outlined.Subscriptions,
+                label = context.getString(R.string.str_scrscription)
+            ),
+            BottomAppBarItem(
+                icon = Icons.Outlined.Person,
+                label = context.getString(R.string.str_mine)
+            )
+        )
+    }
+    val mainChildNavController = rememberNavController()
+    val currentDestination by mainChildNavController.currentBackStackEntryAsState()
+    val navSuiteType =
+        NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
+
     fun handleBottomEvent(index: Int) {
         val route = when (index) {
-            0 -> Route.Home
-            1 -> Route.Dynamic
-            else -> Route.Mine
+            0 -> Route.HomeGraph.Home
+            1 -> Route.HomeGraph.Dynamic
+            else -> Route.HomeGraph.Mine
         }
 
         val isHomeRoute =
-            index == 0 && currentDestination?.destination?.hasRoute<Route.Home>() == true
+            index == 0 && currentDestination?.destination?.hasRoute<Route.HomeGraph.Home>() == true
         val isDynamicRoute =
-            index == 1 && currentDestination?.destination?.hasRoute<Route.Dynamic>() == true
+            index == 1 && currentDestination?.destination?.hasRoute<Route.HomeGraph.Dynamic>() == true
 
         when {
             isHomeRoute || isDynamicRoute -> {
@@ -157,8 +206,8 @@ fun App() {
             }
 
             else -> {
-                navController.navigate(route) {
-                    popUpTo(Route.Home) {
+                mainChildNavController.navigate(route) {
+                    popUpTo(Route.HomeGraph.Home) {
                         saveState = true
                     }
                     launchSingleTop = true
@@ -168,44 +217,24 @@ fun App() {
         }
     }
 
-    val navSuiteType =
-        NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
-
     NavigationSuiteScaffoldLayout(
         navigationSuite = {
-            val isHomeGraph = currentDestination?.destination
-                ?.hierarchy?.any { it.hasRoute(Route.HomeGraph::class) } == true
-            if (isHomeGraph.not()) {
-                return@NavigationSuiteScaffoldLayout
-            }
-
             when (navSuiteType) {
+                NavigationSuiteType.NavigationDrawer,
                 NavigationSuiteType.NavigationRail -> {
-                    AnimatedVisibility(
-                        visible = isHomeGraph,
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.background),
-                        enter = fadeIn(),
-                        exit = fadeOut()
-                    ) {
-                        SideNavigateRail(
-                            items = bottomAppBarItems,
-                            selectedIndex = bottomAppBarSelectedIndex
-                        ) { index ->
-                            bottomAppBarSelectedIndex = index
-                            handleBottomEvent(index)
-                        }
+                    SideNavigateRail(
+                        items = bottomAppBarItems,
+                        selectedIndex = bottomAppBarSelectedIndex
+                    ) { index ->
+                        bottomAppBarSelectedIndex = index
+                        handleBottomEvent(index)
                     }
                 }
 
+                NavigationSuiteType.None,
                 NavigationSuiteType.NavigationBar -> {
-                    AnimatedVisibility(
-                        visible = isHomeGraph,
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.background)
-                            .navigationBarsPadding(),
-                        enter = fadeIn(),
-                        exit = fadeOut()
+                    Surface(
+                        modifier = Modifier.navigationBarsPadding()
                     ) {
                         SmallBottomAppBar(
                             items = bottomAppBarItems,
@@ -220,50 +249,12 @@ fun App() {
         }
     ) {
         NavHost(
-            navController = navController,
-            startDestination = Route.Splash,
-            enterTransition = {
-                slideInHorizontally { it }
-            },
-            popExitTransition = {
-                slideOutHorizontally { it }
-            },
-            popEnterTransition = {
-                slideInHorizontally { -it }
-            },
-            exitTransition = {
-                slideOutHorizontally { -it }
-            }
+            navController = mainChildNavController,
+            startDestination = Route.HomeGraph.Home,
         ) {
-            composable<Route.Splash>(
-                enterTransition = { fadeIn() },
-                exitTransition = { fadeOut() }
-            ) {
-                SplashScreen {
-                    val startRoute = if (isLogin) Route.Home else Route.Login
-                    navController.navigate(startRoute) {
-                        popUpTo<Route.Splash> { inclusive = true }
-                        launchSingleTop = true
-                    }
-                }
-            }
             homeGraph(navController)
-            composable<Route.Login> { QRCodeLoginScreen() }
-            composable<Route.Play> {
-                PlayerScreen(
-                    params = it.toRoute(),
-                    upPress = { navController.navigateUp() }
-                )
-            }
-            composable<Route.Playlist> { PlaylistScreen() }
-            composable<Route.History> {
-                HistoryScreen(
-                    navigateToRoute = { navController.navigate(it) }
-                )
-            }
         }
     }
-
 }
 
 @Composable
@@ -327,28 +318,20 @@ private fun GetAndCacheUserProfile(isLogin: Boolean) {
 
 
 private fun NavGraphBuilder.homeGraph(navController: NavController) {
-    navigation<Route.HomeGraph>(
-        startDestination = Route.Home,
-        enterTransition = { fadeIn() },
-        popExitTransition = { fadeOut() },
-        popEnterTransition = { fadeIn() },
-        exitTransition = { fadeOut() }
-    ) {
-        composable<Route.Home> {
-            HomeScreen(
-                navigateToRoute = {
-                    navController.navigate(it)
-                }
-            )
-        }
-        composable<Route.Mine> { MineScreen(navigateToRoute = { navController.navigate(it) }) }
-        composable<Route.Subscription> { SubscriptionScreen() }
-        composable<Route.Dynamic> {
-            DynamicScreen(
-                navigateToRoute = {
-                    navController.navigate(it)
-                }
-            )
-        }
+    composable<Route.HomeGraph.Home> {
+        HomeScreen(
+            navigateToRoute = {
+                navController.navigate(it)
+            }
+        )
+    }
+    composable<Route.HomeGraph.Mine> { MineScreen(navigateToRoute = { navController.navigate(it) }) }
+    composable<Route.HomeGraph.Subscription> { SubscriptionScreen() }
+    composable<Route.HomeGraph.Dynamic> {
+        DynamicScreen(
+            navigateToRoute = {
+                navController.navigate(it)
+            }
+        )
     }
 }

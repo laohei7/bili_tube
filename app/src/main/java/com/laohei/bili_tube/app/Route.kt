@@ -8,26 +8,28 @@ sealed class Route {
     data object Login : Route()
 
     @Serializable
-    data object HomeGraph:Route()
+    data object HomeGraph : Route() {
+        @Serializable
+        data object Home : Route()
 
-    @Serializable
-    data object Home : Route()
+        @Serializable
+        data object Mine : Route()
 
-    @Serializable
-    data object Mine:Route()
+        @Serializable
+        data object Dynamic : Route()
 
-    @Serializable
-    data object Subscription:Route()
+        @Serializable
+        data object Subscription : Route()
+    }
 
     @Serializable
     data object Splash : Route()
 
     @Serializable
-    data object Dynamic:Route()
+    data object History : Route()
+
     @Serializable
-    data object History:Route()
-    @Serializable
-    data object Playlist:Route()
+    data object Playlist : Route()
 
 
     @Serializable
