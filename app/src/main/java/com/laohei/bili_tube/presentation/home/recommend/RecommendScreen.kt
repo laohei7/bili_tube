@@ -81,7 +81,7 @@ fun RecommendScreen(
                 state = gridState,
                 columns = GridCells.Fixed(fixedCount),
                 contentPadding = PaddingValues(horizontal = if (fixedCount == 1) 0.dp else 8.dp),
-                verticalArrangement = Arrangement.spacedBy(32.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp),
                 horizontalArrangement = Arrangement.spacedBy(9.dp)
             ) {
                 item(span = { GridItemSpan(fixedCount) }) {

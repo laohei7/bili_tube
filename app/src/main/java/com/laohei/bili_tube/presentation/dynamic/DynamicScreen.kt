@@ -29,6 +29,8 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Topic
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -152,22 +154,43 @@ fun DynamicScreen(
                     else -> {
                         items(dynamicList.itemCount) { index ->
                             dynamicList[index]?.let {
-                                Column (
-                                    modifier = Modifier.padding(vertical = 8.dp),
-                                ) {
-                                    GetDynamicItem(
-                                        item = it,
-                                        isSingleLayout = fixedCount == 1,
-                                        navigateToRoute = navigateToRoute,
-                                        onMenuClick = {
-                                            isShowMenuSheet = true
-                                        }
-                                    )
+                                when{
+                                    fixedCount == 1->{
+                                        Column (
+                                            modifier = Modifier.padding(vertical = 8.dp),
+                                        ) {
+                                            GetDynamicItem(
+                                                item = it,
+                                                isSingleLayout = true,
+                                                navigateToRoute = navigateToRoute,
+                                                onMenuClick = {
+                                                    isShowMenuSheet = true
+                                                }
+                                            )
 
-                                    HorizontalDivider(
-                                        color = MaterialTheme.colorScheme.surfaceContainer,
-                                        modifier = Modifier.padding(top = 8.dp)
-                                    )
+                                            HorizontalDivider(
+                                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                                modifier = Modifier.padding(top = 8.dp)
+                                            )
+                                        }
+                                    }
+                                    else->{
+                                        Card (
+                                            modifier = Modifier.padding(8.dp),
+                                            elevation = CardDefaults.elevatedCardElevation(
+                                                defaultElevation = 2.dp
+                                            )
+                                        ) {
+                                            GetDynamicItem(
+                                                item = it,
+                                                isSingleLayout = false,
+                                                navigateToRoute = navigateToRoute,
+                                                onMenuClick = {
+                                                    isShowMenuSheet = true
+                                                }
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -565,7 +588,7 @@ private fun AuthorBar(
         modifier = Modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
-            .padding(start = 12.dp, end = 4.dp),
+            .padding(start = 12.dp, end = 4.dp, top = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

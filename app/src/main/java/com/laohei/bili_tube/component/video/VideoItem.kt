@@ -99,7 +99,7 @@ fun VideoItem(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(start = 12.dp, end = 4.dp),
+                .padding(start = 12.dp, end = 4.dp, bottom = 8.dp),
             verticalAlignment = Alignment.Top
         ) {
             SubcomposeAsyncImage(
