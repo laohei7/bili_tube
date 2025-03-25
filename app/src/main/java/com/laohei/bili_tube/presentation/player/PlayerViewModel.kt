@@ -13,6 +13,7 @@ import com.laohei.bili_tube.presentation.player.state.media.DefaultMediaManager
 import com.laohei.bili_tube.presentation.player.state.media.MediaManager
 import com.laohei.bili_tube.presentation.player.state.media.Quality
 import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManager
+import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenManager
 import com.laohei.bili_tube.repository.BiliPlayRepository
 import com.laohei.bili_tube.repository.BiliPlaylistRepository
@@ -237,7 +238,12 @@ internal class PlayerViewModel(
                 bvid = params.bvid,
                 like = like
             )?.run {
-                _mPlayerState.update { it.copy(hasLike = like == 1) }
+                val hasLike = like == 1
+                _mPlayerState.update { it.copy(hasLike = hasLike) }
+                screenActionHandle(
+                    ScreenAction.ShowLikeAnimationAction(hasLike),
+                    false
+                )
             }
         }
     }
@@ -272,7 +278,8 @@ internal class PlayerViewModel(
         delMediaIds: Set<Long>,
     ) {
         viewModelScope.launch {
-            val alreadyAdd = _mPlayerState.value.folders.filter { it.favState==1 }.map { it.id }.toSet()
+            val alreadyAdd =
+                _mPlayerState.value.folders.filter { it.favState == 1 }.map { it.id }.toSet()
             Log.d(TAG, "videoFolderDeal1: $alreadyAdd")
             val temp = addMediaIds.filter { alreadyAdd.contains(it).not() }.toSet()
             Log.d(TAG, "videoFolderDeal2: $temp")

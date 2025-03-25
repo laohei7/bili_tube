@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -51,12 +53,15 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.window.Popup
 import com.laohei.bili_sdk.module_v2.folder.FolderSimpleItem
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.component.animation.APNGAnimationWidget
 import com.laohei.bili_tube.component.button.ExtendedIconButton
+import com.laohei.bili_tube.component.lottie.LottieIconLike
 import com.laohei.bili_tube.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.component.sheet.ModalBottomSheetProperties
 import com.laohei.bili_tube.component.sheet.rememberModalBottomSheet
@@ -78,9 +83,11 @@ internal fun VideoMenus(
     hasLike: Boolean,
     hasCoin: Boolean,
     hasFavoured: Boolean,
+    isShowLikeAnimation: Boolean,
     onClick: (VideoMenuAction) -> Unit,
     coinClick: () -> Unit,
-    favouredClick: () -> Unit
+    favouredClick: () -> Unit,
+    onAnimationEndCallback: (() -> Unit)? = null
 ) {
     var localHasLike by remember { mutableStateOf(hasLike) }
     var localHasCoin by remember { mutableStateOf(hasCoin) }
@@ -98,16 +105,29 @@ internal fun VideoMenus(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Spacer(modifier = Modifier)
-        ExtendedIconButton(
-            icon1 = Icons.Outlined.ThumbUp,
-            icon2 = Icons.Outlined.ThumbDown,
-            label = great,
-            icon1Color = if (localHasLike) Color.Red else MaterialTheme.colorScheme.onBackground,
-            onIcon1Click = {
-                onClick.invoke(VideoMenuAction.VideoLikeAction(if (localHasLike) 2 else 1))
-            },
-            onIcon2Click = {}
-        )
+        Box {
+            ExtendedIconButton(
+                icon1 = Icons.Outlined.ThumbUp,
+                icon2 = Icons.Outlined.ThumbDown,
+                label = great,
+                icon1Color = if (localHasLike) Color.Red else MaterialTheme.colorScheme.onBackground,
+                onIcon1Click = {
+                    onClick.invoke(VideoMenuAction.VideoLikeAction(if (localHasLike) 2 else 1))
+                },
+                onIcon2Click = {}
+            )
+            if (isShowLikeAnimation) {
+                Popup(
+                    offset = IntOffset(10, -120)
+                ) {
+                    LottieIconLike(
+                        modifier = Modifier.size(46.dp),
+                        iterateForever = false,
+                        onAnimationEndCallback = onAnimationEndCallback
+                    )
+                }
+            }
+        }
         Spacer(modifier = Modifier)
         ExtendedIconButton(
             icon = Icons.Outlined.Paid,
@@ -288,7 +308,7 @@ internal fun FolderSheet(
     }
 
     LaunchedEffect(folders) {
-       val list = folders.filter { it.favState == 1 }.map { it.id }
+        val list = folders.filter { it.favState == 1 }.map { it.id }
         checkedAidSet.clear()
         checkedAidSet.addAll(list)
         Log.d("PlayerViewModel", "FolderSheet1: $list")

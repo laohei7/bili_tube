@@ -323,6 +323,7 @@ fun PlayerScreen(
                         state = rememberDraggableState { },
                     ),
                 playerState = playerState,
+                screenState = screenState,
                 lazyListState = lazyListState,
                 videoDetail = playerState.videoDetail,
                 videoArchiveMeta = playerState.videoArchiveMeta,
@@ -629,6 +630,7 @@ private fun VideoContent(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState,
     playerState: PlayerState,
+    screenState: ScreenState,
     videoDetail: VideoDetailModel?,
     videoArchiveMeta: ArchiveMeta?,
     currentArchiveIndex: Int,
@@ -676,10 +678,14 @@ private fun VideoContent(
                         hasLike = playerState.hasLike,
                         hasCoin = playerState.hasCoin,
                         hasFavoured = playerState.hasFavoured,
+                        isShowLikeAnimation = screenState.isShowLikeAnimation,
                         onClick = videoMenuClick,
                         coinClick = { onClick.invoke(ScreenAction.ShowCoinSheetAction(true)) },
                         favouredClick = {
                             onClick.invoke(ScreenAction.ShowFolderSheetAction(true))
+                        },
+                        onAnimationEndCallback = {
+                            onClick.invoke(ScreenAction.ShowLikeAnimationAction(false))
                         }
                     )
                 }

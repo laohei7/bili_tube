@@ -32,5 +32,6 @@ internal data class ScreenState(
     val archiveListState:LazyListState = LazyListState(),
     val isLockScreen: Boolean = false,
     val isShowCoinSheet:Boolean = false,
-    val isShowFolderSheet:Boolean = false
+    val isShowFolderSheet:Boolean = false,
+    val isShowLikeAnimation: Boolean = false,
 )

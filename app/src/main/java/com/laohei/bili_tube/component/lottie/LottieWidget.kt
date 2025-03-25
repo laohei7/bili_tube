@@ -2,6 +2,7 @@ package com.laohei.bili_tube.component.lottie
 
 import androidx.annotation.RawRes
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -15,13 +16,20 @@ import com.laohei.bili_tube.R
 @Composable
 fun LottieWidget(
     modifier: Modifier = Modifier,
-    @RawRes id: Int
+    @RawRes id: Int,
+    iterateForever:Boolean = true,
+    onAnimationEndCallback: (() -> Unit)?=null
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(id))
     val progress by animateLottieCompositionAsState(
         composition,
-        iterations = LottieConstants.IterateForever,
+        iterations = if(iterateForever) LottieConstants.IterateForever else 1,
     )
+    LaunchedEffect(progress) {
+        if(progress == 1f){
+            onAnimationEndCallback?.invoke()
+        }
+    }
     LottieAnimation(
         modifier = modifier,
         composition = composition,
@@ -52,10 +60,14 @@ fun LottieIconPlaying(
 @Preview
 @Composable
 fun LottieIconLike(
-    modifier: Modifier=Modifier
+    modifier: Modifier=Modifier,
+    iterateForever:Boolean = true,
+    onAnimationEndCallback: (() -> Unit)?=null
 ) {
     LottieWidget(
         id = R.raw.lottie_like,
-        modifier = modifier
+        modifier = modifier,
+        iterateForever = iterateForever,
+        onAnimationEndCallback = onAnimationEndCallback
     )
 }
