@@ -91,8 +91,7 @@ fun HotScreen(
     ) {
         val fixedCount = when {
             maxWidth < 500.dp -> 1
-            maxWidth >= 500.dp && maxWidth < 1000.dp -> 2
-            maxWidth >= 1000.dp && maxWidth < 1280.dp -> 3
+            maxWidth >= 500.dp && maxWidth < 1280.dp -> 2
             else -> 4
         }
         PullToRefreshBox(
@@ -113,7 +112,7 @@ fun HotScreen(
                 state = gridState,
                 columns = GridCells.Fixed(fixedCount),
                 contentPadding = PaddingValues(horizontal = if (fixedCount == 1) 0.dp else 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(9.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item(span = { GridItemSpan(fixedCount) }) {
                     Spacer(

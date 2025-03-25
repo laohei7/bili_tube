@@ -84,6 +84,7 @@ dependencies {
     implementation(libs.androidx.palette)
 
     implementation(libs.lottie.compose)
+    implementation(libs.androidx.material3.adaptive.navigation.suite)
 
     implementation(project(":bili_sdk"))
 

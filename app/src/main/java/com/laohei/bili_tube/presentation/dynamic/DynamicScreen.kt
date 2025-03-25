@@ -1,7 +1,6 @@
 package com.laohei.bili_tube.presentation.dynamic
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -19,10 +18,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -90,7 +89,6 @@ fun DynamicScreen(
     val dynamicList = dynamicViewModel.dynamicList.collectAsLazyPagingItems()
     val isLoading = dynamicList.loadState.refresh is LoadState.Loading
     var isShowMenuSheet by remember { mutableStateOf(false) }
-    Log.d(TAG, "DynamicScreen: ${dynamicList.loadState}")
 
     LaunchedEffect(Unit) {
         EventBus.events.collect { event ->
@@ -129,19 +127,19 @@ fun DynamicScreen(
             }
         ) {
             val isEmpty = dynamicList.itemCount == 0
-            LazyVerticalGrid(
+            LazyVerticalStaggeredGrid (
                 modifier = Modifier.background(
                     color = MaterialTheme.colorScheme.background
                 ),
                 state = gridState,
-                columns = GridCells.Fixed(fixedCount),
+                columns = StaggeredGridCells.Fixed(fixedCount),
                 contentPadding = PaddingValues(horizontal = if (fixedCount == 1) 0.dp else 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(9.dp),
-                verticalArrangement = Arrangement.spacedBy(
-                    if (isEmpty) 16.dp else 0.dp
-                )
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+//                verticalArrangement = Arrangement.spacedBy(
+//                    if (isEmpty) 16.dp else 0.dp
+//                )
             ) {
-                item(span = { GridItemSpan(fixedCount) }) {
+                item(span = StaggeredGridItemSpan.FullLine) {
                     LogoTopAppBar()
                 }
                 when {
@@ -176,10 +174,10 @@ fun DynamicScreen(
                     }
                 }
 
-                item(span = { GridItemSpan(fixedCount) }) {
+                item(span =StaggeredGridItemSpan.FullLine) {
                     NoMoreData(dynamicList.loadState.append)
                 }
-                item(span = { GridItemSpan(fixedCount) }) {
+                item(span = StaggeredGridItemSpan.FullLine) {
                     Spacer(
                         modifier = Modifier
                             .navigationBarsPadding()

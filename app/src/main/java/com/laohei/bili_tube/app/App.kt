@@ -11,14 +11,16 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Subscriptions
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
@@ -44,6 +45,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.laohei.bili_sdk.user.UserInfo
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.app.component.SideNavigateRail
 import com.laohei.bili_tube.component.appbar.BottomAppBarItem
 import com.laohei.bili_tube.component.appbar.SmallBottomAppBar
 import com.laohei.bili_tube.core.COOKIE_KEY
@@ -166,9 +168,56 @@ fun App() {
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
+    val navSuiteType =
+        NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
+
+    NavigationSuiteScaffoldLayout(
+        navigationSuite = {
+            val isHomeGraph = currentDestination?.destination
+                ?.hierarchy?.any { it.hasRoute(Route.HomeGraph::class) } == true
+            if (isHomeGraph.not()) {
+                return@NavigationSuiteScaffoldLayout
+            }
+
+            when (navSuiteType) {
+                NavigationSuiteType.NavigationRail -> {
+                    AnimatedVisibility(
+                        visible = isHomeGraph,
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.background),
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        SideNavigateRail(
+                            items = bottomAppBarItems,
+                            selectedIndex = bottomAppBarSelectedIndex
+                        ) { index ->
+                            bottomAppBarSelectedIndex = index
+                            handleBottomEvent(index)
+                        }
+                    }
+                }
+
+                NavigationSuiteType.NavigationBar -> {
+                    AnimatedVisibility(
+                        visible = isHomeGraph,
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.background)
+                            .navigationBarsPadding(),
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        SmallBottomAppBar(
+                            items = bottomAppBarItems,
+                            selectedIndex = bottomAppBarSelectedIndex
+                        ) { index ->
+                            bottomAppBarSelectedIndex = index
+                            handleBottomEvent(index)
+                        }
+                    }
+                }
+            }
+        }
     ) {
         NavHost(
             navController = navController,
@@ -203,37 +252,14 @@ fun App() {
             composable<Route.Play> {
                 PlayerScreen(
                     params = it.toRoute(),
-                    upPress = {navController.navigateUp()}
+                    upPress = { navController.navigateUp() }
                 )
             }
             composable<Route.Playlist> { PlaylistScreen() }
-            composable<Route.History> { HistoryScreen(
-                navigateToRoute = {navController.navigate(it)}
-            ) }
-
-        }
-
-        val isSplashScreen = currentDestination?.destination
-            ?.hierarchy?.first()?.hasRoute(Route.Splash::class) == true
-        if (isSplashScreen.not()) {
-            val isHomeGraph = currentDestination?.destination
-                ?.hierarchy?.any { it.hasRoute(Route.HomeGraph::class) } == true
-            AnimatedVisibility(
-                visible = isHomeGraph,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .background(MaterialTheme.colorScheme.background)
-                    .navigationBarsPadding(),
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                SmallBottomAppBar(
-                    items = bottomAppBarItems,
-                    selectedIndex = bottomAppBarSelectedIndex
-                ) { index ->
-                    bottomAppBarSelectedIndex = index
-                    handleBottomEvent(index)
-                }
+            composable<Route.History> {
+                HistoryScreen(
+                    navigateToRoute = { navController.navigate(it) }
+                )
             }
         }
     }
@@ -262,14 +288,14 @@ private fun ExitAppHandle() {
 }
 
 @Composable
-private fun AppEventListener(){
+private fun AppEventListener() {
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         EventBus.events.collect { event ->
-            if((event is Event.AppEvent).not()){
+            if ((event is Event.AppEvent).not()) {
                 return@collect
             }
-            when(val appEvent = event as Event.AppEvent){
+            when (val appEvent = event as Event.AppEvent) {
                 is Event.AppEvent.ToastEvent -> {
                     Toast.makeText(context, appEvent.message, Toast.LENGTH_SHORT).show()
                 }

@@ -1,6 +1,6 @@
 package com.laohei.bili_tube.presentation.dynamic
 
-import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
@@ -10,5 +10,6 @@ class DynamicViewModel(
     dynamicRepository: BiliDynamicRepository
 ) : ViewModel() {
     val dynamicList = dynamicRepository.getDynamicList().cachedIn(viewModelScope)
-    val gridState = LazyGridState()
+//    val gridState = LazyGridState()
+    val gridState = LazyStaggeredGridState()
 }
