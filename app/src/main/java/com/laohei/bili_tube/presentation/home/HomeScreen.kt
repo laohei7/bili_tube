@@ -166,13 +166,15 @@ fun HomeScreen(
                 0 -> RecommendScreen(
                     randomVideos = recommendVideos,
                     gridState = homeViewModel.gridStates[index],
-                    navigateToRoute = navigateToRoute
+                    navigateToRoute = navigateToRoute,
+                    onVideoMenuAction = homeViewModel::videoMenuActionHandle
                 )
 
                 1 -> HotScreen(
                     hotVideos = hotVideos,
                     gridState = homeViewModel.gridStates[index],
-                    navigateToRoute = navigateToRoute
+                    navigateToRoute = navigateToRoute,
+                    onVideoMenuAction = homeViewModel::videoMenuActionHandle
                 )
 
                 2 -> AnimeScreen(

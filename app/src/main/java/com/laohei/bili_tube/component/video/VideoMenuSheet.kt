@@ -27,9 +27,10 @@ import com.laohei.bili_tube.component.color.sheetListItemColors
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-fun VideoMenuSheet(
+internal fun VideoMenuSheet(
     isShowSheet: Boolean = true,
-    onDismiss: () -> Unit = {}
+    onDismiss: () -> Unit = {},
+    onClick: (VideoAction.VideoSheetAction) -> Unit = {}
 ) {
     if (isShowSheet) {
         ModalBottomSheet(
@@ -56,7 +57,7 @@ fun VideoMenuSheet(
                 }
             )
             ListItem(
-                modifier = Modifier.clickable { },
+                modifier = Modifier.clickable { onClick.invoke(VideoAction.VideoSheetAction.PlaylistAction) },
                 colors = sheetListItemColors(),
                 headlineContent = {
                     Text(

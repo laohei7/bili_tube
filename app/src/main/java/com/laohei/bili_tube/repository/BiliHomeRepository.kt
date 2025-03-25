@@ -10,6 +10,7 @@ import com.laohei.bili_sdk.model.BiliAnimeSchedule
 import com.laohei.bili_sdk.model.BiliHotVideoItem
 import com.laohei.bili_sdk.module_v2.recomment.RecommendItem
 import com.laohei.bili_sdk.recommend.Recommend
+import com.laohei.bili_sdk.video.VideoInfo
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.presentation.home.anime.TimelinePaging
@@ -25,7 +26,8 @@ class BiliHomeRepository(
     private val context: Context,
     private val recommend: Recommend,
     private val hots: Hots,
-    private val timeline: Timeline
+    private val timeline: Timeline,
+    private val videoInfo: VideoInfo
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getPagedRecommendVideo(): Flow<PagingData<RecommendItem>> {
@@ -74,4 +76,15 @@ class BiliHomeRepository(
             )
         }.flattenConcat()
     }
+
+    suspend fun videoFolderDeal(
+        aid: Long,
+        addMediaIds: Set<Long>,
+        delMediaIds: Set<Long>,
+    ) = videoInfo.videoFolderDeal(
+        rid = aid,
+        addMediaIds = addMediaIds,
+        delMediaIds = delMediaIds,
+        cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
+    )
 }

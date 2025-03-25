@@ -1,6 +1,5 @@
 package com.laohei.bili_tube.presentation.player.component
 
-import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Paid
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.StarOutline
@@ -26,19 +24,14 @@ import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -55,9 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.window.Popup
-import com.laohei.bili_sdk.module_v2.folder.FolderSimpleItem
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.component.animation.APNGAnimationWidget
 import com.laohei.bili_tube.component.button.ExtendedIconButton
@@ -65,14 +56,10 @@ import com.laohei.bili_tube.component.lottie.LottieIconLike
 import com.laohei.bili_tube.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.component.sheet.ModalBottomSheetProperties
 import com.laohei.bili_tube.component.sheet.rememberModalBottomSheet
+import com.laohei.bili_tube.component.video.VideoAction
 import kotlinx.coroutines.launch
 
-internal sealed class VideoMenuAction {
-    data class VideoLikeAction(val like: Int) : VideoMenuAction() // 1点赞，2取消
-    data class VideoDislikeAction(val dislike: Int) : VideoMenuAction() // 0取消，1点踩
-    data class CoinAction(val coin: Int) : VideoMenuAction()
-    data class CollectAction(val addAids: Set<Long>, val delAids: Set<Long>) : VideoMenuAction()
-}
+
 
 @Composable
 internal fun VideoMenus(
@@ -84,7 +71,7 @@ internal fun VideoMenus(
     hasCoin: Boolean,
     hasFavoured: Boolean,
     isShowLikeAnimation: Boolean,
-    onClick: (VideoMenuAction) -> Unit,
+    onClick: (VideoAction.VideoMenuAction) -> Unit,
     coinClick: () -> Unit,
     favouredClick: () -> Unit,
     onAnimationEndCallback: (() -> Unit)? = null
@@ -112,7 +99,7 @@ internal fun VideoMenus(
                 label = great,
                 icon1Color = if (localHasLike) Color.Red else MaterialTheme.colorScheme.onBackground,
                 onIcon1Click = {
-                    onClick.invoke(VideoMenuAction.VideoLikeAction(if (localHasLike) 2 else 1))
+                    onClick.invoke(VideoAction.VideoMenuAction.VideoLikeAction(if (localHasLike) 2 else 1))
                 },
                 onIcon2Click = {}
             )
@@ -161,7 +148,7 @@ internal fun VideoMenus(
 internal fun CoinSheet(
     isShowSheet: Boolean = true,
     onDismiss: () -> Unit = {},
-    onClick: (VideoMenuAction) -> Unit
+    onClick: (VideoAction.VideoMenuAction) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true)
@@ -216,7 +203,7 @@ internal fun CoinSheet(
                 }
 
                 FilledTonalButton(
-                    onClick = { onClick.invoke(VideoMenuAction.CoinAction(coin = selectCoin)) },
+                    onClick = { onClick.invoke(VideoAction.VideoMenuAction.CoinAction(coin = selectCoin)) },
                     modifier = Modifier.fillMaxWidth(0.6f)
                 ) {
                     Text(text = stringResource(R.string.str_coin_flip))
@@ -288,129 +275,3 @@ private fun CoinItem(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-internal fun FolderSheet(
-    isShowSheet: Boolean = true,
-    folders: List<FolderSimpleItem>,
-    onDismiss: () -> Unit = {},
-    onClick: (VideoMenuAction) -> Unit = {}
-) {
-    val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true)
-    val checkedAidSet = remember { mutableStateListOf<Long>() }
-    val deletedAidSet = remember { mutableStateListOf<Long>() }
-    fun closeSheet() {
-        scope.launch {
-            sheetState.hide()
-            onDismiss.invoke()
-        }
-    }
-
-    LaunchedEffect(folders) {
-        val list = folders.filter { it.favState == 1 }.map { it.id }
-        checkedAidSet.clear()
-        checkedAidSet.addAll(list)
-        Log.d("PlayerViewModel", "FolderSheet1: $list")
-        Log.d("PlayerViewModel", "FolderSheet2: $checkedAidSet")
-    }
-
-    if (isShowSheet) {
-        ModalBottomSheet(
-            sheetState = sheetState,
-            shape = RoundedCornerShape(12.dp),
-            modifier = Modifier
-                .padding(8.dp)
-                .navigationBarsPadding(),
-            containerColor = MaterialTheme.colorScheme.background,
-            properties = ModalBottomSheetProperties(shouldDispatcherEvent = false),
-            onDismissRequest = { closeSheet() }
-        ) {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                ListItem(
-                    headlineContent = {
-                        Text(
-                            text = stringResource(R.string.str_save_to),
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    },
-                    trailingContent = {
-                        TextButton(onClick = {}) {
-                            Icon(
-                                imageVector = Icons.Outlined.Add,
-                                contentDescription = Icons.Outlined.Add.name,
-                            )
-                            Text(
-                                text = stringResource(R.string.str_new_playlist),
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                        }
-                    }
-                )
-                folders.fastForEach {
-                    GetFolderCheckItem(
-                        label = it.title,
-                        checked = checkedAidSet.contains(it.id),
-                        onClick = { checked ->
-                            if (checked) {
-                                checkedAidSet.add(it.id)
-                            } else {
-                                checkedAidSet.remove(it.id)
-                                if (it.favState == 1) {
-                                    deletedAidSet.add(it.id)
-                                }
-                            }
-                        }
-                    )
-                }
-                FilledTonalButton(
-                    modifier = Modifier.fillMaxWidth(0.6f),
-                    onClick = {
-                        Log.d("PlayerViewModel", "FolderSheet1: ${checkedAidSet.toSet()}")
-                        Log.d("PlayerViewModel", "FolderSheet2: ${deletedAidSet.toSet()}")
-                        onClick.invoke(
-                            VideoMenuAction.CollectAction(
-                                addAids = checkedAidSet.toSet(),
-                                delAids = deletedAidSet.toSet()
-                            )
-                        )
-                    }
-                ) {
-                    Text(text = stringResource(R.string.str_ok))
-                }
-                Spacer(Modifier.height(8.dp))
-            }
-        }
-    }
-
-}
-
-@Composable
-private fun GetFolderCheckItem(
-    label: String,
-    checked: Boolean,
-    onClick: (Boolean) -> Unit
-) {
-    var localChecked by remember { mutableStateOf(checked) }
-    LaunchedEffect(checked) {
-        localChecked = checked
-    }
-    ListItem(
-        modifier = Modifier.clickable { onClick.invoke(localChecked.not()) },
-        leadingContent = {
-            Checkbox(
-                checked = localChecked,
-                onCheckedChange = { onClick.invoke(it) }
-            )
-        },
-        headlineContent = {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-    )
-}
