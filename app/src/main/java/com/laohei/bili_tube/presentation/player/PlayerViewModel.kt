@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.component.video.VideoAction
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
-import com.laohei.bili_tube.presentation.player.component.VideoMenuAction
 import com.laohei.bili_tube.presentation.player.state.media.DefaultMediaManager
 import com.laohei.bili_tube.presentation.player.state.media.MediaManager
 import com.laohei.bili_tube.presentation.player.state.media.Quality
@@ -211,23 +211,24 @@ internal class PlayerViewModel(
         }
     }
 
-    fun videoMenuActionHandle(action: VideoMenuAction) {
+    fun videoMenuActionHandle(action: VideoAction.VideoMenuAction) {
         when (action) {
-            is VideoMenuAction.VideoLikeAction -> {
+            is VideoAction.VideoMenuAction.VideoLikeAction -> {
                 videoLike(action.like)
             }
 
-            is VideoMenuAction.CoinAction -> {
+            is VideoAction.VideoMenuAction.CoinAction -> {
                 videoCoin(action.coin)
             }
 
-            is VideoMenuAction.CollectAction -> {
+            is VideoAction.VideoMenuAction.CollectAction -> {
                 videoFolderDeal(action.addAids, action.delAids)
             }
 
-            is VideoMenuAction.VideoDislikeAction -> {
+            is VideoAction.VideoMenuAction.VideoDislikeAction -> {
 
             }
+            else->{}
         }
     }
 
@@ -278,14 +279,9 @@ internal class PlayerViewModel(
         delMediaIds: Set<Long>,
     ) {
         viewModelScope.launch {
-            val alreadyAdd =
-                _mPlayerState.value.folders.filter { it.favState == 1 }.map { it.id }.toSet()
-            Log.d(TAG, "videoFolderDeal1: $alreadyAdd")
-            val temp = addMediaIds.filter { alreadyAdd.contains(it).not() }.toSet()
-            Log.d(TAG, "videoFolderDeal2: $temp")
             biliPlayRepository.videoFolderDeal(
                 aid = params.aid,
-                addMediaIds = temp,
+                addMediaIds = addMediaIds,
                 delMediaIds = delMediaIds
             )?.run {
                 Log.d(TAG, "videoFolderDeal: $this")

@@ -93,6 +93,8 @@ import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.component.video.FolderSheet
+import com.laohei.bili_tube.component.video.VideoAction
 import com.laohei.bili_tube.component.video.VideoItem
 import com.laohei.bili_tube.core.util.LifecycleEffect
 import com.laohei.bili_tube.core.util.SystemUtil
@@ -102,12 +104,10 @@ import com.laohei.bili_tube.core.util.toggleOrientation
 import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.presentation.player.component.CoinSheet
 import com.laohei.bili_tube.presentation.player.component.CommentCard
-import com.laohei.bili_tube.presentation.player.component.FolderSheet
 import com.laohei.bili_tube.presentation.player.component.PlayerSnackHost
 import com.laohei.bili_tube.presentation.player.component.RelatedHorizontalList
 import com.laohei.bili_tube.presentation.player.component.UserSimpleInfo
 import com.laohei.bili_tube.presentation.player.component.VideoDetailSheet
-import com.laohei.bili_tube.presentation.player.component.VideoMenuAction
 import com.laohei.bili_tube.presentation.player.component.VideoMenus
 import com.laohei.bili_tube.presentation.player.component.VideoSimpleInfo
 import com.laohei.bili_tube.presentation.player.component.archive.ArchiveMetaItem
@@ -635,7 +635,7 @@ private fun VideoContent(
     videoArchiveMeta: ArchiveMeta?,
     currentArchiveIndex: Int,
     onClick: (ScreenAction) -> Unit,
-    videoMenuClick: (VideoMenuAction) -> Unit,
+    videoMenuClick: (VideoAction.VideoMenuAction) -> Unit,
 ) {
     Surface(
         modifier = modifier,
