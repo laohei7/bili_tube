@@ -1,9 +1,10 @@
-package com.laohei.bili_sdk.video
+package com.laohei.bili_sdk.history
 
-import android.util.Log
-import com.laohei.bili_sdk.apis.VIDEO_COIN_ADD_URL
+import com.laohei.bili_sdk.apis.ADD_TO_VIEW_URL
+import com.laohei.bili_sdk.apis.VIDEO_FOLDER_DEAL_URL
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
-import com.laohei.bili_sdk.module_v2.video.AddCoinModel
+import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
+import com.laohei.bili_sdk.module_v2.folder.FolderDealModel
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.post
@@ -17,34 +18,27 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class PostInfo(
+class PostToView(
     private val client: HttpClient
 ) {
-    companion object {
-        private val TAG = PostInfo::class.simpleName
-    }
-
-    suspend fun videoCoin(
+    suspend fun addToView(
         aid: Long,
         bvid: String,
-        multiply: Int,
-        cookie: String? = null,
+        cookie: String? = null
     ) = withContext(Dispatchers.IO) {
         val response = try {
-            client.post(VIDEO_COIN_ADD_URL) {
+            client.post(ADD_TO_VIEW_URL) {
                 url {
                     cookie?.apply {
                         headers.append(HttpHeaders.Cookie, cookie)
                     }
                 }
-                Log.d(TAG, "videoInfo: $url")
                 contentType(ContentType.Application.FormUrlEncoded)
                 setBody(
                     FormDataContent(
                         Parameters.build {
                             append("aid", aid.toString())
                             append("bvid", bvid)
-                            append("multiply", multiply.toString())
                             append(
                                 "csrf",
                                 cookie?.substringAfter("bili_jct=")?.substringBefore(";") ?: ""
@@ -56,7 +50,7 @@ class PostInfo(
             null
         }
         response?.run {
-            Json.decodeFromString<BiliResponse<AddCoinModel>>(bodyAsText())
+            Json.decodeFromString<BiliResponseNoData>(bodyAsText())
         }
     }
 }

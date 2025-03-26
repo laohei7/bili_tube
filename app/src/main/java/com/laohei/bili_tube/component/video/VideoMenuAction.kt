@@ -10,6 +10,7 @@ interface VideoAction {
     }
 
     sealed class VideoSheetAction : VideoAction {
-        data object PlaylistAction : VideoSheetAction()
+        data class PlaylistAction(val aid: Long) : VideoSheetAction()
+        data class AddToViewAction(val aid: Long=0,val bvid:String=""):VideoSheetAction()
     }
 }

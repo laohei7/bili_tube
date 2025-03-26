@@ -8,14 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,16 +36,23 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.component.appbar.LogoTopAppBar
+import com.laohei.bili_tube.component.video.FolderSheet
+import com.laohei.bili_tube.component.video.VideoAction
+import com.laohei.bili_tube.component.video.VideoMenuSheet
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.presentation.home.anime.AnimeScreen
 import com.laohei.bili_tube.presentation.home.hot.HotScreen
 import com.laohei.bili_tube.presentation.home.recommend.RecommendScreen
+import com.laohei.bili_tube.presentation.home.state.DefaultHomePageManager
+import com.laohei.bili_tube.presentation.home.state.HomePageAction
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 import kotlin.math.abs
 
 private const val TAG = "HomeScreen"
@@ -55,7 +60,9 @@ private const val TAG = "HomeScreen"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel = koinViewModel(),
+    homeViewModel: HomeViewModel = koinViewModel {
+        parametersOf(DefaultHomePageManager())
+    },
     navigateToRoute: (Route) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -83,6 +90,8 @@ fun HomeScreen(
     val recommendVideos = homeViewModel.randomVideos.collectAsLazyPagingItems()
     val hotVideos = homeViewModel.hotVideos.collectAsLazyPagingItems()
     val timelines = homeViewModel.timeline.collectAsLazyPagingItems()
+
+    val homeState by homeViewModel.homeState.collectAsStateWithLifecycle()
 
     val connection = remember {
         object : NestedScrollConnection {
@@ -167,14 +176,14 @@ fun HomeScreen(
                     randomVideos = recommendVideos,
                     gridState = homeViewModel.gridStates[index],
                     navigateToRoute = navigateToRoute,
-                    onVideoMenuAction = homeViewModel::videoMenuActionHandle
+                    homeActionHandle = homeViewModel::homeActionHandle
                 )
 
                 1 -> HotScreen(
                     hotVideos = hotVideos,
                     gridState = homeViewModel.gridStates[index],
                     navigateToRoute = navigateToRoute,
-                    onVideoMenuAction = homeViewModel::videoMenuActionHandle
+                    homeActionHandle = homeViewModel::homeActionHandle
                 )
 
                 2 -> AnimeScreen(
@@ -220,5 +229,54 @@ fun HomeScreen(
             }
         }
 
+        VideoMenuSheet(
+            isShowSheet = homeState.isShowMenuSheet,
+            onDismiss = {
+                homeViewModel.homeActionHandle(
+                    HomePageAction.ShowVideoMenuSheetAction(false)
+                )
+            },
+            onClick = {
+                val newAction = when {
+                    it is VideoAction.VideoSheetAction.PlaylistAction && homeState.currentAid != null -> {
+                        it.copy(aid = homeState.currentAid!!)
+                    }
+
+                    it is VideoAction.VideoSheetAction.AddToViewAction &&
+                            homeState.currentAid != null && homeState.currentBvid != null -> {
+                        it.copy(aid = homeState.currentAid!!, bvid = homeState.currentBvid!!)
+                    }
+
+                    else -> it
+                }
+                homeViewModel.onVideoSheetActionHandle(newAction)
+            }
+        )
+
+        FolderSheet(
+            folders = homeState.folders,
+            isShowSheet = homeState.isShowFolderSheet,
+            onDismiss = {
+                homeViewModel.homeActionHandle(
+                    HomePageAction.ShowFolderSheetAction(false)
+                )
+            },
+            onClick = {
+                if (homeState.currentAid == null) {
+                    return@FolderSheet
+                }
+                val action = it as VideoAction.VideoMenuAction.CollectAction
+                homeViewModel.onVideoMenuActionHandle(
+                    VideoAction.VideoMenuAction.CollectActionByAid(
+                        addAids = action.addAids,
+                        delAids = action.delAids,
+                        aid = homeState.currentAid!!
+                    )
+                )
+                homeViewModel.homeActionHandle(
+                    HomePageAction.ShowFolderSheetAction(false)
+                )
+            }
+        )
     }
 }

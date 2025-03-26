@@ -20,5 +20,5 @@ data class BiliResponse<T>(
 data class BiliResponseNoData(
     val code: Int,
     val message: String,
-    val ttl: Int,
+    val ttl: Int = 0,
 )

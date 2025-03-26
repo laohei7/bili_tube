@@ -43,12 +43,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -67,19 +61,13 @@ import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.laohei.bili_sdk.model.BiliHotVideoItem
-import com.laohei.bili_sdk.module_v2.folder.FolderSimpleItem
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.component.placeholder.NoMoreData
-import com.laohei.bili_tube.component.video.FolderSheet
-import com.laohei.bili_tube.component.video.VideoAction
-import com.laohei.bili_tube.component.video.VideoMenuSheet
-import com.laohei.bili_tube.repository.BiliPlaylistRepository
+import com.laohei.bili_tube.presentation.home.state.HomePageAction
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.toTimeAgoString
 import com.laohei.bili_tube.utill.toViewString
-import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
 
 private const val TAG = "HotScreen"
 
@@ -90,29 +78,9 @@ fun HotScreen(
     hotVideos: LazyPagingItems<BiliHotVideoItem>,
     gridState: LazyGridState = rememberLazyGridState(),
     navigateToRoute: (Route) -> Unit,
-    onVideoMenuAction:(VideoAction.VideoMenuAction)->Unit
+    homeActionHandle: (HomePageAction) -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
     val refreshState = rememberPullToRefreshState()
-    var isShowMenuSheet by remember { mutableStateOf(false) }
-    var isShowFolderSheet by remember { mutableStateOf(false) }
-    var folders by remember { mutableStateOf<List<FolderSimpleItem>>(emptyList()) }
-    var currentAid by remember { mutableLongStateOf(0) }
-    val playlistRepository = koinInject<BiliPlaylistRepository>()
-
-    fun handleVideoSheetAction(action: VideoAction.VideoSheetAction) {
-        when (action) {
-            VideoAction.VideoSheetAction.PlaylistAction -> {
-                scope.launch {
-                    playlistRepository.getFolderSimpleList(currentAid)?.let {
-                        folders = it.list
-                        isShowMenuSheet = false
-                        isShowFolderSheet = true
-                    }
-                }
-            }
-        }
-    }
 
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
@@ -172,8 +140,13 @@ fun HotScreen(
                                 )
                             },
                             onMenuClick = {
-                                currentAid = it.aid
-                                isShowMenuSheet = true
+                                homeActionHandle.invoke(
+                                    HomePageAction.ShowVideoMenuSheetAction(
+                                        flag = true,
+                                        aid = it.aid,
+                                        bvid = it.bvid
+                                    )
+                                )
                             }
                         )
                     }
@@ -190,29 +163,6 @@ fun HotScreen(
                 }
             }
         }
-
-        VideoMenuSheet(
-            isShowSheet = isShowMenuSheet,
-            onDismiss = { isShowMenuSheet = false },
-            onClick = ::handleVideoSheetAction
-        )
-
-        FolderSheet(
-            folders = folders,
-            isShowSheet = isShowFolderSheet,
-            onDismiss = { isShowFolderSheet = false },
-            onClick = {
-                val action =it as VideoAction.VideoMenuAction.CollectAction
-                onVideoMenuAction.invoke(
-                    VideoAction.VideoMenuAction.CollectActionByAid(
-                        addAids = action.addAids,
-                        delAids = action.delAids,
-                        aid = currentAid
-                    )
-                )
-                isShowFolderSheet = false
-            }
-        )
     }
 
 }

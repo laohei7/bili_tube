@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.laohei.bili_sdk.folder.PostFolder
 import com.laohei.bili_sdk.model.VideoReplyItem
 import com.laohei.bili_sdk.video.GetArchive
 import com.laohei.bili_sdk.video.GetInfo
@@ -28,6 +29,7 @@ class BiliPlayRepository(
     private val getArchive: GetArchive,
     private val postInfo: PostInfo,
     private val postHeartBeat: PostHeartBeat,
+    private val postFolder: PostFolder
 ) {
 
     suspend fun getPlayURL(
@@ -156,11 +158,11 @@ class BiliPlayRepository(
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
     )
 
-    suspend fun videoFolderDeal(
+    suspend fun folderDeal(
         aid: Long,
         addMediaIds: Set<Long>,
         delMediaIds: Set<Long>,
-    ) = postInfo.videoFolderDeal(
+    ) = postFolder.folderDeal(
         rid = aid,
         addMediaIds = addMediaIds,
         delMediaIds = delMediaIds,

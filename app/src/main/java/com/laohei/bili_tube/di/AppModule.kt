@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import com.laohei.bili_sdk.anime.GetTimeline
 import com.laohei.bili_sdk.dynamic.GetWebDynamic
 import com.laohei.bili_sdk.folder.GetFolder
+import com.laohei.bili_sdk.folder.PostFolder
 import com.laohei.bili_sdk.history.GetHistory
 import com.laohei.bili_sdk.history.GetWatchLater
+import com.laohei.bili_sdk.history.PostToView
 import com.laohei.bili_sdk.hot.GetHots
 import com.laohei.bili_sdk.login.QRLogin
 import com.laohei.bili_sdk.recommend.GetRecommend
@@ -55,7 +57,9 @@ val appModule = module {
     singleOf(::GetWatchLater)
     singleOf(::GetHistory)
     singleOf(::GetFolder)
+    singleOf(::PostFolder)
     singleOf(::GetArchive)
+    singleOf(::PostToView)
 
     singleOf(::BiliHomeRepository)
     singleOf(::BiliPlayRepository)

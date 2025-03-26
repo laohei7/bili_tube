@@ -5,6 +5,8 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.laohei.bili_sdk.anime.GetTimeline
+import com.laohei.bili_sdk.folder.PostFolder
+import com.laohei.bili_sdk.history.PostToView
 import com.laohei.bili_sdk.hot.GetHots
 import com.laohei.bili_sdk.model.BiliAnimeSchedule
 import com.laohei.bili_sdk.model.BiliHotVideoItem
@@ -27,7 +29,9 @@ class BiliHomeRepository(
     private val getRecommend: GetRecommend,
     private val getHots: GetHots,
     private val getTimeline: GetTimeline,
-    private val postInfo: PostInfo
+    private val postInfo: PostInfo,
+    private val postToView: PostToView,
+    private val postFolder: PostFolder
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getPagedRecommendVideo(): Flow<PagingData<RecommendItem>> {
@@ -77,14 +81,22 @@ class BiliHomeRepository(
         }.flattenConcat()
     }
 
-    suspend fun videoFolderDeal(
+    suspend fun folderDeal(
         aid: Long,
         addMediaIds: Set<Long>,
         delMediaIds: Set<Long>,
-    ) = postInfo.videoFolderDeal(
+    ) = postFolder.folderDeal(
         rid = aid,
         addMediaIds = addMediaIds,
         delMediaIds = delMediaIds,
+        cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
+    )
+
+    suspend fun addToView(
+        aid: Long,
+        bvid: String
+    ) = postToView.addToView(
+        aid = aid, bvid = bvid,
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
     )
 }

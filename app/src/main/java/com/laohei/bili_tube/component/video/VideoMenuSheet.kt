@@ -42,7 +42,9 @@ internal fun VideoMenuSheet(
             onDismissRequest = { onDismiss.invoke() }
         ) {
             ListItem(
-                modifier = Modifier.clickable { },
+                modifier = Modifier.clickable {
+                    onClick.invoke(VideoAction.VideoSheetAction.AddToViewAction())
+                },
                 colors = sheetListItemColors(),
                 headlineContent = {
                     Text(
@@ -57,7 +59,7 @@ internal fun VideoMenuSheet(
                 }
             )
             ListItem(
-                modifier = Modifier.clickable { onClick.invoke(VideoAction.VideoSheetAction.PlaylistAction) },
+                modifier = Modifier.clickable { onClick.invoke(VideoAction.VideoSheetAction.PlaylistAction(0)) },
                 colors = sheetListItemColors(),
                 headlineContent = {
                     Text(

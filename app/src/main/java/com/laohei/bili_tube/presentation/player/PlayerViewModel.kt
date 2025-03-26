@@ -279,7 +279,7 @@ internal class PlayerViewModel(
         delMediaIds: Set<Long>,
     ) {
         viewModelScope.launch {
-            biliPlayRepository.videoFolderDeal(
+            biliPlayRepository.folderDeal(
                 aid = params.aid,
                 addMediaIds = addMediaIds,
                 delMediaIds = delMediaIds
