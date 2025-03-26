@@ -5,7 +5,7 @@ import androidx.compose.ui.util.fastForEachIndexed
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.laohei.bili_sdk.module_v2.recomment.RecommendItem
-import com.laohei.bili_sdk.recommend.Recommend
+import com.laohei.bili_sdk.recommend.GetRecommend
 
 private data class RecommendParams(
     val webLocation: Int = 1430650,
@@ -22,7 +22,7 @@ private data class RecommendParams(
 )
 
 class RecommendPaging(
-    private val recommend: Recommend,
+    private val recommend: GetRecommend,
     private val cookie: String?
 ) : PagingSource<Int, RecommendItem>() {
 

@@ -7,7 +7,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
-import com.laohei.bili_sdk.wbi.Wbi
+import com.laohei.bili_sdk.wbi.GetWbi
 import com.laohei.bili_sdk.wbi.WbiParams
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.core.IMG_URL_KEY
@@ -45,7 +45,7 @@ class BiliTubeApp : Application() {
                     Log.d(TAG, "onCreate: $imgKey $subKey")
                 } else {
                     val cookie = dataStore.data.firstOrNull()?.get(COOKIE_KEY)
-                    Wbi.getWbiRequest(HttpClientFactory.client)
+                    GetWbi.getWbiRequest(HttpClientFactory.client)
                         .wbi(cookie) { biliWbi ->
                             dataStore.edit { settings ->
                                 settings[IMG_URL_KEY] = biliWbi.wbiImg.imgUrl

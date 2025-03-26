@@ -3,10 +3,10 @@ package com.laohei.bili_tube.presentation.home.anime
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.laohei.bili_sdk.model.BiliAnimeSchedule
-import com.laohei.bili_sdk.anime.Timeline
+import com.laohei.bili_sdk.anime.GetTimeline
 
 class TimelinePaging(
-    private val timeline: Timeline,
+    private val timeline: GetTimeline,
     private val cookie: String?
 ) : PagingSource<Int, BiliAnimeSchedule>() {
     override fun getRefreshKey(state: PagingState<Int, BiliAnimeSchedule>): Int? {

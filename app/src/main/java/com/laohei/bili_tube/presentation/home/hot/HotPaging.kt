@@ -2,11 +2,11 @@ package com.laohei.bili_tube.presentation.home.hot
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.laohei.bili_sdk.hot.Hots
+import com.laohei.bili_sdk.hot.GetHots
 import com.laohei.bili_sdk.model.BiliHotVideoItem
 
 class HotPaging(
-    private val hots: Hots,
+    private val hots: GetHots,
     private val cookie: String?
 ) : PagingSource<Int, BiliHotVideoItem>() {
     override fun getRefreshKey(state: PagingState<Int, BiliHotVideoItem>): Int? {

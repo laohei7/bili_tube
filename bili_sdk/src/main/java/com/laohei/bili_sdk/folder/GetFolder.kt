@@ -14,12 +14,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class Folder(
+class GetFolder(
     private val client: HttpClient
 ) {
 
     companion object {
-        private val TAG = Folder::class.simpleName
+        private val TAG = GetFolder::class.simpleName
     }
 
     suspend fun folderList(

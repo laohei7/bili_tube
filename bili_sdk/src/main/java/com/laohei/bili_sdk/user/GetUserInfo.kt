@@ -15,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class UserInfo(
+class GetUserInfo(
     private val client: HttpClient
 ) {
 

@@ -12,11 +12,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class VideoReply(
+class GetReply(
     private val client: HttpClient
 ) {
     companion object {
-        private val TAG = VideoReply::class.simpleName
+        private val TAG = GetReply::class.simpleName
     }
 
     suspend fun getVideoReplies(

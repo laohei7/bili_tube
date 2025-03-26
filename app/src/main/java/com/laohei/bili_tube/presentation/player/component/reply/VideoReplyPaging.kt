@@ -3,10 +3,10 @@ package com.laohei.bili_tube.presentation.player.component.reply
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.laohei.bili_sdk.model.VideoReplyItem
-import com.laohei.bili_sdk.video.VideoReply
+import com.laohei.bili_sdk.video.GetReply
 
 class VideoReplyPaging(
-    private val videoReply: VideoReply,
+    private val videoReply: GetReply,
     private val cookie: String?,
     private val type: Int = 1,
     private val oid: String

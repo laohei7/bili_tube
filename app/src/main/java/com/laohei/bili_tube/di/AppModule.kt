@@ -1,20 +1,21 @@
 package com.laohei.bili_tube.di
 
 import android.annotation.SuppressLint
-import com.laohei.bili_sdk.anime.Timeline
-import com.laohei.bili_sdk.dynamic.WebDynamic
-import com.laohei.bili_sdk.folder.Folder
-import com.laohei.bili_sdk.history.History
-import com.laohei.bili_sdk.history.WatchLater
-import com.laohei.bili_sdk.hot.Hots
+import com.laohei.bili_sdk.anime.GetTimeline
+import com.laohei.bili_sdk.dynamic.GetWebDynamic
+import com.laohei.bili_sdk.folder.GetFolder
+import com.laohei.bili_sdk.history.GetHistory
+import com.laohei.bili_sdk.history.GetWatchLater
+import com.laohei.bili_sdk.hot.GetHots
 import com.laohei.bili_sdk.login.QRLogin
-import com.laohei.bili_sdk.recommend.Recommend
-import com.laohei.bili_sdk.user.UserInfo
-import com.laohei.bili_sdk.video.PlayURL
-import com.laohei.bili_sdk.video.VideoArchive
-import com.laohei.bili_sdk.video.VideoHeartBeat
-import com.laohei.bili_sdk.video.VideoInfo
-import com.laohei.bili_sdk.video.VideoReply
+import com.laohei.bili_sdk.recommend.GetRecommend
+import com.laohei.bili_sdk.user.GetUserInfo
+import com.laohei.bili_sdk.video.GetURL
+import com.laohei.bili_sdk.video.GetArchive
+import com.laohei.bili_sdk.video.PostHeartBeat
+import com.laohei.bili_sdk.video.GetInfo
+import com.laohei.bili_sdk.video.GetReply
+import com.laohei.bili_sdk.video.PostInfo
 import com.laohei.bili_tube.presentation.dynamic.DynamicViewModel
 import com.laohei.bili_tube.presentation.history.HistoryViewModel
 import com.laohei.bili_tube.presentation.home.HomeViewModel
@@ -41,19 +42,20 @@ val appModule = module {
     single { HttpClientFactory.client }
 
     singleOf(::QRLogin)
-    singleOf(::Recommend)
-    singleOf(::Hots)
-    singleOf(::PlayURL)
-    singleOf(::Timeline)
-    singleOf(::VideoInfo)
-    singleOf(::UserInfo)
-    singleOf(::VideoReply)
-    singleOf(::VideoHeartBeat)
-    singleOf(::WebDynamic)
-    singleOf(::WatchLater)
-    singleOf(::History)
-    singleOf(::Folder)
-    singleOf(::VideoArchive)
+    singleOf(::GetRecommend)
+    singleOf(::GetHots)
+    singleOf(::GetURL)
+    singleOf(::GetTimeline)
+    singleOf(::GetInfo)
+    singleOf(::PostInfo)
+    singleOf(::GetUserInfo)
+    singleOf(::GetReply)
+    singleOf(::PostHeartBeat)
+    singleOf(::GetWebDynamic)
+    singleOf(::GetWatchLater)
+    singleOf(::GetHistory)
+    singleOf(::GetFolder)
+    singleOf(::GetArchive)
 
     singleOf(::BiliHomeRepository)
     singleOf(::BiliPlayRepository)

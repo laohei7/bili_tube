@@ -4,11 +4,11 @@ import android.util.Log
 import androidx.compose.ui.util.fastForEach
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.laohei.bili_sdk.dynamic.WebDynamic
+import com.laohei.bili_sdk.dynamic.GetWebDynamic
 import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
 
 class DynamicPaging(
-    private val webDynamic: WebDynamic,
+    private val webDynamic: GetWebDynamic,
     private val cookie: String?
 ) : PagingSource<Pair<Int, Long?>, DynamicItem>() {
 

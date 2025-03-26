@@ -2,12 +2,12 @@ package com.laohei.bili_tube.presentation.history
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.laohei.bili_sdk.history.History
+import com.laohei.bili_sdk.history.GetHistory
 import com.laohei.bili_sdk.module_v2.history.HistoryCursor
 import com.laohei.bili_sdk.module_v2.history.HistoryItem
 
 class HistoryPaging(
-    private val history: History,
+    private val history: GetHistory,
     private val cookie: String?
 ) : PagingSource<Int, HistoryItem>() {
     private val _mHistoryCursorList = mutableListOf<HistoryCursor?>()

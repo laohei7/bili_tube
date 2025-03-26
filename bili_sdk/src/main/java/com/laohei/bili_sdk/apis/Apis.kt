@@ -35,6 +35,8 @@ const val WEB_DYNAMIC_URL = "https://api.bilibili.com/x/polymer/web-dynamic/v1/f
 
 const val WATCH_LATER_URL = "https://api.bilibili.com/x/v2/history/toview"
 
+const val ADD_TO_VIEW_URL = "https://api.bilibili.com/x/v2/history/toview/add"
+
 const val HISTORY_URL = "https://api.bilibili.com/x/web-interface/history/cursor"
 
 const val FOLDER_URL = "https://api.bilibili.com/x/v3/fav/folder/list4navigate"

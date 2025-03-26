@@ -41,7 +41,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.laohei.bili_sdk.user.UserInfo
+import com.laohei.bili_sdk.user.GetUserInfo
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.component.SideNavigateRail
 import com.laohei.bili_tube.component.appbar.BottomAppBarItem
@@ -302,7 +302,7 @@ private fun AppEventListener() {
 @Composable
 private fun GetAndCacheUserProfile(isLogin: Boolean) {
     val context = LocalContext.current
-    val userInfo = koinInject<UserInfo>()
+    val userInfo = koinInject<GetUserInfo>()
 
     LaunchedEffect(isLogin) {
         context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)

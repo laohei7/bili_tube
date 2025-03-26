@@ -12,10 +12,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class Recommend(private val client: HttpClient) {
+class GetRecommend(private val client: HttpClient) {
 
     companion object {
-        private val TAG = Recommend::class.simpleName
+        private val TAG = GetRecommend::class.simpleName
     }
 
     suspend fun recommendVideos(

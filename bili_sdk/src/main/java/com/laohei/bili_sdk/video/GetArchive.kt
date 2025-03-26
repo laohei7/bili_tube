@@ -2,7 +2,6 @@ package com.laohei.bili_sdk.video
 
 import android.util.Log
 import com.laohei.bili_sdk.apis.VIDEO_ARCHIVE_URL
-import com.laohei.bili_sdk.apis.VIDEO_INFO
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.video.VideoArchiveModel
 import com.laohei.bili_sdk.wbi.WbiParams
@@ -14,11 +13,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class VideoArchive(
+class GetArchive(
     private val client: HttpClient
 ) {
     companion object{
-        private val TAG = VideoArchive::class.simpleName
+        private val TAG = GetArchive::class.simpleName
     }
     suspend fun videoArchive(
         mid: Long,

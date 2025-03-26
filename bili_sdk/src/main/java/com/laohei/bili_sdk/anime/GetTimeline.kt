@@ -10,7 +10,7 @@ import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class Timeline(
+class GetTimeline(
     private val client: HttpClient
 ) {
     suspend fun timelineEpisodes(

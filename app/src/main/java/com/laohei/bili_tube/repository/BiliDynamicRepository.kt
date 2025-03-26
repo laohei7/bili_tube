@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.laohei.bili_sdk.dynamic.WebDynamic
+import com.laohei.bili_sdk.dynamic.GetWebDynamic
 import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.dataStore
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.flow
 
 class BiliDynamicRepository(
     private val context: Context,
-    private val webDynamic: WebDynamic
+    private val getWebDynamic: GetWebDynamic
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getDynamicList(): Flow<PagingData<DynamicItem>> {
@@ -32,7 +32,7 @@ class BiliDynamicRepository(
                     pagingSourceFactory = {
                         DynamicPaging(
                             cookie = cookie,
-                            webDynamic = webDynamic
+                            webDynamic = getWebDynamic
                         )
                     }
                 ).flow

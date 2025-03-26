@@ -1,8 +1,8 @@
-package com.laohei.bili_sdk.history
+package com.laohei.bili_sdk.hot
 
-import com.laohei.bili_sdk.apis.WATCH_LATER_URL
-import com.laohei.bili_sdk.module_v2.common.BiliResponse
-import com.laohei.bili_sdk.module_v2.history.WatchLaterModel
+import com.laohei.bili_sdk.apis.HOT_VIDEOS
+import com.laohei.bili_sdk.model.BiliHots
+import com.laohei.bili_sdk.model.BiliResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -11,16 +11,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class WatchLater(
-    private val client: HttpClient
-) {
-    suspend fun watchLaterList(
+class GetHots(private val client: HttpClient) {
+
+    companion object {
+        private val TAG = GetHots::class.simpleName
+    }
+
+    suspend fun hotVideos(
         cookie: String? = null,
-        pn: Int = 1,
-        ps: Int = 20
+        pn: Int = 1, ps: Int = 20
     ) = withContext(Dispatchers.IO) {
         val response = try {
-            client.get(WATCH_LATER_URL) {
+            client.get(HOT_VIDEOS) {
                 url {
                     cookie?.apply {
                         headers.append(HttpHeaders.Cookie, this)
@@ -29,11 +31,12 @@ class WatchLater(
                     parameters.append("ps", ps.toString())
                 }
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
             null
         }
         response?.run {
-            Json.decodeFromString<BiliResponse<WatchLaterModel>>(this.bodyAsText())
+            Json.decodeFromString<BiliResponse<BiliHots>>(this.bodyAsText())
         }
     }
+
 }

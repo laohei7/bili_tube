@@ -1,8 +1,8 @@
 package com.laohei.bili_sdk.history
 
-import com.laohei.bili_sdk.apis.HISTORY_URL
+import com.laohei.bili_sdk.apis.WATCH_LATER_URL
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
-import com.laohei.bili_sdk.module_v2.history.HistoryModel
+import com.laohei.bili_sdk.module_v2.history.WatchLaterModel
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -11,31 +11,21 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class History(
+class GetWatchLater(
     private val client: HttpClient
 ) {
-    suspend fun historyList(
+    suspend fun watchLaterList(
         cookie: String? = null,
-        ps: Int = 20,
-        max: Long? = null,
-        business: String? = null,
-        viewAt: Long? = null
+        pn: Int = 1,
+        ps: Int = 20
     ) = withContext(Dispatchers.IO) {
         val response = try {
-            client.get(HISTORY_URL) {
+            client.get(WATCH_LATER_URL) {
                 url {
                     cookie?.apply {
                         headers.append(HttpHeaders.Cookie, this)
                     }
-                    max?.apply {
-                        parameters.append("max", this.toString())
-                    }
-                    business?.apply {
-                        parameters.append("business", this)
-                    }
-                    viewAt?.apply {
-                        parameters.append("view_at", this.toString())
-                    }
+                    parameters.append("pn", pn.toString())
                     parameters.append("ps", ps.toString())
                 }
             }
@@ -43,7 +33,7 @@ class History(
             null
         }
         response?.run {
-            Json.decodeFromString<BiliResponse<HistoryModel>>(this.bodyAsText())
+            Json.decodeFromString<BiliResponse<WatchLaterModel>>(this.bodyAsText())
         }
     }
 }

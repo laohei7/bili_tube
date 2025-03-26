@@ -5,11 +5,12 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.laohei.bili_sdk.model.VideoReplyItem
-import com.laohei.bili_sdk.video.PlayURL
-import com.laohei.bili_sdk.video.VideoArchive
-import com.laohei.bili_sdk.video.VideoHeartBeat
-import com.laohei.bili_sdk.video.VideoInfo
-import com.laohei.bili_sdk.video.VideoReply
+import com.laohei.bili_sdk.video.GetArchive
+import com.laohei.bili_sdk.video.GetInfo
+import com.laohei.bili_sdk.video.GetReply
+import com.laohei.bili_sdk.video.GetURL
+import com.laohei.bili_sdk.video.PostHeartBeat
+import com.laohei.bili_sdk.video.PostInfo
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.presentation.player.component.reply.VideoReplyPaging
@@ -21,11 +22,12 @@ import kotlinx.coroutines.flow.flow
 
 class BiliPlayRepository(
     private val context: Context,
-    private val playURL: PlayURL,
-    private val videoInfo: VideoInfo,
-    private val videoReply: VideoReply,
-    private val videoHeartBeat: VideoHeartBeat,
-    private val archive: VideoArchive
+    private val getURL: GetURL,
+    private val getInfo: GetInfo,
+    private val getReply: GetReply,
+    private val getArchive: GetArchive,
+    private val postInfo: PostInfo,
+    private val postHeartBeat: PostHeartBeat,
 ) {
 
     suspend fun getPlayURL(
@@ -34,7 +36,7 @@ class BiliPlayRepository(
         cid: Long,
         qn: Int = 116,
         fnval: Int = 4048,
-    ) = playURL.videoUrl(
+    ) = getURL.videoUrl(
         aid, bvid, cid, qn, fnval,
         context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
     )
@@ -42,7 +44,7 @@ class BiliPlayRepository(
     suspend fun getVideoInfo(
         aid: Long,
         bvid: String,
-    ) = videoInfo.videoInfo(
+    ) = getInfo.videoInfo(
         aid, bvid,
         context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
     )
@@ -50,7 +52,7 @@ class BiliPlayRepository(
     suspend fun getVideoDetail(
         aid: Long,
         bvid: String,
-    ) = videoInfo.getVideoDetail(
+    ) = getInfo.getVideoDetail(
         aid, bvid,
         context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
     )
@@ -70,7 +72,7 @@ class BiliPlayRepository(
                     ),
                     pagingSourceFactory = {
                         VideoReplyPaging(
-                            videoReply,
+                            getReply,
                             cookie, type, oid
                         )
                     }
@@ -84,7 +86,7 @@ class BiliPlayRepository(
         bvid: String,
         cid: String,
         playedTime: Long = 0,
-    ) = videoHeartBeat.uploadVideoHeartBeat(
+    ) = postHeartBeat.uploadVideoHeartBeat(
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
         aid, bvid, cid, playedTime
     )
@@ -93,7 +95,7 @@ class BiliPlayRepository(
         aid: String,
         cid: String,
         progress: Long = 0,
-    ) = videoHeartBeat.uploadVideoHistory(
+    ) = postHeartBeat.uploadVideoHistory(
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
         aid, cid, progress
     )
@@ -104,7 +106,7 @@ class BiliPlayRepository(
         pageNum: Int = 1,
         pageSize: Int = 30,
         sortReverse: Boolean = true,
-    ) = archive.videoArchive(
+    ) = getArchive.videoArchive(
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
         mid = mid,
         seasonId = seasonId,
@@ -116,7 +118,7 @@ class BiliPlayRepository(
     suspend fun hasLike(
         aid: Long,
         bvid: String,
-    ) = videoInfo.hasLike(
+    ) = getInfo.hasLike(
         aid = aid, bvid = bvid,
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
     )
@@ -124,14 +126,14 @@ class BiliPlayRepository(
     suspend fun hasCoin(
         aid: Long,
         bvid: String,
-    ) = videoInfo.hasCoin(
+    ) = getInfo.hasCoin(
         aid = aid, bvid = bvid,
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
     )
 
     suspend fun hasFavoured(
         aid: Long,
-    ) = videoInfo.hasFavoured(
+    ) = getInfo.hasFavoured(
         aid = aid,
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
     )
@@ -140,7 +142,7 @@ class BiliPlayRepository(
         aid: Long,
         bvid: String,
         like: Int
-    ) = videoInfo.videoLike(
+    ) = getInfo.videoLike(
         aid = aid, bvid = bvid, like = like,
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
     )
@@ -149,7 +151,7 @@ class BiliPlayRepository(
         aid: Long,
         bvid: String,
         multiply: Int
-    ) = videoInfo.videoCoin(
+    ) = postInfo.videoCoin(
         aid = aid, bvid = bvid, multiply = multiply,
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
     )
@@ -158,7 +160,7 @@ class BiliPlayRepository(
         aid: Long,
         addMediaIds: Set<Long>,
         delMediaIds: Set<Long>,
-    ) = videoInfo.videoFolderDeal(
+    ) = postInfo.videoFolderDeal(
         rid = aid,
         addMediaIds = addMediaIds,
         delMediaIds = delMediaIds,

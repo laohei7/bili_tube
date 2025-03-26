@@ -17,11 +17,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class VideoHeartBeat(
+class PostHeartBeat(
     private val client: HttpClient
 ) {
     companion object {
-        private val TAG = VideoHeartBeat::class.simpleName
+        private val TAG = PostHeartBeat::class.simpleName
     }
 
     suspend fun uploadVideoHistory(

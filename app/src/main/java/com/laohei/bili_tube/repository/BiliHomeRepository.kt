@@ -4,13 +4,13 @@ import android.content.Context
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.laohei.bili_sdk.anime.Timeline
-import com.laohei.bili_sdk.hot.Hots
+import com.laohei.bili_sdk.anime.GetTimeline
+import com.laohei.bili_sdk.hot.GetHots
 import com.laohei.bili_sdk.model.BiliAnimeSchedule
 import com.laohei.bili_sdk.model.BiliHotVideoItem
 import com.laohei.bili_sdk.module_v2.recomment.RecommendItem
-import com.laohei.bili_sdk.recommend.Recommend
-import com.laohei.bili_sdk.video.VideoInfo
+import com.laohei.bili_sdk.recommend.GetRecommend
+import com.laohei.bili_sdk.video.PostInfo
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.presentation.home.anime.TimelinePaging
@@ -24,10 +24,10 @@ import kotlinx.coroutines.flow.flow
 
 class BiliHomeRepository(
     private val context: Context,
-    private val recommend: Recommend,
-    private val hots: Hots,
-    private val timeline: Timeline,
-    private val videoInfo: VideoInfo
+    private val getRecommend: GetRecommend,
+    private val getHots: GetHots,
+    private val getTimeline: GetTimeline,
+    private val postInfo: PostInfo
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getPagedRecommendVideo(): Flow<PagingData<RecommendItem>> {
@@ -39,7 +39,7 @@ class BiliHomeRepository(
                         pageSize = 12,
                         enablePlaceholders = false
                     ),
-                    pagingSourceFactory = { RecommendPaging(recommend, cookie) }
+                    pagingSourceFactory = { RecommendPaging(getRecommend, cookie) }
                 ).flow
             )
         }.flattenConcat()
@@ -55,7 +55,7 @@ class BiliHomeRepository(
                         pageSize = 20,
                         enablePlaceholders = false
                     ),
-                    pagingSourceFactory = { HotPaging(hots, cookie) }
+                    pagingSourceFactory = { HotPaging(getHots, cookie) }
                 ).flow
             )
         }.flattenConcat()
@@ -71,7 +71,7 @@ class BiliHomeRepository(
                         pageSize = 13,
                         enablePlaceholders = false
                     ),
-                    pagingSourceFactory = { TimelinePaging(timeline, cookie) }
+                    pagingSourceFactory = { TimelinePaging(getTimeline, cookie) }
                 ).flow
             )
         }.flattenConcat()
@@ -81,7 +81,7 @@ class BiliHomeRepository(
         aid: Long,
         addMediaIds: Set<Long>,
         delMediaIds: Set<Long>,
-    ) = videoInfo.videoFolderDeal(
+    ) = postInfo.videoFolderDeal(
         rid = aid,
         addMediaIds = addMediaIds,
         delMediaIds = delMediaIds,

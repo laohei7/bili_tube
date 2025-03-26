@@ -12,16 +12,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class Wbi(private val client: HttpClient) {
+class GetWbi(private val client: HttpClient) {
 
     companion object {
-        private val TAG = Wbi::class.simpleName
+        private val TAG = GetWbi::class.simpleName
 
-        private var wbi: Wbi? = null
+        private var wbi: GetWbi? = null
 
-        fun getWbiRequest(client: HttpClient): Wbi {
+        fun getWbiRequest(client: HttpClient): GetWbi {
             if (wbi == null) {
-                wbi = Wbi(client)
+                wbi = GetWbi(client)
             }
             return wbi!!
         }
@@ -42,7 +42,6 @@ class Wbi(private val client: HttpClient) {
             }
             response?.run {
                 val biliWbi = Json.decodeFromString<BiliResponse<BiliWbi>>(bodyAsText()).data
-                Log.d(TAG, "wbi: $biliWbi")
                 if (WbiParams.wbi == null) {
                     WbiParams.initWbi(biliWbi.wbiImg.imgUrl, biliWbi.wbiImg.subUrl)
                 }

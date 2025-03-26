@@ -12,11 +12,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 
-class WebDynamic(
+class GetWebDynamic(
     private val client: HttpClient
 ) {
     companion object {
-        private val TAG = WebDynamic::class.simpleName
+        private val TAG = GetWebDynamic::class.simpleName
     }
 
     suspend fun dynamicList(
