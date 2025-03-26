@@ -1,7 +1,7 @@
 package com.laohei.bili_tube.presentation.dynamic
 
 import android.util.Log
-import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastFilter
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.laohei.bili_sdk.dynamic.GetWebDynamic
@@ -15,6 +15,12 @@ class DynamicPaging(
     companion object {
         private val TAG = DynamicPaging::class.simpleName
     }
+
+    private val filterTypes = listOf(
+        DynamicItem.DYNAMIC_TYPE_AV,
+        DynamicItem.DYNAMIC_TYPE_DRAW,
+        DynamicItem.DYNAMIC_TYPE_ARTICLE
+    )
 
     override fun getRefreshKey(state: PagingState<Pair<Int, Long?>, DynamicItem>): Pair<Int, Long?>? {
         return state.anchorPosition?.let { anchor ->
@@ -49,15 +55,12 @@ class DynamicPaging(
             )
 
 
-            val data = response?.data?.items ?: emptyList()
+            val data = response?.data?.items
+                ?.fastFilter { it.type in filterTypes }
+                ?: emptyList()
 
             val hasMore = response?.data?.hasMore == true
             val nextOffset = response?.data?.offset
-
-            data.fastForEach {
-                Log.d(TAG, "load: ${it.type}")
-            }
-
 
             LoadResult.Page(
                 data = data,
