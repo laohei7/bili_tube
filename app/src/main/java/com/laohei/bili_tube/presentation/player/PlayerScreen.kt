@@ -1,6 +1,7 @@
 package com.laohei.bili_tube.presentation.player
 
 import android.graphics.Bitmap
+import android.util.Log
 import android.view.TextureView
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
@@ -281,13 +282,19 @@ fun PlayerScreen(
                 viewModel.updateState(screenState.copy(bitmap = it))
             },
             fullscreen = {
+                val aspectRatio = mediaState.width.toFloat() / mediaState.height
+                val toLandscape =aspectRatio > 1f
+                Log.d("TAG", "PlayerScreen: $aspectRatio")
                 viewModel.fullscreenChanged(
                     it,
-                    screenState.originalVideoHeight,
+                    when{
+                        toLandscape.not() && it -> screenState.screenHeight.dp
+                        else -> screenState.originalVideoHeight
+                    },
                     isOrientationPortrait
                 )
                 when {
-                    (isOrientationPortrait && !it).not() -> {
+                    (isOrientationPortrait && !it).not() && toLandscape -> {
                         activity?.toggleOrientation()
                     }
                 }
@@ -431,7 +438,17 @@ fun PlayerScreen(
                     action,
                     isOrientationPortrait,
                     lockScreenCallback = {
-                        if (isOrientationPortrait) {
+                        val aspectRatio = mediaState.width.toFloat() / mediaState.height
+                        val toLandscape =aspectRatio > 1f
+                        viewModel.fullscreenChanged(
+                            true,
+                            when{
+                                toLandscape.not() -> screenState.screenHeight.dp
+                                else -> screenState.originalVideoHeight
+                            },
+                            isOrientationPortrait
+                        )
+                        if (isOrientationPortrait&& toLandscape) {
                             activity?.toggleOrientation()
                         }
                     }

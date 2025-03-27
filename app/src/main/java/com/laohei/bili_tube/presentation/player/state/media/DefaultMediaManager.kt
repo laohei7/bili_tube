@@ -10,12 +10,14 @@ import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.hls.HlsMediaSource
 import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import com.laohei.bili_sdk.module_v2.video.VideoURLModel
 import com.laohei.bili_tube.model.SourceType
 import com.laohei.bili_tube.model.VideoSource
@@ -33,12 +35,28 @@ internal class DefaultMediaManager(
     context: Context
 ) : MediaManager {
 
+    companion object{
+        private val TAG = DefaultMediaManager::class.simpleName
+    }
+
     private val mRenderersFactory = DefaultRenderersFactory(context)
         .setEnableDecoderFallback(true) // 允许解码器回退
         .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
 
+    private val mDefaultTrackSelector = DefaultTrackSelector(context).apply {
+        parameters = buildUponParameters()
+            .setForceHighestSupportedBitrate(true)
+            .build()
+    }
+
+    private val mDefaultLocalControl = DefaultLoadControl.Builder()
+        .setBufferDurationsMs(100_000,200_000,3_000,6_000)
+        .build()
+
     private val mExoPlayer = ExoPlayer.Builder(context)
         .setRenderersFactory(mRenderersFactory)
+        .setTrackSelector(mDefaultTrackSelector)
+        .setLoadControl(mDefaultLocalControl)
         .build()
 
     private var mVideoURLModel: VideoURLModel? = null
@@ -302,6 +320,7 @@ internal class DefaultMediaManager(
             Log.d("DefaultMediaManager", "play: ${mVideoURLModel?.dash}")
             Log.d("DefaultMediaManager", "play: $currentQualityVideos")
             val videoUrl = currentQualityVideos[mCurrentSelectedIndex].baseUrl
+            Log.d(TAG, "play: video $videoUrl")
             val audioItem = mVideoURLModel?.dash?.audio?.let { audioList ->
                 if (_mState.value.defaultQuality.first >= 126) {
                     audioList.firstOrNull { it.id in DolbyAudioQuality }
@@ -317,6 +336,7 @@ internal class DefaultMediaManager(
             )
                 .createMediaSource(MediaItem.fromUri(videoUrl))
             val audio = audioItem?.run {
+                Log.d(TAG, "play: $baseUrl")
                 ProgressiveMediaSource.Factory(
                     mOtherDataSourceFactory ?: mDefaultDataSourceFactory
                 )
