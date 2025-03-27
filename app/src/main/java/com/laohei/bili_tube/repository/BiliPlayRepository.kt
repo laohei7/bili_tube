@@ -107,7 +107,7 @@ class BiliPlayRepository(
         seasonId: Long,
         pageNum: Int = 1,
         pageSize: Int = 30,
-        sortReverse: Boolean = true,
+        sortReverse: Boolean = false,
     ) = getArchive.videoArchive(
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
         mid = mid,
