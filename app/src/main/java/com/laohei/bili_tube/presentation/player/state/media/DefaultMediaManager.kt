@@ -196,7 +196,7 @@ internal class DefaultMediaManager(
                     mBackVideoSources?.let { sources ->
                         if (mCurrentSelectedIndex < sources.size) {
                             mCurrentSelectedIndex++
-                            play(mVideoURLModel!!.lastPlayTime)
+                            play(getInitPosition())
                         } else {
                             _mState.update { it.copy(isError = true) }
                             playErrorCallback?.invoke()
@@ -263,7 +263,7 @@ internal class DefaultMediaManager(
         mVideoURLModel = videoURLModel
         mOtherDataSourceFactory = dataSourceFactory
         mCurrentSelectedIndex = 0
-        play(mVideoURLModel!!.lastPlayTime)
+        play(getInitPosition())
     }
 
     override fun seekTo(duration: Long) {
@@ -313,6 +313,18 @@ internal class DefaultMediaManager(
 
     fun stopProgressUpdate() {
         mProgressUpdateJob?.cancel()
+    }
+
+    private fun getInitPosition(): Long {
+        if (mVideoURLModel == null) {
+            return 0L
+        }
+        val diff = mVideoURLModel!!.timeLength - mVideoURLModel!!.lastPlayTime
+        return if (diff > 1000) {
+            mVideoURLModel!!.lastPlayTime
+        } else {
+            0L
+        }
     }
 
     private fun play(initialPosition: Long) {
