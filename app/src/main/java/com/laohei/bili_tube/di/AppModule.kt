@@ -1,6 +1,10 @@
 package com.laohei.bili_tube.di
 
 import android.annotation.SuppressLint
+import android.content.Context
+import androidx.media3.database.StandaloneDatabaseProvider
+import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
+import androidx.media3.datasource.cache.SimpleCache
 import com.laohei.bili_sdk.anime.GetTimeline
 import com.laohei.bili_sdk.dynamic.GetWebDynamic
 import com.laohei.bili_sdk.folder.GetFolder
@@ -34,14 +38,30 @@ import com.laohei.bili_tube.repository.BiliMineRepository
 import com.laohei.bili_tube.repository.BiliPlayRepository
 import com.laohei.bili_tube.repository.BiliPlaylistRepository
 import com.laohei.bili_tube.utill.HttpClientFactory
+import org.chromium.net.CronetEngine
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import java.io.File
 
 @SuppressLint("UnsafeOptInUsageError")
 val appModule = module {
     single { HttpClientFactory.client }
+    single {
+        CronetEngine.Builder(get(Context::class) as Context)
+            .enableHttp2(true)
+            .enableQuic(true)
+            .build()
+    }
+    single {
+        val context = get(Context::class) as Context
+        SimpleCache(
+            File(context.cacheDir, "media_cache"),
+            LeastRecentlyUsedCacheEvictor(100 * 1024 * 1024),
+            StandaloneDatabaseProvider(context)
+        )
+    }
 
     singleOf(::QRLogin)
     singleOf(::GetRecommend)
@@ -69,7 +89,7 @@ val appModule = module {
     singleOf(::BiliHistoryRepository)
     singleOf(::BiliPlaylistRepository)
 
-    factoryOf(::DefaultMediaManager)
+//    factoryOf(::DefaultMediaManager)
 
     viewModelOf(::HomeViewModel)
     viewModelOf(::RecommendViewModel)

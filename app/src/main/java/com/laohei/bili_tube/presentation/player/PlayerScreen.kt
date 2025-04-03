@@ -87,6 +87,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
@@ -118,6 +119,7 @@ import com.laohei.bili_tube.presentation.player.component.reply.VideoReplySheet
 import com.laohei.bili_tube.presentation.player.component.settings.PlaySpeedSheet
 import com.laohei.bili_tube.presentation.player.component.settings.VideoQualitySheet
 import com.laohei.bili_tube.presentation.player.component.settings.VideoSettingsSheet
+import com.laohei.bili_tube.presentation.player.state.media.DefaultMediaManager
 import com.laohei.bili_tube.presentation.player.state.media.MediaState
 import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManager
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
@@ -129,7 +131,9 @@ import com.laohei.bili_tube.utill.toTimeAgoString
 import com.laohei.bili_tube.utill.toViewString
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.chromium.net.CronetEngine
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import kotlin.math.roundToInt
 
@@ -140,6 +144,7 @@ fun PlayerScreen(
     params: Route.Play,
     upPress: () -> Unit
 ) {
+    val context = LocalContext.current
     val view = LocalView.current
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
@@ -147,10 +152,20 @@ fun PlayerScreen(
     val configuration = LocalConfiguration.current
     val systemBarHeight = SystemUtil.getStatusBarHeightDp() + SystemUtil.getNavigateBarHeightDp()
 
+    val cronetEngine = koinInject<CronetEngine>()
+    val simpleCache = koinInject<SimpleCache>()
+
     val viewModel =
         koinViewModel<PlayerViewModel> {
             parametersOf(
                 params,
+                DefaultMediaManager(
+                    context = context,
+                    cronetEngine = cronetEngine,
+                    simpleCache=simpleCache,
+                    originalWidth = params.width,
+                    originalHeight = params.height
+                ),
                 DefaultScreenManager(
                     density,
                     configuration.screenHeightDp + systemBarHeight.value.roundToInt(),

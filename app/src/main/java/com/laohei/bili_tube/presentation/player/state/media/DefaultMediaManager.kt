@@ -9,7 +9,9 @@ import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
-import androidx.media3.datasource.DefaultHttpDataSource
+import androidx.media3.datasource.cache.CacheDataSource
+import androidx.media3.datasource.cache.SimpleCache
+import androidx.media3.datasource.cronet.CronetDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
@@ -29,13 +31,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.chromium.net.CronetEngine
+import java.util.concurrent.Executors
 
 @UnstableApi
 internal class DefaultMediaManager(
-    context: Context
+    context: Context,
+    cronetEngine: CronetEngine,
+    simpleCache: SimpleCache,
+    originalWidth: Int,
+    originalHeight: Int
 ) : MediaManager {
 
-    companion object{
+    companion object {
         private val TAG = DefaultMediaManager::class.simpleName
     }
 
@@ -50,7 +58,7 @@ internal class DefaultMediaManager(
     }
 
     private val mDefaultLocalControl = DefaultLoadControl.Builder()
-        .setBufferDurationsMs(100_000,200_000,3_000,6_000)
+        .setBufferDurationsMs(100_000, 200_000, 3_000, 6_000)
         .build()
 
     private val mExoPlayer = ExoPlayer.Builder(context)
@@ -65,16 +73,27 @@ internal class DefaultMediaManager(
     private var mCurrentVideoWidth: Int? = null
     private var mCurrentVideoHeight: Int? = null
 
-    private val mDefaultDataSourceFactory = DefaultHttpDataSource.Factory().apply {
-        setDefaultRequestProperties(
-            mapOf("referer" to "https://www.bilibili.com", "User-Agent" to "K/3")
-        )
-    }
+    private val mCronetDataSource =
+        CronetDataSource.Factory(cronetEngine, Executors.newSingleThreadExecutor()).apply {
+            setDefaultRequestProperties(
+                mapOf("referer" to "https://www.bilibili.com", "User-Agent" to "K/3")
+            )
+        }
+    private val mDefaultDataSourceFactory = CacheDataSource.Factory()
+        .setCache(simpleCache)
+        .setUpstreamDataSourceFactory(mCronetDataSource)
+        .setCacheWriteDataSinkFactory(null)
+
     private var mOtherDataSourceFactory: DataSource.Factory? = null
 
     private var mProgressUpdateJob: Job? = null
 
-    private val _mState = MutableStateFlow(MediaState())
+    private val _mState = MutableStateFlow(
+        MediaState(
+            width = originalWidth,
+            height = originalHeight
+        )
+    )
 
     override val state: StateFlow<MediaState>
         get() = _mState
