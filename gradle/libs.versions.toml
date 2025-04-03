@@ -43,6 +43,7 @@ androidx-paging-runtime = { module = "androidx.paging:paging-runtime", version.r
 androidx-palette = { module = "androidx.palette:palette", version.ref = "palette" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
+coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coilCompose" }
 core = { module = "com.google.zxing:core", version.ref = "core" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -110,7 +111,8 @@ koin = [
 
 coil = [
     "coil-compose",
-    "coil-network-okhttp"
+    "coil-network-okhttp",
+    "coil-network-ktor3"
 ]
 
 paging = [

@@ -133,7 +133,22 @@ fun HistoryScreen(
                         if (isEmpty) 16.dp else 0.dp
                     )
                 ) {
-                    items(histories.itemCount) { index ->
+                    items(
+                        histories.itemCount,
+                        span = { index ->
+                            histories[index]?.let { item ->
+                                when (item) {
+                                    is UIModel.Header<*> -> {
+                                        GridItemSpan(fixedCount)
+                                    }
+
+                                    else -> {
+                                        GridItemSpan(1)
+                                    }
+                                }
+                            } ?: GridItemSpan(1)
+                        }
+                    ) { index ->
                         histories[index]?.let { item ->
                             when (item) {
                                 is UIModel.Header<*> -> {

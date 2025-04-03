@@ -7,6 +7,11 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
+import coil3.ImageLoader
+import coil3.PlatformContext
+import coil3.SingletonImageLoader
+import coil3.network.ktor3.KtorNetworkFetcherFactory
+import coil3.request.CachePolicy
 import com.laohei.bili_sdk.wbi.GetWbi
 import com.laohei.bili_sdk.wbi.WbiParams
 import com.laohei.bili_tube.core.COOKIE_KEY
@@ -24,8 +29,8 @@ import org.koin.core.context.startKoin
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "bili_tube")
 
-class BiliTubeApp : Application() {
-    companion object{
+class BiliTubeApp : Application(), SingletonImageLoader.Factory {
+    companion object {
         private val TAG = BiliTubeApp::class.simpleName
     }
 
@@ -55,5 +60,15 @@ class BiliTubeApp : Application() {
                 }
             }
         }
+    }
+
+    override fun newImageLoader(context: PlatformContext): ImageLoader {
+        return ImageLoader.Builder(this)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .components {
+                add(KtorNetworkFetcherFactory(httpClient = { HttpClientFactory.client }))
+            }
+            .build()
     }
 }

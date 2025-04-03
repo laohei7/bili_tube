@@ -1,7 +1,6 @@
 package com.laohei.bili_tube.presentation.mine
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -37,7 +36,6 @@ import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Feedback
-import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Search
@@ -49,7 +47,6 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -87,7 +84,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.palette.graphics.Palette
 import coil3.asDrawable
 import coil3.compose.AsyncImage
-import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.laohei.bili_sdk.module_v2.folder.FolderItem
@@ -155,25 +151,24 @@ private fun AvatarWidget() {
     val context = LocalContext.current
     val avatar by remember { mutableStateOf(context.getValue(FACE_URL_KEY.name, "")) }
     val username by remember { mutableStateOf(context.getValue(USERNAME_KEY.name, "")) }
+    val avatarRequest = remember(avatar) {
+        ImageRequest.Builder(context)
+            .data(avatar)
+            .crossfade(true)
+            .build()
+    }
     ListItem(
         leadingContent = {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(avatar)
-                    .crossfade(true)
-                    .build(),
+            AsyncImage(
+                model = avatarRequest,
                 contentDescription = "avatar",
                 modifier = Modifier
                     .size(88.dp)
                     .aspectRatio(1f)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop,
-                loading = {
-                    Image(
-                        painter = painterResource(R.drawable.icon_loading),
-                        contentDescription = "loading img",
-                    )
-                }
+                placeholder = painterResource(R.drawable.bili_emoji1),
+                error = painterResource(R.drawable.bili_emoji3)
             )
         },
         headlineContent = {
@@ -636,7 +631,7 @@ private fun PlaylistItem(
                 onSuccess = {
                     val drawable = it.result.image.asDrawable(context.resources)
                     scope.launch {
-                        drawable.toBitmapOrNull()?.toNonHardwareBitmap()?.let { bitmap->
+                        drawable.toBitmapOrNull()?.toNonHardwareBitmap()?.let { bitmap ->
                             Palette.from(bitmap).generate { palette ->
                                 dominantColor =
                                     palette?.getDominantColor(Color.LightGray.toArgb())?.run {
@@ -647,9 +642,7 @@ private fun PlaylistItem(
                     }
                 },
                 modifier = coverModifier
-                    .background(
-                        color = Color.LightGray
-                    )
+                    .background(color = Color.LightGray)
                     .border(
                         border = BorderStroke(
                             color = Color.White,
@@ -710,26 +703,31 @@ private fun HistoryItem(
             .clickable { onClick.invoke() },
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        val context = LocalContext.current
         val shape = remember { RoundedCornerShape(12.dp) }
         val coverModifier = Modifier
             .width(180.dp)
             .aspectRatio(16 / 9f)
             .clip(shape)
-
+        val coverRequest = remember(cover) {
+            ImageRequest.Builder(context)
+                .data(cover)
+                .crossfade(true)
+                .build()
+        }
         Box(
             modifier = coverModifier
         ) {
             AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(cover)
-                    .crossfade(true)
-                    .build(),
+                model = coverRequest,
                 contentDescription = title,
                 modifier = Modifier
                     .width(180.dp)
                     .aspectRatio(16 / 9f)
                     .clip(shape),
                 contentScale = ContentScale.Crop,
+                placeholder = painterResource(R.drawable.icon_loading),
+                error = painterResource(R.drawable.icon_loading)
             )
             LinearProgressIndicator(
                 modifier = Modifier

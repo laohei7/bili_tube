@@ -14,13 +14,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
 
 @Composable
@@ -30,6 +34,13 @@ internal fun UserSimpleInfo(
     fans: String,
     onClick: (ScreenAction) -> Unit
 ) {
+    val context = LocalContext.current
+    val faceRequest = remember(face) {
+        ImageRequest.Builder(context)
+            .data(face)
+            .crossfade(true)
+            .build()
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -42,7 +53,7 @@ internal fun UserSimpleInfo(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             AsyncImage(
-                model = face,
+                model = faceRequest,
                 contentDescription = name,
                 modifier = Modifier
                     .padding(top = 4.dp)

@@ -43,6 +43,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,9 +56,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
-import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.laohei.bili_sdk.model.BiliHotVideoItem
@@ -122,7 +124,7 @@ fun HotScreen(
                         VideoItem2(
                             key = it.bvid,
                             title = it.title,
-                            face = it.owner.face,
+                            cover = it.pic,
                             ownerName = it.owner.name,
                             rcmdReason = it.rcmdReason.content ?: "",
                             duration = it.duration.formatTimeString(false),
@@ -171,7 +173,7 @@ fun HotScreen(
 private fun VideoItem2(
     key: String,
     title: String,
-    face: String,
+    cover: String,
     ownerName: String,
     rcmdReason: String = "",
     duration: String,
@@ -180,6 +182,13 @@ private fun VideoItem2(
     onClick: () -> Unit,
     onMenuClick: (() -> Unit)? = null
 ) {
+    val context = LocalContext.current
+    val coverRequest = remember(cover) {
+        ImageRequest.Builder(context)
+            .data(cover)
+            .crossfade(true)
+            .build()
+    }
     Column(
         modifier = Modifier.padding(top = 4.dp),
     ) {
@@ -195,23 +204,16 @@ private fun VideoItem2(
             Box(
                 modifier = Modifier.weight(1f)
             ) {
-                SubcomposeAsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(face)
-                        .crossfade(true)
-                        .build(),
+                AsyncImage(
+                    model = coverRequest,
                     contentDescription = key,
                     modifier = Modifier
                         .fillMaxSize()
                         .aspectRatio(16 / 9f)
                         .clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.Crop,
-                    loading = {
-                        Image(
-                            painter = painterResource(R.drawable.icon_loading),
-                            contentDescription = "loading img",
-                        )
-                    }
+                    placeholder = painterResource(R.drawable.icon_loading),
+                    error = painterResource(R.drawable.icon_loading)
                 )
                 Surface(
                     modifier = Modifier
@@ -257,10 +259,12 @@ private fun VideoItem2(
                 ) {
                     Text(
                         text = rcmdReason,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontSize = 8.sp
+                        ),
                         modifier = Modifier
                             .wrapContentSize()
-                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                            .padding(horizontal = 6.dp)
                     )
                 }
 

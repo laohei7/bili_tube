@@ -1,6 +1,5 @@
 package com.laohei.bili_tube.component.video
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -22,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,7 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.laohei.bili_tube.R
@@ -53,29 +53,35 @@ fun VideoItem(
     onClick: () -> Unit,
     onMenuClick: (() -> Unit)? = null
 ) {
+    val context = LocalContext.current
+    val coverRequest = remember(cover) {
+        ImageRequest.Builder(context)
+            .data(cover)
+            .crossfade(true)
+            .build()
+    }
+    val faceRequest = remember(face) {
+        ImageRequest.Builder(context)
+            .data(face)
+            .crossfade(true)
+            .build()
+    }
     Column(
         modifier = Modifier
             .background(color = MaterialTheme.colorScheme.background)
             .clickable { onClick.invoke() },
     ) {
         Box {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(cover)
-                    .crossfade(true)
-                    .build(),
+            AsyncImage(
+                model = coverRequest,
                 contentDescription = key,
                 modifier = Modifier
                     .fillMaxWidth()
                     .aspectRatio(16 / 9f)
                     .clip(RoundedCornerShape(if (isSingleLayout) 0.dp else 12.dp)),
                 contentScale = ContentScale.Crop,
-                loading = {
-                    Image(
-                        painter = painterResource(R.drawable.icon_loading),
-                        contentDescription = "loading img",
-                    )
-                }
+                placeholder = painterResource(R.drawable.icon_loading),
+                error = painterResource(R.drawable.icon_loading),
             )
 
             Surface(
@@ -102,24 +108,16 @@ fun VideoItem(
                 .padding(start = 12.dp, end = 4.dp, bottom = 8.dp),
             verticalAlignment = Alignment.Top
         ) {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(face)
-                    .crossfade(true)
-                    .build(),
+            AsyncImage(
+                model = faceRequest,
                 contentDescription = ownerName,
                 modifier = Modifier
                     .padding(top = 4.dp, end = 18.dp)
                     .size(42.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop,
-                loading = {
-                    Box(
-                        modifier = Modifier
-                            .background(Color.LightGray)
-                            .clip(CircleShape)
-                    )
-                }
+                placeholder = painterResource(R.drawable.bili_emoji1),
+                error = painterResource(R.drawable.bili_emoji2)
             )
             Column(
                 modifier = Modifier.weight(1f)

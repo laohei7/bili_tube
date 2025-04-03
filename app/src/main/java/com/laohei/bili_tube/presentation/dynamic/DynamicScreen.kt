@@ -1,7 +1,6 @@
 package com.laohei.bili_tube.presentation.dynamic
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -59,6 +58,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
+import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -371,6 +371,7 @@ private fun DRAWItem(
     images: List<String>?,
     onMenuClick: (() -> Unit)? = null
 ) {
+    val context = LocalContext.current
     Column(
         modifier = Modifier.background(
             MaterialTheme.colorScheme.background
@@ -396,36 +397,32 @@ private fun DRAWItem(
             val isSingle = list.size == 1
             if (isSingle) {
                 val image = list.first()
-                SubcomposeAsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
+                val imageRequest = remember(image) {
+                    ImageRequest.Builder(context)
                         .data(image)
                         .crossfade(true)
-                        .build(),
+                        .build()
+                }
+                AsyncImage(
+                    model = imageRequest,
                     contentDescription = "",
                     modifier = Modifier
                         .fillMaxWidth(),
                     contentScale = ContentScale.FillHeight,
-                    loading = {
-                        Image(
-                            painter = painterResource(R.drawable.icon_loading),
-                            contentDescription = "loading"
-                        )
-                    },
-                    error = {
-                        Image(
-                            painter = painterResource(R.drawable.icon_loading),
-                            contentDescription = "loading"
-                        )
-                    }
+                    placeholder = painterResource(R.drawable.icon_loading),
+                    error = painterResource(R.drawable.icon_loading)
                 )
             } else {
                 LazyRow {
                     items(list) {
-                        SubcomposeAsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
+                        val imageRequest = remember(it) {
+                            ImageRequest.Builder(context)
                                 .data(it)
                                 .crossfade(true)
-                                .build(),
+                                .build()
+                        }
+                        AsyncImage(
+                            model = imageRequest,
                             contentDescription = ownerName,
                             modifier = Modifier
                                 .size(260.dp)
@@ -433,18 +430,8 @@ private fun DRAWItem(
                                 .padding(horizontal = 12.dp)
                                 .clip(RoundedCornerShape(12.dp)),
                             contentScale = ContentScale.Crop,
-                            loading = {
-                                Image(
-                                    painter = painterResource(R.drawable.icon_loading),
-                                    contentDescription = "loading"
-                                )
-                            },
-                            error = {
-                                Image(
-                                    painter = painterResource(R.drawable.icon_loading),
-                                    contentDescription = "loading"
-                                )
-                            }
+                            placeholder = painterResource(R.drawable.icon_loading),
+                            error = painterResource(R.drawable.icon_loading)
                         )
                     }
                 }
@@ -465,6 +452,13 @@ private fun CommonItem(
     cover: String,
     onMenuClick: (() -> Unit)? = null
 ) {
+    val context = LocalContext.current
+    val coverRequest = remember(cover) {
+        ImageRequest.Builder(context)
+            .data(cover)
+            .crossfade(true)
+            .build()
+    }
     Column(
         modifier = Modifier.background(
             MaterialTheme.colorScheme.background
@@ -502,24 +496,16 @@ private fun CommonItem(
                     RoundedCornerShape(8.dp)
                 )
         ) {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(cover)
-                    .crossfade(true)
-                    .build(),
+            AsyncImage(
+                model = coverRequest,
                 contentDescription = ownerName,
                 modifier = Modifier
                     .size(120.dp)
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp)),
                 contentScale = ContentScale.Crop,
-                loading = {
-                    Box(
-                        modifier = Modifier
-                            .background(Color.LightGray)
-                            .clip(CircleShape)
-                    )
-                }
+                placeholder = painterResource(R.drawable.icon_loading),
+                error = painterResource(R.drawable.icon_loading)
             )
 
             Column {
@@ -602,6 +588,13 @@ private fun AuthorBar(
     date: String,
     onMenuClick: (() -> Unit)? = null
 ) {
+    val context = LocalContext.current
+    val faceRequest = remember(face) {
+        ImageRequest.Builder(context)
+            .data(face)
+            .crossfade(true)
+            .build()
+    }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -610,23 +603,15 @@ private fun AuthorBar(
         horizontalArrangement = Arrangement.spacedBy(20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        SubcomposeAsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(face)
-                .crossfade(true)
-                .build(),
+        AsyncImage(
+            model = faceRequest,
             contentDescription = ownerName,
             modifier = Modifier
                 .size(42.dp)
                 .clip(CircleShape),
             contentScale = ContentScale.Crop,
-            loading = {
-                Box(
-                    modifier = Modifier
-                        .background(Color.LightGray)
-                        .clip(CircleShape)
-                )
-            }
+            placeholder = painterResource(R.drawable.bili_emoji1),
+            error = painterResource(R.drawable.bili_emoji2)
         )
         Column(
             modifier = Modifier.weight(1f)
