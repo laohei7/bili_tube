@@ -37,13 +37,11 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.SkipPrevious
-import androidx.compose.material.icons.outlined.KeyboardDoubleArrowRight
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.material.icons.outlined.Speed
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -68,6 +66,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.component.lottie.LottieIconLoading
 import com.laohei.bili_tube.component.lottie.LottieIconSpeed
 import com.laohei.bili_tube.core.util.SystemUtil
 import com.laohei.bili_tube.utill.formatTimeString
@@ -228,7 +227,9 @@ fun PlayerControl(
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            CircularProgressIndicator()
+            LottieIconLoading(
+                modifier=Modifier.size(88.dp)
+            )
         }
 
         // Bottom Indicator

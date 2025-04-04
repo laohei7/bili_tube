@@ -57,6 +57,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -137,6 +138,7 @@ import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import kotlin.math.roundToInt
 
+private const val TAG = "PlayerScreen"
 
 @OptIn(UnstableApi::class)
 @Composable
@@ -175,7 +177,7 @@ fun PlayerScreen(
                 )
             )
         }
-    val playerState by viewModel.playerState.collectAsStateWithLifecycle()
+    val playerState by viewModel.playerState.collectAsState()
     val videoReplies = viewModel.videoReplies.collectAsLazyPagingItems()
     val mediaState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -230,6 +232,8 @@ fun PlayerScreen(
 
     // video size changed
     LaunchedEffect(mediaState.width, mediaState.height) {
+//        Log.d(TAG, "PlayerScreen: video size changed")
+//        Log.d(TAG, "PlayerScreen: ${mediaState.width} ${mediaState.height}")
         viewModel.calculateScreenSize(mediaState.width, mediaState.height)
     }
 

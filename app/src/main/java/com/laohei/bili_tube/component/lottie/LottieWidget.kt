@@ -71,3 +71,13 @@ fun LottieIconLike(
         onAnimationEndCallback = onAnimationEndCallback
     )
 }
+
+@Composable
+fun LottieIconLoading(
+    modifier: Modifier=Modifier
+) {
+    LottieWidget(
+        id = R.raw.lottie_loading_face,
+        modifier = modifier
+    )
+}

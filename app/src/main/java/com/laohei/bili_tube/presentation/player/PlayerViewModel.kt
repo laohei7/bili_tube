@@ -73,6 +73,7 @@ internal class PlayerViewModel(
     suspend fun updateParams(other: Route.Play) =
         withContext(Dispatchers.IO) {
             params = other
+//            Log.d(TAG, "updateParams: start load video, params: $params")
             withContext(Dispatchers.Main) {
                 toggleLoading()
             }
