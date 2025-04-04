@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.serialization")
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.androidx.room)
 }
 
 android {
@@ -43,6 +45,9 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    room {
+        schemaDirectory("$projectDir/schemas")
     }
 }
 
@@ -85,6 +90,12 @@ dependencies {
 
     implementation(libs.lottie.compose)
     implementation(libs.androidx.material3.adaptive.navigation.suite)
+
+    implementation(libs.ffmpeg.kit.full)
+
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
 
     implementation(project(":bili_sdk"))
 
