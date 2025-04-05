@@ -1,0 +1,106 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "da89d33918761dd8370998a1d366153c",
+    "entities": [
+      {
+        "tableName": "tb_downloads",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `aid` INTEGER NOT NULL, `cid` INTEGER NOT NULL, `name` TEXT NOT NULL, `cover` TEXT NOT NULL, `quality` TEXT NOT NULL, `videoUrls` TEXT NOT NULL, `audioUrls` TEXT, `videoFile` TEXT, `audioFile` TEXT, `mergedFile` TEXT, `status` INTEGER NOT NULL, `progress` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "aid",
+            "columnName": "aid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cid",
+            "columnName": "cid",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cover",
+            "columnName": "cover",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "quality",
+            "columnName": "quality",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "videoUrls",
+            "columnName": "videoUrls",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "audioUrls",
+            "columnName": "audioUrls",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "videoFile",
+            "columnName": "videoFile",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "audioFile",
+            "columnName": "audioFile",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "mergedFile",
+            "columnName": "mergedFile",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "progress",
+            "columnName": "progress",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'da89d33918761dd8370998a1d366153c')"
+    ]
+  }
+}
