@@ -29,5 +29,6 @@ interface Event {
 
     sealed interface AppEvent : Event {
         data class ToastEvent(val message: String) : AppEvent
+        data class PermissionRequestEvent(val permissions:List<String>):AppEvent
     }
 }

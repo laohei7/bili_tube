@@ -20,6 +20,7 @@ import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import com.laohei.bili_sdk.module_v2.video.DashItem
 import com.laohei.bili_sdk.module_v2.video.VideoURLModel
 import com.laohei.bili_tube.model.SourceType
 import com.laohei.bili_tube.model.VideoSource
@@ -45,6 +46,7 @@ internal class DefaultMediaManager(
 
     companion object {
         private val TAG = DefaultMediaManager::class.simpleName
+        private const val DBG = true
     }
 
     private val mRenderersFactory = DefaultRenderersFactory(context)
@@ -416,6 +418,30 @@ internal class DefaultMediaManager(
         _mState.update { it.copy(defaultQuality = quality) }
         mCurrentSelectedIndex = 0
         play(_mState.value.currentDuration)
+    }
+
+    fun getVideoSourceByQuality(quality: Int): Pair<List<String>, List<String>?> {
+        if (DBG) {
+            Log.d(TAG, "getVideoSourceByQuality: download selected quality $quality")
+            Log.d(
+                TAG,
+                "getVideoSourceByQuality: audio source ids ${mVideoURLModel?.dash?.audio?.map { it.id }}"
+            )
+        }
+        return if (mVideoURLModel!!.dash != null) {
+            val currentQualityVideos =
+                mVideoURLModel!!.dash!!.video.filter { it.id == quality }
+            val audios = mVideoURLModel?.dash?.audio?.let { audioList ->
+                audioList.sortedWith(
+                    compareBy<DashItem> { it.id in DolbyAudioQuality }
+                        .thenByDescending { it.id }
+                ).map { it.baseUrl }
+            }
+            Pair(currentQualityVideos.map { it.baseUrl }, audios)
+        } else {
+            val currentSources = mVideoURLModel!!.durl!!
+            Pair(currentSources.map { it.url }, null)
+        }
     }
 
 

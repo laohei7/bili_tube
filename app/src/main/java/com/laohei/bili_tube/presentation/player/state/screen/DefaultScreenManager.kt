@@ -183,6 +183,10 @@ internal class DefaultScreenManager(
                 lockScreenCallback?.invoke()
             }
 
+            is ScreenAction.ShowDownloadSheetAction->{
+                _mState.update { it.copy(isShowDownloadSheet = action.flag) }
+            }
+
             is ScreenAction.ShowLikeAnimationAction ->{
                 _mState.update { it.copy(isShowLikeAnimation = action.flag) }
             }

@@ -55,4 +55,17 @@
     <string name="str_exit_app_hint">再按一次退出应用</string>
     <string name="str_ok">确定</string>
     <string name="str_author_view_date">%1s · %2s次观看 · %3s</string>
+    <string name="str_download">下载</string>
+    <string name="str_download_notification">下载通知</string>
+    <string name="str_download_progress">下载进度: %d%%</string>
+    <string name="str_download_completed">下载完成</string>
+    <string name="str_downloading_multiple_files">多个文件正在下载</string>
+    <string name="str_permission_not_granted">权限授权失败</string>
+    <string name="str_permission_granted">权限授权成功</string>
+    <string name="str_download_start">开始下载</string>
+    <string name="str_download_add">已添加到下载队列</string>
+    <string name="str_download_exit">该任务已存在队列中</string>
+    <string name="str_download_failed">下载失败</string>
+    <string name="str_pending">准备中…</string>
+    <string name="str_processing">最后处理中…</string>
 </resources>

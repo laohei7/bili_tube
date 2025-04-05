@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.Paid
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.StarOutline
@@ -74,6 +75,7 @@ internal fun VideoMenus(
     onClick: (VideoAction.VideoMenuAction) -> Unit,
     coinClick: () -> Unit,
     favouredClick: () -> Unit,
+    downloadClick:()->Unit,
     onAnimationEndCallback: (() -> Unit)? = null
 ) {
     var localHasLike by remember { mutableStateOf(hasLike) }
@@ -138,6 +140,12 @@ internal fun VideoMenus(
             icon = Icons.Outlined.Share,
             label = share,
             onClick = {}
+        )
+        Spacer(modifier = Modifier)
+        ExtendedIconButton(
+            icon = Icons.Outlined.Download,
+            label = stringResource(R.string.str_download),
+            onClick = {downloadClick.invoke()}
         )
         Spacer(modifier = Modifier)
     }

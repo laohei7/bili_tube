@@ -1,9 +1,16 @@
 package com.laohei.bili_tube.app
 
+import android.Manifest
+import android.content.Intent
+import android.os.Build
+import android.os.Environment
+import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -33,6 +40,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.net.toUri
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraphBuilder
@@ -56,6 +64,7 @@ import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.core.util.setValue
 import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.dataStore
+import com.laohei.bili_tube.presentation.download.DownloadScreen
 import com.laohei.bili_tube.presentation.dynamic.DynamicScreen
 import com.laohei.bili_tube.presentation.history.HistoryScreen
 import com.laohei.bili_tube.presentation.home.HomeScreen
@@ -159,6 +168,11 @@ fun App() {
                 navigateToRoute = { navController.navigate(it) }
             )
         }
+        composable<Route.DownloadManagement> {
+            DownloadScreen(
+                upPress = { navController.navigateUp() }
+            )
+        }
         composable<Route.HomeGraph> { MainChildGraph(navController) }
     }
 }
@@ -167,7 +181,7 @@ fun App() {
 private fun MainChildGraph(navController: NavController) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    var bottomAppBarSelectedIndex by rememberSaveable  { mutableIntStateOf(0) }
+    var bottomAppBarSelectedIndex by rememberSaveable { mutableIntStateOf(0) }
     val bottomAppBarItems = remember {
         listOf(
             BottomAppBarItem(
@@ -176,7 +190,7 @@ private fun MainChildGraph(navController: NavController) {
             ),
             BottomAppBarItem(
                 icon = Icons.Outlined.Subscriptions,
-                label = context.getString(R.string.str_scrscription)
+                label = context.getString(R.string.str_subscription)
             ),
             BottomAppBarItem(
                 icon = Icons.Outlined.Person,
@@ -287,6 +301,36 @@ private fun ExitAppHandle() {
 @Composable
 private fun AppEventListener() {
     val context = LocalContext.current
+    val permissionsLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { results ->
+        val message = results.any { it.value.not() }.run {
+            if (this) context.getString(R.string.str_permission_not_granted)
+            else context.getString(R.string.str_permission_granted)
+        }
+        Toast.makeText(
+            context,
+            message,
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+    val manageStorageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = {
+            val hasPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                Environment.isExternalStorageManager()
+            } else {
+                false
+            }
+            val message = if (hasPermission) context.getString(R.string.str_permission_granted)
+            else context.getString(R.string.str_permission_not_granted)
+            Toast.makeText(
+                context,
+                message,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    )
     LaunchedEffect(Unit) {
         EventBus.events.collect { event ->
             if ((event is Event.AppEvent).not()) {
@@ -295,6 +339,20 @@ private fun AppEventListener() {
             when (val appEvent = event as Event.AppEvent) {
                 is Event.AppEvent.ToastEvent -> {
                     Toast.makeText(context, appEvent.message, Toast.LENGTH_SHORT).show()
+                }
+
+                is Event.AppEvent.PermissionRequestEvent -> {
+                    if (appEvent.permissions.contains(Manifest.permission.MANAGE_EXTERNAL_STORAGE)) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            val intent =
+                                Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+                                    data = "package:${context.packageName}".toUri()
+                                }
+                            manageStorageLauncher.launch(intent)
+                        }
+                    } else {
+                        permissionsLauncher.launch(appEvent.permissions.toTypedArray())
+                    }
                 }
             }
         }

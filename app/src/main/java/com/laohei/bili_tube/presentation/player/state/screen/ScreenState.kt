@@ -28,6 +28,7 @@ internal data class ScreenState(
     val isShowVideoSettingsSheet: Boolean = false,
     val isShowSpeedSheet: Boolean = false,
     val isShowQualitySheet: Boolean = false,
+    val isShowDownloadSheet: Boolean = false,
     val isShowArchiveSheet: Boolean = false,
     val archiveListState:LazyListState = LazyListState(),
     val isLockScreen: Boolean = false,

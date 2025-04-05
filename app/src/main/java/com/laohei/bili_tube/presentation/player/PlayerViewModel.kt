@@ -17,6 +17,7 @@ import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenManager
 import com.laohei.bili_tube.repository.BiliPlayRepository
 import com.laohei.bili_tube.repository.BiliPlaylistRepository
+import com.laohei.bili_tube.utill.download.DownloadManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,10 +31,11 @@ import kotlin.math.ceil
 
 @UnstableApi
 internal class PlayerViewModel(
+    private val downloadManager: DownloadManager,
     private val biliPlayRepository: BiliPlayRepository,
     private val playlistRepository: BiliPlaylistRepository,
-    private val defaultMediaManager: DefaultMediaManager,
     private var params: Route.Play,
+    private val defaultMediaManager: DefaultMediaManager,
     private val screenManager: DefaultScreenManager,
 ) : ViewModel(), MediaManager by defaultMediaManager, ScreenManager by screenManager {
 
@@ -229,7 +231,8 @@ internal class PlayerViewModel(
             is VideoAction.VideoMenuAction.VideoDislikeAction -> {
 
             }
-            else->{}
+
+            else -> {}
         }
     }
 
@@ -301,6 +304,26 @@ internal class PlayerViewModel(
                     hasFavoured = this.list.any { item -> item.favState == 1 })
             }
         }
+    }
+
+    fun download(quality: Pair<Int, String>) {
+        if (_mPlayerState.value.videoDetail == null) {
+            viewModelScope.launch {
+                EventBus.send(Event.PlayerEvent.SnackbarEvent(message = "可下载资源正在加载中，请稍后..."))
+            }
+            return
+        }
+        val urls = defaultMediaManager.getVideoSourceByQuality(quality.first)
+        downloadManager.addTask(
+            id = params.bvid,
+            aid = params.aid,
+            cid = params.cid,
+            name = _mPlayerState.value.videoDetail?.view?.title,
+            cover = _mPlayerState.value.videoDetail?.view?.pic!!,
+            quality = quality.second,
+            videoUrls = urls.first,
+            audioUrls = urls.second,
+        )
     }
 
     override fun onCleared() {

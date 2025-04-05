@@ -100,6 +100,10 @@ import com.laohei.bili_tube.utill.toViewString
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+private sealed interface MineAction {
+    data class NavigateAction(val route: Route) : MineAction
+}
+
 @Preview
 @Composable
 fun MineScreen(
@@ -139,7 +143,12 @@ fun MineScreen(
                 navigateToRoute = navigateToRoute
             )
             Spacer(Modifier.height(12.dp))
-            OtherWidget()
+            OtherWidget {
+                when (it) {
+                    is MineAction.NavigateAction -> navigateToRoute.invoke(it.route)
+                    else -> {}
+                }
+            }
 
             Spacer(Modifier.height(80.dp))
         }
@@ -502,7 +511,9 @@ private fun PlaylistWidget(
 }
 
 @Composable
-private fun OtherWidget() {
+private fun OtherWidget(
+    onClick: (MineAction) -> Unit
+) {
     ListItem(
         leadingContent = {
             Icon(
@@ -516,6 +527,9 @@ private fun OtherWidget() {
     )
     HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
     ListItem(
+        modifier = Modifier.clickable {
+            onClick.invoke(MineAction.NavigateAction(Route.DownloadManagement))
+        },
         leadingContent = {
             Icon(
                 imageVector = Icons.Outlined.Download,

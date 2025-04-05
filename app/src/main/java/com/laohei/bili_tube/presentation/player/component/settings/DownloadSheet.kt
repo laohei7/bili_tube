@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -12,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -44,12 +46,12 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun VideoQualitySheet(
+internal fun DownloadSheet(
     isShowSheet: Boolean = true,
     quality: List<Pair<Int, String>>,
     defaultQuality: Pair<Int, String>,
     onDismiss: () -> Unit = {},
-    onQualityChanged: (Pair<Int, String>) -> Unit
+    onDownloadClick: (Pair<Int, String>) -> Unit
 ) {
     val context = LocalContext.current
     val isVip = context.getValue(VIP_STATUS_KEY.name, 0) != 0
@@ -62,8 +64,8 @@ internal fun VideoQualitySheet(
     }
 
     val scope = rememberCoroutineScope()
-    val sheetState =  rememberModalBottomSheet(skipPartiallyExpanded = true)
-    fun closeSheet(){
+    val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true)
+    fun closeSheet() {
         scope.launch {
             sheetState.hide()
             onDismiss.invoke()
@@ -86,17 +88,6 @@ internal fun VideoQualitySheet(
                     state = rememberScrollState()
                 )
             ) {
-                ListItem(
-                    headlineContent = {
-                        Text(
-                            text = stringResource(
-                                R.string.str_current_quality,
-                                localDefaultQuality.second
-                            ),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                )
                 localQuality.fastForEach {
                     val flag = when {
                         isVip -> true
@@ -106,7 +97,7 @@ internal fun VideoQualitySheet(
                     ListItem(
                         modifier = Modifier.clickable(
                             enabled = flag
-                        ) { onQualityChanged.invoke(it) },
+                        ) { localDefaultQuality = it },
                         leadingContent = {
                             Icon(
                                 imageVector = Icons.Outlined.Check,
@@ -147,10 +138,14 @@ internal fun VideoQualitySheet(
                 HorizontalDivider()
                 ListItem(
                     headlineContent = {
-                        Text(
-                            text = stringResource(R.string.str_quality_hint),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Button(
+                            onClick = {
+                                onDownloadClick.invoke(localDefaultQuality)
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(text = stringResource(R.string.str_download))
+                        }
                     }
                 )
             }

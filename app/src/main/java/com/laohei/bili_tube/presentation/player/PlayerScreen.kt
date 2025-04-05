@@ -99,8 +99,12 @@ import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.component.video.FolderSheet
 import com.laohei.bili_tube.component.video.VideoAction
 import com.laohei.bili_tube.component.video.VideoItem
+import com.laohei.bili_tube.core.WRITE_STORAGE_PERMISSION
+import com.laohei.bili_tube.core.correspondence.Event
+import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.core.util.LifecycleEffect
 import com.laohei.bili_tube.core.util.SystemUtil
+import com.laohei.bili_tube.core.util.checkedPermissions
 import com.laohei.bili_tube.core.util.hideSystemUI
 import com.laohei.bili_tube.core.util.showSystemUI
 import com.laohei.bili_tube.core.util.toggleOrientation
@@ -117,6 +121,7 @@ import com.laohei.bili_tube.presentation.player.component.archive.ArchiveMetaIte
 import com.laohei.bili_tube.presentation.player.component.archive.ArchiveSheet
 import com.laohei.bili_tube.presentation.player.component.control.PlayerControl
 import com.laohei.bili_tube.presentation.player.component.reply.VideoReplySheet
+import com.laohei.bili_tube.presentation.player.component.settings.DownloadSheet
 import com.laohei.bili_tube.presentation.player.component.settings.PlaySpeedSheet
 import com.laohei.bili_tube.presentation.player.component.settings.VideoQualitySheet
 import com.laohei.bili_tube.presentation.player.component.settings.VideoSettingsSheet
@@ -302,11 +307,11 @@ fun PlayerScreen(
             },
             fullscreen = {
                 val aspectRatio = mediaState.width.toFloat() / mediaState.height
-                val toLandscape =aspectRatio > 1f
+                val toLandscape = aspectRatio > 1f
                 Log.d("TAG", "PlayerScreen: $aspectRatio")
                 viewModel.fullscreenChanged(
                     it,
-                    when{
+                    when {
                         toLandscape.not() && it -> screenState.screenHeight.dp
                         else -> screenState.originalVideoHeight
                     },
@@ -458,16 +463,16 @@ fun PlayerScreen(
                     isOrientationPortrait,
                     lockScreenCallback = {
                         val aspectRatio = mediaState.width.toFloat() / mediaState.height
-                        val toLandscape =aspectRatio > 1f
+                        val toLandscape = aspectRatio > 1f
                         viewModel.fullscreenChanged(
                             true,
-                            when{
+                            when {
                                 toLandscape.not() -> screenState.screenHeight.dp
                                 else -> screenState.originalVideoHeight
                             },
                             isOrientationPortrait
                         )
-                        if (isOrientationPortrait&& toLandscape) {
+                        if (isOrientationPortrait && toLandscape) {
                             activity?.toggleOrientation()
                         }
                     }
@@ -504,6 +509,31 @@ fun PlayerScreen(
                     isOrientationPortrait
                 )
                 viewModel.switchQuality(it)
+            }
+        )
+
+        DownloadSheet(
+            isShowSheet = screenState.isShowDownloadSheet,
+            quality = mediaState.quality,
+            defaultQuality = mediaState.defaultQuality,
+            onDismiss = {
+                viewModel.screenActionHandle(
+                    ScreenAction.ShowDownloadSheetAction(false),
+                    isOrientationPortrait
+                )
+            },
+            onDownloadClick = {
+                scope.launch {
+                    if (activity?.checkedPermissions(WRITE_STORAGE_PERMISSION) == false) {
+                        EventBus.send(Event.AppEvent.PermissionRequestEvent(WRITE_STORAGE_PERMISSION))
+                    } else {
+                        viewModel.download(it)
+                        viewModel.screenActionHandle(
+                            ScreenAction.ShowDownloadSheetAction(false),
+                            isOrientationPortrait
+                        )
+                    }
+                }
             }
         )
 
@@ -719,6 +749,9 @@ private fun VideoContent(
                         coinClick = { onClick.invoke(ScreenAction.ShowCoinSheetAction(true)) },
                         favouredClick = {
                             onClick.invoke(ScreenAction.ShowFolderSheetAction(true))
+                        },
+                        downloadClick = {
+                            onClick.invoke(ScreenAction.ShowDownloadSheetAction(true))
                         },
                         onAnimationEndCallback = {
                             onClick.invoke(ScreenAction.ShowLikeAnimationAction(false))

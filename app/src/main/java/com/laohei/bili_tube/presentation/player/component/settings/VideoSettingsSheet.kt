@@ -135,7 +135,7 @@ internal fun VideoSettingsSheet(
                 ListItem(
                     modifier = Modifier.clickable {
                         scope.launch {
-                            EventBus.send(Event.AppEvent.ToastEvent(context.getString(R.string.str_under_deveplment)))
+                            EventBus.send(Event.AppEvent.ToastEvent(context.getString(R.string.str_under_development)))
                         }
                     },
                     leadingContent = {

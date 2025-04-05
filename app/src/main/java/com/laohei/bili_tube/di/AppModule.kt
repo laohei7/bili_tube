@@ -16,12 +16,14 @@ import com.laohei.bili_sdk.hot.GetHots
 import com.laohei.bili_sdk.login.QRLogin
 import com.laohei.bili_sdk.recommend.GetRecommend
 import com.laohei.bili_sdk.user.GetUserInfo
-import com.laohei.bili_sdk.video.GetURL
 import com.laohei.bili_sdk.video.GetArchive
-import com.laohei.bili_sdk.video.PostHeartBeat
 import com.laohei.bili_sdk.video.GetInfo
 import com.laohei.bili_sdk.video.GetReply
+import com.laohei.bili_sdk.video.GetURL
+import com.laohei.bili_sdk.video.PostHeartBeat
 import com.laohei.bili_sdk.video.PostInfo
+import com.laohei.bili_tube.db.BiliTubeDB
+import com.laohei.bili_tube.presentation.download.DownloadViewModel
 import com.laohei.bili_tube.presentation.dynamic.DynamicViewModel
 import com.laohei.bili_tube.presentation.history.HistoryViewModel
 import com.laohei.bili_tube.presentation.home.HomeViewModel
@@ -29,7 +31,6 @@ import com.laohei.bili_tube.presentation.home.hot.HotViewModel
 import com.laohei.bili_tube.presentation.home.recommend.RecommendViewModel
 import com.laohei.bili_tube.presentation.mine.MineViewModel
 import com.laohei.bili_tube.presentation.player.PlayerViewModel
-import com.laohei.bili_tube.presentation.player.state.media.DefaultMediaManager
 import com.laohei.bili_tube.presentation.playlist.PlaylistViewModel
 import com.laohei.bili_tube.repository.BiliDynamicRepository
 import com.laohei.bili_tube.repository.BiliHistoryRepository
@@ -38,8 +39,8 @@ import com.laohei.bili_tube.repository.BiliMineRepository
 import com.laohei.bili_tube.repository.BiliPlayRepository
 import com.laohei.bili_tube.repository.BiliPlaylistRepository
 import com.laohei.bili_tube.utill.HttpClientFactory
+import com.laohei.bili_tube.utill.download.DownloadManager
 import org.chromium.net.CronetEngine
-import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -47,6 +48,7 @@ import java.io.File
 
 @SuppressLint("UnsafeOptInUsageError")
 val appModule = module {
+    single { BiliTubeDB.getInstance(get(Context::class) as Context) }
     single { HttpClientFactory.client }
     single {
         CronetEngine.Builder(get(Context::class) as Context)
@@ -63,6 +65,7 @@ val appModule = module {
         )
     }
 
+    singleOf(::DownloadManager)
     singleOf(::QRLogin)
     singleOf(::GetRecommend)
     singleOf(::GetHots)
@@ -99,5 +102,6 @@ val appModule = module {
     viewModelOf(::MineViewModel)
     viewModelOf(::HistoryViewModel)
     viewModelOf(::PlaylistViewModel)
+    viewModelOf(::DownloadViewModel)
 
 }

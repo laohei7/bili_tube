@@ -31,6 +31,9 @@ sealed class Route {
     @Serializable
     data object Playlist : Route()
 
+    @Serializable
+    data object DownloadManagement : Route()
+
 
     @Serializable
     data class Play(
