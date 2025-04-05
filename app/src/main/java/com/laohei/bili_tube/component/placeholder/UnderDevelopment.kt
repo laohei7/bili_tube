@@ -26,7 +26,7 @@ fun UnderDevelopment() {
         )
 
         Text(
-            text = stringResource(R.string.str_under_deveplment)
+            text = stringResource(R.string.str_under_development)
         )
     }
 }

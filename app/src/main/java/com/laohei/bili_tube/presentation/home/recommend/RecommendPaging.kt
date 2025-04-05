@@ -9,7 +9,7 @@ import com.laohei.bili_sdk.recommend.GetRecommend
 
 private data class RecommendParams(
     val webLocation: Int = 1430650,
-    val refreshType: Int = 4,
+    val refreshType: Int = 3,
     val lastShowList: String? = null,
     val feedVersion: String = "V8",
     val freshIdx: Int = 1,

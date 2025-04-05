@@ -4,11 +4,11 @@
     <string name="str_reply">评论</string>
     <string name="str_home">首页</string>
     <string name="str_mine">我的</string>
-    <string name="str_scrscription">订阅</string>
+    <string name="str_subscription">订阅</string>
     <string name="str_recommend">推荐</string>
     <string name="str_hots">热门</string>
     <string name="str_anime">番剧</string>
-    <string name="str_under_deveplment">开发中...</string>
+    <string name="str_under_development">开发中…</string>
     <string name="str_shared">分享</string>
     <string name="str_save_watch_later">保存到”稍后观看“</string>
     <string name="str_save_playlist">保存到”播放列表“</string>
@@ -33,8 +33,8 @@
     <string name="str_sleep_timer">休眠定时器</string>
     <string name="str_other_settings">其他设置</string>
     <string name="str_normal">正常</string>
-    <string name="str_current_quarity">当前视频画质 · %s</string>
-    <string name="str_quality_hint">此选项只会影响当前视频。如需应用于所有视频，请前往...</string>
+    <string name="str_current_quality">当前视频画质 · %s</string>
+    <string name="str_quality_hint">此选项只会影响当前视频。如需应用于所有视频，请前往…</string>
     <string name="str_vip">大会员</string>
     <string name="str_screen_lock_hint">屏幕已锁定，点按解锁</string>
     <string name="str_screen_unlock_hint">已解锁</string>
@@ -50,7 +50,7 @@
     <string name="str_empty">Up很懒，什么都没有留下哦！😜</string>
     <string name="str_coin">%d硬币</string>
     <string name="str_coin_flip">投币</string>
-    <string name="str_save_to">将视频保存至...</string>
+    <string name="str_save_to">将视频保存至…</string>
     <string name="str_new_playlist">新建播放列表</string>
     <string name="str_exit_app_hint">再按一次退出应用</string>
     <string name="str_ok">确定</string>
