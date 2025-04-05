@@ -69,6 +69,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
+import kotlin.system.exitProcess
 
 private const val TAG = "App"
 
@@ -272,6 +273,7 @@ private fun ExitAppHandle() {
         if (currentTime - backPressedTime < 2000) {
             // 退出应用
             activity?.finish()
+            exitProcess(0)
         } else {
             // 提示用户再按一次退出
             backPressedTime = currentTime
