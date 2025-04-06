@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Environment
 import android.util.Log
 import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastForEach
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.ReturnCode
 import com.laohei.bili_tube.R
@@ -13,8 +14,11 @@ import com.laohei.bili_tube.db.BiliTubeDB
 import com.laohei.bili_tube.model.DownloadStatus
 import com.laohei.bili_tube.model.DownloadTask
 import io.ktor.client.HttpClient
+import io.ktor.client.request.head
+import io.ktor.client.request.header
 import io.ktor.client.request.prepareGet
 import io.ktor.client.statement.bodyAsChannel
+import io.ktor.http.HttpHeaders
 import io.ktor.http.contentLength
 import io.ktor.util.collections.ConcurrentMap
 import io.ktor.utils.io.core.toByteArray
@@ -33,6 +37,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.RandomAccessFile
 import java.nio.charset.Charset
 
 class DownloadManager(
@@ -131,7 +136,14 @@ class DownloadManager(
             deletedTasks = _downloadQueue.value.filter { it.id == task.id }
             _downloadQueue.update { it - deletedTasks.toSet() }
         }
-        mCoroutineScope.launch { biliTubeDB.downloadTaskDao().deleteTasks(deletedTasks) }
+        mCoroutineScope.launch {
+            biliTubeDB.downloadTaskDao().deleteTasks(deletedTasks)
+            deletedTasks.fastForEach { item ->
+                item.videoFile?.let { Log.d(TAG, "deleteTask: ${File(it).delete()}") }
+                item.audioFile?.let { File(it).delete() }
+                item.mergedFile?.let { File(it).delete() }
+            }
+        }
     }
 
     suspend fun pauseTask(task: DownloadTask) {
@@ -145,7 +157,7 @@ class DownloadManager(
     }
 
     suspend fun startTask(task: DownloadTask) {
-        updateTaskStatus(task = task, progress = 0, status = DownloadStatus.PENDING)
+        updateTaskStatus(task = task, progress = task.progress, status = DownloadStatus.PENDING)
         val pendingTask: DownloadTask
         mutex.withLock {
             pendingTask =
@@ -183,7 +195,7 @@ class DownloadManager(
 
     private suspend fun downloadTask(task: DownloadTask) {
         semaphore.withPermit {
-            updateTaskStatus(task = task, progress = 0, status = DownloadStatus.DOWNLOADING)
+            updateTaskStatus(task = task, progress = task.progress, status = DownloadStatus.DOWNLOADING)
 
             val isSingleFile = task.audioUrls.isNullOrEmpty()
             suspend fun adjustAndPostProgress(progress: Int, base: Int = 0) {
@@ -424,6 +436,7 @@ class VideoAudioDownloader(
 
     companion object {
         private val TAG = VideoAudioDownloader::class.simpleName
+        private const val DBG = true
     }
 
     suspend fun download(
@@ -432,30 +445,51 @@ class VideoAudioDownloader(
         parentDir: File = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
         onProgressChanged: (suspend (Int) -> Unit)? = null
     ) = withContext(Dispatchers.IO) {
-        client.prepareGet(url).execute { response ->
-            val contentLength = response.contentLength() ?: -1L
-            if (response.status.value !in 200..299) {
-                return@execute null
+        val remoteSize = client.head(url).headers[HttpHeaders.ContentLength]?.toLongOrNull() ?: -1
+        if (DBG) {
+            Log.d(TAG, "download: remoteSize $remoteSize")
+        }
+        val cacheDir = File(parentDir, "BiliTube").apply {
+            if (exists().not()) {
+                mkdirs()
             }
-            val cacheDir = File(parentDir, "BiliTube").apply {
-                if (exists().not()) {
-                    mkdirs()
+        }
+        val file = File(
+            cacheDir,
+            fileName
+        )
+        var downloadedSize = if (file.exists()) file.length() else 0L
+        if (DBG) {
+            Log.d(TAG, "download: has size $downloadedSize")
+        }
+        // TODO 后续增加文件校验
+        if(remoteSize == downloadedSize){
+            return@withContext file
+        }
+        var retry = 0
+        while (retry < 3) {
+            val newFile = client.prepareGet(url) {
+                if (downloadedSize > 0) {
+                    header(HttpHeaders.Range, "bytes=$downloadedSize-")
                 }
-            }
-            val file = File(
-                cacheDir,
-                fileName
-            )
-            val channel = response.bodyAsChannel()
-            var bytesRead = 0L
-            file.outputStream()
-                .buffered().use { output ->
+            }.execute { response ->
+                val contentLength = response.contentLength() ?: -1L
+                if (response.status.value !in 200..299) {
+                    retry++
+                    downloadedSize = 0
+                    file.delete()
+                    return@execute null
+                }
+                val channel = response.bodyAsChannel()
+                var bytesRead = downloadedSize
+                RandomAccessFile(file, "rw").use { raf ->
+                    raf.seek(downloadedSize)
                     val packet = ByteArray(DEFAULT_BUFFER_SIZE)
                     while (true) {
                         ensureActive()
                         val byteArray = channel.readAvailable(packet)
                         if (byteArray == -1) break
-                        output.write(packet, 0, byteArray)
+                        raf.write(packet, 0, byteArray)
                         bytesRead += byteArray
                         if (contentLength > 0) {
                             val progress = ((bytesRead * 100) / contentLength).toInt()
@@ -463,8 +497,13 @@ class VideoAudioDownloader(
                         }
                     }
                 }
-            file
+                return@execute file
+            }
+            if (newFile != null && newFile.length() == remoteSize) {
+                return@withContext newFile
+            }
         }
+        null // 下载失败
     }
 }
 
