@@ -41,6 +41,7 @@ sealed class Route {
         val bvid: String,
         val cid: Long,
         val width: Int = 1920,
-        val height: Int = 1080
+        val height: Int = 1080,
+        val isLocal: Boolean = false,
     ) : Route()
 }

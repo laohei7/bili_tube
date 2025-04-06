@@ -13,6 +13,7 @@ internal interface MediaManager {
     fun play(mediaSource: MediaSource)
     fun play(videoSources: List<VideoSource>, dataSourceFactory: DataSource.Factory? = null)
     fun play(videoURLModel: VideoURLModel, dataSourceFactory: DataSource.Factory? = null)
+    fun play(path:String)
     fun seekTo(duration: Long)
     fun seekTo(position: Float)
     fun togglePlayPause()

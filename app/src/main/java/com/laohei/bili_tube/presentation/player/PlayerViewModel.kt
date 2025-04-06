@@ -41,6 +41,7 @@ internal class PlayerViewModel(
 
     companion object {
         private val TAG = PlayerViewModel::class.simpleName
+        private const val DBG = true
     }
 
     // 视频评论
@@ -75,14 +76,15 @@ internal class PlayerViewModel(
     suspend fun updateParams(other: Route.Play) =
         withContext(Dispatchers.IO) {
             params = other
-//            Log.d(TAG, "updateParams: start load video, params: $params")
+            if (DBG) {
+                Log.d(TAG, "updateParams: start load video, params: $params")
+            }
             withContext(Dispatchers.Main) {
                 toggleLoading()
             }
-            if (params.cid != -1L) {
-                launch {
-                    getVideoURL()
-                }
+            when {
+                params.isLocal -> launch { getVideoURLByLocal() }
+                params.cid != -1L -> launch { getVideoURL() }
             }
             launch {
                 getVideoDetail()
@@ -121,6 +123,17 @@ internal class PlayerViewModel(
             aid = params.aid,
         )?.apply {
             _mPlayerState.update { it.copy(hasCoin = data.favoured) }
+        }
+    }
+
+    private suspend fun getVideoURLByLocal() {
+        val task = biliPlayRepository.getPlayURLByLocal(params.bvid)
+        task.mergedFile?.let {
+            withContext(Dispatchers.Main){
+                play(it)
+            }
+        } ?: run {
+            updateMediaState(state.value.copy(isError = true))
         }
     }
 

@@ -111,6 +111,7 @@ import com.laohei.bili_tube.core.util.toggleOrientation
 import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.presentation.player.component.CoinSheet
 import com.laohei.bili_tube.presentation.player.component.CommentCard
+import com.laohei.bili_tube.presentation.player.component.PlayerPlaceholder
 import com.laohei.bili_tube.presentation.player.component.PlayerSnackHost
 import com.laohei.bili_tube.presentation.player.component.RelatedHorizontalList
 import com.laohei.bili_tube.presentation.player.component.UserSimpleInfo
@@ -169,7 +170,7 @@ fun PlayerScreen(
                 DefaultMediaManager(
                     context = context,
                     cronetEngine = cronetEngine,
-                    simpleCache=simpleCache,
+                    simpleCache = simpleCache,
                     originalWidth = params.width,
                     originalHeight = params.height
                 ),
@@ -341,33 +342,40 @@ fun PlayerScreen(
         )
 
         if (isOrientationPortrait) {
-            VideoContent(
-                modifier = contentModifier
-                    .offset {
-                        with(density) {
-                            IntOffset(0, animatedContentOffset.toPx().roundToInt())
-                        }
+            val videoContentModifier = contentModifier
+                .offset {
+                    with(density) {
+                        IntOffset(0, animatedContentOffset.toPx().roundToInt())
                     }
-                    .nestedScroll(connection = nestedScrollConnection)
-                    .draggable(
-                        orientation = Orientation.Vertical,
-                        state = rememberDraggableState { },
-                    ),
-                playerState = playerState,
-                screenState = screenState,
-                lazyListState = lazyListState,
-                videoDetail = playerState.videoDetail,
-                videoArchiveMeta = playerState.videoArchiveMeta,
-                currentArchiveIndex = playerState.currentArchiveIndex + 1,
-                onClick = {
-                    viewModel.screenActionHandle(
-                        it, true, scope,
-                        updateParamsCallback = { newParams ->
-                            scope.launch { viewModel.updateParams(newParams) }
-                        })
-                },
-                videoMenuClick = viewModel::videoMenuActionHandle
-            )
+                }
+                .nestedScroll(connection = nestedScrollConnection)
+                .draggable(
+                    orientation = Orientation.Vertical,
+                    state = rememberDraggableState { },
+                )
+            when {
+                playerState.videoDetail != null -> {
+                    VideoContent(
+                        modifier = videoContentModifier,
+                        playerState = playerState,
+                        screenState = screenState,
+                        lazyListState = lazyListState,
+                        videoDetail = playerState.videoDetail,
+                        videoArchiveMeta = playerState.videoArchiveMeta,
+                        currentArchiveIndex = playerState.currentArchiveIndex + 1,
+                        onClick = {
+                            viewModel.screenActionHandle(
+                                it, true, scope,
+                                updateParamsCallback = { newParams ->
+                                    scope.launch { viewModel.updateParams(newParams) }
+                                })
+                        },
+                        videoMenuClick = viewModel::videoMenuActionHandle
+                    )
+                }
+
+                else -> PlayerPlaceholder(videoContentModifier)
+            }
 
             Box(
                 modifier = contentModifier

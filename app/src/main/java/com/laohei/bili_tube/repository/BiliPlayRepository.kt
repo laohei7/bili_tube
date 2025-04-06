@@ -14,6 +14,7 @@ import com.laohei.bili_sdk.video.PostHeartBeat
 import com.laohei.bili_sdk.video.PostInfo
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.dataStore
+import com.laohei.bili_tube.db.BiliTubeDB
 import com.laohei.bili_tube.presentation.player.component.reply.VideoReplyPaging
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -29,8 +30,11 @@ class BiliPlayRepository(
     private val getArchive: GetArchive,
     private val postInfo: PostInfo,
     private val postHeartBeat: PostHeartBeat,
-    private val postFolder: PostFolder
+    private val postFolder: PostFolder,
+    private val biliTubeDB: BiliTubeDB
 ) {
+
+    suspend fun getPlayURLByLocal(bvid: String) = biliTubeDB.downloadTaskDao().getTaskById(bvid)
 
     suspend fun getPlayURL(
         aid: Long,
