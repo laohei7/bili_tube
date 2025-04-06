@@ -61,7 +61,6 @@ import com.laohei.bili_tube.component.video.VideoAction
 import kotlinx.coroutines.launch
 
 
-
 @Composable
 internal fun VideoMenus(
     great: String,
@@ -71,11 +70,12 @@ internal fun VideoMenus(
     hasLike: Boolean,
     hasCoin: Boolean,
     hasFavoured: Boolean,
+    isDownloaded: Boolean,
     isShowLikeAnimation: Boolean,
     onClick: (VideoAction.VideoMenuAction) -> Unit,
     coinClick: () -> Unit,
     favouredClick: () -> Unit,
-    downloadClick:()->Unit,
+    downloadClick: () -> Unit,
     onAnimationEndCallback: (() -> Unit)? = null
 ) {
     var localHasLike by remember { mutableStateOf(hasLike) }
@@ -143,9 +143,13 @@ internal fun VideoMenus(
         )
         Spacer(modifier = Modifier)
         ExtendedIconButton(
+            enabled = isDownloaded.not(),
             icon = Icons.Outlined.Download,
-            label = stringResource(R.string.str_download),
-            onClick = {downloadClick.invoke()}
+            label = when {
+                isDownloaded -> stringResource(R.string.str_downloaded)
+                else -> stringResource(R.string.str_download)
+            },
+            onClick = { downloadClick.invoke() }
         )
         Spacer(modifier = Modifier)
     }

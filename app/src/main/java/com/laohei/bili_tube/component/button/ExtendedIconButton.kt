@@ -28,6 +28,7 @@ import com.laohei.bili_tube.utill.toViewString
 @Preview
 @Composable
 fun ExtendedIconButton(
+    enabled:Boolean = true,
     icon: ImageVector = Icons.Rounded.Star,
     color: Color = MaterialTheme.colorScheme.onBackground,
     labelColor:Color = MaterialTheme.colorScheme.onBackground,
@@ -40,7 +41,7 @@ fun ExtendedIconButton(
         shape = CircleShape,
         modifier = Modifier
             .clip(CircleShape)
-            .clickable { onClick?.invoke() }
+            .clickable(enabled) { onClick?.invoke() }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

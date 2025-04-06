@@ -82,6 +82,7 @@ internal class PlayerViewModel(
             withContext(Dispatchers.Main) {
                 toggleLoading()
             }
+            _mPlayerState.update { it.copy(isDownloaded = params.isLocal) }
             when {
                 params.isLocal -> launch { getVideoURLByLocal() }
                 params.cid != -1L -> launch { getVideoURL() }
@@ -129,7 +130,7 @@ internal class PlayerViewModel(
     private suspend fun getVideoURLByLocal() {
         val task = biliPlayRepository.getPlayURLByLocal(params.bvid)
         task.mergedFile?.let {
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 play(it)
             }
         } ?: run {

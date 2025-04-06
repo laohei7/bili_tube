@@ -13,5 +13,6 @@ data class PlayerState(
     val hasLike: Boolean = false,
     val hasCoin: Boolean = false,
     val hasFavoured: Boolean = false,
-    val folders: List<FolderSimpleItem> = emptyList()
+    val folders: List<FolderSimpleItem> = emptyList(),
+    val isDownloaded: Boolean = false
 )

@@ -752,6 +752,7 @@ private fun VideoContent(
                         hasLike = playerState.hasLike,
                         hasCoin = playerState.hasCoin,
                         hasFavoured = playerState.hasFavoured,
+                        isDownloaded = playerState.isDownloaded,
                         isShowLikeAnimation = screenState.isShowLikeAnimation,
                         onClick = videoMenuClick,
                         coinClick = { onClick.invoke(ScreenAction.ShowCoinSheetAction(true)) },
