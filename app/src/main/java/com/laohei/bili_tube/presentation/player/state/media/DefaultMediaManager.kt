@@ -1,6 +1,7 @@
 package com.laohei.bili_tube.presentation.player.state.media
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.media3.common.MediaItem
@@ -33,6 +34,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.chromium.net.CronetEngine
+import java.io.File
 import java.util.concurrent.Executors
 
 @UnstableApi
@@ -266,6 +268,18 @@ internal class DefaultMediaManager(
         mOtherDataSourceFactory = dataSourceFactory
         mCurrentSelectedIndex = 0
         play(getInitPosition())
+    }
+
+    override fun play(path: String) {
+        val videoFile = File(path)
+        if (videoFile.exists().not()) {
+            updateMediaState(state.value.copy(isError = true))
+            return
+        }
+        val mediaItem = MediaItem.fromUri(Uri.fromFile(videoFile))
+        mExoPlayer.setMediaItem(mediaItem)
+        mExoPlayer.prepare()
+        mExoPlayer.play()
     }
 
     override fun seekTo(duration: Long) {

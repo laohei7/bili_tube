@@ -16,10 +16,13 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.prepareGet
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.http.contentLength
+import io.ktor.util.collections.ConcurrentMap
 import io.ktor.utils.io.core.toByteArray
 import io.ktor.utils.io.readAvailable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -28,6 +31,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.nio.charset.Charset
 
@@ -53,7 +57,9 @@ class DownloadManager(
 
     private var downloader = VideoAudioDownloader(client)
 
-    private val FILTER_CHARTERS = setOf("\"")
+    private val FILTER_CHARTERS = setOf("\"", "“", "”")
+
+    private val mJobMap = ConcurrentMap<String, Job>()
 
     init {
         mCoroutineScope.launch {
@@ -62,7 +68,15 @@ class DownloadManager(
                 it.status == DownloadStatus.COMPLETED
                         && (it.mergedFile.isNullOrBlank() || File(it.mergedFile).exists().not())
             }
-            _downloadQueue.update { tasks - deletedTasks.toSet() }
+            _downloadQueue.update {
+                (tasks - deletedTasks.toSet()).map {
+                    if (it.status == DownloadStatus.DOWNLOADING) {
+                        it.copy(status = DownloadStatus.PAUSE)
+                    } else {
+                        it
+                    }
+                }
+            }
             biliTubeDB.downloadTaskDao().deleteTasks(deletedTasks)
             startNextDownload()
         }
@@ -110,19 +124,61 @@ class DownloadManager(
         }
     }
 
-    private fun startNextDownload() {
-        mCoroutineScope.launch {
-            val pendingTask: DownloadTask
-            mutex.withLock {
-                pendingTask =
-                    _downloadQueue.value.firstOrNull { it.status == DownloadStatus.PENDING }
-                        ?: return@launch
-            }
-            if (DBG) {
-                Log.d(TAG, "startNextDownload: $pendingTask")
-            }
-            downloadTask(pendingTask)
+    suspend fun deleteTask(task: DownloadTask) {
+        pauseTask(task)
+        val deletedTasks: List<DownloadTask>
+        mutex.withLock {
+            deletedTasks = _downloadQueue.value.filter { it.id == task.id }
+            _downloadQueue.update { it - deletedTasks.toSet() }
         }
+        mCoroutineScope.launch { biliTubeDB.downloadTaskDao().deleteTasks(deletedTasks) }
+    }
+
+    suspend fun pauseTask(task: DownloadTask) {
+        val selectedJob = mJobMap[task.id]
+        if (selectedJob?.isCancelled == true) {
+            return
+        }
+        Log.d(TAG, "pauseTask: $selectedJob")
+        selectedJob?.cancel()
+        updateTaskStatus(task = task, progress = task.progress, status = DownloadStatus.PAUSE)
+    }
+
+    suspend fun startTask(task: DownloadTask) {
+        updateTaskStatus(task = task, progress = 0, status = DownloadStatus.PENDING)
+        val pendingTask: DownloadTask
+        mutex.withLock {
+            pendingTask =
+                _downloadQueue.value.find { it.id == task.id }
+                    ?: return
+        }
+        if (DBG) {
+            Log.d(TAG, "startTask: $pendingTask")
+        }
+        val currentJob = mJobMap[pendingTask.id]
+        if (currentJob?.isActive == true) {
+            return
+        }
+        downloadTaskAsync(pendingTask)
+    }
+
+    private suspend fun startNextDownload() {
+        val pendingTask: DownloadTask
+        mutex.withLock {
+            pendingTask =
+                _downloadQueue.value.firstOrNull { it.status == DownloadStatus.PENDING }
+                    ?: return
+        }
+        if (DBG) {
+            Log.d(TAG, "startNextDownload: $pendingTask")
+        }
+        downloadTaskAsync(pendingTask)
+    }
+
+    private fun downloadTaskAsync(task: DownloadTask) {
+        val job = mCoroutineScope.launch { downloadTask(task) }
+        Log.d(TAG, "downloadTaskAsync: $job")
+        mJobMap[task.id] = job
     }
 
     private suspend fun downloadTask(task: DownloadTask) {
@@ -226,6 +282,11 @@ class DownloadManager(
                 }
 
                 else -> {
+                    val currentTask =
+                        mutex.withLock { _downloadQueue.value.find { task.id == it.id } }
+                    if (currentTask == null || currentTask.status == DownloadStatus.PAUSE) {
+                        return
+                    }
                     markTaskAsFailed(task)
                     mutex.withLock { _downloadQueue.value.find { it.id == task.id } }?.let {
                         biliTubeDB.downloadTaskDao().updateTask(it)
@@ -246,7 +307,7 @@ class DownloadManager(
         mutex.withLock { _downloadQueue.value.find { it.id == task.id } }?.let {
             biliTubeDB.downloadTaskDao().updateTask(it)
         }
-        val outputName = String("${task.name}.mp4".toByteArray(), Charset.forName("UTF-8"))
+        val outputName = String("${task.id}.mp4".toByteArray(), Charset.forName("UTF-8"))
         val downloadDir = File(parentDir, "BiliTube").apply {
             if (exists().not()) {
                 mkdirs()
@@ -311,15 +372,17 @@ class DownloadManager(
         status: DownloadStatus
     ) {
         mutex.withLock {
-            _downloadQueue.value = _downloadQueue.value.map {
-                if (it.id == task.id) {
-                    it.copy(
-                        mergedFile = mergeFile,
-                        status = status,
-                        progress = progress
-                    )
-                } else {
-                    it
+            _downloadQueue.update { queue ->
+                queue.map {
+                    if (it.id == task.id) {
+                        it.copy(
+                            mergedFile = mergeFile,
+                            status = status,
+                            progress = progress
+                        )
+                    } else {
+                        it
+                    }
                 }
             }
         }
@@ -368,8 +431,8 @@ class VideoAudioDownloader(
         fileName: String,
         parentDir: File = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
         onProgressChanged: (suspend (Int) -> Unit)? = null
-    ): File? {
-        return client.prepareGet(url).execute { response ->
+    ) = withContext(Dispatchers.IO) {
+        client.prepareGet(url).execute { response ->
             val contentLength = response.contentLength() ?: -1L
             if (response.status.value !in 200..299) {
                 return@execute null
@@ -389,6 +452,7 @@ class VideoAudioDownloader(
                 .buffered().use { output ->
                     val packet = ByteArray(DEFAULT_BUFFER_SIZE)
                     while (true) {
+                        ensureActive()
                         val byteArray = channel.readAvailable(packet)
                         if (byteArray == -1) break
                         output.write(packet, 0, byteArray)

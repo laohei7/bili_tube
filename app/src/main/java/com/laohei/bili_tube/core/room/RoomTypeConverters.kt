@@ -22,6 +22,7 @@ class RoomTypeConverters {
             DownloadStatus.PROCESSING -> 3
             DownloadStatus.COMPLETED -> 4
             DownloadStatus.FAILED -> 5
+            DownloadStatus.PAUSE -> 6
         }
     }
 
@@ -32,6 +33,7 @@ class RoomTypeConverters {
             3 -> DownloadStatus.PROCESSING
             4 -> DownloadStatus.COMPLETED
             5 -> DownloadStatus.FAILED
+            6 -> DownloadStatus.PAUSE
             else -> DownloadStatus.PENDING
         }
     }

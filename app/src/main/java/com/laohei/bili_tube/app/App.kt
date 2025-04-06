@@ -170,6 +170,7 @@ fun App() {
         }
         composable<Route.DownloadManagement> {
             DownloadScreen(
+                navigateToRoute = { navController.navigate(it) },
                 upPress = { navController.navigateUp() }
             )
         }

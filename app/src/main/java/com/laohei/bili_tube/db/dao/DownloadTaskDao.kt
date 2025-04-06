@@ -16,6 +16,11 @@ interface DownloadTaskDao{
     """)
     fun getAllTask():List<DownloadTask>
 
+    @Query("""
+        SELECT * FROM tb_downloads WHERE id = :id
+    """)
+    suspend fun getTaskById(id:String): DownloadTask
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun addTask(task: DownloadTask)
 

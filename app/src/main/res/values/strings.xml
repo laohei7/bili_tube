@@ -68,4 +68,6 @@
     <string name="str_download_failed">下载失败</string>
     <string name="str_pending">准备中…</string>
     <string name="str_processing">最后处理中…</string>
+    <string name="str_download_pause">已暂停</string>
+    <string name="str_processing_hint">文件最后处理中，暂不支持暂停…</string>
 </resources>
