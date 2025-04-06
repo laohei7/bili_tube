@@ -139,16 +139,16 @@ class DownloadManager(
         mCoroutineScope.launch {
             biliTubeDB.downloadTaskDao().deleteTasks(deletedTasks)
             deletedTasks.fastForEach { item ->
-                item.videoFile?.let { Log.d(TAG, "deleteTask: ${File(it).delete()}") }
-                item.audioFile?.let { File(it).delete() }
                 item.mergedFile?.let { File(it).delete() }
+                item.videoFile?.let { File(it).delete() }
+                item.audioFile?.let { File(it).delete() }
             }
         }
     }
 
     suspend fun pauseTask(task: DownloadTask) {
         val selectedJob = mJobMap[task.id]
-        if (selectedJob?.isCancelled == true) {
+        if (selectedJob == null || selectedJob.isCancelled) {
             return
         }
         Log.d(TAG, "pauseTask: $selectedJob")
