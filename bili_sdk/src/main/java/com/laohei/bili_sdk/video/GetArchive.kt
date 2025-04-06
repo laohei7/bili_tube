@@ -2,8 +2,10 @@ package com.laohei.bili_sdk.video
 
 import android.util.Log
 import com.laohei.bili_sdk.apis.VIDEO_ARCHIVE_URL
+import com.laohei.bili_sdk.apis.VIDEO_PAGELIST_URL
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.video.VideoArchiveModel
+import com.laohei.bili_sdk.module_v2.video.VideoPageListModel
 import com.laohei.bili_sdk.wbi.WbiParams
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -16,9 +18,11 @@ import kotlinx.serialization.json.Json
 class GetArchive(
     private val client: HttpClient
 ) {
-    companion object{
+    companion object {
         private val TAG = GetArchive::class.simpleName
+        private const val DBG = true
     }
+
     suspend fun videoArchive(
         mid: Long,
         seasonId: Long,
@@ -62,6 +66,27 @@ class GetArchive(
         response?.run {
             Log.d(TAG, "videoArchive: ${bodyAsText()}")
             Json.decodeFromString<BiliResponse<VideoArchiveModel>>(bodyAsText())
+        }
+    }
+
+    suspend fun videoPageList(bvid: String, cookie: String? = null) = withContext(Dispatchers.IO) {
+        val response = try {
+            client.get(VIDEO_PAGELIST_URL) {
+                url {
+                    cookie?.apply {
+                        headers.append(HttpHeaders.Cookie, this)
+                    }
+                    parameters.append("bvid", bvid)
+                }
+                if (DBG) {
+                    Log.d(TAG, "videoPageList: $url")
+                }
+            }
+        } catch (_: Exception) {
+            null
+        }
+        response?.run {
+            Json.decodeFromString<BiliResponse<List<VideoPageListModel>>>(bodyAsText())
         }
     }
 }

@@ -56,3 +56,5 @@ const val VIDEO_COIN_ADD_URL = "https://api.bilibili.com/x/web-interface/coin/ad
 const val VIDEO_HAS_FAVORED_URL = "https://api.bilibili.com/x/v2/fav/video/favoured"
 
 const val VIDEO_FOLDER_DEAL_URL = "https://api.bilibili.com/medialist/gateway/coll/resource/deal"
+
+const val VIDEO_PAGELIST_URL = "https://api.bilibili.com/x/player/pagelist"

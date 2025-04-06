@@ -3,6 +3,7 @@ package com.laohei.bili_tube.presentation.player
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.util.UnstableApi
 import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_tube.app.Route
@@ -160,11 +161,6 @@ internal class PlayerViewModel(
             bvid = params.bvid,
         )
         response?.run {
-            viewModelScope.launch {
-                this@run.data.view.seasonId?.let {
-                    getArchives(mid = this@run.data.view.owner.mid, seasonId = it)
-                }
-            }
             _mPlayerState.update {
                 it.copy(videoDetail = data)
             }
@@ -172,8 +168,16 @@ internal class PlayerViewModel(
                 params = params.copy(
                     cid = data.view.cid
                 )
-                getVideoURL()
+                viewModelScope.launch { getVideoURL() }
             }
+            viewModelScope.launch {
+                launch {
+                    this@run.data.view.seasonId?.let {
+                        getArchives(mid = this@run.data.view.owner.mid, seasonId = it)
+                    }
+                }
+            }
+            viewModelScope.launch { getPageList(bvid = params.bvid, cid = params.cid) }
         }
     }
 
@@ -218,6 +222,22 @@ internal class PlayerViewModel(
         }
     }
 
+    private suspend fun getPageList(bvid: String, cid: Long) {
+        val pageList = biliPlayRepository.getPageList(bvid)
+        pageList?.let { data ->
+            if (data.data.size <= 1) {
+                return@let
+            }
+            Log.d(TAG, "getPageList: $data")
+            _mPlayerState.update {
+                it.copy(
+                    videoPageList = data.data,
+                    currentPageListIndex = data.data.indexOfFirst { item -> item.cid == cid }
+                )
+            }
+        }
+    }
+
     fun uploadVideoHistory(duration: Long) {
         viewModelScope.launch {
             biliPlayRepository.uploadVideoHistory(
@@ -247,6 +267,14 @@ internal class PlayerViewModel(
             }
 
             else -> {}
+        }
+    }
+
+    fun videoPlayActionHandle(action: VideoAction.VideoPlayAction) {
+        when (action) {
+            is VideoAction.VideoPlayAction.SwitchPlayListAction -> {
+                viewModelScope.launch { updateParams(params.copy(cid = action.cid)) }
+            }
         }
     }
 

@@ -94,6 +94,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
+import com.laohei.bili_sdk.module_v2.video.VideoPageListModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.component.video.FolderSheet
@@ -120,6 +121,7 @@ import com.laohei.bili_tube.presentation.player.component.VideoMenus
 import com.laohei.bili_tube.presentation.player.component.VideoSimpleInfo
 import com.laohei.bili_tube.presentation.player.component.archive.ArchiveMetaItem
 import com.laohei.bili_tube.presentation.player.component.archive.ArchiveSheet
+import com.laohei.bili_tube.presentation.player.component.archive.PageListWidget
 import com.laohei.bili_tube.presentation.player.component.control.PlayerControl
 import com.laohei.bili_tube.presentation.player.component.reply.VideoReplySheet
 import com.laohei.bili_tube.presentation.player.component.settings.DownloadSheet
@@ -363,6 +365,8 @@ fun PlayerScreen(
                         videoDetail = playerState.videoDetail,
                         videoArchiveMeta = playerState.videoArchiveMeta,
                         currentArchiveIndex = playerState.currentArchiveIndex + 1,
+                        videoPageList = playerState.videoPageList,
+                        currentPageListIndex = playerState.currentPageListIndex,
                         onClick = {
                             viewModel.screenActionHandle(
                                 it, true, scope,
@@ -370,7 +374,8 @@ fun PlayerScreen(
                                     scope.launch { viewModel.updateParams(newParams) }
                                 })
                         },
-                        videoMenuClick = viewModel::videoMenuActionHandle
+                        videoMenuClick = viewModel::videoMenuActionHandle,
+                        videoPlayClick = viewModel::videoPlayActionHandle
                     )
                 }
 
@@ -707,9 +712,12 @@ private fun VideoContent(
     screenState: ScreenState,
     videoDetail: VideoDetailModel?,
     videoArchiveMeta: ArchiveMeta?,
+    videoPageList: List<VideoPageListModel>?,
+    currentPageListIndex: Int,
     currentArchiveIndex: Int,
     onClick: (ScreenAction) -> Unit,
     videoMenuClick: (VideoAction.VideoMenuAction) -> Unit,
+    videoPlayClick: (VideoAction.VideoPlayAction) -> Unit
 ) {
     Surface(
         modifier = modifier,
@@ -766,6 +774,15 @@ private fun VideoContent(
                             onClick.invoke(ScreenAction.ShowLikeAnimationAction(false))
                         }
                     )
+                }
+                videoPageList?.let {
+                    item {
+                        PageListWidget(
+                            pageList = it,
+                            currentPageListIndex = currentPageListIndex,
+                            onClick = videoPlayClick
+                        )
+                    }
                 }
                 videoArchiveMeta?.let {
                     item {

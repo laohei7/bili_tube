@@ -121,6 +121,11 @@ class BiliPlayRepository(
         sortReverse = sortReverse
     )
 
+    suspend fun getPageList(bvid: String) = getArchive.videoPageList(
+        cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
+        bvid = bvid
+    )
+
     suspend fun hasLike(
         aid: Long,
         bvid: String,
