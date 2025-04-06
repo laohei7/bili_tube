@@ -499,7 +499,7 @@ class VideoAudioDownloader(
                 }
                 return@execute file
             }
-            if (newFile != null && newFile.length() == remoteSize) {
+            if (newFile != null) {
                 return@withContext newFile
             }
         }
