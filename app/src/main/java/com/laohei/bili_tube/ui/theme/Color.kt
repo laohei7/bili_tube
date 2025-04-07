@@ -2,6 +2,8 @@ package com.laohei.bili_tube.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+val Pink = Color(0xfff1948a)
+
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)
