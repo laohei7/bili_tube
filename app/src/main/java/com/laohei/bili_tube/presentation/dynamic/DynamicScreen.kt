@@ -1,6 +1,7 @@
 package com.laohei.bili_tube.presentation.dynamic
 
 import android.annotation.SuppressLint
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,7 +28,6 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.Topic
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
@@ -37,7 +37,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
@@ -57,6 +56,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -77,6 +77,7 @@ import com.laohei.bili_tube.component.placeholder.RecommendPlaceholder
 import com.laohei.bili_tube.component.text.ExpandedText
 import com.laohei.bili_tube.component.video.VideoItem
 import com.laohei.bili_tube.component.video.VideoMenuSheet
+import com.laohei.bili_tube.component.video.VideoSimpleInfoBar
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.utill.toTimeAgoString
@@ -374,6 +375,8 @@ private fun DRAWItem(
     date: String,
     desc: String,
     images: List<String>?,
+    @DrawableRes infoPlaceholder: Int = R.drawable.icon_loading_1_1,
+    @DrawableRes infoError: Int = R.drawable.icon_loading_1_1,
     onMenuClick: (() -> Unit)? = null
 ) {
     val context = LocalContext.current
@@ -382,11 +385,13 @@ private fun DRAWItem(
             MaterialTheme.colorScheme.background
         )
     ) {
-        AuthorBar(
+        VideoSimpleInfoBar(
             face = face,
-            ownerName = ownerName,
-            date = date,
-            onMenuClick = onMenuClick
+            title = ownerName,
+            pubDate = date,
+            placeholder = infoPlaceholder,
+            error = infoError,
+            trailingOnClick = { onMenuClick?.invoke() }
         )
 
         ExpandedText(
@@ -447,6 +452,45 @@ private fun DRAWItem(
     }
 }
 
+@Preview
+@Composable
+private fun DRAWItem1() {
+    DRAWItem(
+        face = "",
+        ownerName = "动漫作业本",
+        date = "11 小时前",
+        desc = "Hello World!!!",
+        images = null,
+        infoError = R.drawable.bg
+    )
+}
+
+@Preview
+@Composable
+private fun DRAWItem2() {
+    DRAWItem(
+        face = "",
+        ownerName = "动漫作业本",
+        date = "11 小时前",
+        desc = "Hello World!!!",
+        images = listOf(""),
+        infoError = R.drawable.bg
+    )
+}
+
+@Preview
+@Composable
+private fun DRAWItem3() {
+    DRAWItem(
+        face = "",
+        ownerName = "动漫作业本",
+        date = "11 小时前",
+        desc = "Hello World!!!",
+        images = listOf("", "", ""),
+        infoError = R.drawable.bg
+    )
+}
+
 @Composable
 private fun CommonItem(
     face: String,
@@ -470,11 +514,11 @@ private fun CommonItem(
             MaterialTheme.colorScheme.background
         )
     ) {
-        AuthorBar(
+        VideoSimpleInfoBar(
             face = face,
-            ownerName = ownerName,
-            date = date,
-            onMenuClick = onMenuClick
+            title = ownerName,
+            pubDate = date,
+            trailingOnClick = { onMenuClick?.invoke() }
         )
 
         desc?.let {
@@ -545,11 +589,11 @@ private fun TopicItem(
             MaterialTheme.colorScheme.background
         )
     ) {
-        AuthorBar(
+        VideoSimpleInfoBar(
             face = face,
-            ownerName = ownerName,
-            date = date,
-            onMenuClick = onMenuClick
+            title = ownerName,
+            pubDate = date,
+            trailingOnClick = { onMenuClick?.invoke() }
         )
 
         topic?.let {
@@ -586,69 +630,3 @@ private fun TopicItem(
         )
     }
 }
-
-@Composable
-private fun AuthorBar(
-    face: String,
-    ownerName: String,
-    date: String,
-    onMenuClick: (() -> Unit)? = null
-) {
-    val context = LocalContext.current
-    val faceRequest = remember(face) {
-        ImageRequest.Builder(context)
-            .data(face)
-            .crossfade(true)
-            .build()
-    }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(start = 12.dp, end = 4.dp, top = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(20.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        AsyncImage(
-            model = faceRequest,
-            contentDescription = ownerName,
-            modifier = Modifier
-                .size(42.dp)
-                .clip(CircleShape),
-            contentScale = ContentScale.Crop,
-            placeholder = painterResource(R.drawable.icon_loading_1_1),
-            error = painterResource(R.drawable.icon_loading_1_1)
-        )
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = ownerName,
-                maxLines = 1,
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = date,
-                maxLines = 1,
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.Gray
-            )
-        }
-
-        Surface(
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.background,
-            onClick = { onMenuClick?.invoke() }
-        ) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = Icons.Default.MoreVert.name,
-                modifier = Modifier.padding(4.dp)
-            )
-        }
-
-    }
-}
-
