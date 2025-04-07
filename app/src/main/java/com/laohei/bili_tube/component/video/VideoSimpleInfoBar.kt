@@ -49,7 +49,7 @@ fun VideoSimpleInfoBar(
     val faceRequest = rememberAsyncImagePainter(
         ImageRequest.Builder(context)
             .data(face)
-            .crossfade(true)
+            .crossfade(false)
             .placeholder(placeholder)
             .error(error)
             .build()

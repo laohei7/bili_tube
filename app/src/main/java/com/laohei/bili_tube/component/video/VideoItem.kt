@@ -70,9 +70,9 @@ fun VideoItem(
     val coverRequest = rememberAsyncImagePainter(
         ImageRequest.Builder(context)
             .data(cover)
-            .crossfade(true)
+            .crossfade(false)
             .placeholder(placeholder)
-            .error(placeholder)
+            .error(error)
             .build()
     )
     Column(
@@ -162,7 +162,7 @@ fun HorizontalVideoItem(
     val coverRequest = rememberAsyncImagePainter(
         ImageRequest.Builder(LocalContext.current)
             .data(cover)
-            .crossfade(true)
+            .crossfade(false)
             .placeholder(R.drawable.icon_loading)
             .error(R.drawable.icon_loading)
             .build()
