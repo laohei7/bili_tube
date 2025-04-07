@@ -174,6 +174,8 @@ internal class PlayerViewModel(
                 launch {
                     this@run.data.view.seasonId?.let {
                         getArchives(mid = this@run.data.view.owner.mid, seasonId = it)
+                    } ?: run {
+                        _mPlayerState.update { it.copy(videoArchiveMeta = null) }
                     }
                 }
             }
@@ -225,13 +227,9 @@ internal class PlayerViewModel(
     private suspend fun getPageList(bvid: String, cid: Long) {
         val pageList = biliPlayRepository.getPageList(bvid)
         pageList?.let { data ->
-            if (data.data.size <= 1) {
-                return@let
-            }
-            Log.d(TAG, "getPageList: $data")
             _mPlayerState.update {
                 it.copy(
-                    videoPageList = data.data,
+                    videoPageList = if (data.data.size <= 1) null else data.data,
                     currentPageListIndex = data.data.indexOfFirst { item -> item.cid == cid }
                 )
             }
