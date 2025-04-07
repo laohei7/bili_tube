@@ -172,12 +172,12 @@ private fun AvatarWidget() {
                 model = avatarRequest,
                 contentDescription = "avatar",
                 modifier = Modifier
-                    .size(88.dp)
+                    .size(72.dp)
                     .aspectRatio(1f)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop,
-                placeholder = painterResource(R.drawable.bili_emoji1),
-                error = painterResource(R.drawable.bili_emoji3)
+                placeholder = painterResource(R.drawable.icon_loading_1_1),
+                error = painterResource(R.drawable.icon_loading_1_1)
             )
         },
         headlineContent = {

@@ -22,12 +22,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.FACE_URL_KEY
-import com.laohei.bili_tube.component.placeholder.CirclePlaceholder
 import com.laohei.bili_tube.core.util.getValue
 
 
@@ -75,7 +76,7 @@ internal fun CommentCard(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SubcomposeAsyncImage(
+            AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(context.getValue(FACE_URL_KEY.name, ""))
                     .crossfade(true)
@@ -85,12 +86,8 @@ internal fun CommentCard(
                     .size(28.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop,
-                loading = {
-                    CirclePlaceholder()
-                },
-                error = {
-                    CirclePlaceholder()
-                }
+                placeholder = painterResource(R.drawable.icon_loading_1_1),
+                error = painterResource(R.drawable.icon_loading_1_1)
             )
 
             Surface(

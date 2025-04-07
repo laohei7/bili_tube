@@ -21,10 +21,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.laohei.bili_tube.R
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
 
 @Composable
@@ -59,7 +61,9 @@ internal fun UserSimpleInfo(
                     .padding(top = 4.dp)
                     .size(32.dp)
                     .clip(CircleShape),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Crop,
+                placeholder = painterResource(R.drawable.icon_loading_1_1),
+                error = painterResource(R.drawable.icon_loading_1_1)
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(

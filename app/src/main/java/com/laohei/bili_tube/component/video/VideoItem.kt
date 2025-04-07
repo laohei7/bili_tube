@@ -116,8 +116,8 @@ fun VideoItem(
                     .size(42.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop,
-                placeholder = painterResource(R.drawable.bili_emoji1),
-                error = painterResource(R.drawable.bili_emoji2)
+                placeholder = painterResource(R.drawable.icon_loading_1_1),
+                error = painterResource(R.drawable.icon_loading_1_1)
             )
             Column(
                 modifier = Modifier.weight(1f)

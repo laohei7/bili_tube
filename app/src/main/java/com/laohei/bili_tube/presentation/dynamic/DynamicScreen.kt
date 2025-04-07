@@ -1,6 +1,7 @@
 package com.laohei.bili_tube.presentation.dynamic
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -60,8 +62,11 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import coil3.request.error
+import coil3.request.placeholder
 import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
 import com.laohei.bili_sdk.module_v2.dynamic.MajorLiveRcmdContent
 import com.laohei.bili_tube.R
@@ -397,32 +402,35 @@ private fun DRAWItem(
             val isSingle = list.size == 1
             if (isSingle) {
                 val image = list.first()
-                val imageRequest = remember(image) {
+                val imageRequest = rememberAsyncImagePainter(
                     ImageRequest.Builder(context)
                         .data(image)
                         .crossfade(true)
+                        .placeholder(R.drawable.icon_loading_1_1)
+                        .error(R.drawable.icon_loading_1_1)
                         .build()
-                }
-                AsyncImage(
-                    model = imageRequest,
+                )
+                Image(
+                    painter = imageRequest,
                     contentDescription = "",
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    contentScale = ContentScale.FillHeight,
-                    placeholder = painterResource(R.drawable.icon_loading),
-                    error = painterResource(R.drawable.icon_loading)
+                        .fillMaxWidth()
+                        .wrapContentHeight(),
+                    contentScale = ContentScale.Fit,
                 )
             } else {
                 LazyRow {
                     items(list) {
-                        val imageRequest = remember(it) {
+                        val imageRequest = rememberAsyncImagePainter(
                             ImageRequest.Builder(context)
                                 .data(it)
                                 .crossfade(true)
+                                .placeholder(R.drawable.icon_loading_1_1)
+                                .error(R.drawable.icon_loading_1_1)
                                 .build()
-                        }
-                        AsyncImage(
-                            model = imageRequest,
+                        )
+                        Image(
+                            painter = imageRequest,
                             contentDescription = ownerName,
                             modifier = Modifier
                                 .size(260.dp)
@@ -430,8 +438,6 @@ private fun DRAWItem(
                                 .padding(horizontal = 12.dp)
                                 .clip(RoundedCornerShape(12.dp)),
                             contentScale = ContentScale.Crop,
-                            placeholder = painterResource(R.drawable.icon_loading),
-                            error = painterResource(R.drawable.icon_loading)
                         )
                     }
                 }
@@ -610,8 +616,8 @@ private fun AuthorBar(
                 .size(42.dp)
                 .clip(CircleShape),
             contentScale = ContentScale.Crop,
-            placeholder = painterResource(R.drawable.bili_emoji1),
-            error = painterResource(R.drawable.bili_emoji2)
+            placeholder = painterResource(R.drawable.icon_loading_1_1),
+            error = painterResource(R.drawable.icon_loading_1_1)
         )
         Column(
             modifier = Modifier.weight(1f)
