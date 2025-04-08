@@ -7,6 +7,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -44,9 +45,9 @@ fun ExpandedText(
     actionTextColor: Color = Pink,
     style: TextStyle = LocalTextStyle.current
 ) {
-    var isExpanded by remember { mutableStateOf(false) }
-    var isOverflow by remember { mutableStateOf(false) }
-    var cutText by remember { mutableStateOf<String?>(null) }
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
+    var isOverflow by rememberSaveable { mutableStateOf(false) }
+    var cutText by rememberSaveable { mutableStateOf<String?>(null) }
 
     val displayText by remember {
         derivedStateOf {

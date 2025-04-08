@@ -5,7 +5,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.laohei.bili_sdk.folder.PostFolder
-import com.laohei.bili_sdk.model.VideoReplyItem
+import com.laohei.bili_sdk.module_v2.reply.ReplyItem
 import com.laohei.bili_sdk.video.GetArchive
 import com.laohei.bili_sdk.video.GetInfo
 import com.laohei.bili_sdk.video.GetReply
@@ -67,7 +67,7 @@ class BiliPlayRepository(
     fun getVideoReplyPager(
         type: Int = 1,
         oid: String
-    ): Flow<PagingData<VideoReplyItem>> {
+    ): Flow<PagingData<ReplyItem>> {
         return flow {
             val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
             emit(

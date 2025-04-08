@@ -30,7 +30,6 @@ import androidx.compose.material.icons.outlined.ChatBubbleOutline
 import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -64,13 +63,14 @@ import androidx.paging.compose.LazyPagingItems
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.laohei.bili_sdk.model.VideoReplyItem
+import com.laohei.bili_sdk.module_v2.reply.ReplyItem
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.component.animation.slideFadeRightToLeftCanReversed
 import com.laohei.bili_tube.component.placeholder.NoMoreData
 import com.laohei.bili_tube.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.component.sheet.ModalBottomSheetProperties
 import com.laohei.bili_tube.component.sheet.rememberModalBottomSheet
+import com.laohei.bili_tube.component.text.ExpandedRichText
 import com.laohei.bili_tube.component.text.ExpandedText
 import com.laohei.bili_tube.utill.toTimeAgoString
 import com.laohei.bili_tube.utill.toViewString
@@ -81,7 +81,7 @@ import kotlinx.coroutines.launch
 fun VideoReplySheet(
     isShowReply: Boolean,
     modifier: Modifier = Modifier,
-    replies: LazyPagingItems<VideoReplyItem>,
+    replies: LazyPagingItems<ReplyItem>,
     bottomPadding: Dp = 0.dp,
     onDismiss: () -> Unit = {},
     maskAlphaChanged: (Float) -> Unit = { _ -> }
@@ -92,7 +92,7 @@ fun VideoReplySheet(
     )
     val scope = rememberCoroutineScope()
     var isMainReplyList by remember { mutableStateOf(true) }
-    var currentReplyItem by remember { mutableStateOf<VideoReplyItem?>(null) }
+    var currentReplyItem by remember { mutableStateOf<ReplyItem?>(null) }
 
 
     val mainLazyLazyListState = rememberLazyListState()
@@ -263,7 +263,7 @@ private fun ReplyTopBar(
 private fun MainReplyList(
     lazyListState: LazyListState = rememberLazyListState(),
     bottomPadding: Dp = 0.dp,
-    replies: LazyPagingItems<VideoReplyItem>,
+    replies: LazyPagingItems<ReplyItem>,
     onClick: (ReplySheetAction) -> Unit
 ) {
     val refreshState = rememberPullToRefreshState()
@@ -310,7 +310,7 @@ private fun MainReplyList(
 @Composable
 private fun ChildReplyList(
     lazyListState: LazyListState = rememberLazyListState(),
-    item: VideoReplyItem,
+    item: ReplyItem,
     bottomPadding: Dp = 0.dp,
 ) {
     LazyColumn(
@@ -345,11 +345,11 @@ private fun ChildReplyList(
 
 @Composable
 private fun VideoCommentItem(
-    item: VideoReplyItem,
+    item: ReplyItem,
     showReplyNumber: Boolean = true,
     onClick: () -> Unit
 ) {
-    val name = item.member?.uname ?: "Unknown"
+    val name = item.member.uname
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -365,7 +365,7 @@ private fun VideoCommentItem(
             // 头像
             SubcomposeAsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(item.member?.avatar ?: "")
+                    .data(item.member.avatar)
                     .crossfade(true)
                     .build(),
                 contentDescription = name,
@@ -395,11 +395,11 @@ private fun VideoCommentItem(
 
             // 用户名 & 时间
             Text(
-                text = buildAnnotatedString {
-                    append(item.member?.uname ?: "Unknown")
-                    append("·")
-                    append(item.ctime?.toTimeAgoString() ?: "")
-                },
+                text = stringResource(
+                    R.string.str_user_and_date,
+                    item.member.uname,
+                    item.ctime.toTimeAgoString()
+                ),
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.Gray
             )
@@ -409,11 +409,25 @@ private fun VideoCommentItem(
         Spacer(modifier = Modifier.height(4.dp))
 
         // 评论内容
-        ExpandedText(
-            text = item.content?.message ?: "",
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(start = 48.dp)
-        )
+        when {
+            item.content.emote != null -> {
+                ExpandedRichText(
+                    text = item.content.message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    emote = item.content.emote!!.map { it.key to it.value.url }.toMap(),
+                    modifier = Modifier.padding(start = 48.dp)
+                )
+            }
+
+            else -> {
+                ExpandedText(
+                    text = item.content.message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 48.dp)
+                )
+            }
+        }
+
 
         // 点赞、回复
         Row(
@@ -431,8 +445,11 @@ private fun VideoCommentItem(
                     contentDescription = Icons.Outlined.ThumbUp.name,
                     modifier = Modifier.size(16.dp)
                 )
-                item.like?.let {
-                    Text(text = it.toViewString(), style = MaterialTheme.typography.labelSmall)
+                if (item.like > 0) {
+                    Text(
+                        text = item.like.toViewString(),
+                        style = MaterialTheme.typography.labelSmall
+                    )
                 }
             }
 

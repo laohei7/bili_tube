@@ -2,7 +2,7 @@ package com.laohei.bili_tube.presentation.player.component.reply
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.laohei.bili_sdk.model.VideoReplyItem
+import com.laohei.bili_sdk.module_v2.reply.ReplyItem
 import com.laohei.bili_sdk.video.GetReply
 
 class VideoReplyPaging(
@@ -10,15 +10,21 @@ class VideoReplyPaging(
     private val cookie: String?,
     private val type: Int = 1,
     private val oid: String
-) : PagingSource<Int, VideoReplyItem>() {
-    override fun getRefreshKey(state: PagingState<Int, VideoReplyItem>): Int? {
+) : PagingSource<Int, ReplyItem>() {
+
+    companion object {
+        private val TAG = VideoReplyPaging::class.simpleName
+        private const val DBG = true
+    }
+
+    override fun getRefreshKey(state: PagingState<Int, ReplyItem>): Int? {
         return state.anchorPosition?.let { anchor ->
             state.closestPageToPosition(anchor)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchor)?.nextKey?.minus(1)
         }
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, VideoReplyItem> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ReplyItem> {
         return try {
             val page = params.key ?: 1
             val pageSize = 20

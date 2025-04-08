@@ -2,8 +2,8 @@ package com.laohei.bili_sdk.video
 
 import android.util.Log
 import com.laohei.bili_sdk.apis.VIDEO_REPLY_URL
-import com.laohei.bili_sdk.model.BiliReply
-import com.laohei.bili_sdk.model.BiliResponse
+import com.laohei.bili_sdk.module_v2.common.BiliResponse
+import com.laohei.bili_sdk.module_v2.reply.ReplyModel
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -17,6 +17,7 @@ class GetReply(
 ) {
     companion object {
         private val TAG = GetReply::class.simpleName
+        private const val DBG = true
     }
 
     suspend fun getVideoReplies(
@@ -39,7 +40,15 @@ class GetReply(
             null
         }
         response?.run {
-            Json.decodeFromString<BiliResponse<BiliReply>>(bodyAsText())
+            try {
+                Json.decodeFromString<BiliResponse<ReplyModel>>(bodyAsText())
+            } catch (e: Exception) {
+                if (DBG) {
+                    Log.d(TAG, "getVideoReplies: ${e.message}")
+                }
+                null
+            }
+
         }
     }
 }
