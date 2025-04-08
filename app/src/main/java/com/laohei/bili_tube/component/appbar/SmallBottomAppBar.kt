@@ -17,6 +17,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -30,20 +31,10 @@ data class BottomAppBarItem(
     val label: String? = null
 )
 
-@Preview
 @Composable
 fun SmallBottomAppBar(
     modifier: Modifier = Modifier,
-    items: List<BottomAppBarItem> = listOf(
-        BottomAppBarItem(
-            icon = Icons.Outlined.Home,
-            label = "首页"
-        ),
-        BottomAppBarItem(
-            icon = Icons.Outlined.Person,
-            label = "我的"
-        )
-    ),
+    items: List<BottomAppBarItem>,
     selectedIndex: Int = 0,
     onClick: (Int) -> Unit = { _ -> }
 ) {
@@ -92,4 +83,22 @@ private fun VerticalIconAndLabelItem(item: BottomAppBarItem) {
         }
 
     }
+}
+
+@Preview
+@Composable
+private fun SmallBottomAppBarPreview() {
+    val items = remember {
+        listOf(
+            BottomAppBarItem(
+                icon = Icons.Outlined.Home,
+                label = "首页"
+            ),
+            BottomAppBarItem(
+                icon = Icons.Outlined.Person,
+                label = "我的"
+            )
+        )
+    }
+    SmallBottomAppBar(items = items)
 }

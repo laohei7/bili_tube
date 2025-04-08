@@ -537,7 +537,7 @@ private fun OtherWidget(
             )
         },
         headlineContent = {
-            Text(text = stringResource(R.string.str_downlaod_management))
+            Text(text = stringResource(R.string.str_download_management))
         }
     )
     HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))

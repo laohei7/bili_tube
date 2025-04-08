@@ -138,7 +138,7 @@ private fun DownloadTopAppBar(
     onClick: (DownloadAction) -> Unit
 ) {
     TopAppBar(
-        title = { Text(text = stringResource(R.string.str_downlaod_management)) },
+        title = { Text(text = stringResource(R.string.str_download_management)) },
         navigationIcon = {
             IconButton(onClick = { onClick.invoke(DownloadAction.UpPressAction) }) {
                 Icon(

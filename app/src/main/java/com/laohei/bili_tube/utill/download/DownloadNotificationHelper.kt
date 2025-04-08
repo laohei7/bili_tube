@@ -83,7 +83,7 @@ class DownloadNotificationHelper(private val context: Context) {
 
     private fun showSummaryNotification() {
         val summaryNotification = NotificationCompat.Builder(context, channelId)
-            .setContentTitle(context.getString(R.string.str_downlaod_management))
+            .setContentTitle(context.getString(R.string.str_download_management))
             .setContentText(context.getString(R.string.str_downloading_multiple_files))
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
             .setGroup(groupKey)
