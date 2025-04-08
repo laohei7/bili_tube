@@ -1,11 +1,16 @@
 package com.laohei.bili_tube.presentation.home.recommend
 
+import android.content.Context
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.datastore.preferences.core.edit
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.laohei.bili_sdk.module_v2.recomment.RecommendItem
 import com.laohei.bili_sdk.recommend.GetRecommend
+import com.laohei.bili_tube.core.LAST_SHOW_LIST_KEY
+import com.laohei.bili_tube.dataStore
+import kotlinx.coroutines.flow.firstOrNull
 
 private data class RecommendParams(
     val webLocation: Int = 1430650,
@@ -23,6 +28,7 @@ private data class RecommendParams(
 
 class RecommendPaging(
     private val recommend: GetRecommend,
+    private val context: Context,
     private val cookie: String?
 ) : PagingSource<Int, RecommendItem>() {
 
@@ -43,7 +49,10 @@ class RecommendPaging(
         return try {
             val page = params.key ?: 1
             if (params.key == null) {
-                _mParams = RecommendParams()
+                _mParams = RecommendParams(
+                    lastShowList = context.dataStore.data.firstOrNull()?.get(LAST_SHOW_LIST_KEY)
+                        ?.run { ifBlank { null } }
+                )
             }
 
             val response = recommend.recommendVideos(
@@ -61,7 +70,7 @@ class RecommendPaging(
             )
 
             val data = response?.data?.item
-                ?.fastFilter { it.owner!=null && it.stat != null }
+                ?.fastFilter { it.owner != null && it.stat != null }
                 ?: emptyList()
 
 
@@ -86,6 +95,9 @@ class RecommendPaging(
                         }
                     }
                 )
+                context.dataStore.edit { settings ->
+                    settings[LAST_SHOW_LIST_KEY] = _mParams.lastShowList ?: ""
+                }
             }
 
             LoadResult.Page(

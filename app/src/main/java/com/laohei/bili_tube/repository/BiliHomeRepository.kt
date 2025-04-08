@@ -43,7 +43,7 @@ class BiliHomeRepository(
                         pageSize = 12,
                         enablePlaceholders = false
                     ),
-                    pagingSourceFactory = { RecommendPaging(getRecommend, cookie) }
+                    pagingSourceFactory = { RecommendPaging(getRecommend, context, cookie) }
                 ).flow
             )
         }.flattenConcat()
