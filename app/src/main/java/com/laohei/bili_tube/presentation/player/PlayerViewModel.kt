@@ -3,7 +3,6 @@ package com.laohei.bili_tube.presentation.player
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.media3.common.util.UnstableApi
 import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_tube.app.Route
@@ -64,13 +63,53 @@ internal class PlayerViewModel(
 
     init {
         defaultMediaManager.playErrorCallback = { playErrorCallback() }
-        defaultMediaManager.playEndCallback = {
-            uploadVideoHistory(exoPlayer().duration / 1000)
-        }
+        defaultMediaManager.playEndCallback = { playEndCallback() }
     }
 
     private fun playErrorCallback() {
 
+    }
+
+    private fun playEndCallback() {
+        uploadVideoHistory(exoPlayer().duration / 1000)
+        autoSwitchVideo()
+    }
+
+    private fun autoSwitchVideo() {
+        var newParams: Route.Play? = null
+        // next playlist
+        _mPlayerState.value.videoPageList?.let {
+            val next = _mPlayerState.value.currentPageListIndex + 1
+            if (next < it.size) {
+                newParams = params.copy(cid = it[next].cid)
+            }
+        }
+        // next archive
+        _mPlayerState.value.videoArchives?.let {
+            if (newParams != null) {
+                return@let
+            }
+            val next = _mPlayerState.value.currentArchiveIndex + 1
+            if (next < it.size) {
+                val nextVideo = it[next]
+                newParams = params.copy(aid = nextVideo.aid, bvid = nextVideo.bvid, cid = -1L)
+            }
+        }
+
+        // related
+//        _mPlayerState.value.videoDetail?.let {
+//            if (newParams != null) {
+//                return@let
+//            }
+//            if (it.related.isNotEmpty()) {
+//                val nextVideo = it.related.first()
+//                newParams =
+//                    params.copy(aid = nextVideo.aid, bvid = nextVideo.bvid, cid = nextVideo.cid)
+//            }
+//        }
+        newParams?.let {
+            viewModelScope.launch { updateParams(it) }
+        }
     }
 
 
