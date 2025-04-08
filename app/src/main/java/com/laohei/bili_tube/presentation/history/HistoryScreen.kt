@@ -1,6 +1,7 @@
 package com.laohei.bili_tube.presentation.history
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -30,6 +31,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -48,6 +50,9 @@ import com.laohei.bili_tube.utill.formatDateTimeToString
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.toTimeAgoString2
 import org.koin.androidx.compose.koinViewModel
+
+private const val TAG = "HistoryScreen"
+private const val DBG = true
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -136,12 +141,34 @@ fun HistoryScreen(
 
                                 is UIModel.Item<*> -> {
                                     val it = item.item as HistoryItem
+                                    if (DBG) {
+                                        SideEffect {
+                                            Log.d(
+                                                TAG,
+                                                "HistoryScreen: progress ${it.progress.toFloat()}"
+                                            )
+                                            Log.d(
+                                                TAG,
+                                                "HistoryScreen: duration ${it.duration.toFloat()}"
+                                            )
+                                            Log.d(
+                                                TAG,
+                                                "HistoryScreen: ${it.progress.toFloat() / it.duration}"
+                                            )
+                                        }
+                                    }
+                                    val progress = when {
+                                        it.duration > 0L -> (it.progress.toFloat() / it.duration)
+                                            .coerceIn(0f, 1f)
+
+                                        else -> 0f
+                                    }
                                     HorizontalVideoItem(
                                         cover = it.cover,
                                         title = it.title,
                                         ownerName = it.authorName,
                                         duration = it.duration.formatTimeString(false),
-                                        progress = it.progress.toFloat() / it.duration,
+                                        progress = progress,
                                         viewAt = buildString {
                                             append(it.viewAt.toTimeAgoString2(false))
                                             append(" ")

@@ -15,6 +15,11 @@ class HistoryViewModel(
     biliHistoryRepository: BiliHistoryRepository
 ) : ViewModel() {
 
+    companion object {
+        private val TAG = HistoryViewModel::class.simpleName
+        private const val DBG = false
+    }
+
     val histories = biliHistoryRepository.getHistoryList()
         .map { pagingData ->
             pagingData.map { UIModel.Item(it) }
@@ -23,10 +28,13 @@ class HistoryViewModel(
                     val beforeDate = before?.item?.viewAt?.toTimeAgoString2(false)
                     val afterDate = after?.item?.viewAt?.toTimeAgoString2(false)
 
-                    Log.d("FilterA", ": $before $after")
+                    if (DBG) {
+                        Log.d(TAG, "before: $before")
+                        Log.d(TAG, "after: $after")
+                    }
 
                     return@insertSeparators when {
-                        beforeDate == null && afterDate != null-> UIModel.Header(afterDate)
+                        beforeDate == null && afterDate != null -> UIModel.Header(afterDate)
                         beforeDate != afterDate -> UIModel.Header(afterDate)
                         else -> null
                     }
