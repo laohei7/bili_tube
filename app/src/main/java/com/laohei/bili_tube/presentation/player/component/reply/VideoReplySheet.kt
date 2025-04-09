@@ -409,24 +409,12 @@ private fun VideoCommentItem(
         Spacer(modifier = Modifier.height(4.dp))
 
         // 评论内容
-        when {
-            item.content.emote != null -> {
-                ExpandedRichText(
-                    text = item.content.message,
-                    style = MaterialTheme.typography.bodyMedium,
-                    emote = item.content.emote!!.map { it.key to it.value.url }.toMap(),
-                    modifier = Modifier.padding(start = 48.dp)
-                )
-            }
-
-            else -> {
-                ExpandedText(
-                    text = item.content.message,
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(start = 48.dp)
-                )
-            }
-        }
+        ExpandedRichText(
+            text = item.content.message,
+            style = MaterialTheme.typography.bodyMedium,
+            emote = item.content.emote?.map { it.key to it.value.url }?.toMap() ?: emptyMap(),
+            modifier = Modifier.padding(start = 48.dp)
+        )
 
 
         // 点赞、回复
