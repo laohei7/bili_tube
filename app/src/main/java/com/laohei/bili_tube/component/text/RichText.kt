@@ -44,7 +44,7 @@ import com.laohei.bili_tube.ui.theme.Pink
 private val EmotePattern = "\\[.*?]".toRegex()
 
 private val UrlPattern =
-    """(https?://|www\.)[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}([-a-zA-Z0-9()@:%_+.~#?&/=!]*)""".toRegex()
+    """(https?://|www\.)[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}([-a-zA-Z0-9()@:%_+.~#?&/=!;]*)""".toRegex()
 
 private const val DEFAULT_MINIMUM_TEXT_LINE = 6
 

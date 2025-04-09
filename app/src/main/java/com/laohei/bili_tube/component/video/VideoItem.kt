@@ -232,6 +232,7 @@ fun HorizontalVideoItem(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 rcmdReason?.let { RcmdWidget(it) }
                 UpWidget(ownerName)

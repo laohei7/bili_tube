@@ -19,7 +19,7 @@ interface DownloadTaskDao{
     @Query("""
         SELECT * FROM tb_downloads WHERE id = :id
     """)
-    suspend fun getTaskById(id:String): DownloadTask
+    suspend fun getTaskById(id:String): DownloadTask?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun addTask(task: DownloadTask)

@@ -15,6 +15,8 @@ import com.laohei.bili_tube.presentation.home.state.DefaultHomePageManager
 import com.laohei.bili_tube.presentation.home.state.HomePageManager
 import com.laohei.bili_tube.repository.BiliHomeRepository
 import com.laohei.bili_tube.repository.BiliPlaylistRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -37,9 +39,11 @@ class HomeViewModel(
     val gridStates = List(tabs.size) { LazyGridState() }
 
     val hotVideos = biliHomeRepository.getPagedHotVideo()
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000),1)
         .cachedIn(viewModelScope)
 
     val randomVideos = biliHomeRepository.getPagedRecommendVideo()
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000),1)
         .cachedIn(viewModelScope)
 
     val timeline = biliHomeRepository.getTimelineEpisode()
