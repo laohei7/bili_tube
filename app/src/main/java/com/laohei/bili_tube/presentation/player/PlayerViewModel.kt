@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import kotlin.math.ceil
 
 @UnstableApi
@@ -113,7 +114,7 @@ internal class PlayerViewModel(
     }
 
 
-    suspend fun updateParams(other: Route.Play) =
+    suspend fun updateParams(other: Route.Play) {
         withContext(Dispatchers.IO) {
             params = other
             if (DBG) {
@@ -122,11 +123,7 @@ internal class PlayerViewModel(
             withContext(Dispatchers.Main) {
                 toggleLoading()
             }
-            _mPlayerState.update { it.copy(isDownloaded = params.isLocal) }
-            when {
-                params.isLocal -> launch { getVideoURLByLocal() }
-                params.cid != -1L -> launch { getVideoURL() }
-            }
+            launch { getVideoURL() }
             launch {
                 getVideoDetail()
                 videoReplies = biliPlayRepository.getVideoReplyPager(
@@ -140,6 +137,7 @@ internal class PlayerViewModel(
                 hasFavoured()
             }
         }
+    }
 
     private suspend fun hasLike() {
         biliPlayRepository.hasLike(
@@ -167,18 +165,26 @@ internal class PlayerViewModel(
         }
     }
 
-    private suspend fun getVideoURLByLocal() {
-        val task = biliPlayRepository.getPlayURLByLocal(params.bvid)
-        task.mergedFile?.let {
-            withContext(Dispatchers.Main) {
-                play(it)
-            }
-        } ?: run {
-            updateMediaState(state.value.copy(isError = true))
-        }
-    }
-
     private suspend fun getVideoURL() {
+        val task = biliPlayRepository.getPlayURLByLocal(params.bvid)
+        task?.mergedFile?.let { localUrl ->
+            if (File(localUrl).exists()) {
+                if (DBG) {
+                    Log.d(TAG, "getVideoURL: play by local")
+                }
+                _mPlayerState.update { it.copy(isDownloaded = true) }
+                withContext(Dispatchers.Main) {
+                    play(localUrl)
+                }
+                return
+            }
+        }
+        if (params.cid == -1L) {
+            return
+        }
+        if (DBG) {
+            Log.d(TAG, "getVideoURL: play by network")
+        }
         val response = biliPlayRepository.getPlayURL(
             aid = params.aid,
             bvid = params.bvid,
@@ -191,7 +197,9 @@ internal class PlayerViewModel(
             withContext(Dispatchers.Main) {
                 play(data)
             }
+            return
         }
+        updateMediaState(state.value.copy(isError = true))
     }
 
     private suspend fun getVideoDetail() {
@@ -210,12 +218,10 @@ internal class PlayerViewModel(
                 viewModelScope.launch { getVideoURL() }
             }
             viewModelScope.launch {
-                launch {
-                    this@run.data.view.seasonId?.let {
-                        getArchives(mid = this@run.data.view.owner.mid, seasonId = it)
-                    } ?: run {
-                        _mPlayerState.update { it.copy(videoArchiveMeta = null) }
-                    }
+                this@run.data.view.seasonId?.let {
+                    getArchives(mid = this@run.data.view.owner.mid, seasonId = it)
+                } ?: run {
+                    _mPlayerState.update { it.copy(videoArchiveMeta = null) }
                 }
             }
             viewModelScope.launch { getPageList(bvid = params.bvid, cid = params.cid) }
