@@ -7,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -46,6 +45,7 @@ import coil3.request.crossfade
 import coil3.request.error
 import coil3.request.placeholder
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.component.text.RichText
 
 
 @Composable
@@ -169,7 +169,7 @@ fun HorizontalVideoItem(
     )
     Row(
         modifier = Modifier
-            .width(IntrinsicSize.Min)
+            .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
             .clickable {
                 onClick.invoke()
@@ -226,11 +226,13 @@ fun HorizontalVideoItem(
                     .padding(end = 22.dp),
                 verticalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                Text(
+                RichText(
                     text = title,
                     style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
+                    collapsedMaxLine = 2,
+                    minLines = 2,
+                    emote = emptyMap(),
+                    enabledExpanded = false,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
