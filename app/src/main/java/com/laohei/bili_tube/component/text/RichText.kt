@@ -46,82 +46,17 @@ private val EmotePattern = "\\[.*?]".toRegex()
 private val UrlPattern =
     """(https?://|www\.)[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}([-a-zA-Z0-9()@:%_+.~#?&/=!;]*)""".toRegex()
 
+private val KeywordPattern = "<em class=\"keyword\">(.*?)</em>".toRegex()
+
 private const val DEFAULT_MINIMUM_TEXT_LINE = 6
 
 @Composable
 fun RichText(
     modifier: Modifier = Modifier,
+    enabledExpanded: Boolean = true,
     text: String,
     emote: Map<String, String>,
-    color: Color = Color.Unspecified,
-    fontSize: TextUnit = TextUnit.Unspecified,
-    fontStyle: FontStyle? = null,
-    fontWeight: FontWeight? = null,
-    fontFamily: FontFamily? = null,
-    letterSpacing: TextUnit = TextUnit.Unspecified,
-    textAlign: TextAlign? = null,
-    lineHeight: TextUnit = TextUnit.Unspecified,
-    softWrap: Boolean = true,
-    style: TextStyle = LocalTextStyle.current
-) {
-    val matches by remember { derivedStateOf { EmotePattern.findAll(text) } }
-    val inlineContentMap = remember { mutableMapOf<String, InlineTextContent>() }
-
-    Text(
-        text = buildAnnotatedString {
-            var currentIndex = 0
-            matches.forEach { matchResult ->
-                append(text.substring(currentIndex, matchResult.range.first))
-                val tag = matchResult.groupValues[0]
-                val placeholderId = "tag-${matchResult.range.first}"
-                appendInlineContent(id = placeholderId, alternateText = tag)
-                inlineContentMap[placeholderId] = InlineTextContent(
-                    Placeholder(
-                        width = 20.sp,
-                        height = 20.sp,
-                        placeholderVerticalAlign = PlaceholderVerticalAlign.Center
-                    )
-                ) {
-                    val emoteRequest = rememberAsyncImagePainter(
-                        ImageRequest.Builder(LocalContext.current)
-                            .data(emote[tag])
-                            .crossfade(false)
-                            .placeholder(R.drawable.icon_loading_1_1)
-                            .error(R.drawable.icon_loading_1_1)
-                            .build()
-                    )
-                    Image(
-                        painter = emoteRequest,
-                        contentDescription = tag,
-                        contentScale = ContentScale.Fit,
-                    )
-                }
-                currentIndex = matchResult.range.last + 1
-            }
-            append(text.substring(currentIndex))
-        },
-        inlineContent = inlineContentMap,
-        modifier = modifier,
-        color = color,
-        textAlign = textAlign,
-        fontSize = fontSize,
-        fontStyle = fontStyle,
-        fontWeight = fontWeight,
-        fontFamily = fontFamily,
-        letterSpacing = letterSpacing,
-        lineHeight = lineHeight,
-        softWrap = softWrap,
-        style = style,
-        overflow = TextOverflow.Ellipsis,
-        maxLines = 3,
-    )
-}
-
-@Composable
-fun ExpandedRichText(
-    modifier: Modifier = Modifier,
-    text: String,
-    emote: Map<String, String>,
+    minLines: Int = 1,
     collapsedMaxLine: Int = DEFAULT_MINIMUM_TEXT_LINE,
     color: Color = Color.Unspecified,
     fontSize: TextUnit = TextUnit.Unspecified,
@@ -147,7 +82,10 @@ fun ExpandedRichText(
     }
     val allMatches by remember {
         derivedStateOf {
-            (EmotePattern.findAll(displayText) + UrlPattern.findAll(displayText)).sortedBy { it.range.first }
+            val emotes = EmotePattern.findAll(displayText)
+            val urls = UrlPattern.findAll(displayText)
+//            val keywords = KeywordPattern.findAll(displayText)
+            (emotes + urls).sortedBy { it.range.first }
         }
     }
     val inlineContentMap = remember { mutableMapOf<String, InlineTextContent>() }
@@ -158,6 +96,18 @@ fun ExpandedRichText(
             for (matchResult in allMatches) {
                 append(displayText.substring(currentIndex, matchResult.range.first))
                 when {
+//                    KeywordPattern.matches(matchResult.value) -> {
+//                        val keyword = matchResult.groupValues[0]
+//                        withStyle(
+//                            SpanStyle(
+//                                color = Pink,
+//                                fontWeight = FontWeight.Bold
+//                            )
+//                        ) {
+//                            append(keyword)
+//                        }
+//                    }
+
                     EmotePattern.matches(matchResult.value) -> {
                         val tag = matchResult.groupValues[0]
                         val placeholderId = "tag-${matchResult.range.first}"
@@ -204,7 +154,7 @@ fun ExpandedRichText(
                 currentIndex = matchResult.range.last + 1
             }
             append(displayText.substring(currentIndex))
-            if (isOverflow) {
+            if (enabledExpanded && isOverflow) {
                 append(" ")
                 pushStringAnnotation(
                     tag = "ACTION",
@@ -236,14 +186,18 @@ fun ExpandedRichText(
         lineHeight = lineHeight,
         softWrap = softWrap,
         style = style,
+        minLines = minLines,
         maxLines = if (isExpanded) Int.MAX_VALUE else collapsedMaxLine,
         overflow = TextOverflow.Ellipsis,
         onTextLayout = { layoutResult ->
-            if (!isExpanded && layoutResult.lineCount >= collapsedMaxLine && cutText == null) {
-                isOverflow = true
-                val lastVisibleLine = collapsedMaxLine - 1
-                val endIndex = layoutResult.getLineEnd(lastVisibleLine, visibleEnd = true) - 10
-                cutText = text.substring(0, endIndex).trimEnd()
+            when {
+                enabledExpanded && layoutResult.lineCount >= collapsedMaxLine
+                        && cutText == null -> {
+                    isOverflow = true
+                    val lastVisibleLine = collapsedMaxLine - 1
+                    val endIndex = layoutResult.getLineEnd(lastVisibleLine, visibleEnd = true) - 10
+                    cutText = text.substring(0, endIndex).trimEnd()
+                }
             }
         },
     )
@@ -258,7 +212,7 @@ private fun RichTextPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun ExpandedRichTextPreview() {
-    ExpandedRichText(
+    RichText(
         text = """
                 🎯 解释 [微笑]
                 视频地址：https://www.youtube.com/watch?v=gT3DXN41s_0 
