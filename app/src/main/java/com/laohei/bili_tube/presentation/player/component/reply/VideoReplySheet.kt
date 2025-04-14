@@ -70,8 +70,7 @@ import com.laohei.bili_tube.component.placeholder.NoMoreData
 import com.laohei.bili_tube.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.component.sheet.ModalBottomSheetProperties
 import com.laohei.bili_tube.component.sheet.rememberModalBottomSheet
-import com.laohei.bili_tube.component.text.ExpandedRichText
-import com.laohei.bili_tube.component.text.ExpandedText
+import com.laohei.bili_tube.component.text.RichText
 import com.laohei.bili_tube.utill.toTimeAgoString
 import com.laohei.bili_tube.utill.toViewString
 import kotlinx.coroutines.launch
@@ -409,7 +408,7 @@ private fun VideoCommentItem(
         Spacer(modifier = Modifier.height(4.dp))
 
         // 评论内容
-        ExpandedRichText(
+        RichText(
             text = item.content.message,
             style = MaterialTheme.typography.bodyMedium,
             emote = item.content.emote?.map { it.key to it.value.url }?.toMap() ?: emptyMap(),

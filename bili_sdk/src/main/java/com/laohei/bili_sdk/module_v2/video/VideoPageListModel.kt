@@ -18,6 +18,6 @@ data class VideoPageListModel(
     val vid: String,
     val weblink: String,
     val dimension: Dimension,
-    @SerialName(value = "first_frame") val firstFrame: String,
+    @SerialName(value = "first_frame") val firstFrame: String = "",
     val ctime: Long
 )
