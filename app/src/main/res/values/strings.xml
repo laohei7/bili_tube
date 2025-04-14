@@ -72,4 +72,13 @@
     <string name="str_processing_hint">文件最后处理中，暂不支持暂停…</string>
     <string name="str_downloaded">已下载</string>
     <string name="str_user_and_date">%1s · %2s</string>
+    <string name="str_search">搜索</string>
+    <string name="str_search_hint">请输入搜索内容</string>
+    <string name="str_date_and_area">%1s | %2s</string>
+    <string name="str_score">分</string>
+    <string name="str_vote">%s人参与</string>
+    <string name="str_video">视频</string>
+    <string name="str_moive">影视</string>
+    <string name="str_bangumi">番剧</string>
+    <string name="str_see_more">更多</string>
 </resources>

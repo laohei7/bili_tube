@@ -15,6 +15,7 @@ import com.laohei.bili_sdk.history.PostToView
 import com.laohei.bili_sdk.hot.GetHots
 import com.laohei.bili_sdk.login.QRLogin
 import com.laohei.bili_sdk.recommend.GetRecommend
+import com.laohei.bili_sdk.search.SearchRequest
 import com.laohei.bili_sdk.user.GetUserInfo
 import com.laohei.bili_sdk.video.GetArchive
 import com.laohei.bili_sdk.video.GetInfo
@@ -32,12 +33,14 @@ import com.laohei.bili_tube.presentation.home.recommend.RecommendViewModel
 import com.laohei.bili_tube.presentation.mine.MineViewModel
 import com.laohei.bili_tube.presentation.player.PlayerViewModel
 import com.laohei.bili_tube.presentation.playlist.PlaylistViewModel
+import com.laohei.bili_tube.presentation.search.SearchViewModel
 import com.laohei.bili_tube.repository.BiliDynamicRepository
 import com.laohei.bili_tube.repository.BiliHistoryRepository
 import com.laohei.bili_tube.repository.BiliHomeRepository
 import com.laohei.bili_tube.repository.BiliMineRepository
 import com.laohei.bili_tube.repository.BiliPlayRepository
 import com.laohei.bili_tube.repository.BiliPlaylistRepository
+import com.laohei.bili_tube.repository.BiliSearchRepository
 import com.laohei.bili_tube.utill.HttpClientFactory
 import com.laohei.bili_tube.utill.download.DownloadManager
 import org.chromium.net.CronetEngine
@@ -83,6 +86,7 @@ val appModule = module {
     singleOf(::PostFolder)
     singleOf(::GetArchive)
     singleOf(::PostToView)
+    singleOf(::SearchRequest)
 
     singleOf(::BiliHomeRepository)
     singleOf(::BiliPlayRepository)
@@ -91,6 +95,7 @@ val appModule = module {
     singleOf(::BiliMineRepository)
     singleOf(::BiliHistoryRepository)
     singleOf(::BiliPlaylistRepository)
+    singleOf(::BiliSearchRepository)
 
 //    factoryOf(::DefaultMediaManager)
 
@@ -103,5 +108,6 @@ val appModule = module {
     viewModelOf(::HistoryViewModel)
     viewModelOf(::PlaylistViewModel)
     viewModelOf(::DownloadViewModel)
+    viewModelOf(::SearchViewModel)
 
 }

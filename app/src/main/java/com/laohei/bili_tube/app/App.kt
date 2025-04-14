@@ -72,6 +72,7 @@ import com.laohei.bili_tube.presentation.login.QRCodeLoginScreen
 import com.laohei.bili_tube.presentation.mine.MineScreen
 import com.laohei.bili_tube.presentation.player.PlayerScreen
 import com.laohei.bili_tube.presentation.playlist.PlaylistScreen
+import com.laohei.bili_tube.presentation.search.SearchScreen
 import com.laohei.bili_tube.presentation.splash.SplashScreen
 import com.laohei.bili_tube.presentation.subscription.SubscriptionScreen
 import kotlinx.coroutines.flow.firstOrNull
@@ -170,6 +171,12 @@ fun App() {
         }
         composable<Route.DownloadManagement> {
             DownloadScreen(
+                navigateToRoute = { navController.navigate(it) },
+                upPress = { navController.navigateUp() }
+            )
+        }
+        composable<Route.Search> {
+            SearchScreen(
                 navigateToRoute = { navController.navigate(it) },
                 upPress = { navController.navigateUp() }
             )

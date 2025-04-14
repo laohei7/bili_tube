@@ -135,6 +135,18 @@ fun Long.formatDateToString(isMill: Boolean = true): String {
 
 fun Int.formatDateToString(isMill: Boolean = true) = this.toLong().formatDateToString(isMill)
 
+fun Long.formatDateToYearString(isMill: Boolean = true): String {
+    val instant = when {
+        isMill -> Instant.fromEpochMilliseconds(this)
+        else -> Instant.fromEpochSeconds(this)
+    }
+    val localDate = instant.toLocalDateTime(TimeZone.currentSystemDefault()).date
+    return "${localDate.year}年"
+}
+
+fun Int.formatDateToYearString(isMill: Boolean = true) =
+    this.toLong().formatDateToYearString(isMill)
+
 fun Float.areFloatsEqualCompareTo(other: Float?, epsilon: Float = 1e-6f): Boolean {
     return other?.let {
         this.compareTo(it) == 0 || abs(this - other) < epsilon

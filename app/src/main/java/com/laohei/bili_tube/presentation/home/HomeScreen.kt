@@ -202,7 +202,7 @@ fun HomeScreen(
                     color = MaterialTheme.colorScheme.background.copy(alpha = 0.989f)
                 )
         ) {
-            LogoTopAppBar(alpha = alpha)
+            LogoTopAppBar(alpha = alpha, searchOnClick = { navigateToRoute.invoke(Route.Search) })
 
             PrimaryTabRow(
                 modifier = Modifier

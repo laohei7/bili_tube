@@ -31,7 +31,8 @@ import com.laohei.bili_tube.R
 
 @Composable
 fun LogoTopAppBar(
-    alpha: Float = 1f
+    alpha: Float = 1f,
+    searchOnClick: () -> Unit = {}
 ) {
     Row(
         modifier = Modifier
@@ -81,7 +82,7 @@ fun LogoTopAppBar(
 
 
             IconButton(
-                onClick = {},
+                onClick = { searchOnClick.invoke() },
                 colors = IconButtonDefaults.iconButtonColors(
                     contentColor = MaterialTheme.colorScheme.onBackground
                 )
