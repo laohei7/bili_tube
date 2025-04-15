@@ -29,6 +29,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -74,6 +75,7 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -85,6 +87,7 @@ import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
@@ -154,8 +157,12 @@ internal fun rememberSheetState(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Scrim(color: Color, onDismissRequest: () -> Unit, visible: Boolean) {
+private fun Scrim(
+    properties: com.laohei.bili_tube.component.sheet.ModalBottomSheetProperties,
+    color: Color, onDismissRequest: () -> Unit, visible: Boolean
+) {
     if (color.isSpecified) {
         val alpha by
         animateFloatAsState(targetValue = if (visible) 1f else 0f, animationSpec = TweenSpec())
@@ -163,14 +170,25 @@ private fun Scrim(color: Color, onDismissRequest: () -> Unit, visible: Boolean) 
         val dismissSheet =
             if (visible) {
                 Modifier
-//                    .pointerInput(onDismissRequest) { detectTapGestures { onDismissRequest() } }
+                    .pointerInput(onDismissRequest) {
+                        detectTapGestures {
+                            if (!properties.shouldDispatcherEvent) {
+                                onDismissRequest()
+                            }
+                        }
+                    }
                     .semantics(mergeDescendants = true) {
                         traversalIndex = 1f
                         contentDescription = closeSheet
-//                        onClick {
-//                            onDismissRequest()
-//                            true
-//                        }
+                        onClick {
+                            when {
+                                properties.shouldDispatcherEvent -> false
+                                else -> {
+                                    onDismissRequest()
+                                    true
+                                }
+                            }
+                        }
                     }
             } else {
                 Modifier
@@ -240,6 +258,7 @@ fun ModalBottomSheet(
         predictiveBackProgress = predictiveBackProgress,
     ) {
         Scrim(
+            properties = properties,
             color = scrimColor,
             onDismissRequest = animateToDismiss,
             visible = sheetState.targetValue != Hidden,
@@ -661,13 +680,11 @@ private class ModalBottomSheetDialogWrapper(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (properties.shouldDispatcherEvent) {
+        return if (properties.shouldDispatcherEvent) {
             // 透明区域点击事件交给当前的 activity 处理
-            return activity?.dispatchTouchEvent(event) ?: false
+            activity?.dispatchTouchEvent(event) ?: false
         } else {
-            val result = super.onTouchEvent(event)
-            onDismissRequest()
-            return result
+            super.onTouchEvent(event)
         }
     }
 
