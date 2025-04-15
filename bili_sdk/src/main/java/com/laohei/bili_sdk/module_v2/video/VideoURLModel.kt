@@ -17,8 +17,8 @@ data class VideoURLModel(
     val durl: List<DurlModel>? = null,
     val dash: DashModel? = null,
     @SerialName("support_formats") val supportFormats: List<SupportFormatItem>,
-    @SerialName("last_play_time") val lastPlayTime: Long,
-    @SerialName("last_play_cid") val lastPlayCid: Long
+    @SerialName("last_play_time") val lastPlayTime: Long = 0,
+    @SerialName("last_play_cid") val lastPlayCid: Long? = null
 )
 
 @OptIn(ExperimentalSerializationApi::class)
