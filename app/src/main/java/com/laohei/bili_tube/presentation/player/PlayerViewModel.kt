@@ -115,14 +115,28 @@ internal class PlayerViewModel(
 
 
     suspend fun updateParams(other: Route.Play) {
+        params = other
+        _mPlayerState.update { it.copy(isVideo = params.isVideo) }
+        if (DBG) {
+            Log.d(TAG, "updateParams: start load video, params: $params")
+        }
+        withContext(Dispatchers.Main) {
+            toggleLoading()
+        }
+        when {
+            params.isVideo -> loadVideo()
+            else -> loadBangumi()
+        }
+    }
+
+    private suspend fun loadBangumi() {
         withContext(Dispatchers.IO) {
-            params = other
-            if (DBG) {
-                Log.d(TAG, "updateParams: start load video, params: $params")
-            }
-            withContext(Dispatchers.Main) {
-                toggleLoading()
-            }
+            launch { getBangumiURL() }
+        }
+    }
+
+    private suspend fun loadVideo() {
+        withContext(Dispatchers.IO) {
             launch { getVideoURL() }
             launch {
                 getVideoDetail()
@@ -166,7 +180,7 @@ internal class PlayerViewModel(
     }
 
     private suspend fun getVideoURL() {
-        val task = biliPlayRepository.getPlayURLByLocal(params.bvid)
+        val task = biliPlayRepository.getVideoPlayURLByLocal(params.bvid)
         task?.mergedFile?.let { localUrl ->
             if (File(localUrl).exists()) {
                 if (DBG) {
@@ -185,7 +199,7 @@ internal class PlayerViewModel(
         if (DBG) {
             Log.d(TAG, "getVideoURL: play by network")
         }
-        val response = biliPlayRepository.getPlayURL(
+        val response = biliPlayRepository.getVideoPlayURL(
             aid = params.aid,
             bvid = params.bvid,
             cid = params.cid,
@@ -196,6 +210,31 @@ internal class PlayerViewModel(
             updateMediaState(state.value.copy(quality = quality, defaultQuality = defaultQuality))
             withContext(Dispatchers.Main) {
                 play(data)
+            }
+            return
+        }
+        updateMediaState(state.value.copy(isError = true))
+    }
+
+    private suspend fun getBangumiURL() {
+        when {
+            params.isVideo ||
+                    (params.mediaId == null && params.seasonId == null && params.epId == null) -> {
+                return
+            }
+        }
+        if (DBG) {
+            Log.d(TAG, "getVideoURL: play by network")
+        }
+        val response = biliPlayRepository.getMediaPlayURL(
+            epId = params.epId
+        )
+        response?.run {
+            val quality = result.supportFormats.map { Pair(it.quality, it.newDescription) }
+            val defaultQuality = quality.find { it.first == result.quality } ?: Quality.first()
+            updateMediaState(state.value.copy(quality = quality, defaultQuality = defaultQuality))
+            withContext(Dispatchers.Main) {
+                play(result)
             }
             return
         }

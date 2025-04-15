@@ -13,6 +13,7 @@ const val HOT_VIDEOS = "https://api.bilibili.com/x/web-interface/popular"
 const val WBI = "https://api.bilibili.com/x/web-interface/nav"
 
 const val VIDEO_PLAY_URL = "https://api.bilibili.com/x/player/wbi/playurl"
+const val BANGUMI_PLAY_URL = "https://api.bilibili.com/pgc/player/web/playurl"
 
 const val TIMELINE_URL = "https://api.bilibili.com/pgc/web/timeline"
 

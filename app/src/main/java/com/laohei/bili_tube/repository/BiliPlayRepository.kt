@@ -34,9 +34,10 @@ class BiliPlayRepository(
     private val biliTubeDB: BiliTubeDB
 ) {
 
-    suspend fun getPlayURLByLocal(bvid: String) = biliTubeDB.downloadTaskDao().getTaskById(bvid)
+    suspend fun getVideoPlayURLByLocal(bvid: String) =
+        biliTubeDB.downloadTaskDao().getTaskById(bvid)
 
-    suspend fun getPlayURL(
+    suspend fun getVideoPlayURL(
         aid: Long,
         bvid: String,
         cid: Long,
@@ -44,6 +45,18 @@ class BiliPlayRepository(
         fnval: Int = 4048,
     ) = getURL.videoUrl(
         aid, bvid, cid, qn, fnval,
+        context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
+    )
+
+    suspend fun getMediaPlayURL(
+        avid: Long? = null,
+        bvid: String? = null,
+        cid: Long? = null,
+        epId: Long? = null,
+        qn: Int = 127,
+        fnval: Int = 4048,
+    ) = getURL.mediaUrl(
+        avid, bvid, cid, epId, qn, fnval,
         context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
     )
 
