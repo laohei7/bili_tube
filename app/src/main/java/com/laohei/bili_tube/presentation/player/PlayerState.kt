@@ -17,5 +17,6 @@ data class PlayerState(
     val hasCoin: Boolean = false,
     val hasFavoured: Boolean = false,
     val folders: List<FolderSimpleItem> = emptyList(),
-    val isDownloaded: Boolean = false
+    val isDownloaded: Boolean = false,
+    val isVideo:Boolean = true
 )

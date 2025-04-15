@@ -6,15 +6,8 @@ import android.view.TextureView
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.annotation.OptIn
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateIntAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -63,14 +56,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.BlurredEdgeTreatment
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
@@ -110,6 +98,7 @@ import com.laohei.bili_tube.core.util.hideSystemUI
 import com.laohei.bili_tube.core.util.showSystemUI
 import com.laohei.bili_tube.core.util.toggleOrientation
 import com.laohei.bili_tube.core.util.useLightSystemBarIcon
+import com.laohei.bili_tube.presentation.player.component.BlurBackgroundImage
 import com.laohei.bili_tube.presentation.player.component.CoinSheet
 import com.laohei.bili_tube.presentation.player.component.CommentCard
 import com.laohei.bili_tube.presentation.player.component.PlayerPlaceholder
@@ -192,7 +181,7 @@ fun PlayerScreen(
 
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
-    val lazyListState = screenState.listState
+//    val lazyListState = screenState.listState
 
 
     val isOrientationPortrait = isOrientationPortrait()
@@ -355,32 +344,20 @@ fun PlayerScreen(
                     orientation = Orientation.Vertical,
                     state = rememberDraggableState { },
                 )
-            when {
-                playerState.videoDetail != null -> {
-                    VideoContent(
-                        modifier = videoContentModifier,
-                        playerState = playerState,
-                        screenState = screenState,
-                        lazyListState = lazyListState,
-                        videoDetail = playerState.videoDetail,
-                        videoArchiveMeta = playerState.videoArchiveMeta,
-                        currentArchiveIndex = playerState.currentArchiveIndex + 1,
-                        videoPageList = playerState.videoPageList,
-                        currentPageListIndex = playerState.currentPageListIndex,
-                        onClick = {
-                            viewModel.screenActionHandle(
-                                it, true, scope,
-                                updateParamsCallback = { newParams ->
-                                    scope.launch { viewModel.updateParams(newParams) }
-                                })
-                        },
-                        videoMenuClick = viewModel::videoMenuActionHandle,
-                        videoPlayClick = viewModel::videoPlayActionHandle
-                    )
-                }
-
-                else -> PlayerPlaceholder(videoContentModifier)
-            }
+            GetContent(
+                modifier = videoContentModifier,
+                playerState = playerState,
+                screenState = screenState,
+                screenActionClick = {
+                    viewModel.screenActionHandle(
+                        it, true, scope,
+                        updateParamsCallback = { newParams ->
+                            scope.launch { viewModel.updateParams(newParams) }
+                        })
+                },
+                videoMenuActionClick = viewModel::videoMenuActionHandle,
+                videoPlayActionClick = viewModel::videoPlayActionHandle
+            )
 
             Box(
                 modifier = contentModifier
@@ -588,6 +565,43 @@ fun PlayerScreen(
         PlayerSnackHost(
             modifier = Modifier.align(Alignment.BottomStart)
         )
+    }
+}
+
+@Composable
+private fun GetContent(
+    modifier: Modifier,
+    playerState: PlayerState,
+    screenState: ScreenState,
+    screenActionClick: (ScreenAction) -> Unit,
+    videoMenuActionClick: (VideoAction.VideoMenuAction) -> Unit,
+    videoPlayActionClick: (VideoAction.VideoPlayAction) -> Unit,
+) {
+    when {
+        playerState.isVideo -> {
+            playerState.videoDetail?.let {
+                VideoContent(
+                    modifier = modifier,
+                    playerState = playerState,
+                    screenState = screenState,
+                    lazyListState = screenState.listState,
+                    videoDetail = playerState.videoDetail,
+                    videoArchiveMeta = playerState.videoArchiveMeta,
+                    currentArchiveIndex = playerState.currentArchiveIndex + 1,
+                    videoPageList = playerState.videoPageList,
+                    currentPageListIndex = playerState.currentPageListIndex,
+                    onClick = screenActionClick,
+                    videoMenuClick = videoMenuActionClick,
+                    videoPlayClick = videoPlayActionClick
+                )
+            } ?: run {
+                PlayerPlaceholder(modifier = modifier)
+            }
+        }
+
+        else -> {
+
+        }
     }
 }
 
@@ -819,11 +833,11 @@ private fun VideoContent(
                         duration = video.duration.formatTimeString(false),
                         onClick = {
                             val newParams = Route.Play(
+                                width = video.dimension.width,
+                                height = video.dimension.height,
                                 aid = video.aid,
                                 bvid = video.bvid,
                                 cid = video.cid,
-                                width = video.dimension.width,
-                                height = video.dimension.height
                             )
                             onClick.invoke(ScreenAction.SwitchVideoAction(newParams))
                         }
@@ -835,62 +849,20 @@ private fun VideoContent(
 }
 
 @Composable
-private fun BlurBackgroundImage(
-    bitmap: Bitmap? = null,
-    isDrag: Boolean,
-    isFullscreen: Boolean,
+private fun BangumiContent(
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState,
 ) {
-    AnimatedVisibility(
-        visible = isDrag.not() && bitmap != null,
-        enter = fadeIn(),
-        exit = fadeOut()
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     ) {
-        AnimatedContent(
-            targetState = bitmap!!,
-            transitionSpec = {
-                fadeIn(
-                    animationSpec = tween(durationMillis = 5000)
-                ).togetherWith(
-                    fadeOut(
-                        animationSpec = tween(durationMillis = 5000)
-                    )
-                )
-            }
-        ) { targetState ->
-            Image(
-                painter = BitmapPainter(targetState.asImageBitmap()),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .blur(
-                        80.dp,
-                        edgeTreatment = BlurredEdgeTreatment.Unbounded
-                    ),
-                contentScale = ContentScale.FillBounds,
-            )
+        LazyColumn(
+            state = lazyListState,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+
         }
-
-        // Mask Color
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    brush = when {
-                        isOrientationPortrait() -> {
-                            Brush.verticalGradient(
-                                colors = when {
-                                    isFullscreen -> portraitAndFullscreenGradient
-                                    else -> portraitAndNotFullscreenGradient
-                                }
-                            )
-                        }
-
-                        else -> {
-                            Brush.horizontalGradient(colors = notPortraitGradient)
-                        }
-                    }
-                )
-        )
     }
 }
 
