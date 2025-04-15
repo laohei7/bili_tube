@@ -4,14 +4,15 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -29,7 +30,6 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.ArrowOutward
 import androidx.compose.material.icons.outlined.History
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -97,6 +97,9 @@ import com.laohei.bili_tube.utill.toTimeAgoString
 import com.laohei.bili_tube.utill.toViewString
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+
+private const val TAG = "SearchScreen"
+private const val DBG = true
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -225,7 +228,7 @@ private fun SearchResultList(
     ) {
         LazyColumn(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .padding(paddingValues)
         ) {
             items(list.itemCount) { index ->
@@ -331,7 +334,15 @@ private fun GetSearchItem(
                 styles = item.styles,
                 score = item.mediaScore.score,
                 userCount = item.mediaScore.userCount.toViewString(),
-                episodes = item.eps?.fastMap { it.title }
+                episodes = item.eps?.fastMap { it.title },
+                onClick = {
+                    navigateToRoute(
+                        Route.Play(
+                            isVideo = false,
+                            epId = item.eps?.first()?.id
+                        )
+                    )
+                }
             )
         }
 
@@ -344,7 +355,15 @@ private fun GetSearchItem(
                 styles = item.styles,
                 score = item.mediaScore.score,
                 userCount = item.mediaScore.userCount.toViewString(),
-                episodes = item.eps?.fastMap { it.title }
+                episodes = item.eps?.fastMap { it.title },
+                onClick = {
+                    navigateToRoute(
+                        Route.Play(
+                            isVideo = false,
+                            epId = item.eps?.first()?.id
+                        )
+                    )
+                }
             )
         }
 
@@ -445,7 +464,8 @@ private fun BangumiItem(
     styles: String,
     score: Float,
     userCount: String,
-    episodes: List<String>?
+    episodes: List<String>?,
+    onClick: () -> Unit
 ) {
     val coverRequest = rememberAsyncImagePainter(
         ImageRequest.Builder(LocalContext.current)
@@ -460,6 +480,7 @@ private fun BangumiItem(
             .fillMaxWidth()
             .height(IntrinsicSize.Min)
             .background(MaterialTheme.colorScheme.background)
+            .clickable { onClick.invoke() }
             .padding(8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
@@ -651,6 +672,7 @@ private fun BangumiItemPreview() {
         styles = "时泪/奇幻/战斗/热血",
         score = 9.6f,
         userCount = (27386).toViewString(),
-        episodes = List(8) { "$it" }
+        episodes = List(8) { "$it" },
+        onClick = {}
     )
 }
