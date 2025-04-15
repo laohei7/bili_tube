@@ -195,7 +195,11 @@ class DownloadManager(
 
     private suspend fun downloadTask(task: DownloadTask) {
         semaphore.withPermit {
-            updateTaskStatus(task = task, progress = task.progress, status = DownloadStatus.DOWNLOADING)
+            updateTaskStatus(
+                task = task,
+                progress = task.progress,
+                status = DownloadStatus.DOWNLOADING
+            )
 
             val isSingleFile = task.audioUrls.isNullOrEmpty()
             suspend fun adjustAndPostProgress(progress: Int, base: Int = 0) {
@@ -320,23 +324,29 @@ class DownloadManager(
             biliTubeDB.downloadTaskDao().updateTask(it)
         }
         val outputName = String("${task.id}.mp4".toByteArray(), Charset.forName("UTF-8"))
+        val targetName = String("${task.name}.mp4".toByteArray(), Charset.forName("UTF-8"))
         val downloadDir = File(parentDir, "BiliTube").apply {
             if (exists().not()) {
                 mkdirs()
             }
         }
-        val outputFile = File(downloadDir, outputName).absolutePath
+        val outputFile = File(downloadDir, outputName)
         if (DBG) {
             Log.d(TAG, "mergeFiles: output file $outputFile")
         }
-        mergeVideoAudio(videoFile.absolutePath, audioFile.absolutePath, outputFile) { success ->
+        mergeVideoAudio(
+            videoFile.absolutePath,
+            audioFile.absolutePath,
+            outputFile.absolutePath
+        ) { success ->
             mCoroutineScope.launch {
                 if (success) {
                     videoFile.delete()
                     audioFile.delete()
                 }
                 if (success) {
-                    markTaskAsSuccess(task = task, mergeFile = outputFile)
+                    outputFile.renameTo(File(downloadDir, targetName))
+                    markTaskAsSuccess(task = task, mergeFile = outputFile.absolutePath)
                 } else {
                     markTaskAsFailed(task = task)
                 }
@@ -463,7 +473,7 @@ class VideoAudioDownloader(
             Log.d(TAG, "download: has size $downloadedSize")
         }
         // TODO 后续增加文件校验
-        if(remoteSize == downloadedSize){
+        if (remoteSize == downloadedSize) {
             return@withContext file
         }
         var retry = 0

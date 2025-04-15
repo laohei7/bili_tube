@@ -121,6 +121,7 @@ fun DownloadScreen(
                             is DownloadAction.ShowSnackbarAction -> {
                                 scope.launch { snackbarHostState.showSnackbar(action.message) }
                             }
+
                             is DownloadAction.DeleteTaskAction -> viewModel.deleteTask(action.task)
                             else -> {}
                         }

@@ -74,8 +74,8 @@ import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.component.appbar.LogoTopAppBar
 import com.laohei.bili_tube.component.placeholder.NoMoreData
 import com.laohei.bili_tube.component.placeholder.RecommendPlaceholder
-import com.laohei.bili_tube.component.text.ExpandedRichText
 import com.laohei.bili_tube.component.text.ExpandedText
+import com.laohei.bili_tube.component.text.RichText
 import com.laohei.bili_tube.component.video.VideoItem
 import com.laohei.bili_tube.component.video.VideoMenuSheet
 import com.laohei.bili_tube.component.video.VideoSimpleInfoBar
@@ -395,7 +395,7 @@ private fun DRAWItem(
             trailingOnClick = { onMenuClick?.invoke() }
         )
 
-        ExpandedRichText(
+        RichText(
             modifier = Modifier
                 .padding(horizontal = 12.dp)
                 .padding(top = 18.dp)

@@ -70,8 +70,8 @@ fun PlaySpeedSheet(
     LaunchedEffect(speed) { localSpeed = speed }
 
     val scope = rememberCoroutineScope()
-    val sheetState =  rememberModalBottomSheet(skipPartiallyExpanded = true)
-    fun closeSheet(){
+    val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true)
+    fun closeSheet() {
         scope.launch {
             sheetState.hide()
             onDismiss.invoke()
