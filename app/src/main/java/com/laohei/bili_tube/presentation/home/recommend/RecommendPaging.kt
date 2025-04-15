@@ -11,10 +11,11 @@ import com.laohei.bili_sdk.recommend.GetRecommend
 import com.laohei.bili_tube.core.LAST_SHOW_LIST_KEY
 import com.laohei.bili_tube.dataStore
 import kotlinx.coroutines.flow.firstOrNull
+import kotlin.random.Random
 
 private data class RecommendParams(
     val webLocation: Int = 1430650,
-    val refreshType: Int = 3,
+    val refreshType: Int = 4,
     val lastShowList: String? = null,
     val feedVersion: String = "V8",
     val freshIdx: Int = 1,
@@ -57,7 +58,7 @@ class RecommendPaging(
 
             val response = recommend.recommendVideos(
                 cookie,
-                refreshType = _mParams.refreshType,
+                refreshType = Random.nextInt(3, 12),
                 webLocation = _mParams.webLocation,
                 feedVersion = _mParams.feedVersion,
                 brush = _mParams.brush,
