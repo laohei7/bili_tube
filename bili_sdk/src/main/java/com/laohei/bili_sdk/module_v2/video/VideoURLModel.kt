@@ -28,6 +28,24 @@ data class DashModel(
     val duration: Long,
     val video: List<DashItem>,
     val audio: List<DashItem>,
+    val dolby: DolbyModel? = null,
+    val flac: FlacModel? = null
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class DolbyModel(
+    val type: Int,
+    val audio: List<DashItem>? = null,
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@Serializable
+@JsonIgnoreUnknownKeys
+data class FlacModel(
+    val display: Boolean,
+    val audio: DashItem? = null
 )
 
 @OptIn(ExperimentalSerializationApi::class)

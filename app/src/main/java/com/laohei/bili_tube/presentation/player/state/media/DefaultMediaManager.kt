@@ -344,8 +344,10 @@ internal class DefaultMediaManager(
     }
 
     private fun play(initialPosition: Long) {
-        Log.d("DefaultMediaManager", "play: ${_mState.value.defaultQuality}")
-        Log.d("DefaultMediaManager", "play: ${_mState.value.quality}")
+        if (DBG) {
+            Log.d("DefaultMediaManager", "play: selected quality: ${_mState.value.defaultQuality}")
+            Log.d("DefaultMediaManager", "play: all qualities: ${_mState.value.quality}")
+        }
         if (mVideoURLModel!!.dash != null) {
             var currentQualityVideos =
                 mVideoURLModel!!.dash!!.video.filter { it.id == _mState.value.defaultQuality.first }
@@ -364,17 +366,28 @@ internal class DefaultMediaManager(
                 currentQualityVideos =
                     mVideoURLModel!!.dash!!.video.filter { it.id == _mState.value.defaultQuality.first }
             }
-            Log.d("DefaultMediaManager", "play: ${mVideoURLModel?.dash}")
-            Log.d("DefaultMediaManager", "play: $currentQualityVideos")
             val videoUrl = currentQualityVideos[mCurrentSelectedIndex].baseUrl
-            Log.d(TAG, "play: video $videoUrl")
-            val audioItem = mVideoURLModel?.dash?.audio?.let { audioList ->
-                if (_mState.value.defaultQuality.first >= 126) {
-                    audioList.firstOrNull { it.id in DolbyAudioQuality }
-                        ?: audioList.filter { it.id in NormalAudioQuality }.maxByOrNull { it.id }
-                } else {
-                    audioList.filter { it.id in NormalAudioQuality }.maxByOrNull { it.id }
+            if (DBG) {
+                Log.d(TAG, "play: video url $videoUrl")
+            }
+            val audioItem = mVideoURLModel?.dash?.let { dash ->
+//                val defaultQuality = _mState.value.defaultQuality.first
+//                when {
+//                    defaultQuality >= 126 -> {
+//                        dash.dolby?.audio?.first() ?: run {
+//                            dash.flac?.audio ?: getNormalAudio()
+//                        }
+//                    }
+//
+//                    else -> getNormalAudio()
+//                }
+                dash.dolby?.audio?.first() ?: run {
+                    dash.flac?.audio ?: getNormalAudio()
                 }
+            }
+
+            if (DBG) {
+                Log.d(TAG, "play: audio quality ${audioItem?.id}")
             }
             mCurrentVideoWidth = currentQualityVideos[mCurrentSelectedIndex].width
             mCurrentVideoHeight = currentQualityVideos[mCurrentSelectedIndex].height
@@ -383,7 +396,9 @@ internal class DefaultMediaManager(
             )
                 .createMediaSource(MediaItem.fromUri(videoUrl))
             val audio = audioItem?.run {
-                Log.d(TAG, "play: $baseUrl")
+                if (DBG) {
+                    Log.d(TAG, "play: audio url ${this.baseUrl}")
+                }
                 ProgressiveMediaSource.Factory(
                     mOtherDataSourceFactory ?: mDefaultDataSourceFactory
                 )
@@ -409,6 +424,11 @@ internal class DefaultMediaManager(
         mExoPlayer.seekTo(initialPosition)
         mExoPlayer.prepare()
         mExoPlayer.play()
+    }
+
+    private fun getNormalAudio(): DashItem? {
+        return mVideoURLModel?.dash?.audio?.filter { it.id in NormalAudioQuality }
+            ?.maxByOrNull { it.id }
     }
 
     private fun resetBackSources(videoSources: List<VideoSource>? = null) {
@@ -445,11 +465,16 @@ internal class DefaultMediaManager(
         return if (mVideoURLModel!!.dash != null) {
             val currentQualityVideos =
                 mVideoURLModel!!.dash!!.video.filter { it.id == quality }
-            val audios = mVideoURLModel?.dash?.audio?.let { audioList ->
-                audioList.sortedWith(
-                    compareBy<DashItem> { it.id in DolbyAudioQuality }
-                        .thenByDescending { it.id }
-                ).map { it.baseUrl }
+            val audios = buildList {
+                mVideoURLModel?.dash?.let { dash ->
+                    if (quality >= 126) {
+                        dash.dolby?.audio?.let { add(it.first().baseUrl) }
+                        dash.flac?.audio?.let { add(it.baseUrl) }
+                    }
+                    addAll(
+                        dash.audio.sortedByDescending { it.id }.map { it.baseUrl }
+                    )
+                }
             }
             Pair(currentQualityVideos.map { it.baseUrl }, audios)
         } else {
