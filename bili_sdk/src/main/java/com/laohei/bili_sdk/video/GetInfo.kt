@@ -1,6 +1,7 @@
 package com.laohei.bili_sdk.video
 
 import android.util.Log
+import com.laohei.bili_sdk.apis.BANGUMI_DETAIL_URL
 import com.laohei.bili_sdk.apis.VIDEO_DETAIL_URL
 import com.laohei.bili_sdk.apis.VIDEO_HAS_COIN_URL
 import com.laohei.bili_sdk.apis.VIDEO_HAS_FAVORED_URL
@@ -9,7 +10,9 @@ import com.laohei.bili_sdk.apis.VIDEO_INFO
 import com.laohei.bili_sdk.apis.VIDEO_LIKE_URL
 import com.laohei.bili_sdk.model.BiliVideoInfo
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
+import com.laohei.bili_sdk.module_v2.common.BiliResponse2
 import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
+import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.module_v2.video.CoinModel
 import com.laohei.bili_sdk.module_v2.video.FavouredModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
@@ -35,6 +38,7 @@ class GetInfo(
 ) {
     companion object {
         private val TAG = GetInfo::class.simpleName
+        private const val DBG = true
     }
 
     suspend fun videoInfo(
@@ -92,6 +96,40 @@ class GetInfo(
         Log.d(TAG, "videoInfo: ${response?.bodyAsText()}")
         response?.run {
             Json.decodeFromString<BiliResponse<VideoDetailModel>>(bodyAsText())
+        }
+    }
+
+    suspend fun bangumiDetail(
+        seasonId: Long? = null,
+        epId: Long? = null,
+        cookie: String? = null
+    ) = withContext(Dispatchers.IO) {
+        when {
+            seasonId == null && epId == null -> return@withContext null
+            else -> {}
+        }
+        val response = try {
+            client.get(BANGUMI_DETAIL_URL) {
+                url {
+                    cookie?.apply {
+                        headers.append(HttpHeaders.Cookie, this)
+                    }
+                    seasonId?.let {
+                        parameters.append("season_id", it.toString())
+                    }
+                    epId?.let {
+                        parameters.append("ep_id", it.toString())
+                    }
+                }
+                if (DBG) {
+                    Log.d(TAG, "bangumiDetail: $url")
+                }
+            }
+        } catch (e: Exception) {
+            null
+        }
+        response?.run {
+            Json.decodeFromString<BiliResponse2<BangumiDetailModel>>(bodyAsText())
         }
     }
 

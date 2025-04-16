@@ -76,6 +76,14 @@ class BiliPlayRepository(
         context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
     )
 
+    suspend fun getBangumiDetail(
+        seasonId: Long? = null,
+        epId: Long? = null,
+    ) = getInfo.bangumiDetail(
+        seasonId, epId,
+        context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
+    )
+
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getVideoReplyPager(
         type: Int = 1,

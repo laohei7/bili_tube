@@ -9,6 +9,7 @@ import androidx.annotation.OptIn
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
@@ -29,14 +30,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Comment
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.MoreHoriz
+import androidx.compose.material.icons.outlined.PlayCircleOutline
 import androidx.compose.material.icons.outlined.StarOutline
 import androidx.compose.material.icons.outlined.ThumbDown
 import androidx.compose.material.icons.outlined.ThumbUp
@@ -67,6 +76,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -81,10 +93,16 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
+import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
+import com.laohei.bili_sdk.module_v2.video.BangumiStat
+import com.laohei.bili_sdk.module_v2.video.PublishModel
+import com.laohei.bili_sdk.module_v2.video.RatingModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoPageListModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.component.lottie.LottieIconPlaying
+import com.laohei.bili_tube.component.text.IconText
 import com.laohei.bili_tube.component.video.FolderSheet
 import com.laohei.bili_tube.component.video.VideoAction
 import com.laohei.bili_tube.component.video.VideoItem
@@ -122,6 +140,7 @@ import com.laohei.bili_tube.presentation.player.state.media.MediaState
 import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManager
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenState
+import com.laohei.bili_tube.ui.theme.Pink
 import com.laohei.bili_tube.utill.formatDateToString
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
@@ -175,7 +194,7 @@ fun PlayerScreen(
             )
         }
     val playerState by viewModel.playerState.collectAsState()
-    val videoReplies = viewModel.videoReplies.collectAsLazyPagingItems()
+    val videoReplies = playerState.replies.collectAsLazyPagingItems()
     val mediaState by viewModel.state.collectAsStateWithLifecycle()
 
 
@@ -582,10 +601,13 @@ private fun GetContent(
             playerState.videoDetail?.let {
                 VideoContent(
                     modifier = modifier,
-                    playerState = playerState,
-                    screenState = screenState,
                     lazyListState = screenState.listState,
-                    videoDetail = playerState.videoDetail,
+                    hasFavoured = playerState.hasFavoured,
+                    hasCoin = playerState.hasCoin,
+                    hasLike = playerState.hasLike,
+                    isDownloaded = playerState.isDownloaded,
+                    isShowLikeAnimation = screenState.isShowLikeAnimation,
+                    videoDetail = it,
                     videoArchiveMeta = playerState.videoArchiveMeta,
                     currentArchiveIndex = playerState.currentArchiveIndex + 1,
                     videoPageList = playerState.videoPageList,
@@ -600,7 +622,20 @@ private fun GetContent(
         }
 
         else -> {
-
+            playerState.bangumiDetail?.let {
+                BangumiContent(
+                    modifier = modifier,
+                    lazyListState = screenState.listState,
+                    bangumiDetailModel = it,
+                    currentEpId = playerState.currentEpId,
+                    initialEpisodeIndex = playerState.initialEpisodeIndex,
+                    initialSeasonIndex = playerState.initialSeasonIndex,
+                    videoPlayActionClick = videoPlayActionClick,
+                    screenActionClick = screenActionClick
+                )
+            } ?: run {
+                PlayerPlaceholder(modifier = modifier)
+            }
         }
     }
 }
@@ -722,11 +757,14 @@ private fun BoxScope.VideoArea(
 private fun VideoContent(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState,
-    playerState: PlayerState,
-    screenState: ScreenState,
-    videoDetail: VideoDetailModel?,
+    videoDetail: VideoDetailModel,
     videoArchiveMeta: ArchiveMeta?,
     videoPageList: List<VideoPageListModel>?,
+    hasLike: Boolean,
+    hasCoin: Boolean,
+    hasFavoured: Boolean,
+    isDownloaded: Boolean,
+    isShowLikeAnimation: Boolean,
     currentPageListIndex: Int,
     currentArchiveIndex: Int,
     onClick: (ScreenAction) -> Unit,
@@ -741,108 +779,106 @@ private fun VideoContent(
             state = lazyListState,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            videoDetail?.let { detail ->
-                item {
-                    VideoSimpleInfo(
-                        title = detail.view.title,
-                        view = detail.view.stat.view.toViewString(),
-                        date = detail.view.pubdate.toTimeAgoString(),
-                        tag = when {
-                            detail.tags.isNotEmpty() -> detail.tags.first().tagName
-                            else -> null
-                        },
-                        onClick = {
-                            onClick.invoke(ScreenAction.ShowVideoDetailAction)
-                        }
-                    )
-                }
-                item {
-                    UserSimpleInfo(
-                        face = detail.view.owner.face,
-                        name = detail.view.owner.name,
-                        fans = detail.card.card.fans.toViewString(),
-                        onClick = {}
-                    )
-                }
-                item {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    VideoMenus(
-                        great = detail.view.stat.like.toViewString(),
-                        coin = detail.view.stat.coin.toViewString(),
-                        star = detail.view.stat.favorite.toViewString(),
-                        share = detail.view.stat.share.toViewString(),
-                        hasLike = playerState.hasLike,
-                        hasCoin = playerState.hasCoin,
-                        hasFavoured = playerState.hasFavoured,
-                        isDownloaded = playerState.isDownloaded,
-                        isShowLikeAnimation = screenState.isShowLikeAnimation,
-                        onClick = videoMenuClick,
-                        coinClick = { onClick.invoke(ScreenAction.ShowCoinSheetAction(true)) },
-                        favouredClick = {
-                            onClick.invoke(ScreenAction.ShowFolderSheetAction(true))
-                        },
-                        downloadClick = {
-                            onClick.invoke(ScreenAction.ShowDownloadSheetAction(true))
-                        },
-                        onAnimationEndCallback = {
-                            onClick.invoke(ScreenAction.ShowLikeAnimationAction(false))
-                        }
-                    )
-                }
-                videoPageList?.let {
-                    item {
-                        PageListWidget(
-                            pageList = it,
-                            currentPageListIndex = currentPageListIndex,
-                            onClick = videoPlayClick
-                        )
+            item {
+                VideoSimpleInfo(
+                    title = videoDetail.view.title,
+                    view = videoDetail.view.stat.view.toViewString(),
+                    date = videoDetail.view.pubdate.toTimeAgoString(),
+                    tag = when {
+                        videoDetail.tags.isNotEmpty() -> videoDetail.tags.first().tagName
+                        else -> null
+                    },
+                    onClick = {
+                        onClick.invoke(ScreenAction.ShowVideoDetailAction)
                     }
-                }
-                videoArchiveMeta?.let {
-                    item {
-                        ArchiveMetaItem(
-                            archiveMeta = it,
-                            currentArchiveIndex = currentArchiveIndex,
-                            onClick = {
-                                onClick.invoke(ScreenAction.ShowArchiveSheetAction(true))
-                            }
-                        )
+                )
+            }
+            item {
+                UserSimpleInfo(
+                    face = videoDetail.view.owner.face,
+                    name = videoDetail.view.owner.name,
+                    fans = videoDetail.card.card.fans.toViewString(),
+                    onClick = {}
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+                VideoMenus(
+                    great = videoDetail.view.stat.like.toViewString(),
+                    coin = videoDetail.view.stat.coin.toViewString(),
+                    star = videoDetail.view.stat.favorite.toViewString(),
+                    share = videoDetail.view.stat.share.toViewString(),
+                    hasLike = hasLike,
+                    hasCoin = hasCoin,
+                    hasFavoured = hasFavoured,
+                    isDownloaded = isDownloaded,
+                    isShowLikeAnimation = isShowLikeAnimation,
+                    onClick = videoMenuClick,
+                    coinClick = { onClick.invoke(ScreenAction.ShowCoinSheetAction(true)) },
+                    favouredClick = {
+                        onClick.invoke(ScreenAction.ShowFolderSheetAction(true))
+                    },
+                    downloadClick = {
+                        onClick.invoke(ScreenAction.ShowDownloadSheetAction(true))
+                    },
+                    onAnimationEndCallback = {
+                        onClick.invoke(ScreenAction.ShowLikeAnimationAction(false))
                     }
-                }
+                )
+            }
+            videoPageList?.let {
                 item {
-                    CommentCard(
-                        comments = detail.view.stat.reply.toViewString(),
+                    PageListWidget(
+                        pageList = it,
+                        currentPageListIndex = currentPageListIndex,
+                        onClick = videoPlayClick
+                    )
+                }
+            }
+            videoArchiveMeta?.let {
+                item {
+                    ArchiveMetaItem(
+                        archiveMeta = it,
+                        currentArchiveIndex = currentArchiveIndex,
                         onClick = {
-                            onClick.invoke(ScreenAction.ShowReplyAction)
+                            onClick.invoke(ScreenAction.ShowArchiveSheetAction(true))
                         }
                     )
                 }
-                item {
-                    Spacer(modifier = Modifier.height(12.dp))
-                }
-                items(detail.related) { video ->
-                    VideoItem(
-                        isSingleLayout = true,
-                        key = video.bvid,
-                        cover = video.pic,
-                        title = video.title,
-                        face = video.owner.face,
-                        ownerName = video.owner.name,
-                        view = video.stat.view.toViewString(),
-                        date = video.pubdate.toTimeAgoString(),
-                        duration = video.duration.formatTimeString(false),
-                        onClick = {
-                            val newParams = Route.Play(
-                                width = video.dimension.width,
-                                height = video.dimension.height,
-                                aid = video.aid,
-                                bvid = video.bvid,
-                                cid = video.cid,
-                            )
-                            onClick.invoke(ScreenAction.SwitchVideoAction(newParams))
-                        }
-                    )
-                }
+            }
+            item {
+                CommentCard(
+                    comments = videoDetail.view.stat.reply.toViewString(),
+                    onClick = {
+                        onClick.invoke(ScreenAction.ShowReplyAction)
+                    }
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+            items(videoDetail.related) { video ->
+                VideoItem(
+                    isSingleLayout = true,
+                    key = video.bvid,
+                    cover = video.pic,
+                    title = video.title,
+                    face = video.owner.face,
+                    ownerName = video.owner.name,
+                    view = video.stat.view.toViewString(),
+                    date = video.pubdate.toTimeAgoString(),
+                    duration = video.duration.formatTimeString(false),
+                    onClick = {
+                        val newParams = Route.Play(
+                            width = video.dimension.width,
+                            height = video.dimension.height,
+                            aid = video.aid,
+                            bvid = video.bvid,
+                            cid = video.cid,
+                        )
+                        onClick.invoke(ScreenAction.SwitchVideoAction(newParams))
+                    }
+                )
             }
         }
     }
@@ -852,16 +888,267 @@ private fun VideoContent(
 private fun BangumiContent(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState,
+    bangumiDetailModel: BangumiDetailModel,
+    currentEpId: Long,
+    initialSeasonIndex: Int,
+    initialEpisodeIndex: Int,
+    videoPlayActionClick: (VideoAction.VideoPlayAction) -> Unit,
+    screenActionClick: (ScreenAction) -> Unit
 ) {
+    val seasonState = rememberLazyListState(initialFirstVisibleItemIndex = initialSeasonIndex)
+    val episodeState = rememberLazyListState(initialFirstVisibleItemIndex = initialEpisodeIndex)
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
     ) {
+        val itemModifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background)
+            .padding(horizontal = 16.dp)
         LazyColumn(
             state = lazyListState,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            item {
+                Row(
+                    modifier = itemModifier,
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = bangumiDetailModel.title,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Surface(
+                        onClick = {},
+                        color = Pink,
+                        contentColor = Color.White,
+                        shape = CircleShape
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.FavoriteBorder,
+                                contentDescription = Icons.Outlined.FavoriteBorder.name,
+                                modifier = Modifier.size(14.dp)
+                            )
+                            Spacer(Modifier.width(4.dp))
+                            Text(text = "追番", style = MaterialTheme.typography.bodySmall)
+                        }
+                    }
+                }
+            }
+            item {
+                Row(
+                    modifier = itemModifier,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        IconText(
+                            leftIcon = Icons.Outlined.PlayCircleOutline,
+                            text = bangumiDetailModel.stat.views.toViewString(),
+                            leftIconSize = 12.dp,
+                            leftIconColor = Color.LightGray,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = Color.LightGray
+                            )
+                        )
+                        IconText(
+                            leftIcon = Icons.Outlined.FavoriteBorder,
+                            text = bangumiDetailModel.stat.favorites.toViewString(),
+                            leftIconSize = 12.dp,
+                            leftIconColor = Color.LightGray,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = Color.LightGray
+                            )
+                        )
+                        IconText(
+                            text = buildString {
+                                append(bangumiDetailModel.rating.score.toString())
+                                append(stringResource(R.string.str_score))
+                            },
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = Color.Red
+                            )
+                        )
+                    }
+                    IconText(
+                        rightIcon = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                        text = "详情",
+                        rightIconSize = 14.dp,
+                        rightIconColor = Color.LightGray,
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            color = Color.LightGray
+                        )
+                    )
+                }
+            }
+            item {
+                Spacer(Modifier.height(32.dp))
+                VideoMenus(
+                    great = bangumiDetailModel.stat.likes.toViewString(),
+                    coin = bangumiDetailModel.stat.coins.toViewString(),
+                    star = bangumiDetailModel.stat.favorites.toViewString(),
+                    share = bangumiDetailModel.stat.share.toViewString(),
+                    hasLike = false,
+                    hasCoin = false,
+                    hasFavoured = false,
+                    isDownloaded = false,
+                    isShowLikeAnimation = false,
+                    onClick = { },
+                    coinClick = { },
+                    favouredClick = {
 
+                    },
+                    downloadClick = {
+                    },
+                    onAnimationEndCallback = {
+                    }
+                )
+                Spacer(Modifier.height(16.dp))
+            }
+            item {
+                Row(
+                    modifier = itemModifier.padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(R.string.str_select_episode),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    IconText(
+                        text = stringResource(
+                            R.string.str_all_num_episode,
+                            bangumiDetailModel.episodes.size
+                        ),
+                        rightIcon = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+                        rightIconSize = 14.dp,
+                        rightIconColor = Color.LightGray,
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            color = Color.LightGray
+                        )
+                    )
+                }
+                LazyRow(
+                    modifier = itemModifier.padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    state = seasonState
+                ) {
+                    items(bangumiDetailModel.seasons) {
+                        Surface(
+                            onClick = {
+                                videoPlayActionClick.invoke(
+                                    VideoAction.VideoPlayAction.SwitchSeasonAction(it.seasonId)
+                                )
+                            },
+                            contentColor = when {
+                                bangumiDetailModel.seasonId == it.seasonId -> Pink
+                                else -> MaterialTheme.colorScheme.onBackground
+                            },
+                            shape = CircleShape
+                        ) {
+                            Text(
+                                text = it.seasonTitle,
+                                style = MaterialTheme.typography.labelMedium,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                        }
+                    }
+                }
+                LazyRow(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    state = episodeState
+                ) {
+                    item { Spacer(Modifier) }
+                    items(bangumiDetailModel.episodes) {
+                        Surface(
+                            onClick = {
+                                videoPlayActionClick.invoke(
+                                    VideoAction.VideoPlayAction.SwitchEpisodeAction(
+                                        episodeId = it.epId,
+                                        aid = it.aid,
+                                        cid = it.cid,
+                                        bvid = it.bvid
+                                    )
+                                )
+                            },
+                            modifier = Modifier
+                                .width(150.dp)
+                                .height(60.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            contentColor = when {
+                                currentEpId == it.epId -> Pink
+                                else -> MaterialTheme.colorScheme.onBackground
+                            },
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(8.dp),
+                                verticalArrangement = Arrangement.Center,
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                ) {
+                                    if (currentEpId == it.epId) {
+                                        LottieIconPlaying(modifier = Modifier.size(16.dp))
+                                    }
+                                    val title = it.title.toDoubleOrNull()
+                                    Text(
+                                        text = when {
+                                            title != null && it.title.contains(".") -> {
+                                                stringResource(R.string.str_episode, title)
+                                            }
+
+                                            title != null -> {
+                                                stringResource(R.string.str_episode, title.toInt())
+                                            }
+
+                                            else -> it.title
+                                        },
+                                        modifier = Modifier.wrapContentSize(),
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        fontWeight = FontWeight.Normal,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+                                Text(
+                                    text = it.longTitle,
+                                    modifier = Modifier
+                                        .wrapContentSize()
+                                        .basicMarquee(),
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                    item { Spacer(Modifier) }
+                }
+            }
+            item {
+                CommentCard(
+                    comments = "",
+                    onClick = {
+                        screenActionClick.invoke(ScreenAction.ShowReplyAction)
+                    }
+                )
+            }
         }
     }
 }
@@ -1000,5 +1287,54 @@ private fun MoreVideoButton(
 private fun getIconButtonColor(): IconButtonColors {
     return IconButtonDefaults.iconButtonColors(
         contentColor = Color.White
+    )
+}
+
+@Preview
+@Composable
+private fun BangumiContentPreview() {
+    BangumiContent(
+        lazyListState = rememberLazyListState(),
+        bangumiDetailModel = BangumiDetailModel(
+            actors = """
+                卫宫切嗣：小山力也\nSaber：川澄绫子\n爱丽丝菲尔：大原沙耶香\n久宇舞弥：恒松步\n言峰绮礼：中田让治\nAssassin：阿部彬名\n远坂时臣：速水奖\nArcher：关智一\n肯尼斯：山崎功\n索菈乌：..
+            """.trimIndent(),
+            cover = "",
+            evaluate = """
+                作为「Fate/stay night」的前传，「Fate/Zero」的故事舞台设定在第五次圣杯战争的10年前，即第四次圣杯战争；而在「Fate/stay night」中充满神秘感的卫宫切嗣则会成为「Fate/Zero」的主角。\n在虚渊玄优秀的创作能力之下，「Fate/Zero」无论在剧情还是在生动流畅的战斗场面等方面都显得非常优秀。\n本片于2011年7月开播，分两季播出。动画制作将继续沿用自「空之境界」系列剧场版便开始合作的ufotable，监督则由在AIC及ufotable两间制作公司中 均有活跃表现的あおきえい担任。另外，在武内崇的人物原案之下，人设将交由须藤友德及碇谷敦负责。
+            """.trimIndent(),
+            mediaId = -1,
+            mode = 2,
+            record = "",
+            seasonId = 1,
+            seasonTitle = "Fate/Zero 第一季",
+            staff = """
+                原作：虚渊玄/TYPE-MOON\n监督：あおきえい\n副监督：恒松圭\n脚本：桧山彬、实弥岛巧、吉田晃浩、佐藤和治、ufotable\n分镜：高桥タクロヲ、恒松圭、栖原隆史、宇田明彦、三浦贵博、あおきえい、须藤友德、近藤光\n演出：恒松圭、栖原隆史、宇田明彦、三浦贵博、あおきえい、须藤友德\n角色原案：武内崇\n角色设计：须藤友德、碇谷敦\n色彩设计：千叶绘美\n美术监督：卫藤功二\n摄影监督：寺尾优一\n3D监督：宍户幸次郎\n音乐：梶浦由记\n音响监督：岩浪美和\n剪辑：神野学\n动画制作：ufotable
+            """.trimIndent(),
+            stat = BangumiStat(),
+            styles = emptyList(),
+            subtitle = "",
+            title = "Fate/Zero 第一季",
+            total = 13,
+            areas = emptyList(),
+            episodes = emptyList(),
+            publish = PublishModel(
+                isFinish = 1,
+                isStarted = 1,
+                pubTime = "2011-10-01 00:00:00",
+                pubTimeShow = "2011年10月01日00:00",
+                weekday = 0
+            ),
+            rating = RatingModel(
+                count = 27389,
+                score = 9.6f
+            ),
+            seasons = emptyList(),
+        ),
+        currentEpId = 1,
+        initialEpisodeIndex = 0,
+        initialSeasonIndex = 0,
+        videoPlayActionClick = {},
+        screenActionClick = {}
     )
 }

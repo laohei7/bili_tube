@@ -132,6 +132,7 @@ internal class PlayerViewModel(
     private suspend fun loadBangumi() {
         withContext(Dispatchers.IO) {
             launch { getBangumiURL() }
+            launch { getBangumiDetial() }
         }
     }
 
@@ -140,10 +141,13 @@ internal class PlayerViewModel(
             launch { getVideoURL() }
             launch {
                 getVideoDetail()
-                videoReplies = biliPlayRepository.getVideoReplyPager(
+                val replies = biliPlayRepository.getVideoReplyPager(
                     type = 1,
                     oid = params.aid.toString()
                 )
+                _mPlayerState.update {
+                    it.copy(replies = replies)
+                }
             }
             launch {
                 hasLike()
@@ -218,8 +222,7 @@ internal class PlayerViewModel(
 
     private suspend fun getBangumiURL() {
         when {
-            params.isVideo ||
-                    (params.mediaId == null && params.seasonId == null && params.epId == null) -> {
+            params.isVideo || params.epId == null -> {
                 return
             }
         }
@@ -239,6 +242,51 @@ internal class PlayerViewModel(
             return
         }
         updateMediaState(state.value.copy(isError = true))
+    }
+
+    private suspend fun getBangumiDetial() {
+        val response = biliPlayRepository.getBangumiDetail(
+            seasonId = params.seasonId,
+            epId = params.epId
+        )
+        response?.run {
+            _mPlayerState.update {
+                it.copy(
+                    bangumiDetail = result,
+                    currentEpId = when {
+                        params.epId != null -> params.epId!!
+                        else -> result.episodes.first().epId
+                    },
+                    initialEpisodeIndex = result.episodes.indexOfFirst { ep -> ep.epId == params.epId }
+                        .coerceAtLeast(0),
+                    initialSeasonIndex = result.seasons.indexOfFirst { se -> se.seasonId == result.seasonId }
+                        .coerceAtLeast(0)
+                )
+            }
+            val episode = when{
+                params.epId == null -> result.episodes.first()
+                else -> result.episodes.find { it.epId == params.epId }
+            }
+            episode?.let {
+                params = params.copy(
+                    mediaId = result.mediaId,
+                    epId = it.epId,
+                    aid = it.aid,
+                    bvid = it.bvid,
+                    cid = it.cid
+                )
+            }
+            viewModelScope.launch { getBangumiURL() }
+            viewModelScope.launch {
+                val replies = biliPlayRepository.getVideoReplyPager(
+                    type = 1,
+                    oid = params.aid.toString()
+                )
+                _mPlayerState.update {
+                    it.copy(replies = replies)
+                }
+            }
+        }
     }
 
     private suspend fun getVideoDetail() {
@@ -356,6 +404,31 @@ internal class PlayerViewModel(
         when (action) {
             is VideoAction.VideoPlayAction.SwitchPlayListAction -> {
                 viewModelScope.launch { updateParams(params.copy(cid = action.cid)) }
+            }
+
+            is VideoAction.VideoPlayAction.SwitchEpisodeAction -> {
+                viewModelScope.launch {
+                    updateParams(
+                        params.copy(
+                            epId = action.episodeId,
+                            aid = action.aid,
+                            cid = action.cid,
+                            bvid = action.bvid
+                        )
+                    )
+                }
+            }
+
+            is VideoAction.VideoPlayAction.SwitchSeasonAction -> {
+                viewModelScope.launch {
+                    updateParams(
+                        params.copy(
+                            seasonId = action.seasonId,
+                            mediaId = null,
+                            epId = null
+                        )
+                    )
+                }
             }
         }
     }

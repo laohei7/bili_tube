@@ -21,6 +21,8 @@ const val VIDEO_INFO = "https://api.bilibili.com/x/web-interface/wbi/view"
 
 const val VIDEO_DETAIL_URL = "https://api.bilibili.com/x/web-interface/wbi/view/detail"
 
+const val BANGUMI_DETAIL_URL = "https://api.bilibili.com/pgc/view/web/season"
+
 const val USER_PROFILE_URL = "https://api.bilibili.com/x/web-interface/nav"
 
 const val VIDEO_REPLY_URL = "https://api.bilibili.com/x/v2/reply"

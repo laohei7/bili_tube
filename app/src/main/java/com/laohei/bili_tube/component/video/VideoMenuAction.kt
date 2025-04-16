@@ -6,15 +6,26 @@ interface VideoAction {
         data class VideoDislikeAction(val dislike: Int) : VideoMenuAction() // 0取消，1点踩
         data class CoinAction(val coin: Int) : VideoMenuAction()
         data class CollectAction(val addAids: Set<Long>, val delAids: Set<Long>) : VideoMenuAction()
-        data class CollectActionByAid(val addAids: Set<Long>, val delAids: Set<Long>,val aid:Long) : VideoMenuAction()
+        data class CollectActionByAid(
+            val addAids: Set<Long>,
+            val delAids: Set<Long>,
+            val aid: Long
+        ) : VideoMenuAction()
     }
 
     sealed class VideoSheetAction : VideoAction {
         data class PlaylistAction(val aid: Long) : VideoSheetAction()
-        data class AddToViewAction(val aid: Long=0,val bvid:String=""):VideoSheetAction()
+        data class AddToViewAction(val aid: Long = 0, val bvid: String = "") : VideoSheetAction()
     }
 
-    sealed class VideoPlayAction:VideoAction{
-        data class SwitchPlayListAction(val cid:Long) :VideoPlayAction()
+    sealed class VideoPlayAction : VideoAction {
+        data class SwitchPlayListAction(val cid: Long) : VideoPlayAction()
+        data class SwitchSeasonAction(val seasonId: Long) : VideoPlayAction()
+        data class SwitchEpisodeAction(
+            val episodeId: Long,
+            val aid: Long,
+            val cid: Long,
+            val bvid: String
+        ) : VideoPlayAction()
     }
 }

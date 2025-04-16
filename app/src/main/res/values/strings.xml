@@ -81,4 +81,5 @@
     <string name="str_moive">影视</string>
     <string name="str_bangumi">番剧</string>
     <string name="str_see_more">更多</string>
+    <string name="str_episode">第%d集</string>
 </resources>
