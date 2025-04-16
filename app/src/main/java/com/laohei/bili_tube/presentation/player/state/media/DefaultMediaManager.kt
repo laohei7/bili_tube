@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.annotation.OptIn
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -21,6 +22,7 @@ import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import androidx.media3.exoplayer.upstream.DefaultAllocator
 import com.laohei.bili_sdk.module_v2.video.DashItem
 import com.laohei.bili_sdk.module_v2.video.VideoURLModel
 import com.laohei.bili_tube.model.SourceType
@@ -53,6 +55,7 @@ internal class DefaultMediaManager(
 
     private val mRenderersFactory = DefaultRenderersFactory(context)
         .setEnableDecoderFallback(true) // 允许解码器回退
+        .setEnableAudioFloatOutput(true)
         .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
 
     private val mDefaultTrackSelector = DefaultTrackSelector(context).apply {
@@ -63,6 +66,7 @@ internal class DefaultMediaManager(
 
     private val mDefaultLocalControl = DefaultLoadControl.Builder()
         .setBufferDurationsMs(100_000, 200_000, 3_000, 6_000)
+        .setAllocator(DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE * 2))
         .build()
 
     private val mExoPlayer = ExoPlayer.Builder(context)
@@ -371,6 +375,9 @@ internal class DefaultMediaManager(
                 Log.d(TAG, "play: video url $videoUrl")
             }
             val audioItem = mVideoURLModel?.dash?.let { dash ->
+                Log.d(TAG, "play: ${dash.audio}")
+                Log.d(TAG, "play: ${dash.dolby}")
+                Log.d(TAG, "play: ${dash.flac}")
 //                val defaultQuality = _mState.value.defaultQuality.first
 //                when {
 //                    defaultQuality >= 126 -> {
