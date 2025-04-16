@@ -388,7 +388,13 @@ internal class DefaultMediaManager(
 //
 //                    else -> getNormalAudio()
 //                }
-                dash.dolby?.audio?.first() ?: run {
+                dash.dolby?.audio?.run {
+                    if (isEmpty()) {
+                        dash.flac?.audio ?: getNormalAudio()
+                    } else {
+                        first()
+                    }
+                } ?: run {
                     dash.flac?.audio ?: getNormalAudio()
                 }
             }
