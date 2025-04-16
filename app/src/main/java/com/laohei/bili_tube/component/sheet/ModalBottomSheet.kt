@@ -169,27 +169,28 @@ private fun Scrim(
         val closeSheet = "close sheet"
         val dismissSheet =
             if (visible) {
-                Modifier
-                    .pointerInput(onDismissRequest) {
-                        detectTapGestures {
-                            if (!properties.shouldDispatcherEvent) {
-                                onDismissRequest()
-                            }
-                        }
+                when {
+                    properties.shouldDispatcherEvent -> {
+                        Modifier
                     }
-                    .semantics(mergeDescendants = true) {
-                        traversalIndex = 1f
-                        contentDescription = closeSheet
-                        onClick {
-                            when {
-                                properties.shouldDispatcherEvent -> false
-                                else -> {
+
+                    else -> {
+                        Modifier
+                            .pointerInput(onDismissRequest) {
+                                detectTapGestures {
+                                    onDismissRequest()
+                                }
+                            }
+                            .semantics(mergeDescendants = true) {
+                                traversalIndex = 1f
+                                contentDescription = closeSheet
+                                onClick {
                                     onDismissRequest()
                                     true
                                 }
                             }
-                        }
                     }
+                }
             } else {
                 Modifier
             }
