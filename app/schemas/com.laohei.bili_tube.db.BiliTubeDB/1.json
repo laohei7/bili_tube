@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "da89d33918761dd8370998a1d366153c",
+    "identityHash": "a155e9cbb8c1d69751c26f96a750a7a7",
     "entities": [
       {
         "tableName": "tb_downloads",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `aid` INTEGER NOT NULL, `cid` INTEGER NOT NULL, `name` TEXT NOT NULL, `cover` TEXT NOT NULL, `quality` TEXT NOT NULL, `videoUrls` TEXT NOT NULL, `audioUrls` TEXT, `videoFile` TEXT, `audioFile` TEXT, `mergedFile` TEXT, `status` INTEGER NOT NULL, `progress` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `aid` INTEGER NOT NULL, `cid` INTEGER NOT NULL, `name` TEXT NOT NULL, `cover` TEXT NOT NULL, `quality` TEXT NOT NULL, `videoUrls` TEXT NOT NULL, `audioUrls` TEXT, `videoFile` TEXT, `audioFile` TEXT, `mergedFile` TEXT, `archive` TEXT, `status` INTEGER NOT NULL, `progress` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -75,6 +75,12 @@
             "notNull": false
           },
           {
+            "fieldPath": "archive",
+            "columnName": "archive",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
             "fieldPath": "status",
             "columnName": "status",
             "affinity": "INTEGER",
@@ -100,7 +106,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'da89d33918761dd8370998a1d366153c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a155e9cbb8c1d69751c26f96a750a7a7')"
     ]
   }
 }

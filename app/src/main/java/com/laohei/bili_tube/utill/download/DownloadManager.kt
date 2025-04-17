@@ -96,6 +96,7 @@ class DownloadManager(
         quality: String,
         videoUrls: List<String>,
         audioUrls: List<String>?,
+        archive: String? = null
     ) {
         val task = DownloadTask(
             id = id,
@@ -107,6 +108,7 @@ class DownloadManager(
                 }
                 this
             } ?: id,
+            archive = archive,
             cover = cover,
             quality = quality,
             videoUrls = videoUrls,
@@ -345,8 +347,19 @@ class DownloadManager(
                     audioFile.delete()
                 }
                 if (success) {
-                    outputFile.renameTo(File(downloadDir, targetName))
-                    markTaskAsSuccess(task = task, mergeFile = outputFile.absolutePath)
+                    val targetFile = task.archive?.run {
+                        val archiveFile = File(downloadDir,this).apply {
+                            if(exists().not()){
+                                mkdirs()
+                            }
+                        }
+                        File(archiveFile, targetName)
+                    } ?: run {
+                        File(downloadDir, targetName)
+                    }
+                    outputFile.renameTo(targetFile)
+                    task.archive?.run { outputFile.delete() }
+                    markTaskAsSuccess(task = task, mergeFile = targetFile.absolutePath)
                 } else {
                     markTaskAsFailed(task = task)
                 }

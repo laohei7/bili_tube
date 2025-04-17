@@ -263,7 +263,7 @@ internal class PlayerViewModel(
                         .coerceAtLeast(0)
                 )
             }
-            val episode = when{
+            val episode = when {
                 params.epId == null -> result.episodes.first()
                 else -> result.episodes.find { it.epId == params.epId }
             }
@@ -504,22 +504,57 @@ internal class PlayerViewModel(
     }
 
     fun download(quality: Pair<Int, String>) {
-        if (_mPlayerState.value.videoDetail == null) {
+        val isLoading = _mPlayerState.value.run {
+            videoDetail == null && bangumiDetail == null
+        }
+        if (isLoading) {
             viewModelScope.launch {
                 EventBus.send(Event.PlayerEvent.SnackbarEvent(message = "可下载资源正在加载中，请稍后..."))
             }
             return
         }
         val urls = defaultMediaManager.getVideoSourceByQuality(quality.first)
+        val (name, cover) = when {
+            params.isVideo -> {
+                val view = _mPlayerState.value.videoDetail?.view
+                Pair(view?.title, view?.pic)
+            }
+
+            else -> {
+                val episode =
+                    _mPlayerState.value.bangumiDetail?.episodes?.find { it.epId == params.epId }
+                val title = episode?.run {
+                    longTitle.ifBlank {
+                        val str = title.toDoubleOrNull()
+                        when {
+                            str != null && title.contains(".") -> {
+                                "第${title}集"
+                            }
+
+                            str != null -> {
+                                "第${title.toInt()}集"
+                            }
+
+                            else -> title
+                        }
+                    }
+                }
+                Pair(title, episode?.cover)
+            }
+        }
         downloadManager.addTask(
             id = params.bvid,
             aid = params.aid,
             cid = params.cid,
-            name = _mPlayerState.value.videoDetail?.view?.title,
-            cover = _mPlayerState.value.videoDetail?.view?.pic!!,
+            name = name,
+            cover = cover ?: "",
             quality = quality.second,
             videoUrls = urls.first,
             audioUrls = urls.second,
+            archive = when {
+                params.isVideo -> null
+                else -> _mPlayerState.value.bangumiDetail?.seasonTitle
+            }
         )
     }
 

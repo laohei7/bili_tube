@@ -18,6 +18,7 @@ data class DownloadTask(
     val videoFile: String? = null,
     val audioFile: String? = null,
     val mergedFile: String? = null,
+    val archive: String? = null,
     val status: DownloadStatus = DownloadStatus.PENDING,
     val progress: Int = 0
 )

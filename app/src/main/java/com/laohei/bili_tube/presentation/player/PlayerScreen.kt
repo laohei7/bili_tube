@@ -1010,6 +1010,7 @@ private fun BangumiContent(
 
                     },
                     downloadClick = {
+                        screenActionClick.invoke(ScreenAction.ShowDownloadSheetAction(true))
                     },
                     onAnimationEndCallback = {
                     }
