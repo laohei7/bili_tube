@@ -55,7 +55,7 @@ internal class DefaultMediaManager(
 
     private val mRenderersFactory = DefaultRenderersFactory(context)
         .setEnableDecoderFallback(true) // 允许解码器回退
-        .setEnableAudioFloatOutput(true)
+//        .setEnableAudioFloatOutput(true)
         .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER)
 
     private val mDefaultTrackSelector = DefaultTrackSelector(context).apply {
