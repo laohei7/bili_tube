@@ -151,7 +151,7 @@ class HomeViewModel(
         viewModelScope.launch {
             updateState(
                 homeState.value.copy(
-                    animations = biliHomeRepository.getAnimations(homeState.value.bangumiFilterModel)
+                    animations = biliHomeRepository.getAnimations(homeState.value.animationFilterModel)
                         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1)
                         .cachedIn(viewModelScope)
                 )

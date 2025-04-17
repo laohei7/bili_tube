@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
@@ -225,6 +226,9 @@ fun HomeScreen(
                     .height(IntrinsicSize.Min),
                 selectedTabIndex = pagerState.currentPage,
                 containerColor = Color.Transparent,
+                divider={
+                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainer)
+                }
             ) {
                 tabs.fastForEachIndexed { index, tab ->
                     Tab(
