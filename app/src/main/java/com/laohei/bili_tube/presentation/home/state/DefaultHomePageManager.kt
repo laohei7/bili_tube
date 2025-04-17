@@ -30,9 +30,26 @@ class DefaultHomePageManager : HomePageManager {
 
             is HomePageAction.AnimeFilterAction -> {
                 _mHomeState.update {
-                    it.copy(
-                        bangumiFilterModel = it.bangumiFilterModel.update(action.key, action.value)
-                    )
+                    when {
+                        action.isAnime -> {
+                            it.copy(
+                                animationFilterModel = it.animationFilterModel.update(
+                                    action.key,
+                                    action.value
+                                )
+                            )
+                        }
+
+                        else -> {
+                            it.copy(
+                                bangumiFilterModel = it.bangumiFilterModel.update(
+                                    action.key,
+                                    action.value
+                                )
+                            )
+                        }
+                    }
+
                 }
             }
         }

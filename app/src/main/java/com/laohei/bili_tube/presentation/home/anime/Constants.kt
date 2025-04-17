@@ -85,3 +85,12 @@ val BangumiFilters = buildMap {
     put("季度", SeasonMonth)
     put("风格", StyleId)
 }
+
+val AnimationFilters = buildMap {
+    put("类型", SeasonVersion)
+    put("状态", IsFinish)
+    put("版权", Copyright)
+    put("付费", SeasonStatus)
+    put("季度", SeasonMonth)
+    put("风格", StyleId)
+}

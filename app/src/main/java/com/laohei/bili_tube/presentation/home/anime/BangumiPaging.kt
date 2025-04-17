@@ -10,7 +10,8 @@ import com.laohei.bili_tube.model.BangumiFilterModel
 class BangumiPaging(
     private val getBangumi: GetBangumi,
     private val bangumiFilterModel: BangumiFilterModel,
-    private val cookie: String?
+    private val cookie: String?,
+    private val st: Int = 1
 ) : PagingSource<Int, BangumiItem>() {
     override fun getRefreshKey(state: PagingState<Int, BangumiItem>): Int? {
         return state.anchorPosition?.let { anchor ->
@@ -24,6 +25,8 @@ class BangumiPaging(
             val page = params.key ?: 1
 
             val response = getBangumi.bangumis(
+                st = st,
+                seasonType = st,
                 page = page,
                 seasonVersion = bangumiFilterModel.seasonVersion,
                 spokenLanguageType = bangumiFilterModel.spokenLanguageType,

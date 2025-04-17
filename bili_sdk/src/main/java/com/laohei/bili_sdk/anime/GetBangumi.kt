@@ -54,8 +54,10 @@ class GetBangumi(
                     parameters.append("pagesize", pageSize.toString())
                     parameters.append("type", type.toString())
                     parameters.append("season_version", seasonVersion)
-                    parameters.append("spoken_language_type", spokenLanguageType)
-                    parameters.append("area", area)
+                    if (st == 1) {
+                        parameters.append("spoken_language_type", spokenLanguageType)
+                        parameters.append("area", area)
+                    }
                     parameters.append("is_finish", isFinish)
                     parameters.append("copyright", copyright)
                     parameters.append("season_status", seasonStatus)

@@ -45,7 +45,8 @@ import com.laohei.bili_tube.component.video.VideoAction
 import com.laohei.bili_tube.component.video.VideoMenuSheet
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
-import com.laohei.bili_tube.presentation.home.anime.AnimeScreen
+import com.laohei.bili_tube.presentation.home.anime.AnimationScreen
+import com.laohei.bili_tube.presentation.home.anime.BangumiScreen
 import com.laohei.bili_tube.presentation.home.hot.HotScreen
 import com.laohei.bili_tube.presentation.home.recommend.RecommendScreen
 import com.laohei.bili_tube.presentation.home.state.DefaultHomePageManager
@@ -94,6 +95,7 @@ fun HomeScreen(
     val homeState by homeViewModel.homeState.collectAsStateWithLifecycle()
 
     val bangumis = homeState.bangumis.collectAsLazyPagingItems()
+    val animations = homeState.animations.collectAsLazyPagingItems()
 
     val connection = remember {
         object : NestedScrollConnection {
@@ -188,9 +190,18 @@ fun HomeScreen(
                     homeActionHandle = homeViewModel::homeActionHandle
                 )
 
-                2 -> AnimeScreen(
+                2 -> BangumiScreen(
+                    gridState = homeViewModel.gridStates[index],
                     bangumis = bangumis,
                     bangumiFilterModel = homeState.bangumiFilterModel,
+                    homePageActionClick = homeViewModel::homeActionHandle,
+                    navigateToRoute = navigateToRoute
+                )
+
+                3 -> AnimationScreen(
+                    gridState = homeViewModel.gridStates[index],
+                    animations = animations,
+                    animationFilterModel = homeState.animationFilterModel,
                     homePageActionClick = homeViewModel::homeActionHandle,
                     navigateToRoute = navigateToRoute
                 )

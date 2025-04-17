@@ -102,6 +102,29 @@ class BiliHomeRepository(
         }.flattenConcat()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun getAnimations(bangumiFilterModel: BangumiFilterModel): Flow<PagingData<BangumiItem>> {
+        return flow {
+            val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
+            emit(
+                Pager(
+                    config = PagingConfig(
+                        pageSize = 20,
+                        enablePlaceholders = false
+                    ),
+                    pagingSourceFactory = {
+                        BangumiPaging(
+                            getBangumi,
+                            bangumiFilterModel,
+                            cookie,
+                            4
+                        )
+                    }
+                ).flow
+            )
+        }.flattenConcat()
+    }
+
     suspend fun folderDeal(
         aid: Long,
         addMediaIds: Set<Long>,

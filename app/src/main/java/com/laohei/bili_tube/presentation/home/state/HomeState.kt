@@ -14,5 +14,7 @@ data class HomeState(
     val isShowMenuSheet: Boolean = false,
     val isShowFolderSheet: Boolean = false,
     val bangumiFilterModel: BangumiFilterModel = BangumiFilterModel(),
-    val bangumis: Flow<PagingData<BangumiItem>> = flow { PagingData.empty<BangumiItem>() }
+    val animationFilterModel: BangumiFilterModel = BangumiFilterModel(),
+    val bangumis: Flow<PagingData<BangumiItem>> = flow { PagingData.empty<BangumiItem>() },
+    val animations: Flow<PagingData<BangumiItem>> = flow { PagingData.empty<BangumiItem>() },
 )

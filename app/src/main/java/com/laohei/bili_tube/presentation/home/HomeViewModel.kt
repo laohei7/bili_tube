@@ -33,6 +33,7 @@ class HomeViewModel(
     val tabs = listOf(
         context.getString(R.string.str_recommend),
         context.getString(R.string.str_hots),
+        context.getString(R.string.str_bangumi),
         context.getString(R.string.str_anime),
     )
     val pagerState = PagerState { tabs.size }
@@ -52,6 +53,7 @@ class HomeViewModel(
 
     init {
         loadBangumis()
+        loadAnimations()
     }
 
     fun onVideoMenuActionHandle(action: VideoAction.VideoMenuAction) {
@@ -120,7 +122,17 @@ class HomeViewModel(
 
     override fun homeActionHandle(action: HomePageAction) {
         defaultHomePageManager.homeActionHandle(action)
-        loadBangumis()
+        when (action) {
+            is HomePageAction.AnimeFilterAction -> {
+                if (action.isAnime) {
+                    loadAnimations()
+                } else {
+                    loadBangumis()
+                }
+            }
+
+            else -> {}
+        }
     }
 
     private fun loadBangumis() {
@@ -128,6 +140,18 @@ class HomeViewModel(
             updateState(
                 homeState.value.copy(
                     bangumis = biliHomeRepository.getBangumis(homeState.value.bangumiFilterModel)
+                        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1)
+                        .cachedIn(viewModelScope)
+                )
+            )
+        }
+    }
+
+    private fun loadAnimations() {
+        viewModelScope.launch {
+            updateState(
+                homeState.value.copy(
+                    animations = biliHomeRepository.getAnimations(homeState.value.bangumiFilterModel)
                         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1)
                         .cachedIn(viewModelScope)
                 )
