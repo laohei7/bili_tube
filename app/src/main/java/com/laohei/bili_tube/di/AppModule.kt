@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.media3.database.StandaloneDatabaseProvider
 import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
 import androidx.media3.datasource.cache.SimpleCache
+import com.laohei.bili_sdk.anime.GetBangumi
 import com.laohei.bili_sdk.anime.GetTimeline
 import com.laohei.bili_sdk.dynamic.GetWebDynamic
 import com.laohei.bili_sdk.folder.GetFolder
@@ -87,6 +88,7 @@ val appModule = module {
     singleOf(::GetArchive)
     singleOf(::PostToView)
     singleOf(::SearchRequest)
+    singleOf(::GetBangumi)
 
     singleOf(::BiliHomeRepository)
     singleOf(::BiliPlayRepository)

@@ -12,6 +12,7 @@ import com.laohei.bili_tube.component.video.VideoAction
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.presentation.home.state.DefaultHomePageManager
+import com.laohei.bili_tube.presentation.home.state.HomePageAction
 import com.laohei.bili_tube.presentation.home.state.HomePageManager
 import com.laohei.bili_tube.repository.BiliHomeRepository
 import com.laohei.bili_tube.repository.BiliPlaylistRepository
@@ -39,15 +40,19 @@ class HomeViewModel(
     val gridStates = List(tabs.size) { LazyGridState() }
 
     val hotVideos = biliHomeRepository.getPagedHotVideo()
-        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000),1)
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1)
         .cachedIn(viewModelScope)
 
     val randomVideos = biliHomeRepository.getPagedRecommendVideo()
-        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000),1)
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1)
         .cachedIn(viewModelScope)
 
     val timeline = biliHomeRepository.getTimelineEpisode()
         .cachedIn(viewModelScope)
+
+    init {
+        loadBangumis()
+    }
 
     fun onVideoMenuActionHandle(action: VideoAction.VideoMenuAction) {
         when (action) {
@@ -110,6 +115,23 @@ class HomeViewModel(
             val message = if (code == 0) "添加成功" else "添加失败"
             EventBus.send(Event.AppEvent.ToastEvent(message = message))
             updateState(homeState.value.copy(isShowMenuSheet = false))
+        }
+    }
+
+    override fun homeActionHandle(action: HomePageAction) {
+        defaultHomePageManager.homeActionHandle(action)
+        loadBangumis()
+    }
+
+    private fun loadBangumis() {
+        viewModelScope.launch {
+            updateState(
+                homeState.value.copy(
+                    bangumis = biliHomeRepository.getBangumis(homeState.value.bangumiFilterModel)
+                        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1)
+                        .cachedIn(viewModelScope)
+                )
+            )
         }
     }
 }

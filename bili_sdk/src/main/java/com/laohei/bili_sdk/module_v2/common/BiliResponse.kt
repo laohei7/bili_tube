@@ -27,6 +27,15 @@ data class BiliResponse2<T>(
 @OptIn(ExperimentalSerializationApi::class)
 @JsonIgnoreUnknownKeys
 @Serializable
+data class BiliResponse3<T>(
+    val code: Int,
+    val message: String,
+    val data: T
+)
+
+@OptIn(ExperimentalSerializationApi::class)
+@JsonIgnoreUnknownKeys
+@Serializable
 data class BiliResponseNoData(
     val code: Int,
     val message: String,

@@ -27,6 +27,14 @@ class DefaultHomePageManager : HomePageManager {
                     )
                 }
             }
+
+            is HomePageAction.AnimeFilterAction -> {
+                _mHomeState.update {
+                    it.copy(
+                        bangumiFilterModel = it.bangumiFilterModel.update(action.key, action.value)
+                    )
+                }
+            }
         }
     }
 

@@ -93,6 +93,8 @@ fun HomeScreen(
 
     val homeState by homeViewModel.homeState.collectAsStateWithLifecycle()
 
+    val bangumis = homeState.bangumis.collectAsLazyPagingItems()
+
     val connection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -187,7 +189,10 @@ fun HomeScreen(
                 )
 
                 2 -> AnimeScreen(
-                    timelines = timelines
+                    bangumis = bangumis,
+                    bangumiFilterModel = homeState.bangumiFilterModel,
+                    homePageActionClick = homeViewModel::homeActionHandle,
+                    navigateToRoute = navigateToRoute
                 )
             }
         }
