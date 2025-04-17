@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import com.laohei.bili_sdk.anime.GetBangumi
 import com.laohei.bili_sdk.folder.PostFolder
 import com.laohei.bili_sdk.module_v2.reply.ReplyItem
 import com.laohei.bili_sdk.video.GetArchive
@@ -25,6 +26,7 @@ import kotlinx.coroutines.flow.flow
 class BiliPlayRepository(
     private val context: Context,
     private val getURL: GetURL,
+    private val getBangumi: GetBangumi,
     private val getInfo: GetInfo,
     private val getReply: GetReply,
     private val getArchive: GetArchive,
@@ -198,4 +200,6 @@ class BiliPlayRepository(
         delMediaIds = delMediaIds,
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
     )
+
+    suspend fun getRelatedBangumis(seasonId: Long) = getBangumi.relatedBangumis(seasonId)
 }

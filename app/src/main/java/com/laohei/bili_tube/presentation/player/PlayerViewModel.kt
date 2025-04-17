@@ -277,6 +277,7 @@ internal class PlayerViewModel(
                 )
             }
             viewModelScope.launch { getBangumiURL() }
+            viewModelScope.launch { getRelatedBangumis() }
             viewModelScope.launch {
                 val replies = biliPlayRepository.getVideoReplyPager(
                     type = 1,
@@ -499,6 +500,19 @@ internal class PlayerViewModel(
                 it.copy(
                     folders = this.list,
                     hasFavoured = this.list.any { item -> item.favState == 1 })
+            }
+        }
+    }
+
+    private suspend fun getRelatedBangumis() {
+        if (params.seasonId == null) {
+            return
+        }
+        biliPlayRepository.getRelatedBangumis(params.seasonId!!)?.run {
+            _mPlayerState.update {
+                it.copy(
+                    relatedBangumis = this.data.season
+                )
             }
         }
     }

@@ -1,7 +1,9 @@
 package com.laohei.bili_sdk.anime
 
 import com.laohei.bili_sdk.apis.BANGUMI_FILTER_URL
+import com.laohei.bili_sdk.apis.RELATED_BANGUMI_URL
 import com.laohei.bili_sdk.module_v2.bangumi.BangumiModel
+import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiModel
 import com.laohei.bili_sdk.module_v2.common.BiliResponse3
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
@@ -66,6 +68,27 @@ class GetBangumi(
         }
         response?.run {
             Json.decodeFromString<BiliResponse3<BangumiModel>>(bodyAsText())
+        }
+    }
+
+    suspend fun relatedBangumis(
+        seasonId: Long,
+        cookie: String? = null,
+    ) = withContext(Dispatchers.IO) {
+        val response = try {
+            client.get(RELATED_BANGUMI_URL) {
+                url {
+                    cookie?.apply {
+                        headers.append(HttpHeaders.Cookie, this)
+                    }
+                    parameters.append("season_id", seasonId.toString())
+                }
+            }
+        } catch (e: Exception) {
+            null
+        }
+        response?.run {
+            Json.decodeFromString<BiliResponse3<RelatedBangumiModel>>(bodyAsText())
         }
     }
 }

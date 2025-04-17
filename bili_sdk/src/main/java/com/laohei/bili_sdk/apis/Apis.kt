@@ -25,6 +25,8 @@ const val BANGUMI_DETAIL_URL = "https://api.bilibili.com/pgc/view/web/season"
 
 const val BANGUMI_FILTER_URL = "https://api.bilibili.com/pgc/season/index/result"
 
+const val RELATED_BANGUMI_URL = "https://api.bilibili.com/pgc/season/web/related/recommend"
+
 const val USER_PROFILE_URL = "https://api.bilibili.com/x/web-interface/nav"
 
 const val VIDEO_REPLY_URL = "https://api.bilibili.com/x/v2/reply"

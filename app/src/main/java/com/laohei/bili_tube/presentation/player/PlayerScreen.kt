@@ -92,6 +92,7 @@ import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
+import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiItem
 import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
 import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.module_v2.video.BangumiStat
@@ -104,6 +105,7 @@ import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.component.lottie.LottieIconPlaying
 import com.laohei.bili_tube.component.text.IconText
 import com.laohei.bili_tube.component.video.FolderSheet
+import com.laohei.bili_tube.component.video.HorizontalVideoItem
 import com.laohei.bili_tube.component.video.VideoAction
 import com.laohei.bili_tube.component.video.VideoItem
 import com.laohei.bili_tube.core.WRITE_STORAGE_PERMISSION
@@ -121,6 +123,7 @@ import com.laohei.bili_tube.presentation.player.component.CoinSheet
 import com.laohei.bili_tube.presentation.player.component.CommentCard
 import com.laohei.bili_tube.presentation.player.component.PlayerPlaceholder
 import com.laohei.bili_tube.presentation.player.component.PlayerSnackHost
+import com.laohei.bili_tube.presentation.player.component.RelatedBangumiHorizontalList
 import com.laohei.bili_tube.presentation.player.component.RelatedHorizontalList
 import com.laohei.bili_tube.presentation.player.component.UserSimpleInfo
 import com.laohei.bili_tube.presentation.player.component.VideoDetailSheet
@@ -367,6 +370,7 @@ fun PlayerScreen(
                 modifier = videoContentModifier,
                 playerState = playerState,
                 screenState = screenState,
+                bottomPadding = screenState.videoHeight + 80.dp,
                 screenActionClick = {
                     viewModel.screenActionHandle(
                         it, true, scope,
@@ -436,20 +440,35 @@ fun PlayerScreen(
             targetValue = screenState.relatedListOffset.toInt()
         )
         if (!isOrientationPortrait && !screenState.isLockScreen) {
-            RelatedHorizontalList(
-                modifier = Modifier
-                    .zIndex(100f)
-                    .fillMaxWidth()
-                    .align(Alignment.BottomStart)
-                    .padding(bottom = 12.dp)
-                    .offset {
-                        IntOffset(0, animatedOffset)
-                    },
-                playerState.videoDetail?.related ?: emptyList(),
-                onClick = {
-                    scope.launch { viewModel.updateParams(it) }
+            val relatedListModifier = Modifier
+                .zIndex(100f)
+                .fillMaxWidth()
+                .align(Alignment.BottomStart)
+                .padding(bottom = 12.dp)
+                .offset {
+                    IntOffset(0, animatedOffset)
                 }
-            )
+            when {
+                playerState.isVideo -> {
+                    RelatedHorizontalList(
+                        modifier = relatedListModifier,
+                        related = playerState.videoDetail?.related ?: emptyList(),
+                        onClick = {
+                            scope.launch { viewModel.updateParams(it) }
+                        }
+                    )
+                }
+
+                else -> {
+                    RelatedBangumiHorizontalList(
+                        modifier = relatedListModifier,
+                        related = playerState.relatedBangumis ?: emptyList(),
+                        onClick = {
+                            scope.launch { viewModel.updateParams(it) }
+                        }
+                    )
+                }
+            }
         }
 
         VideoSettingsSheet(
@@ -592,6 +611,7 @@ private fun GetContent(
     modifier: Modifier,
     playerState: PlayerState,
     screenState: ScreenState,
+    bottomPadding: Dp = 0.dp,
     screenActionClick: (ScreenAction) -> Unit,
     videoMenuActionClick: (VideoAction.VideoMenuAction) -> Unit,
     videoPlayActionClick: (VideoAction.VideoPlayAction) -> Unit,
@@ -630,8 +650,10 @@ private fun GetContent(
                     currentEpId = playerState.currentEpId,
                     initialEpisodeIndex = playerState.initialEpisodeIndex,
                     initialSeasonIndex = playerState.initialSeasonIndex,
+                    relatedBangumis = playerState.relatedBangumis ?: emptyList(),
+                    bottomPadding = bottomPadding,
                     videoPlayActionClick = videoPlayActionClick,
-                    screenActionClick = screenActionClick
+                    screenActionClick = screenActionClick,
                 )
             } ?: run {
                 PlayerPlaceholder(modifier = modifier)
@@ -892,8 +914,10 @@ private fun BangumiContent(
     currentEpId: Long,
     initialSeasonIndex: Int,
     initialEpisodeIndex: Int,
+    relatedBangumis: List<RelatedBangumiItem>,
+    bottomPadding: Dp = 0.dp,
     videoPlayActionClick: (VideoAction.VideoPlayAction) -> Unit,
-    screenActionClick: (ScreenAction) -> Unit
+    screenActionClick: (ScreenAction) -> Unit,
 ) {
     val seasonState = rememberLazyListState(initialFirstVisibleItemIndex = initialSeasonIndex)
     val episodeState = rememberLazyListState(initialFirstVisibleItemIndex = initialEpisodeIndex)
@@ -1149,7 +1173,30 @@ private fun BangumiContent(
                         screenActionClick.invoke(ScreenAction.ShowReplyAction)
                     }
                 )
+                Spacer(Modifier.height(8.dp))
             }
+            items(relatedBangumis) {
+                HorizontalVideoItem(
+                    cover = it.cover,
+                    title = it.title,
+                    ownerName = "",
+                    rcmdReason = it.rcmdReason,
+                    view = it.stat.view.toViewString(),
+                    publishDate = it.stat.follow.toViewString(),
+                    leadingIcon = null,
+                    onClick = {
+                        screenActionClick.invoke(
+                            ScreenAction.SwitchVideoAction(
+                                Route.Play(
+                                    seasonId = it.seasonId,
+                                    isVideo = false
+                                )
+                            )
+                        )
+                    }
+                )
+            }
+            item { Spacer(Modifier.height(bottomPadding)) }
         }
     }
 }
@@ -1333,9 +1380,10 @@ private fun BangumiContentPreview() {
             seasons = emptyList(),
         ),
         currentEpId = 1,
+        relatedBangumis = emptyList(),
         initialEpisodeIndex = 0,
         initialSeasonIndex = 0,
         videoPlayActionClick = {},
-        screenActionClick = {}
+        screenActionClick = {},
     )
 }

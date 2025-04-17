@@ -124,7 +124,7 @@ data class SeasonModel(
 @JsonIgnoreUnknownKeys
 data class NewEpModel(
     val cover: String,
-    val id: Long,
+    val id: Long = -1,
     @SerialName("index_show") val indexShow: String
 )
 

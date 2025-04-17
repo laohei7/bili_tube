@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiItem
 import com.laohei.bili_sdk.module_v2.video.VideoView
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
@@ -72,6 +73,39 @@ internal fun RelatedHorizontalList(
 }
 
 @Composable
+internal fun RelatedBangumiHorizontalList(
+    modifier: Modifier = Modifier,
+    related: List<RelatedBangumiItem>,
+    onClick: (Route.Play) -> Unit
+) {
+    LazyRow(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(18.dp)
+    ) {
+        item { Spacer(Modifier) }
+        items(related) {
+            HorizontalRelatedItem(
+                cover = it.cover,
+                title = it.title,
+                duration = it.rcmdReason,
+                author = it.newEp.indexShow,
+                onClick = {
+                    onClick.invoke(
+                        Route.Play(
+                            seasonId = it.seasonId,
+                            isVideo = false
+                        )
+                    )
+                }
+            )
+        }
+        item { Spacer(Modifier) }
+    }
+}
+
+
+@Composable
 private fun HorizontalRelatedItem(
     cover: String,
     duration: String,
@@ -108,21 +142,23 @@ private fun HorizontalRelatedItem(
                     .clip(RoundedCornerShape(12.dp)),
                 contentScale = ContentScale.Crop,
             )
-            Surface(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(bottom = 8.dp, end = 8.dp),
-                color = Color.Black.copy(alpha = 0.5f),
-                contentColor = Color.White,
-                shape = RoundedCornerShape(4.dp)
-            ) {
-                Text(
-                    text = duration,
-                    style = MaterialTheme.typography.labelSmall,
+            if (duration.isNotBlank()) {
+                Surface(
                     modifier = Modifier
-                        .wrapContentSize()
-                        .padding(3.dp)
-                )
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 8.dp, end = 8.dp),
+                    color = Color.Black.copy(alpha = 0.5f),
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    Text(
+                        text = duration,
+                        style = MaterialTheme.typography.labelSmall,
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .padding(3.dp)
+                    )
+                }
             }
         }
 

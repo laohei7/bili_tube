@@ -237,7 +237,9 @@ fun HorizontalVideoItem(
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 rcmdReason?.let { RcmdWidget(it) }
-                UpWidget(ownerName)
+                if(ownerName.isNotBlank()){
+                    UpWidget(ownerName)
+                }
                 viewAt?.let { ViewAtWidget(it) }
                 if (view != null && publishDate != null) {
                     ViewAndPubDateWidget(view, publishDate)
