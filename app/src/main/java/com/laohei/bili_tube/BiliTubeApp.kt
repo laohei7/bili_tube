@@ -10,8 +10,10 @@ import androidx.datastore.preferences.preferencesDataStore
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
+import coil3.disk.DiskCache
+import coil3.disk.directory
+import coil3.memory.MemoryCache
 import coil3.network.ktor3.KtorNetworkFetcherFactory
-import coil3.request.CachePolicy
 import com.laohei.bili_sdk.wbi.GetWbi
 import com.laohei.bili_sdk.wbi.WbiParams
 import com.laohei.bili_tube.core.COOKIE_KEY
@@ -64,10 +66,19 @@ class BiliTubeApp : Application(), SingletonImageLoader.Factory {
 
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         return ImageLoader.Builder(this)
-            .memoryCachePolicy(CachePolicy.ENABLED)
-            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCache {
+                MemoryCache.Builder()
+                    .maxSizePercent(this, 0.25)
+                    .build()
+            }
+            .diskCache {
+                DiskCache.Builder()
+                    .directory(this.cacheDir.resolve("image_cache"))
+                    .maxSizePercent(0.02)
+                    .build()
+            }
             .components {
-                add(KtorNetworkFetcherFactory(httpClient = { HttpClientFactory.client }))
+                add(KtorNetworkFetcherFactory(httpClient = { HttpClientFactory.coilClient }))
             }
             .build()
     }

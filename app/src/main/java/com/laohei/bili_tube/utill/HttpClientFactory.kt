@@ -26,4 +26,7 @@ object HttpClientFactory {
             }
         }
     }
+
+    val coilClient by lazy { HttpClient(OkHttp) }
+
 }
