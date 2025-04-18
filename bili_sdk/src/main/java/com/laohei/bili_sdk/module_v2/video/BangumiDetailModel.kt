@@ -27,7 +27,7 @@ data class BangumiDetailModel(
     val areas: List<AreaModel>,
     val episodes: List<EpisodeModel>,
     val publish: PublishModel,
-    val rating: RatingModel,
+    val rating: RatingModel? = null,
     val seasons: List<SeasonModel>
 )
 

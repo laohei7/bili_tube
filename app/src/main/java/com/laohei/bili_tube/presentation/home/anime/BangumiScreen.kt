@@ -31,8 +31,10 @@ import com.laohei.bili_tube.model.BangumiFilterModel
 import com.laohei.bili_tube.presentation.home.anime.component.BangumiWidget
 import com.laohei.bili_tube.presentation.home.anime.component.FilterWidget
 import com.laohei.bili_tube.presentation.home.state.HomePageAction
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
 @Composable
 fun BangumiScreen(
     gridState: LazyGridState = rememberLazyGridState(),
@@ -92,7 +94,9 @@ fun BangumiScreen(
                         )
                     }
                 }
-                items(bangumis.itemCount) { index ->
+                items(
+                    bangumis.itemCount,
+                    key = { bangumis[it]?.seasonId ?: Uuid.random() }) { index ->
                     bangumis[index]?.let {
                         BangumiWidget(
                             modifier = Modifier
