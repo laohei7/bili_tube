@@ -82,4 +82,6 @@
     <string name="str_bangumi">番剧</string>
     <string name="str_see_more">更多</string>
     <string name="str_episode">第%d集</string>
+    <string name="str_episode_string">第%s集</string>
+    <string name="str_no_score">暂无评分</string>
 </resources>

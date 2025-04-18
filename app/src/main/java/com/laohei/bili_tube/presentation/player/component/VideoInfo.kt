@@ -38,10 +38,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
+import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.component.color.sheetListItemColors
 import com.laohei.bili_tube.component.sheet.ModalBottomSheet
@@ -110,10 +111,6 @@ internal fun VideoSimpleInfo(
     }
 }
 
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFFFFFF
-)
 @OptIn(
     ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class,
     ExperimentalLayoutApi::class
@@ -121,24 +118,7 @@ internal fun VideoSimpleInfo(
 @Composable
 internal fun VideoDetailSheet(
     modifier: Modifier = Modifier,
-    title: String? = "拉片24小时，全网没人发现的《边水往事》隐藏剧情！万字细嗦《边水往事》P1 包含；原著、镜头语言、细节、隐喻、科普等",
-    description: String? = "第一期2集内容已经高达2万字！求求各位宝贝们三连吧！突破1万赞爆肝下一期！挑战全网最细的《边水往事》",
-    like: String? = 15871.toViewString(),
-    view: String? = 316995.toViewString(),
-    publishDate: String? = 1740625200.formatDateToString(false),
-    tags: List<String> = listOf(
-        "人人都能聊影视",
-        "悬疑",
-        "犯罪",
-        "剧情",
-        "郭麒麟",
-        "吴镇宇",
-        "冒险",
-        "电视剧",
-        "边水往事",
-        "人人都能聊影视5.0",
-        "电视剧解说"
-    ),
+    videoDetail: VideoDetailModel?,
     isShowDetail: Boolean = true,
     bottomPadding: Dp = 0.dp,
     onDismiss: () -> Unit = {},
@@ -153,13 +133,16 @@ internal fun VideoDetailSheet(
     val scope = rememberCoroutineScope()
 
     if (isShowDetail) {
+        val publishDate =
+            videoDetail?.view?.pubdate?.formatDateToString(false)
+        val tags = videoDetail?.tags?.fastMap { it.tagName } ?: emptyList()
         LaunchedEffect(sheetState) {
             snapshotFlow { sheetState.requireOffset() }
                 .collect { offset ->
                     maskAlphaChanged.invoke(offset)
                 }
         }
-        ModalBottomSheet (
+        ModalBottomSheet(
             modifier = modifier.fillMaxSize(),
             sheetState = sheetState,
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
@@ -210,7 +193,7 @@ internal fun VideoDetailSheet(
                         colors = sheetListItemColors(),
                         headlineContent = {
                             Text(
-                                text = title ?: "",
+                                text = videoDetail?.view?.title ?: "",
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.Bold
                                 )
@@ -227,8 +210,14 @@ internal fun VideoDetailSheet(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceAround
                             ) {
-                                TitleAndLabel(title = like ?: "-", label = "赞")
-                                TitleAndLabel(title = view ?: "-", label = "观看次数")
+                                TitleAndLabel(
+                                    title = videoDetail?.view?.stat?.like?.toViewString() ?: "-",
+                                    label = "赞"
+                                )
+                                TitleAndLabel(
+                                    title = videoDetail?.view?.stat?.view?.toViewString() ?: "-",
+                                    label = "观看次数"
+                                )
                                 TitleAndLabel(
                                     title = ((publishDate?.substringBefore("年") + ("年"))),
                                     label = publishDate?.substringAfter("年") ?: ""
@@ -238,7 +227,7 @@ internal fun VideoDetailSheet(
                     )
                 }
 
-                description?.let {
+                videoDetail?.view?.desc?.let {
                     item {
                         ListItem(
                             colors = sheetListItemColors(),
@@ -248,8 +237,10 @@ internal fun VideoDetailSheet(
                                     shape = RoundedCornerShape(16.dp)
                                 ) {
                                     Text(
-                                        text = description.ifBlank { stringResource(R.string.str_empty) },
-                                        modifier = Modifier.fillMaxWidth().padding(12.dp),
+                                        text = it.ifBlank { stringResource(R.string.str_empty) },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(12.dp),
                                         style = MaterialTheme.typography.bodyMedium
                                     )
                                 }

@@ -72,6 +72,7 @@ internal fun VideoMenus(
     hasFavoured: Boolean,
     isDownloaded: Boolean,
     isShowLikeAnimation: Boolean,
+    isFullscreen: Boolean,
     onClick: (VideoAction.VideoMenuAction) -> Unit,
     coinClick: () -> Unit,
     favouredClick: () -> Unit,
@@ -105,7 +106,7 @@ internal fun VideoMenus(
                 },
                 onIcon2Click = {}
             )
-            if (isShowLikeAnimation) {
+            if (isShowLikeAnimation && !isFullscreen) {
                 Popup(
                     offset = IntOffset(10, -120)
                 ) {

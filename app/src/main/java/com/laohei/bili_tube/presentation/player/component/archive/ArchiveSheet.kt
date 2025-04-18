@@ -85,8 +85,8 @@ import kotlin.math.abs
 @Composable
 fun ArchiveSheet(
     modifier: Modifier = Modifier,
-    archiveMeta: ArchiveMeta,
-    archives: List<ArchiveItem>,
+    archiveMeta: ArchiveMeta?,
+    archives: List<ArchiveItem>?,
     isShowSheet: Boolean = false,
     currentArchiveIndex: Int = 0,
     lazyListState: LazyListState = rememberLazyListState(),
@@ -95,6 +95,9 @@ fun ArchiveSheet(
     maskAlphaChanged: (Float) -> Unit = { _ -> },
     onClick: (Route.Play) -> Unit
 ) {
+    if (archiveMeta == null && archives == null) {
+        return
+    }
     BackHandler(enabled = isShowSheet) {
         onDismiss.invoke()
     }
@@ -182,7 +185,7 @@ fun ArchiveSheet(
                     .padding(start = 16.dp)
             ) {
                 Text(
-                    text = archiveMeta.name,
+                    text = archiveMeta!!.name,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
@@ -224,7 +227,7 @@ fun ArchiveSheet(
                     }
             ) {
                 Text(
-                    text = stringResource(R.string.str_all_num_episode, archiveMeta.total),
+                    text = stringResource(R.string.str_all_num_episode, archiveMeta!!.total),
                     maxLines = 1,
                     style = MaterialTheme.typography.labelMedium,
                     color = Color.LightGray
@@ -257,7 +260,7 @@ fun ArchiveSheet(
                             .padding(vertical = 8.dp)
                     )
                 }
-                itemsIndexed(archives) { index, item ->
+                itemsIndexed(archives!!) { index, item ->
                     ArchiveWidgetItem(
                         cover = item.pic,
                         title = item.title,

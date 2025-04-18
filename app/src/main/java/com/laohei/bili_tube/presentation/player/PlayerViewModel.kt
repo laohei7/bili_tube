@@ -78,36 +78,45 @@ internal class PlayerViewModel(
 
     private fun autoSwitchVideo() {
         var newParams: Route.Play? = null
-        // next playlist
-        _mPlayerState.value.videoPageList?.let {
-            val next = _mPlayerState.value.currentPageListIndex + 1
-            if (next < it.size) {
-                newParams = params.copy(cid = it[next].cid)
+        when {
+            params.isVideo -> {
+                // next playlist
+                _mPlayerState.value.videoPageList?.let {
+                    val next = _mPlayerState.value.currentPageListIndex + 1
+                    if (next < it.size) {
+                        newParams = params.copy(cid = it[next].cid)
+                    }
+                }
+                // next archive
+                _mPlayerState.value.videoArchives?.let {
+                    if (newParams != null) {
+                        return@let
+                    }
+                    val next = _mPlayerState.value.currentArchiveIndex + 1
+                    if (next < it.size) {
+                        val nextVideo = it[next]
+                        newParams =
+                            params.copy(aid = nextVideo.aid, bvid = nextVideo.bvid, cid = -1L)
+                    }
+                }
             }
-        }
-        // next archive
-        _mPlayerState.value.videoArchives?.let {
-            if (newParams != null) {
-                return@let
-            }
-            val next = _mPlayerState.value.currentArchiveIndex + 1
-            if (next < it.size) {
-                val nextVideo = it[next]
-                newParams = params.copy(aid = nextVideo.aid, bvid = nextVideo.bvid, cid = -1L)
-            }
-        }
 
-        // related
-//        _mPlayerState.value.videoDetail?.let {
-//            if (newParams != null) {
-//                return@let
-//            }
-//            if (it.related.isNotEmpty()) {
-//                val nextVideo = it.related.first()
-//                newParams =
-//                    params.copy(aid = nextVideo.aid, bvid = nextVideo.bvid, cid = nextVideo.cid)
-//            }
-//        }
+            else -> {
+                _mPlayerState.value.bangumiDetail?.episodes?.run {
+                    val next = indexOfFirst { it.epId == _mPlayerState.value.currentEpId } + 1
+                    if (next < this.size) {
+                        val nextEpisode = this[next]
+                        newParams =
+                            params.copy(
+                                aid = nextEpisode.aid,
+                                bvid = nextEpisode.bvid,
+                                cid = nextEpisode.cid,
+                                epId = nextEpisode.epId
+                            )
+                    }
+                }
+            }
+        }
         newParams?.let {
             viewModelScope.launch { updateParams(it) }
         }
@@ -426,7 +435,8 @@ internal class PlayerViewModel(
                         params.copy(
                             seasonId = action.seasonId,
                             mediaId = null,
-                            epId = null
+                            epId = null,
+                            isVideo = false
                         )
                     )
                 }

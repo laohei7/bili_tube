@@ -7,18 +7,16 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.annotation.OptIn
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -41,18 +39,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.Comment
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.PlayCircleOutline
-import androidx.compose.material.icons.outlined.StarOutline
-import androidx.compose.material.icons.outlined.ThumbDown
-import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonColors
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -65,11 +55,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -82,8 +70,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEachIndexed
-import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -91,7 +77,6 @@ import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.paging.compose.collectAsLazyPagingItems
-import coil3.compose.AsyncImage
 import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiItem
 import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
 import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
@@ -121,6 +106,7 @@ import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.presentation.player.component.BlurBackgroundImage
 import com.laohei.bili_tube.presentation.player.component.CoinSheet
 import com.laohei.bili_tube.presentation.player.component.CommentCard
+import com.laohei.bili_tube.presentation.player.component.FullscreenVideoActions
 import com.laohei.bili_tube.presentation.player.component.PlayerPlaceholder
 import com.laohei.bili_tube.presentation.player.component.PlayerSnackHost
 import com.laohei.bili_tube.presentation.player.component.RelatedBangumiHorizontalList
@@ -144,7 +130,6 @@ import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManage
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenState
 import com.laohei.bili_tube.ui.theme.Pink
-import com.laohei.bili_tube.utill.formatDateToString
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
 import com.laohei.bili_tube.utill.toTimeAgoString
@@ -214,7 +199,10 @@ fun PlayerScreen(
         targetValue = screenState.videoHeight
     )
     val animatedContentOffset by animateDpAsState(
-        targetValue = screenState.videoHeight + if (screenState.isFullscreen) 0.dp else SystemUtil.getStatusBarHeightDp()
+        targetValue = screenState.videoHeight + when {
+            screenState.isFullscreen -> 0.dp
+            else -> SystemUtil.getStatusBarHeightDp()
+        }
     )
 
     val contentModifier = Modifier
@@ -222,7 +210,59 @@ fun PlayerScreen(
         .fillMaxHeight()
     val otherSheetModifier = contentModifier
         .offset { with(density) { IntOffset(0, animatedContentOffset.toPx().toInt()) } }
+    val videoContentModifier = contentModifier
+        .offset {
+            with(density) {
+                IntOffset(0, animatedContentOffset.toPx().roundToInt())
+            }
+        }
+        .nestedScroll(connection = nestedScrollConnection)
+        .draggable(
+            orientation = Orientation.Vertical,
+            state = rememberDraggableState { },
+        )
+    val videoWidthFraction by animateFloatAsState(
+        targetValue = when {
+            screenState.isFullscreen && screenState.isShowReplySheet && !isOrientationPortrait -> 0.65f
+            else -> 1f
+        }
+    )
+    val replayWidthFraction by animateFloatAsState(
+        targetValue = when {
+            screenState.isFullscreen && screenState.isShowReplySheet && !isOrientationPortrait -> 0.35f
+            else -> 0f
+        }
+    )
+    val videoModifier = when {
+        isOrientationPortrait -> {
+            Modifier
+                .height(animatedVideoHeight)
+                .width(animatedVideoHeight * mediaState.width.toFloat() / mediaState.height)
+        }
+
+        else -> {
+            Modifier
+                .fillMaxHeight()
+        }
+    }
+
+    val videoControlModifier = when {
+        isOrientationPortrait -> {
+            Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min)
+        }
+
+        else -> videoModifier.fillMaxWidth(videoWidthFraction)
+    }
+    val replyModifier = when {
+        isOrientationPortrait -> otherSheetModifier
+        else -> Modifier.fillMaxWidth(replayWidthFraction)
+    }
     val isSystemDarkTheme = isSystemInDarkTheme()
+    val animatedOffset by animateIntAsState(targetValue = screenState.relatedListOffset.toInt())
+    val enabledDraggable =
+        !isOrientationPortrait && screenState.isFullscreen && !screenState.isLockScreen
 
     fun backPressHandle() {
         if (screenState.isLockScreen) {
@@ -251,8 +291,6 @@ fun PlayerScreen(
 
     // video size changed
     LaunchedEffect(mediaState.width, mediaState.height) {
-//        Log.d(TAG, "PlayerScreen: video size changed")
-//        Log.d(TAG, "PlayerScreen: ${mediaState.width} ${mediaState.height}")
         viewModel.calculateScreenSize(mediaState.width, mediaState.height)
     }
 
@@ -286,9 +324,6 @@ fun PlayerScreen(
         }
     )
 
-    val enabledDraggable =
-        !isOrientationPortrait && screenState.isFullscreen && !screenState.isLockScreen
-
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -310,12 +345,17 @@ fun PlayerScreen(
             isFullscreen = screenState.isFullscreen,
         )
         VideoArea(
-            title = playerState.videoDetail?.view?.title ?: "",
+            modifier = videoModifier.then(
+                when {
+                    isOrientationPortrait -> Modifier
+                    else -> Modifier.align(Alignment.Center)
+                }
+            ),
+            videoControlModifier = videoControlModifier,
             exoPlayer = viewModel.exoPlayer(),
             mediaState = mediaState,
             screenState = screenState,
-            videoHeight = animatedVideoHeight,
-            images = playerState.videoDetail?.related?.take(3)?.map { it.pic },
+            playerState = playerState,
             videoFrame = {
                 viewModel.updateState(screenState.copy(bitmap = it))
             },
@@ -345,131 +385,122 @@ fun PlayerScreen(
             onShowUIChanged = {
                 viewModel.updateState(screenState.copy(isShowUI = it))
             },
-            actionClick = {
+            screenActionClick = {
+                when {
+                    it is ScreenAction.ShowReplyAction && screenState.isFullscreen
+                            && isOrientationPortrait -> {
+                        backPressHandle()
+                    }
+                }
                 viewModel.screenActionHandle(
                     action = it,
                     isOrientationPortrait = isOrientationPortrait,
                     scope = scope,
                 )
-            }
+            },
+            videoMenuClick = viewModel::videoMenuActionHandle
         )
 
-        if (isOrientationPortrait) {
-            val videoContentModifier = contentModifier
-                .offset {
-                    with(density) {
-                        IntOffset(0, animatedContentOffset.toPx().roundToInt())
+        when {
+            isOrientationPortrait -> {
+                GetContent(
+                    modifier = videoContentModifier,
+                    playerState = playerState,
+                    screenState = screenState,
+                    bottomPadding = screenState.videoHeight + 80.dp,
+                    screenActionClick = {
+                        viewModel.screenActionHandle(
+                            it, true, scope,
+                            updateParamsCallback = { newParams ->
+                                scope.launch { viewModel.updateParams(newParams) }
+                            })
+                    },
+                    videoMenuActionClick = viewModel::videoMenuActionHandle,
+                    videoPlayActionClick = viewModel::videoPlayActionHandle
+                )
+
+                Box(
+                    modifier = contentModifier
+                        .graphicsLayer { alpha = screenState.maskAlpha }
+                        .background(Color.Black)
+                )
+            }
+
+            !isOrientationPortrait && !screenState.isLockScreen -> {
+                val relatedListModifier = Modifier
+                    .zIndex(100f)
+                    .fillMaxWidth()
+                    .align(Alignment.BottomStart)
+                    .padding(bottom = 12.dp)
+                    .offset {
+                        IntOffset(0, animatedOffset)
+                    }
+                when {
+                    playerState.isVideo -> {
+                        RelatedHorizontalList(
+                            modifier = relatedListModifier,
+                            related = playerState.videoDetail?.related ?: emptyList(),
+                            onClick = {
+                                scope.launch { viewModel.updateParams(it) }
+                            }
+                        )
+                    }
+
+                    else -> {
+                        RelatedBangumiHorizontalList(
+                            modifier = relatedListModifier,
+                            related = playerState.relatedBangumis ?: emptyList(),
+                            onClick = {
+                                scope.launch { viewModel.updateParams(it) }
+                            }
+                        )
                     }
                 }
-                .nestedScroll(connection = nestedScrollConnection)
-                .draggable(
-                    orientation = Orientation.Vertical,
-                    state = rememberDraggableState { },
-                )
-            GetContent(
-                modifier = videoContentModifier,
-                playerState = playerState,
-                screenState = screenState,
-                bottomPadding = screenState.videoHeight + 80.dp,
-                screenActionClick = {
-                    viewModel.screenActionHandle(
-                        it, true, scope,
-                        updateParamsCallback = { newParams ->
-                            scope.launch { viewModel.updateParams(newParams) }
-                        })
-                },
-                videoMenuActionClick = viewModel::videoMenuActionHandle,
-                videoPlayActionClick = viewModel::videoPlayActionHandle
-            )
-
-            Box(
-                modifier = contentModifier
-                    .graphicsLayer { alpha = screenState.maskAlpha }
-                    .background(Color.Black)
-            )
-
-
-            VideoReplySheet(
-                isShowReply = screenState.isShowReplySheet,
-                replies = videoReplies,
-                onDismiss = { viewModel.updateState(screenState.copy(isShowReplySheet = false)) },
-                modifier = otherSheetModifier,
-                maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
-                bottomPadding = screenState.videoHeight + 80.dp
-            )
-
-            val videoDetail = playerState.videoDetail
-            VideoDetailSheet(
-                like = videoDetail?.view?.stat?.like?.toViewString(),
-                view = videoDetail?.view?.stat?.view?.toViewString(),
-                title = videoDetail?.view?.title,
-                description = videoDetail?.view?.desc,
-                publishDate = videoDetail?.view?.pubdate?.formatDateToString(false),
-                tags = videoDetail?.tags?.fastMap { it.tagName } ?: emptyList(),
-                isShowDetail = screenState.isShowDetailSheet,
-                onDismiss = { viewModel.updateState(screenState.copy(isShowDetailSheet = false)) },
-                modifier = otherSheetModifier,
-                maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
-                bottomPadding = screenState.videoHeight + 80.dp
-            )
-
-            if (playerState.videoArchiveMeta != null && playerState.videoArchives != null) {
-                ArchiveSheet(
-                    lazyListState = screenState.archiveListState,
-                    modifier = otherSheetModifier,
-                    currentArchiveIndex = playerState.currentArchiveIndex,
-                    archiveMeta = playerState.videoArchiveMeta!!,
-                    archives = playerState.videoArchives!!,
-                    isShowSheet = screenState.isShowArchiveSheet,
-                    maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
-                    onDismiss = {
-                        viewModel.screenActionHandle(
-                            ScreenAction.ShowArchiveSheetAction(false),
-                            true
-                        )
-                    },
-                    onClick = {
-                        scope.launch { viewModel.updateParams(it) }
-                    },
-                    bottomPadding = screenState.videoHeight + 80.dp
-                )
             }
-
         }
-        val animatedOffset by animateIntAsState(
-            targetValue = screenState.relatedListOffset.toInt()
+
+        VideoReplySheet(
+            isShowReply = screenState.isShowReplySheet,
+            replies = videoReplies,
+            onDismiss = { viewModel.updateState(screenState.copy(isShowReplySheet = false)) },
+            modifier = replyModifier.then(
+                when {
+                    isOrientationPortrait -> Modifier
+                    else -> Modifier.align(Alignment.TopEnd)
+                }
+            ),
+            maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
+            bottomPadding = screenState.videoHeight + 80.dp
         )
-        if (!isOrientationPortrait && !screenState.isLockScreen) {
-            val relatedListModifier = Modifier
-                .zIndex(100f)
-                .fillMaxWidth()
-                .align(Alignment.BottomStart)
-                .padding(bottom = 12.dp)
-                .offset {
-                    IntOffset(0, animatedOffset)
-                }
-            when {
-                playerState.isVideo -> {
-                    RelatedHorizontalList(
-                        modifier = relatedListModifier,
-                        related = playerState.videoDetail?.related ?: emptyList(),
-                        onClick = {
-                            scope.launch { viewModel.updateParams(it) }
-                        }
-                    )
-                }
 
-                else -> {
-                    RelatedBangumiHorizontalList(
-                        modifier = relatedListModifier,
-                        related = playerState.relatedBangumis ?: emptyList(),
-                        onClick = {
-                            scope.launch { viewModel.updateParams(it) }
-                        }
-                    )
-                }
-            }
-        }
+        VideoDetailSheet(
+            videoDetail = playerState.videoDetail,
+            isShowDetail = screenState.isShowDetailSheet,
+            onDismiss = { viewModel.updateState(screenState.copy(isShowDetailSheet = false)) },
+            modifier = otherSheetModifier,
+            maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
+            bottomPadding = screenState.videoHeight + 80.dp
+        )
+
+        ArchiveSheet(
+            lazyListState = screenState.archiveListState,
+            modifier = otherSheetModifier,
+            currentArchiveIndex = playerState.currentArchiveIndex,
+            archiveMeta = playerState.videoArchiveMeta,
+            archives = playerState.videoArchives,
+            isShowSheet = screenState.isShowArchiveSheet,
+            maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
+            onDismiss = {
+                viewModel.screenActionHandle(
+                    ScreenAction.ShowArchiveSheetAction(false),
+                    true
+                )
+            },
+            onClick = {
+                scope.launch { viewModel.updateParams(it) }
+            },
+            bottomPadding = screenState.videoHeight + 80.dp
+        )
 
         VideoSettingsSheet(
             isShowSheet = screenState.isShowVideoSettingsSheet,
@@ -627,12 +658,13 @@ private fun GetContent(
                     hasLike = playerState.hasLike,
                     isDownloaded = playerState.isDownloaded,
                     isShowLikeAnimation = screenState.isShowLikeAnimation,
+                    isFullscreen = screenState.isFullscreen,
                     videoDetail = it,
                     videoArchiveMeta = playerState.videoArchiveMeta,
                     currentArchiveIndex = playerState.currentArchiveIndex + 1,
                     videoPageList = playerState.videoPageList,
                     currentPageListIndex = playerState.currentPageListIndex,
-                    onClick = screenActionClick,
+                    screenActionClick = screenActionClick,
                     videoMenuClick = videoMenuActionClick,
                     videoPlayClick = videoPlayActionClick
                 )
@@ -650,10 +682,17 @@ private fun GetContent(
                     currentEpId = playerState.currentEpId,
                     initialEpisodeIndex = playerState.initialEpisodeIndex,
                     initialSeasonIndex = playerState.initialSeasonIndex,
+                    hasFavoured = playerState.hasFavoured,
+                    hasCoin = playerState.hasCoin,
+                    hasLike = playerState.hasLike,
+                    isDownloaded = playerState.isDownloaded,
+                    isShowLikeAnimation = screenState.isShowLikeAnimation,
+                    isFullscreen = screenState.isFullscreen,
                     relatedBangumis = playerState.relatedBangumis ?: emptyList(),
                     bottomPadding = bottomPadding,
                     videoPlayActionClick = videoPlayActionClick,
                     screenActionClick = screenActionClick,
+                    videoMenuClick = videoMenuActionClick
                 )
             } ?: run {
                 PlayerPlaceholder(modifier = modifier)
@@ -665,13 +704,13 @@ private fun GetContent(
 
 @OptIn(UnstableApi::class)
 @Composable
-private fun BoxScope.VideoArea(
-    title: String = "",
+private fun VideoArea(
+    modifier: Modifier = Modifier,
+    videoControlModifier: Modifier = Modifier,
     exoPlayer: ExoPlayer,
+    playerState: PlayerState,
     mediaState: MediaState,
     screenState: ScreenState,
-    videoHeight: Dp,
-    images: List<String>?,
     videoFrame: (Bitmap) -> Unit = {},
     fullscreen: (Boolean) -> Unit = {},
     uploadVideoHistory: ((Long) -> Unit)? = null,
@@ -680,7 +719,8 @@ private fun BoxScope.VideoArea(
     togglePlayPause: () -> Unit,
     onShowUIChanged: (Boolean) -> Unit,
     backPressedClick: (() -> Unit)? = null,
-    actionClick: (ScreenAction) -> Unit
+    screenActionClick: (ScreenAction) -> Unit,
+    videoMenuClick: (VideoAction.VideoMenuAction) -> Unit,
 ) {
     val localContext = LocalContext.current
     val textureView = remember { TextureView(localContext) }
@@ -703,25 +743,9 @@ private fun BoxScope.VideoArea(
         }
     }
 
-
-    val videoModifier = if (isOrientationPortrait()) {
-        Modifier
-            .height(videoHeight)
-            .width(videoHeight * mediaState.width.toFloat() / mediaState.height)
-    } else {
-        Modifier
-            .fillMaxHeight()
-            .align(Alignment.Center)
-    }
-    val videoControlModifier = if (isOrientationPortrait()) {
-        Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-    } else videoModifier
-
     PlayerControl(
-        title = title,
         modifier = videoControlModifier.zIndex(99f),
+        title = playerState.videoDetail?.view?.title ?: playerState.bangumiDetail?.title ?: "",
         progress = mediaState.progress,
         bufferProgress = mediaState.bufferProgress,
         isShowUI = screenState.isShowUI,
@@ -740,17 +764,30 @@ private fun BoxScope.VideoArea(
         onShowUIChanged = onShowUIChanged,
         backPressedClick = backPressedClick,
         settingsClick = {
-            actionClick.invoke(ScreenAction.ShowSettingsSheetAction(true))
+            screenActionClick.invoke(ScreenAction.ShowSettingsSheetAction(true))
         },
         actionContent = {
-            VideoActions(
-                images = images,
+            FullscreenVideoActions(
+                images = when {
+                    playerState.isVideo -> {
+                        playerState.videoDetail?.related?.take(3)?.map { it.pic }
+                    }
+
+                    else -> {
+                        playerState.relatedBangumis?.take(3)?.map { it.cover }
+                    }
+                },
+                hasLike = playerState.hasLike,
+                hasFavoured = playerState.hasFavoured,
+                isShowLikeAnimation = screenState.isShowLikeAnimation,
+                isFullscreen = screenState.isFullscreen,
                 showLabel = screenState.isFullscreen && !isOrientationPortrait(),
-                onClick = actionClick
+                screenActionClick = screenActionClick,
+                videoMenuClick = videoMenuClick,
             )
         },
         unlockScreenClick = {
-            actionClick.invoke(ScreenAction.LockScreenAction(false))
+            screenActionClick.invoke(ScreenAction.LockScreenAction(false))
         }
     ) {
         val aspectRatio = when {
@@ -761,7 +798,7 @@ private fun BoxScope.VideoArea(
             )
         }
         AndroidView(
-            modifier = videoModifier
+            modifier = modifier
                 .aspectRatio(aspectRatio),
 
             factory = { _ ->
@@ -787,9 +824,10 @@ private fun VideoContent(
     hasFavoured: Boolean,
     isDownloaded: Boolean,
     isShowLikeAnimation: Boolean,
+    isFullscreen: Boolean,
     currentPageListIndex: Int,
     currentArchiveIndex: Int,
-    onClick: (ScreenAction) -> Unit,
+    screenActionClick: (ScreenAction) -> Unit,
     videoMenuClick: (VideoAction.VideoMenuAction) -> Unit,
     videoPlayClick: (VideoAction.VideoPlayAction) -> Unit
 ) {
@@ -811,7 +849,7 @@ private fun VideoContent(
                         else -> null
                     },
                     onClick = {
-                        onClick.invoke(ScreenAction.ShowVideoDetailAction)
+                        screenActionClick.invoke(ScreenAction.ShowVideoDetailAction)
                     }
                 )
             }
@@ -835,16 +873,17 @@ private fun VideoContent(
                     hasFavoured = hasFavoured,
                     isDownloaded = isDownloaded,
                     isShowLikeAnimation = isShowLikeAnimation,
+                    isFullscreen = isFullscreen,
                     onClick = videoMenuClick,
-                    coinClick = { onClick.invoke(ScreenAction.ShowCoinSheetAction(true)) },
+                    coinClick = { screenActionClick.invoke(ScreenAction.ShowCoinSheetAction(true)) },
                     favouredClick = {
-                        onClick.invoke(ScreenAction.ShowFolderSheetAction(true))
+                        screenActionClick.invoke(ScreenAction.ShowFolderSheetAction(true))
                     },
                     downloadClick = {
-                        onClick.invoke(ScreenAction.ShowDownloadSheetAction(true))
+                        screenActionClick.invoke(ScreenAction.ShowDownloadSheetAction(true))
                     },
                     onAnimationEndCallback = {
-                        onClick.invoke(ScreenAction.ShowLikeAnimationAction(false))
+                        screenActionClick.invoke(ScreenAction.ShowLikeAnimationAction(false))
                     }
                 )
             }
@@ -863,7 +902,7 @@ private fun VideoContent(
                         archiveMeta = it,
                         currentArchiveIndex = currentArchiveIndex,
                         onClick = {
-                            onClick.invoke(ScreenAction.ShowArchiveSheetAction(true))
+                            screenActionClick.invoke(ScreenAction.ShowArchiveSheetAction(true))
                         }
                     )
                 }
@@ -872,7 +911,7 @@ private fun VideoContent(
                 CommentCard(
                     comments = videoDetail.view.stat.reply.toViewString(),
                     onClick = {
-                        onClick.invoke(ScreenAction.ShowReplyAction)
+                        screenActionClick.invoke(ScreenAction.ShowReplyAction)
                     }
                 )
             }
@@ -898,7 +937,7 @@ private fun VideoContent(
                             bvid = video.bvid,
                             cid = video.cid,
                         )
-                        onClick.invoke(ScreenAction.SwitchVideoAction(newParams))
+                        screenActionClick.invoke(ScreenAction.SwitchVideoAction(newParams))
                     }
                 )
             }
@@ -914,10 +953,17 @@ private fun BangumiContent(
     currentEpId: Long,
     initialSeasonIndex: Int,
     initialEpisodeIndex: Int,
+    hasLike: Boolean,
+    hasCoin: Boolean,
+    hasFavoured: Boolean,
+    isDownloaded: Boolean,
+    isShowLikeAnimation: Boolean,
+    isFullscreen: Boolean,
     relatedBangumis: List<RelatedBangumiItem>,
     bottomPadding: Dp = 0.dp,
     videoPlayActionClick: (VideoAction.VideoPlayAction) -> Unit,
     screenActionClick: (ScreenAction) -> Unit,
+    videoMenuClick: (VideoAction.VideoMenuAction) -> Unit,
 ) {
     val seasonState = rememberLazyListState(initialFirstVisibleItemIndex = initialSeasonIndex)
     val episodeState = rememberLazyListState(initialFirstVisibleItemIndex = initialEpisodeIndex)
@@ -997,13 +1043,18 @@ private fun BangumiContent(
                         )
                         IconText(
                             text = buildString {
-                                append(bangumiDetailModel.rating.score.toString())
-                                append(stringResource(R.string.str_score))
+                                bangumiDetailModel.rating?.let {
+                                    append(it.score.toString())
+                                    append(stringResource(R.string.str_score))
+                                }?:run {
+                                    append(stringResource(R.string.str_no_score))
+                                }
                             },
                             style = MaterialTheme.typography.labelSmall.copy(
                                 color = Color.Red
                             )
                         )
+
                     }
                     IconText(
                         rightIcon = Icons.AutoMirrored.Outlined.KeyboardArrowRight,
@@ -1023,20 +1074,22 @@ private fun BangumiContent(
                     coin = bangumiDetailModel.stat.coins.toViewString(),
                     star = bangumiDetailModel.stat.favorites.toViewString(),
                     share = bangumiDetailModel.stat.share.toViewString(),
-                    hasLike = false,
-                    hasCoin = false,
-                    hasFavoured = false,
-                    isDownloaded = false,
-                    isShowLikeAnimation = false,
-                    onClick = { },
-                    coinClick = { },
+                    hasLike = hasLike,
+                    hasCoin = hasCoin,
+                    hasFavoured = hasFavoured,
+                    isDownloaded = isDownloaded,
+                    isShowLikeAnimation = isShowLikeAnimation,
+                    isFullscreen = isFullscreen,
+                    onClick = { videoMenuClick.invoke(it) },
+                    coinClick = { screenActionClick.invoke(ScreenAction.ShowCoinSheetAction(true)) },
                     favouredClick = {
-
+                        screenActionClick.invoke(ScreenAction.ShowFolderSheetAction(true))
                     },
                     downloadClick = {
                         screenActionClick.invoke(ScreenAction.ShowDownloadSheetAction(true))
                     },
                     onAnimationEndCallback = {
+                        screenActionClick.invoke(ScreenAction.ShowLikeAnimationAction(false))
                     }
                 )
                 Spacer(Modifier.height(16.dp))
@@ -1133,7 +1186,10 @@ private fun BangumiContent(
                                     Text(
                                         text = when {
                                             title != null && it.title.contains(".") -> {
-                                                stringResource(R.string.str_episode, title)
+                                                stringResource(
+                                                    R.string.str_episode_string,
+                                                    it.title
+                                                )
                                             }
 
                                             title != null -> {
@@ -1175,14 +1231,14 @@ private fun BangumiContent(
                 )
                 Spacer(Modifier.height(8.dp))
             }
-            items(relatedBangumis) {
+            items(relatedBangumis, key = { it.seasonId }) {
                 HorizontalVideoItem(
                     cover = it.cover,
                     title = it.title,
                     ownerName = "",
                     rcmdReason = it.rcmdReason,
                     view = it.stat.view.toViewString(),
-                    publishDate = it.stat.follow.toViewString(),
+                    publishDate = it.stat.follow.toViewString() + "追番",
                     leadingIcon = null,
                     onClick = {
                         screenActionClick.invoke(
@@ -1201,142 +1257,6 @@ private fun BangumiContent(
     }
 }
 
-@Composable
-private fun VideoActions(
-    images: List<String>?,
-    showLabel: Boolean = false,
-    onClick: (ScreenAction) -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        IconButton(
-            onClick = {},
-            colors = getIconButtonColor()
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.ThumbUp,
-                contentDescription = Icons.Outlined.ThumbUp.name,
-            )
-        }
-
-        IconButton(
-            onClick = {},
-            colors = getIconButtonColor()
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.ThumbDown,
-                contentDescription = Icons.Outlined.ThumbDown.name,
-            )
-        }
-
-        IconButton(
-            onClick = {},
-            colors = getIconButtonColor()
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.Comment,
-                contentDescription = Icons.AutoMirrored.Outlined.Comment.name,
-            )
-        }
-
-        IconButton(
-            onClick = {},
-            colors = getIconButtonColor()
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.StarOutline,
-                contentDescription = Icons.Outlined.StarOutline.name,
-            )
-        }
-
-        IconButton(
-            onClick = {},
-            colors = getIconButtonColor()
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.MoreHoriz,
-                contentDescription = Icons.Outlined.MoreHoriz.name,
-            )
-        }
-
-        Spacer(Modifier.weight(1f))
-
-        images?.let {
-            if (showLabel) {
-                Column(
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
-                ) {
-                    Text(
-                        text = stringResource(R.string.str_more_video),
-                        style = MaterialTheme.typography.labelMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                    Text(
-                        text = stringResource(R.string.str_more_video_hint),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.LightGray
-                    )
-                }
-            }
-            MoreVideoButton(
-                images = it,
-                onClick = { onClick.invoke(ScreenAction.ShowRelatedAction) }
-            )
-        }
-    }
-}
-
-@Composable
-private fun MoreVideoButton(
-    images: List<String>,
-    onClick: () -> Unit
-) {
-    Box(
-        modifier = Modifier.clickable {
-            onClick.invoke()
-        }
-    ) {
-        images.fastForEachIndexed { index, url ->
-            AsyncImage(
-                model = url,
-                contentDescription = "",
-                modifier = Modifier
-                    .zIndex(images.size - index.toFloat())
-                    .offset {
-                        IntOffset(
-                            0,
-                            -10 * index
-                        )
-                    }
-                    .graphicsLayer {
-                        alpha = 1f - 0.15f * index
-                        scaleX = 1f - 0.05f * index
-                        scaleY = 1f - 0.05f * index
-                    }
-                    .width(60.dp)
-                    .border(
-                        1.dp, Color.White,
-                        RoundedCornerShape(4.dp)
-                    )
-                    .aspectRatio(16 / 9f)
-                    .clip(RoundedCornerShape(4.dp)),
-                contentScale = ContentScale.Crop
-            )
-        }
-    }
-}
-
-@Composable
-private fun getIconButtonColor(): IconButtonColors {
-    return IconButtonDefaults.iconButtonColors(
-        contentColor = Color.White
-    )
-}
 
 @Preview
 @Composable
@@ -1385,5 +1305,12 @@ private fun BangumiContentPreview() {
         initialSeasonIndex = 0,
         videoPlayActionClick = {},
         screenActionClick = {},
+        hasFavoured = false,
+        hasLike = false,
+        hasCoin = false,
+        isFullscreen = false,
+        isShowLikeAnimation = false,
+        isDownloaded = false,
+        videoMenuClick = {}
     )
 }
