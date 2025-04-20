@@ -30,5 +30,6 @@ data class PlayerState(
     val initialSeasonIndex: Int = 0,
     val initialEpisodeIndex: Int = 0,
     val replies: Flow<PagingData<ReplyItem>> = flow { PagingData.empty<ReplyItem>() },
-    val relatedBangumis: List<RelatedBangumiItem>? = null
+    val relatedBangumis: List<RelatedBangumiItem>? = null,
+    val autoSkip:Boolean = false
 )

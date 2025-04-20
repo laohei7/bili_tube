@@ -121,6 +121,7 @@ import com.laohei.bili_tube.presentation.player.component.archive.PageListWidget
 import com.laohei.bili_tube.presentation.player.component.control.PlayerControl
 import com.laohei.bili_tube.presentation.player.component.reply.VideoReplySheet
 import com.laohei.bili_tube.presentation.player.component.settings.DownloadSheet
+import com.laohei.bili_tube.presentation.player.component.settings.OtherSettingsSheet
 import com.laohei.bili_tube.presentation.player.component.settings.PlaySpeedSheet
 import com.laohei.bili_tube.presentation.player.component.settings.VideoQualitySheet
 import com.laohei.bili_tube.presentation.player.component.settings.VideoSettingsSheet
@@ -513,7 +514,7 @@ fun PlayerScreen(
                     isOrientationPortrait
                 )
             },
-            action = { action ->
+            screenActionClick = { action ->
                 viewModel.screenActionHandle(
                     ScreenAction.ShowSettingsSheetAction(false),
                     isOrientationPortrait,
@@ -630,6 +631,18 @@ fun PlayerScreen(
                     isOrientationPortrait
                 )
             }
+        )
+
+        OtherSettingsSheet(
+            isShowSheet = screenState.isShowOtherSettingsSheet,
+            autoSkip = playerState.autoSkip,
+            onDismiss = {
+                viewModel.screenActionHandle(
+                    ScreenAction.ShowOtherSettingsSheetAction(false),
+                    isOrientationPortrait
+                )
+            },
+            videoSettingActionClick = viewModel::videoSettingActionHandle
         )
 
         PlayerSnackHost(

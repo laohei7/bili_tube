@@ -24,6 +24,7 @@ import com.laohei.bili_sdk.video.GetReply
 import com.laohei.bili_sdk.video.GetURL
 import com.laohei.bili_sdk.video.PostHeartBeat
 import com.laohei.bili_sdk.video.PostInfo
+import com.laohei.bili_tube.core.util.PreferenceUtil
 import com.laohei.bili_tube.db.BiliTubeDB
 import com.laohei.bili_tube.presentation.download.DownloadViewModel
 import com.laohei.bili_tube.presentation.dynamic.DynamicViewModel
@@ -52,6 +53,7 @@ import java.io.File
 
 @SuppressLint("UnsafeOptInUsageError")
 val appModule = module {
+    singleOf(::PreferenceUtil)
     single { BiliTubeDB.getInstance(get(Context::class) as Context) }
     single { HttpClientFactory.client }
     single {

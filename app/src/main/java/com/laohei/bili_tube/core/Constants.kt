@@ -13,6 +13,7 @@ val USERNAME_KEY = stringPreferencesKey("username")
 val UP_MID_KEY = stringPreferencesKey("up_mid")
 val VIP_STATUS_KEY = stringPreferencesKey("vip_status")
 val LAST_SHOW_LIST_KEY = stringPreferencesKey("last_show_list")
+const val AUTO_SKIP_KEY = "auto_skip"
 
 const val SHARED_FILE = "bili_tube_shared"
 

@@ -182,7 +182,9 @@ internal class DefaultScreenManager(
                 }
                 lockScreenCallback?.invoke()
             }
-
+            is ScreenAction.ShowOtherSettingsSheetAction->{
+                _mState.update { it.copy(isShowOtherSettingsSheet = action.flag) }
+            }
             is ScreenAction.ShowDownloadSheetAction->{
                 _mState.update { it.copy(isShowDownloadSheet = action.flag) }
             }

@@ -84,4 +84,5 @@
     <string name="str_episode">第%d集</string>
     <string name="str_episode_string">第%s集</string>
     <string name="str_no_score">暂无评分</string>
+    <string name="str_auto_skip_op_end">自动跳过OP/End</string>
 </resources>

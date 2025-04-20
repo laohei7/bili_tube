@@ -7,8 +7,10 @@ import androidx.media3.common.util.UnstableApi
 import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.component.video.VideoAction
+import com.laohei.bili_tube.core.AUTO_SKIP_KEY
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
+import com.laohei.bili_tube.core.util.PreferenceUtil
 import com.laohei.bili_tube.presentation.player.state.media.DefaultMediaManager
 import com.laohei.bili_tube.presentation.player.state.media.MediaManager
 import com.laohei.bili_tube.presentation.player.state.media.Quality
@@ -35,6 +37,7 @@ internal class PlayerViewModel(
     private val downloadManager: DownloadManager,
     private val biliPlayRepository: BiliPlayRepository,
     private val playlistRepository: BiliPlaylistRepository,
+    private val preferenceUtil: PreferenceUtil,
     private var params: Route.Play,
     private val defaultMediaManager: DefaultMediaManager,
     private val screenManager: DefaultScreenManager,
@@ -45,14 +48,11 @@ internal class PlayerViewModel(
         private const val DBG = true
     }
 
-    // 视频评论
-    var videoReplies = biliPlayRepository.getVideoReplyPager(
-        type = 1,
-        oid = params.aid.toString()
+    private val _mPlayerState = MutableStateFlow(
+        PlayerState(
+            autoSkip = preferenceUtil.getValue(AUTO_SKIP_KEY, false)
+        )
     )
-        private set
-
-    private val _mPlayerState = MutableStateFlow(PlayerState())
     val playerState = _mPlayerState.onStart {
         updateParams(params)
         getFolderSimpleList()
@@ -284,6 +284,11 @@ internal class PlayerViewModel(
                     bvid = it.bvid,
                     cid = it.cid
                 )
+                val skipModel = when {
+                    preferenceUtil.getValue(AUTO_SKIP_KEY, false) -> it.skip
+                    else -> null
+                }
+                defaultMediaManager.setSkipModel(skipModel)
             }
             viewModelScope.launch { getBangumiURL() }
             viewModelScope.launch { getRelatedBangumis() }
@@ -385,6 +390,25 @@ internal class PlayerViewModel(
                 cid = params.cid.toString(),
                 progress = duration
             )
+        }
+    }
+
+    fun videoSettingActionHandle(action: VideoAction.VideoSettingAction) {
+        when (action) {
+            is VideoAction.VideoSettingAction.AutoSkipAction -> {
+                _mPlayerState.update { it.copy(autoSkip = action.flag) }
+                val bangumiDetailModel = _mPlayerState.value.bangumiDetail
+                val episode = when {
+                    params.epId == null -> bangumiDetailModel?.episodes?.first()
+                    else -> bangumiDetailModel?.episodes?.find { it.epId == params.epId }
+                }
+                val skipModel = when {
+                    action.flag -> episode?.skip
+                    else -> null
+                }
+                defaultMediaManager.setSkipModel(skipModel)
+                preferenceUtil.setValue(AUTO_SKIP_KEY, action.flag)
+            }
         }
     }
 

@@ -28,4 +28,8 @@ interface VideoAction {
             val bvid: String
         ) : VideoPlayAction()
     }
+
+    sealed class VideoSettingAction : VideoAction {
+        data class AutoSkipAction(val flag: Boolean) : VideoSettingAction()
+    }
 }

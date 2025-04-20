@@ -47,7 +47,7 @@ internal fun VideoSettingsSheet(
     speed: Float = 1.0f,
     sleepTimer: String = "关闭",
     onDismiss: () -> Unit = {},
-    action: (ScreenAction) -> Unit = {}
+    screenActionClick: (ScreenAction) -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -76,7 +76,7 @@ internal fun VideoSettingsSheet(
             ) {
                 ListItem(
                     modifier = Modifier.clickable {
-                        action.invoke(ScreenAction.ShowQualitySheetAction(true))
+                        screenActionClick.invoke(ScreenAction.ShowQualitySheetAction(true))
                     },
                     leadingContent = {
                         Icon(
@@ -99,7 +99,7 @@ internal fun VideoSettingsSheet(
                 )
                 ListItem(
                     modifier = Modifier.clickable {
-                        action.invoke(ScreenAction.ShowSpeedSheetAction(true))
+                        screenActionClick.invoke(ScreenAction.ShowSpeedSheetAction(true))
                     },
                     leadingContent = {
                         Icon(
@@ -122,7 +122,7 @@ internal fun VideoSettingsSheet(
                 )
                 ListItem(
                     modifier = Modifier.clickable {
-                        action.invoke(ScreenAction.LockScreenAction(true))
+                        screenActionClick.invoke(ScreenAction.LockScreenAction(true))
                     },
                     leadingContent = {
                         Icon(
@@ -159,9 +159,9 @@ internal fun VideoSettingsSheet(
                 )
                 ListItem(
                     modifier = Modifier.clickable {
-                        scope.launch {
-                            EventBus.send(Event.AppEvent.ToastEvent(context.getString(R.string.str_under_development)))
-                        }
+                        screenActionClick.invoke(
+                            ScreenAction.ShowOtherSettingsSheetAction(true)
+                        )
                     },
                     leadingContent = {
                         Icon(

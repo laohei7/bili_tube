@@ -24,6 +24,7 @@ import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.upstream.DefaultAllocator
 import com.laohei.bili_sdk.module_v2.video.DashItem
+import com.laohei.bili_sdk.module_v2.video.SkipModel
 import com.laohei.bili_sdk.module_v2.video.VideoURLModel
 import com.laohei.bili_tube.model.SourceType
 import com.laohei.bili_tube.model.VideoSource
@@ -108,6 +109,8 @@ internal class DefaultMediaManager(
 
     var playEndCallback: (() -> Unit)? = null
     var playErrorCallback: (() -> Unit)? = null
+
+    private var mSkipModel: Map<String, SkipModel>? = null
 
     init {
         mExoPlayer.addListener(
@@ -288,7 +291,12 @@ internal class DefaultMediaManager(
 
     override fun seekTo(duration: Long) {
         mExoPlayer.seekTo(duration)
-        _mState.update { it.copy(progress = duration / mExoPlayer.duration.toFloat()) }
+        _mState.update {
+            it.copy(
+                currentDuration = duration,
+                progress = duration / mExoPlayer.duration.toFloat()
+            )
+        }
     }
 
     override fun seekTo(position: Float) {
@@ -316,22 +324,44 @@ internal class DefaultMediaManager(
         mExoPlayer.setPlaybackSpeed(speed)
     }
 
-    fun startProgressUpdate() {
+    fun setSkipModel(value: Map<String, SkipModel>?) {
+        mSkipModel = value
+    }
+
+    private fun startProgressUpdate() {
         mProgressUpdateJob = CoroutineScope(Dispatchers.Main).launch {
             while (mExoPlayer.isPlaying) {
-                _mState.update {
-                    it.copy(
-                        currentDuration = mExoPlayer.currentPosition,
-                        progress = mExoPlayer.currentPosition.toFloat() / mExoPlayer.duration,
-                        bufferProgress = mExoPlayer.bufferedPosition.toFloat() / mExoPlayer.duration,
-                    )
+                val skip = mSkipModel?.run {
+                    val op = get("op")
+                    val end = get("end")
+                    val current = mExoPlayer.currentPosition / 1000
+                    if (op == null && end == null) return@run null
+                    if (op != null && current in op.start until op.end) {
+                        return@run op.end * 1000
+                    }
+                    if (end != null && current in end.start until end.end) {
+                        return@run end.end * 1000
+                    }
+                    return@run null
                 }
-                delay(1000)
+                skip?.let {
+                    Log.d(TAG, "startProgressUpdate: skip $it")
+                    autoSkip(it)
+                } ?: run {
+                    _mState.update {
+                        it.copy(
+                            currentDuration = mExoPlayer.currentPosition,
+                            progress = mExoPlayer.currentPosition.toFloat() / mExoPlayer.duration,
+                            bufferProgress = mExoPlayer.bufferedPosition.toFloat() / mExoPlayer.duration,
+                        )
+                    }
+                    delay(1000)
+                }
             }
         }
     }
 
-    fun stopProgressUpdate() {
+    private fun stopProgressUpdate() {
         mProgressUpdateJob?.cancel()
     }
 
@@ -465,6 +495,11 @@ internal class DefaultMediaManager(
         _mState.update { it.copy(defaultQuality = quality) }
         mCurrentSelectedIndex = 0
         play(_mState.value.currentDuration)
+    }
+
+    private fun autoSkip(duration: Long) {
+        mExoPlayer.seekTo(duration)
+        _mState.update { it.copy(currentDuration = duration) }
     }
 
     fun getVideoSourceByQuality(quality: Int): Pair<List<String>, List<String>?> {
