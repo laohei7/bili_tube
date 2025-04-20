@@ -79,6 +79,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun VideoReplySheet(
     isShowReply: Boolean,
+    shouldHideSystemBar: Boolean,
     modifier: Modifier = Modifier,
     replies: LazyPagingItems<ReplyItem>,
     bottomPadding: Dp = 0.dp,
@@ -123,7 +124,10 @@ fun VideoReplySheet(
             containerColor = MaterialTheme.colorScheme.background,
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             scrimColor = Color.Transparent,
-            properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false),
+            properties = ModalBottomSheetProperties(
+                shouldDismissOnBackPress = false,
+                shouldHideSystemBar = shouldHideSystemBar
+            ),
             onDismissRequest = {
                 onDismiss.invoke()
             },

@@ -461,6 +461,7 @@ fun PlayerScreen(
 
         VideoReplySheet(
             isShowReply = screenState.isShowReplySheet,
+            shouldHideSystemBar = !isOrientationPortrait && screenState.isFullscreen,
             replies = videoReplies,
             onDismiss = { viewModel.updateState(screenState.copy(isShowReplySheet = false)) },
             modifier = replyModifier.then(
@@ -1046,7 +1047,7 @@ private fun BangumiContent(
                                 bangumiDetailModel.rating?.let {
                                     append(it.score.toString())
                                     append(stringResource(R.string.str_score))
-                                }?:run {
+                                } ?: run {
                                     append(stringResource(R.string.str_no_score))
                                 }
                             },
@@ -1236,7 +1237,10 @@ private fun BangumiContent(
                     cover = it.cover,
                     title = it.title,
                     ownerName = "",
-                    rcmdReason = it.rcmdReason,
+                    rcmdReason = it.rcmdReason.ifBlank {
+                        it.rating?.score?.run { "$this" + stringResource(R.string.str_score) }
+                            ?: stringResource(R.string.str_no_score)
+                    },
                     view = it.stat.view.toViewString(),
                     publishDate = it.stat.follow.toViewString() + "追番",
                     leadingIcon = null,

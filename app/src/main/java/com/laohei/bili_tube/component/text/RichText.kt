@@ -195,7 +195,8 @@ fun RichText(
                         && cutText == null -> {
                     isOverflow = true
                     val lastVisibleLine = collapsedMaxLine - 1
-                    val endIndex = layoutResult.getLineEnd(lastVisibleLine, visibleEnd = true) - 10
+                    val endIndex = (layoutResult.getLineEnd(lastVisibleLine, visibleEnd = true) - 10)
+                        .coerceAtLeast(0)
                     cutText = text.substring(0, endIndex).trimEnd()
                 }
             }

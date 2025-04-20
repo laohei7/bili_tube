@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -35,7 +36,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -237,7 +237,7 @@ fun HorizontalVideoItem(
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 rcmdReason?.let { RcmdWidget(it) }
-                if(ownerName.isNotBlank()){
+                if (ownerName.isNotBlank()) {
                     UpWidget(ownerName)
                 }
                 viewAt?.let { ViewAtWidget(it) }
@@ -252,7 +252,10 @@ fun HorizontalVideoItem(
                     .align(Alignment.TopEnd)
                     .offset {
                         IntOffset(60, -30)
-                    }
+                    },
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                )
             ) {
                 Icon(
                     imageVector = Icons.Outlined.MoreVert,

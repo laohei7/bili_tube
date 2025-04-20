@@ -99,6 +99,8 @@ import androidx.compose.ui.util.lerp
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.compose.ui.window.SecureFlagPolicy
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
@@ -560,6 +562,27 @@ private class ModalBottomSheetDialogWrapper(
             WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH
         )
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        when {
+            properties.shouldHideSystemBar -> {
+                val windowInsetsController =
+                    WindowCompat.getInsetsController(window, window.decorView)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    windowInsetsController
+                        .apply {
+                            hide(WindowInsetsCompat.Type.systemBars())
+                            systemBarsBehavior =
+                                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                        }
+                } else {
+                    @Suppress("DEPRECATION")
+                    window.decorView.systemUiVisibility = (
+                            View.SYSTEM_UI_FLAG_FULLSCREEN or
+                                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                                    View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                            )
+                }
+            }
+        }
         dialogLayout =
             ModalBottomSheetDialogLayout(
                 context,
@@ -830,14 +853,17 @@ class ModalBottomSheetProperties(
     val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
     val shouldDismissOnBackPress: Boolean = true,
     val shouldDispatcherEvent: Boolean = true,
+    val shouldHideSystemBar: Boolean = false
 ) {
     constructor(
         shouldDismissOnBackPress: Boolean,
-        shouldDispatcherEvent: Boolean
+        shouldDispatcherEvent: Boolean,
+        shouldHideSystemBar: Boolean
     ) : this(
         securePolicy = SecureFlagPolicy.Inherit,
         shouldDismissOnBackPress = shouldDismissOnBackPress,
-        shouldDispatcherEvent = shouldDispatcherEvent
+        shouldDispatcherEvent = shouldDispatcherEvent,
+        shouldHideSystemBar = shouldHideSystemBar
     )
 
     @Deprecated(
@@ -851,8 +877,9 @@ class ModalBottomSheetProperties(
         securePolicy: SecureFlagPolicy,
         isFocusable: Boolean,
         shouldDismissOnBackPress: Boolean,
-        shouldDispatcherEvent: Boolean
-    ) : this(securePolicy, shouldDismissOnBackPress, shouldDispatcherEvent)
+        shouldDispatcherEvent: Boolean,
+        shouldHideSystemBar: Boolean
+    ) : this(securePolicy, shouldDismissOnBackPress, shouldDispatcherEvent, shouldHideSystemBar)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
