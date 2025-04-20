@@ -471,7 +471,11 @@ fun PlayerScreen(
                     else -> Modifier.align(Alignment.TopEnd)
                 }
             ),
-            maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
+            maskAlphaChanged = {
+                if (isOrientationPortrait) {
+                    viewModel.maskAlphaChanged(it)
+                }
+            },
             bottomPadding = screenState.videoHeight + 80.dp
         )
 
@@ -480,7 +484,11 @@ fun PlayerScreen(
             isShowDetail = screenState.isShowDetailSheet,
             onDismiss = { viewModel.updateState(screenState.copy(isShowDetailSheet = false)) },
             modifier = otherSheetModifier,
-            maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
+            maskAlphaChanged = {
+                if (isOrientationPortrait) {
+                    viewModel.maskAlphaChanged(it)
+                }
+            },
             bottomPadding = screenState.videoHeight + 80.dp
         )
 
@@ -491,7 +499,11 @@ fun PlayerScreen(
             archiveMeta = playerState.videoArchiveMeta,
             archives = playerState.videoArchives,
             isShowSheet = screenState.isShowArchiveSheet,
-            maskAlphaChanged = { viewModel.maskAlphaChanged(it) },
+            maskAlphaChanged = {
+                if (isOrientationPortrait) {
+                    viewModel.maskAlphaChanged(it)
+                }
+            },
             onDismiss = {
                 viewModel.screenActionHandle(
                     ScreenAction.ShowArchiveSheetAction(false),

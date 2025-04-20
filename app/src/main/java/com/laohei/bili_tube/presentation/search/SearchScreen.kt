@@ -57,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -195,6 +196,12 @@ fun SearchScreen(
                 list = data,
                 showHeader = index == 0,
                 navigateToRoute = navigateToRoute,
+                scrollToPage = {
+                    scope.launch {
+                        val target = tabs.indexOf(it).coerceAtLeast(0)
+                        pagerState.animateScrollToPage(target)
+                    }
+                }
             )
         }
     }
@@ -208,6 +215,7 @@ private fun SearchResultList(
     list: LazyPagingItems<UIModel<out Any?>>,
     showHeader: Boolean,
     navigateToRoute: (Route) -> Unit,
+    scrollToPage: (String) -> Unit,
 ) {
     val refreshState = rememberPullToRefreshState()
 
@@ -238,7 +246,10 @@ private fun SearchResultList(
                             if (showHeader.not()) {
                                 return@let
                             }
-                            GetHeader(item.header)
+                            GetHeader(
+                                type = item.header,
+                                onClick = { scrollToPage.invoke(it) }
+                            )
                         }
 
                         is UIModel.Item<*> -> {
@@ -263,7 +274,10 @@ private fun SearchResultList(
 }
 
 @Composable
-private fun GetHeader(type: Any?) {
+private fun GetHeader(
+    type: Any?,
+    onClick: (String) -> Unit
+) {
     val title = when (type) {
         SearchResultItemType.TYPE_VIDEO -> {
             Pair(stringResource(R.string.str_video), R.drawable.bili_emoji1)
@@ -300,7 +314,7 @@ private fun GetHeader(type: Any?) {
                 )
             },
             trailingContent = {
-                TextButton(onClick = {}) {
+                TextButton(onClick = { onClick.invoke(it.first) }) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -417,7 +431,8 @@ private fun SearchTopBar(
                 onValueChanged = onValueChanged,
                 borderStroke = BorderStroke(1.dp, Color.LightGray),
                 inputIconColor = MaterialTheme.colorScheme.primary,
-                textStyle = textStyle,
+                textStyle = textStyle.copy(color = MaterialTheme.colorScheme.onBackground),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
                 singleLine = true,
                 navigationIcon = {
                     IconButton(onClick = { upPress.invoke() }) {
