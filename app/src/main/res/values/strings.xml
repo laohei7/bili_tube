@@ -23,7 +23,7 @@
     <string name="str_dynamic">动态</string>
     <string name="str_following">关注</string>
     <string name="str_follower">粉丝</string>
-    <string name="str_manuscript_management">稿件管理</string>
+    <string name="str_manuscript_management">我的视频</string>
     <string name="str_download_management">下载管理</string>
     <string name="str_feedback">联系客服</string>
     <string name="str_scan_login">扫码登录</string>
@@ -85,4 +85,19 @@
     <string name="str_episode_string">第%s集</string>
     <string name="str_no_score">暂无评分</string>
     <string name="str_auto_skip_op_end">自动跳过OP/End</string>
+    <string name="str_settings">设置</string>
+    <string name="str_video_audio_settings">视频和音频偏好设置</string>
+    <string name="str_video_quality">视频画质偏好</string>
+    <string name="str_play">播放</string>
+    <string name="str_audio_quality">音频质量偏好</string>
+    <string name="str_video_quality_hint">为所有视频选择默认播放画质。你可以在播放器选项中更改单个视频的播放画质</string>
+    <string name="str_audio_quality_hint">为所有视频选择默认音频质量。</string>
+    <string name="str_using_mobile_net_video_quality">使用移动网络时的视频画质</string>
+    <string name="str_using_wifi_video_quality">使用 WLAN 时的视频画质</string>
+    <string name="str_using_mobile_net_audio_quality">使用移动网络时的音频画质</string>
+    <string name="str_using_wifi_audio_quality">使用 WLAN 时的音频画质</string>
+    <string name="str_download_settings">下载偏好设置</string>
+    <string name="str_download_folder">下载位置</string>
+    <string name="str_merge_source">是否合并音视频输出为MP4</string>
+    <string name="str_merge_source_hint">（仅数据源音视频分离有效）</string>
 </resources>

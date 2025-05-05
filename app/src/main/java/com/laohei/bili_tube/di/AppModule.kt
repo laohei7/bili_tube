@@ -24,7 +24,8 @@ import com.laohei.bili_sdk.video.GetReply
 import com.laohei.bili_sdk.video.GetURL
 import com.laohei.bili_sdk.video.PostHeartBeat
 import com.laohei.bili_sdk.video.PostInfo
-import com.laohei.bili_tube.core.util.PreferenceUtil
+import com.laohei.bili_tube.core.util.NetworkUtil
+import com.laohei.bili_tube.core.util.PreferencesUtil
 import com.laohei.bili_tube.db.BiliTubeDB
 import com.laohei.bili_tube.presentation.download.DownloadViewModel
 import com.laohei.bili_tube.presentation.dynamic.DynamicViewModel
@@ -53,23 +54,12 @@ import java.io.File
 
 @SuppressLint("UnsafeOptInUsageError")
 val appModule = module {
-    singleOf(::PreferenceUtil)
+    singleOf(::PreferencesUtil)
+    singleOf(::NetworkUtil)
     single { BiliTubeDB.getInstance(get(Context::class) as Context) }
     single { HttpClientFactory.client }
-    single {
-        CronetEngine.Builder(get(Context::class) as Context)
-            .enableHttp2(true)
-            .enableQuic(true)
-            .build()
-    }
-    single {
-        val context = get(Context::class) as Context
-        SimpleCache(
-            File(context.cacheDir, "media_cache"),
-            LeastRecentlyUsedCacheEvictor(100 * 1024 * 1024),
-            StandaloneDatabaseProvider(context)
-        )
-    }
+    single { HttpClientFactory.getCronetEngine(get()) }
+    single { HttpClientFactory.getSimpleCache(get()) }
 
     singleOf(::DownloadManager)
     singleOf(::QRLogin)
@@ -113,5 +103,6 @@ val appModule = module {
     viewModelOf(::PlaylistViewModel)
     viewModelOf(::DownloadViewModel)
     viewModelOf(::SearchViewModel)
+    viewModelOf(::SettingsViewModel)
 
 }

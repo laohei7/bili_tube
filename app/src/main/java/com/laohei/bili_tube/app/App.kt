@@ -73,6 +73,7 @@ import com.laohei.bili_tube.presentation.mine.MineScreen
 import com.laohei.bili_tube.presentation.player.PlayerScreen
 import com.laohei.bili_tube.presentation.playlist.PlaylistScreen
 import com.laohei.bili_tube.presentation.search.SearchScreen
+import com.laohei.bili_tube.presentation.settings.SettingsScreen
 import com.laohei.bili_tube.presentation.splash.SplashScreen
 import com.laohei.bili_tube.presentation.subscription.SubscriptionScreen
 import kotlinx.coroutines.flow.firstOrNull
@@ -182,6 +183,8 @@ fun App() {
             )
         }
         composable<Route.HomeGraph> { MainChildGraph(navController) }
+
+        composable<Route.Settings> { SettingsScreen(upPress = { navController.navigateUp() }) }
     }
 }
 

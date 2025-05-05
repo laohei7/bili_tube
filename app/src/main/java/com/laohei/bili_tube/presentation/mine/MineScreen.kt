@@ -33,11 +33,8 @@ import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.outlined.PlaylistPlay
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.Download
-import androidx.compose.material.icons.outlined.Feedback
 import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
@@ -45,8 +42,6 @@ import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -75,7 +70,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -104,16 +98,22 @@ private sealed interface MineAction {
     data class NavigateAction(val route: Route) : MineAction
 }
 
-@Preview
 @Composable
 fun MineScreen(
     viewModel: MineViewModel = koinViewModel(),
     navigateToRoute: (Route) -> Unit = {}
 ) {
     val state by viewModel.mineState.collectAsStateWithLifecycle()
+
+    fun handleMineAction(action: MineAction) {
+        when (action) {
+            is MineAction.NavigateAction -> navigateToRoute.invoke(action.route)
+        }
+    }
+
     Scaffold(
         topBar = {
-            MineTopBar()
+            MineTopBar(mineActionClick = ::handleMineAction)
         }
     ) { innerPadding ->
         Column(
@@ -540,22 +540,12 @@ private fun OtherWidget(
             Text(text = stringResource(R.string.str_download_management))
         }
     )
-    HorizontalDivider(color = Color.LightGray.copy(alpha = 0.5f))
-    ListItem(
-        leadingContent = {
-            Icon(
-                imageVector = Icons.Outlined.Feedback,
-                contentDescription = Icons.Outlined.Feedback.name,
-            )
-        },
-        headlineContent = {
-            Text(text = stringResource(R.string.str_feedback))
-        }
-    )
 }
 
 @Composable
-private fun MineTopBar() {
+private fun MineTopBar(
+    mineActionClick: (MineAction) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -564,37 +554,43 @@ private fun MineTopBar() {
             .background(MaterialTheme.colorScheme.background),
         horizontalArrangement = Arrangement.End
     ) {
-        IconButton(onClick = {}) {
-            Icon(
-                imageVector = Icons.Outlined.Cast,
-                contentDescription = Icons.Outlined.Cast.name,
-            )
-        }
-        IconButton(onClick = {}) {
-            BadgedBox(
-                badge = {
-                    Badge(
-                        modifier = Modifier.offset {
-                            IntOffset(-8, 0)
-                        }
-                    ) {
-                        Text(text = "9+")
-                    }
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Notifications,
-                    contentDescription = Icons.Outlined.Notifications.name,
-                )
+//        IconButton(onClick = {}) {
+//            Icon(
+//                imageVector = Icons.Outlined.Cast,
+//                contentDescription = Icons.Outlined.Cast.name,
+//            )
+//        }
+//        IconButton(onClick = {}) {
+//            BadgedBox(
+//                badge = {
+//                    Badge(
+//                        modifier = Modifier.offset {
+//                            IntOffset(-8, 0)
+//                        }
+//                    ) {
+//                        Text(text = "9+")
+//                    }
+//                }
+//            ) {
+//                Icon(
+//                    imageVector = Icons.Outlined.Notifications,
+//                    contentDescription = Icons.Outlined.Notifications.name,
+//                )
+//            }
+//        }
+        IconButton(
+            onClick = {
+                mineActionClick.invoke(MineAction.NavigateAction(Route.Search))
             }
-        }
-        IconButton(onClick = {}) {
+        ) {
             Icon(
                 imageVector = Icons.Outlined.Search,
                 contentDescription = Icons.Outlined.Search.name,
             )
         }
-        IconButton(onClick = {}) {
+        IconButton(onClick = {
+            mineActionClick.invoke(MineAction.NavigateAction(Route.Settings))
+        }) {
             Icon(
                 imageVector = Icons.Outlined.Settings,
                 contentDescription = Icons.Outlined.Settings.name,
