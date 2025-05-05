@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
@@ -55,6 +56,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -72,7 +74,11 @@ import com.laohei.bili_tube.core.util.SystemUtil
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
 import com.laohei.bili_tube.utill.rememberHasDisplayCutout
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
+private const val TAG = "PlayerControl"
 
 @Composable
 fun PlayerControl(
@@ -101,27 +107,37 @@ fun PlayerControl(
     unlockScreenClick: () -> Unit,
     content: @Composable () -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     var localIsFullscreen by remember { mutableStateOf(isFullscreen) }
     var localIsPlaying by remember { mutableStateOf(isPlaying) }
     var localIsShowUI by remember { mutableStateOf(isShowUI) }
     var localIsLockScreen by remember { mutableStateOf(isLockScreen) }
     var isLongPress by remember { mutableStateOf(false) }
     var isShowUnlockHint by remember { mutableStateOf(false) }
-
+    var autoHideJob by remember { mutableStateOf<Job?>(null) }
     val videoContainerColor by animateColorAsState(
         targetValue = if (localIsFullscreen) Color.Transparent else Color.Black
     )
+
+    fun delayHideControl() {
+        if (!localIsShowUI) return
+
+        autoHideJob = scope.launch {
+            delay(5000)
+            onShowUIChanged.invoke(false)
+        }
+    }
 
     LaunchedEffect(isFullscreen, isPlaying, isShowUI, isLockScreen) {
         localIsPlaying = isPlaying
         localIsFullscreen = isFullscreen
         localIsShowUI = isShowUI
         localIsLockScreen = isLockScreen
+        delayHideControl()
     }
 
     LaunchedEffect(isShowUnlockHint) {
         if (isShowUnlockHint) {
-            Log.d("TAG", "PlayerControl: click")
             delay(1000)
             isShowUnlockHint = false
         }
@@ -133,6 +149,7 @@ fun PlayerControl(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
+                        autoHideJob?.cancel()
                         if (localIsLockScreen) {
                             if (!isShowUnlockHint) {
                                 isShowUnlockHint = true
@@ -142,6 +159,7 @@ fun PlayerControl(
                         }
                     },
                     onPress = {
+                        autoHideJob?.cancel()
                         if (localIsLockScreen) {
                             return@detectTapGestures
                         }
@@ -150,13 +168,20 @@ fun PlayerControl(
                             isLongPress = false
                             onLongPressEnd.invoke()
                         }
+                        delayHideControl()
                     },
                     onLongPress = {
+                        autoHideJob?.cancel()
                         if (localIsLockScreen) {
                             return@detectTapGestures
                         }
                         isLongPress = true
                         onLongPressStart.invoke()
+                        delayHideControl()
+                    },
+                    onDoubleTap = {
+                        autoHideJob?.cancel()
+                        delayHideControl()
                     }
                 )
             }
@@ -171,9 +196,7 @@ fun PlayerControl(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(
-                    top = if (isFullscreen) 0.dp else SystemUtil.getStatusBarHeightDp()
-                )
+                .padding(top = if (isFullscreen) 0.dp else SystemUtil.getStatusBarHeightDp())
                 .background(color = videoContainerColor),
             contentAlignment = Alignment.Center
         ) {
@@ -183,7 +206,7 @@ fun PlayerControl(
         AnimatedVisibility(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = SystemUtil.getStatusBarHeightDp() * 1.5f),
+                .statusBarsPadding(),
             visible = isLongPress,
             enter = fadeIn(),
             exit = fadeOut()
@@ -228,7 +251,7 @@ fun PlayerControl(
             exit = fadeOut()
         ) {
             LottieIconLoading(
-                modifier=Modifier.size(88.dp)
+                modifier = Modifier.size(88.dp)
             )
         }
 

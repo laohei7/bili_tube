@@ -1,5 +1,8 @@
 package com.laohei.bili_tube.presentation.player.state.media
 
+import com.laohei.bili_tube.core.AudioQualities
+import com.laohei.bili_tube.core.VideoQualities
+
 internal val Quality = listOf(
     Pair(80, "1080P 高清"),
     Pair(74, "720P60 高帧率"),
@@ -22,6 +25,7 @@ internal data class MediaState(
     val width: Int = 1920,
     val height: Int = 1080,
     val speed: Float = 1.0f,
-    val quality: List<Pair<Int, String>> = Quality,
-    val defaultQuality: Pair<Int, String> = Quality.first()
+    val quality: List<Pair<Int, String>> = VideoQualities,
+    val videoQuality: Pair<Int, String> = VideoQualities.first(),
+    val audioQuality: Int = AudioQualities.first().first
 )

@@ -8,17 +8,24 @@ import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.component.video.VideoAction
 import com.laohei.bili_tube.core.AUTO_SKIP_KEY
+import com.laohei.bili_tube.core.MERGE_SOURCE_KEY
+import com.laohei.bili_tube.core.MOBILE_NET_AUDIO_QUALITY
+import com.laohei.bili_tube.core.MOBILE_NET_VIDEO_QUALITY
+import com.laohei.bili_tube.core.WLAN_AUDIO_QUALITY
+import com.laohei.bili_tube.core.WLAN_VIDEO_QUALITY
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
-import com.laohei.bili_tube.core.util.PreferenceUtil
+import com.laohei.bili_tube.core.util.NetworkType
+import com.laohei.bili_tube.core.util.NetworkUtil
+import com.laohei.bili_tube.core.util.PreferencesUtil
 import com.laohei.bili_tube.presentation.player.state.media.DefaultMediaManager
 import com.laohei.bili_tube.presentation.player.state.media.MediaManager
-import com.laohei.bili_tube.presentation.player.state.media.Quality
 import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManager
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenManager
 import com.laohei.bili_tube.repository.BiliPlayRepository
 import com.laohei.bili_tube.repository.BiliPlaylistRepository
+import com.laohei.bili_tube.utill.displayTitle
 import com.laohei.bili_tube.utill.download.DownloadManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -37,7 +44,8 @@ internal class PlayerViewModel(
     private val downloadManager: DownloadManager,
     private val biliPlayRepository: BiliPlayRepository,
     private val playlistRepository: BiliPlaylistRepository,
-    private val preferenceUtil: PreferenceUtil,
+    private val preferenceUtil: PreferencesUtil,
+    private val networkUtil: NetworkUtil,
     private var params: Route.Play,
     private val defaultMediaManager: DefaultMediaManager,
     private val screenManager: DefaultScreenManager,
@@ -140,14 +148,14 @@ internal class PlayerViewModel(
 
     private suspend fun loadBangumi() {
         withContext(Dispatchers.IO) {
-            launch { getBangumiURL() }
+            launch { getURL() }
             launch { getBangumiDetial() }
         }
     }
 
     private suspend fun loadVideo() {
         withContext(Dispatchers.IO) {
-            launch { getVideoURL() }
+            launch { getURL() }
             launch {
                 getVideoDetail()
                 val replies = biliPlayRepository.getVideoReplyPager(
@@ -192,63 +200,84 @@ internal class PlayerViewModel(
         }
     }
 
-    private suspend fun getVideoURL() {
+    private suspend fun getURL() {
         val task = biliPlayRepository.getVideoPlayURLByLocal(params.bvid)
-        task?.mergedFile?.let { localUrl ->
-            if (File(localUrl).exists()) {
-                if (DBG) {
-                    Log.d(TAG, "getVideoURL: play by local")
+        val mergeSource = preferenceUtil.getValue(MERGE_SOURCE_KEY, false)
+        if (mergeSource) {
+            task?.mergedFile?.let { localUrl ->
+                if (File(localUrl).exists()) {
+                    if (DBG) {
+                        Log.d(TAG, "getVideoURL: play by local")
+                    }
+                    _mPlayerState.update { it.copy(isDownloaded = true) }
+                    withContext(Dispatchers.Main) {
+                        play(video = localUrl, null)
+                    }
+                    return
                 }
-                _mPlayerState.update { it.copy(isDownloaded = true) }
-                withContext(Dispatchers.Main) {
-                    play(localUrl)
+            }
+        } else {
+            task?.run {
+                if (videoFile != null && audioFile != null) {
+                    _mPlayerState.update { it.copy(isDownloaded = true) }
+                    withContext(Dispatchers.Main) {
+                        play(video = videoFile, audioFile)
+                    }
+                    return
                 }
-                return
             }
         }
-        if (params.cid == -1L) {
-            return
+
+        val data = when {
+            params.isVideo -> {
+                if (params.cid == -1L) return
+                val response = biliPlayRepository.getVideoPlayURL(
+                    aid = params.aid,
+                    bvid = params.bvid,
+                    cid = params.cid,
+                )
+                response?.data
+            }
+
+            else -> {
+                if (params.epId == null) return
+                val response = biliPlayRepository.getMediaPlayURL(
+                    epId = params.epId
+                )
+                response?.result
+            }
         }
-        if (DBG) {
-            Log.d(TAG, "getVideoURL: play by network")
-        }
-        val response = biliPlayRepository.getVideoPlayURL(
-            aid = params.aid,
-            bvid = params.bvid,
-            cid = params.cid,
-        )
-        response?.run {
+        data?.run {
             val quality = data.supportFormats.map { Pair(it.quality, it.newDescription) }
-            val defaultQuality = quality.find { it.first == data.quality } ?: Quality.first()
-            updateMediaState(state.value.copy(quality = quality, defaultQuality = defaultQuality))
+            val userDefaultQuality = when (networkUtil.getNetworkType()) {
+                NetworkType.NETWORK_TYPE_WIFI -> {
+                    Pair(
+                        preferenceUtil.getValue(WLAN_VIDEO_QUALITY, Int.MAX_VALUE),
+                        preferenceUtil.getValue(WLAN_AUDIO_QUALITY, 30251)
+                    )
+                }
+
+                NetworkType.NETWORK_TYPE_CELLULAR -> {
+                    Pair(
+                        preferenceUtil.getValue(MOBILE_NET_VIDEO_QUALITY, 80),
+                        preferenceUtil.getValue(MOBILE_NET_AUDIO_QUALITY, 30280)
+                    )
+                }
+
+                else -> return@run
+            }
+            val defaultQuality =
+                quality.find { it.first == userDefaultQuality.first } ?: quality.first()
+            updateMediaState(
+                state.value.copy(
+                    quality = quality,
+                    videoQuality = defaultQuality,
+                    audioQuality = userDefaultQuality.second
+                )
+            )
             withContext(Dispatchers.Main) {
                 play(data)
             }
-            return
-        }
-        updateMediaState(state.value.copy(isError = true))
-    }
-
-    private suspend fun getBangumiURL() {
-        when {
-            params.isVideo || params.epId == null -> {
-                return
-            }
-        }
-        if (DBG) {
-            Log.d(TAG, "getVideoURL: play by network")
-        }
-        val response = biliPlayRepository.getMediaPlayURL(
-            epId = params.epId
-        )
-        response?.run {
-            val quality = result.supportFormats.map { Pair(it.quality, it.newDescription) }
-            val defaultQuality = quality.find { it.first == result.quality } ?: Quality.first()
-            updateMediaState(state.value.copy(quality = quality, defaultQuality = defaultQuality))
-            withContext(Dispatchers.Main) {
-                play(result)
-            }
-            return
         }
         updateMediaState(state.value.copy(isError = true))
     }
@@ -290,7 +319,7 @@ internal class PlayerViewModel(
                 }
                 defaultMediaManager.setSkipModel(skipModel)
             }
-            viewModelScope.launch { getBangumiURL() }
+            viewModelScope.launch { getURL() }
             viewModelScope.launch { getRelatedBangumis() }
             viewModelScope.launch {
                 val replies = biliPlayRepository.getVideoReplyPager(
@@ -317,7 +346,7 @@ internal class PlayerViewModel(
                 params = params.copy(
                     cid = data.view.cid
                 )
-                viewModelScope.launch { getVideoURL() }
+                viewModelScope.launch { getURL() }
             }
             viewModelScope.launch {
                 this@run.data.view.seasonId?.let {
@@ -571,22 +600,7 @@ internal class PlayerViewModel(
             else -> {
                 val episode =
                     _mPlayerState.value.bangumiDetail?.episodes?.find { it.epId == params.epId }
-                val title = episode?.run {
-                    longTitle.ifBlank {
-                        val str = title.toDoubleOrNull()
-                        when {
-                            str != null && title.contains(".") -> {
-                                "第${title}集"
-                            }
-
-                            str != null -> {
-                                "第${title.toInt()}集"
-                            }
-
-                            else -> title
-                        }
-                    }
-                }
+                val title = episode?.displayTitle()
                 Pair(title, episode?.cover)
             }
         }

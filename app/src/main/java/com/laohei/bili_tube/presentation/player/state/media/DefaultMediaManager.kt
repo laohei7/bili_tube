@@ -11,6 +11,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
+import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.cache.CacheDataSource
 import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.datasource.cronet.CronetDataSource
@@ -88,6 +89,9 @@ internal class DefaultMediaManager(
                 mapOf("referer" to "https://www.bilibili.com", "User-Agent" to "K/3")
             )
         }
+
+    private val mDefaultLocalDataSourceFactory = DefaultDataSource.Factory(context)
+
     private val mDefaultDataSourceFactory = CacheDataSource.Factory()
         .setCache(simpleCache)
         .setUpstreamDataSourceFactory(mCronetDataSource)
@@ -277,14 +281,23 @@ internal class DefaultMediaManager(
         play(getInitPosition())
     }
 
-    override fun play(path: String) {
-        val videoFile = File(path)
+    override fun play(video: String, audio: String?) {
+        val videoFile = File(video)
         if (videoFile.exists().not()) {
             updateMediaState(state.value.copy(isError = true))
             return
         }
-        val mediaItem = MediaItem.fromUri(Uri.fromFile(videoFile))
-        mExoPlayer.setMediaItem(mediaItem)
+        if (audio == null) {
+            val mediaItem = MediaItem.fromUri(Uri.fromFile(videoFile))
+            mExoPlayer.setMediaItem(mediaItem)
+        } else {
+            val videoSource = ProgressiveMediaSource.Factory(mDefaultLocalDataSourceFactory)
+                .createMediaSource(MediaItem.fromUri(Uri.fromFile(videoFile)))
+            val audioMediaSource = ProgressiveMediaSource.Factory(mDefaultLocalDataSourceFactory)
+                .createMediaSource(MediaItem.fromUri(Uri.fromFile(File(audio))))
+            val mergedMediaSource = MergingMediaSource(videoSource, audioMediaSource)
+            mExoPlayer.setMediaSource(mergedMediaSource)
+        }
         mExoPlayer.prepare()
         mExoPlayer.play()
     }
@@ -378,54 +391,52 @@ internal class DefaultMediaManager(
     }
 
     private fun play(initialPosition: Long) {
+        val qualities = _mState.value.quality
+        var videoQuality = _mState.value.videoQuality
+        val audioQuality = _mState.value.audioQuality
+        val dash = mVideoURLModel!!.dash
         if (DBG) {
-            Log.d("DefaultMediaManager", "play: selected quality: ${_mState.value.defaultQuality}")
-            Log.d("DefaultMediaManager", "play: all qualities: ${_mState.value.quality}")
+            Log.d("DefaultMediaManager", "play: selected quality: $videoQuality")
+            Log.d("DefaultMediaManager", "play: all qualities: $audioQuality")
         }
-        if (mVideoURLModel!!.dash != null) {
+        if (dash != null) {
             var currentQualityVideos =
-                mVideoURLModel!!.dash!!.video.filter { it.id == _mState.value.defaultQuality.first }
-            if (currentQualityVideos.isEmpty()) {
-                return
-            }
-            if (mCurrentSelectedIndex >= currentQualityVideos.size) {
-                var nextQuality =
-                    _mState.value.quality.indexOfFirst { _mState.value.defaultQuality.first == it.first }
-                nextQuality = if (nextQuality + 1 >= _mState.value.quality.size) {
+                when {
+                    videoQuality.first == Int.MAX_VALUE -> {
+                        dash.video.sortedByDescending { it.id }
+                    }
+
+                    else -> {
+                        dash.video.filter { it.id == videoQuality.first }
+                    }
+                }
+//            if (currentQualityVideos.isEmpty()) {
+//                return
+//            }
+            if (mCurrentSelectedIndex >= currentQualityVideos.size) { // 寻找下一级画质
+                var nextQuality = qualities.indexOfFirst { videoQuality.first == it.first }
+                nextQuality = if (nextQuality + 1 >= qualities.size) {
                     0
                 } else {
                     nextQuality + 1
                 }
-                _mState.update { it.copy(defaultQuality = it.quality[nextQuality]) }
+                videoQuality = qualities[nextQuality]
+                _mState.update { it.copy(videoQuality = videoQuality) }
                 currentQualityVideos =
-                    mVideoURLModel!!.dash!!.video.filter { it.id == _mState.value.defaultQuality.first }
+                    mVideoURLModel!!.dash!!.video.filter { it.id == _mState.value.videoQuality.first }
             }
             val videoUrl = currentQualityVideos[mCurrentSelectedIndex].baseUrl
             if (DBG) {
+                Log.d(TAG, "play: video quality ${videoQuality.first}")
                 Log.d(TAG, "play: video url $videoUrl")
             }
-            val audioItem = mVideoURLModel?.dash?.let { dash ->
-                Log.d(TAG, "play: ${dash.audio}")
-                Log.d(TAG, "play: ${dash.dolby}")
-                Log.d(TAG, "play: ${dash.flac}")
-//                val defaultQuality = _mState.value.defaultQuality.first
-//                when {
-//                    defaultQuality >= 126 -> {
-//                        dash.dolby?.audio?.first() ?: run {
-//                            dash.flac?.audio ?: getNormalAudio()
-//                        }
-//                    }
-//
-//                    else -> getNormalAudio()
-//                }
-                dash.dolby?.audio?.run {
-                    if (isEmpty()) {
-                        dash.flac?.audio ?: getNormalAudio()
-                    } else {
-                        first()
+            val audioItem = dash.let {
+                return@let when (audioQuality) {
+                    30251 -> getHiResAudio() ?: getDolbyAudio() ?: getNormalAudio()
+                    30250 -> getDolbyAudio() ?: getHiResAudio() ?: getNormalAudio()
+                    else -> {
+                        it.audio.find { audio -> audio.id == audioQuality }
                     }
-                } ?: run {
-                    dash.flac?.audio ?: getNormalAudio()
                 }
             }
 
@@ -436,16 +447,14 @@ internal class DefaultMediaManager(
             mCurrentVideoHeight = currentQualityVideos[mCurrentSelectedIndex].height
             val video = ProgressiveMediaSource.Factory(
                 mOtherDataSourceFactory ?: mDefaultDataSourceFactory
-            )
-                .createMediaSource(MediaItem.fromUri(videoUrl))
+            ).createMediaSource(MediaItem.fromUri(videoUrl))
             val audio = audioItem?.run {
                 if (DBG) {
                     Log.d(TAG, "play: audio url ${this.baseUrl}")
                 }
                 ProgressiveMediaSource.Factory(
                     mOtherDataSourceFactory ?: mDefaultDataSourceFactory
-                )
-                    .createMediaSource(MediaItem.fromUri(this.baseUrl))
+                ).createMediaSource(MediaItem.fromUri(this.baseUrl))
             }
             val merge = audio?.run {
                 MergingMediaSource(video, this)
@@ -469,6 +478,16 @@ internal class DefaultMediaManager(
         mExoPlayer.play()
     }
 
+    private fun getHiResAudio(): DashItem? {
+        return mVideoURLModel?.dash?.flac?.audio
+    }
+
+    private fun getDolbyAudio(): DashItem? {
+        return mVideoURLModel?.dash?.dolby?.audio?.run {
+            if (isEmpty()) null else first()
+        }
+    }
+
     private fun getNormalAudio(): DashItem? {
         return mVideoURLModel?.dash?.audio?.filter { it.id in NormalAudioQuality }
             ?.maxByOrNull { it.id }
@@ -489,10 +508,10 @@ internal class DefaultMediaManager(
     }
 
     override fun switchQuality(quality: Pair<Int, String>) {
-        if (quality.first == _mState.value.defaultQuality.first) {
+        if (quality.first == _mState.value.videoQuality.first) {
             return
         }
-        _mState.update { it.copy(defaultQuality = quality) }
+        _mState.update { it.copy(videoQuality = quality) }
         mCurrentSelectedIndex = 0
         play(_mState.value.currentDuration)
     }

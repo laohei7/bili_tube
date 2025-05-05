@@ -50,6 +50,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -131,6 +132,7 @@ import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManage
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenState
 import com.laohei.bili_tube.ui.theme.Pink
+import com.laohei.bili_tube.utill.displayTitle
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
 import com.laohei.bili_tube.utill.toTimeAgoString
@@ -519,7 +521,7 @@ fun PlayerScreen(
         VideoSettingsSheet(
             isShowSheet = screenState.isShowVideoSettingsSheet,
             speed = mediaState.speed,
-            quality = mediaState.defaultQuality.second,
+            quality = mediaState.videoQuality.second,
             onDismiss = {
                 viewModel.screenActionHandle(
                     ScreenAction.ShowSettingsSheetAction(false),
@@ -569,7 +571,7 @@ fun PlayerScreen(
         VideoQualitySheet(
             isShowSheet = screenState.isShowQualitySheet,
             quality = mediaState.quality,
-            defaultQuality = mediaState.defaultQuality,
+            defaultQuality = mediaState.videoQuality,
             onDismiss = {
                 viewModel.screenActionHandle(
                     ScreenAction.ShowQualitySheetAction(false),
@@ -588,7 +590,7 @@ fun PlayerScreen(
         DownloadSheet(
             isShowSheet = screenState.isShowDownloadSheet,
             quality = mediaState.quality,
-            defaultQuality = mediaState.defaultQuality,
+            defaultQuality = mediaState.videoQuality,
             onDismiss = {
                 viewModel.screenActionHandle(
                     ScreenAction.ShowDownloadSheetAction(false),
@@ -751,6 +753,15 @@ private fun VideoArea(
     val localContext = LocalContext.current
     val textureView = remember { TextureView(localContext) }
 
+    val title by remember {
+        derivedStateOf {
+            playerState.videoDetail?.view?.title
+                ?: playerState.bangumiDetail
+                    ?.episodes?.find { playerState.currentEpId == it.epId }?.displayTitle()
+                ?: ""
+        }
+    }
+
     LaunchedEffect(mediaState.isPlaying) {
         while (mediaState.isPlaying) {
             val bitmap = textureView.bitmap
@@ -771,7 +782,7 @@ private fun VideoArea(
 
     PlayerControl(
         modifier = videoControlModifier.zIndex(99f),
-        title = playerState.videoDetail?.view?.title ?: playerState.bangumiDetail?.title ?: "",
+        title = title,
         progress = mediaState.progress,
         bufferProgress = mediaState.bufferProgress,
         isShowUI = screenState.isShowUI,
