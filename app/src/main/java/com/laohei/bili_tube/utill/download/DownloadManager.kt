@@ -8,8 +8,10 @@ import androidx.compose.ui.util.fastForEach
 import com.arthenica.ffmpegkit.FFmpegKit
 import com.arthenica.ffmpegkit.ReturnCode
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.core.MERGE_SOURCE_KEY
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
+import com.laohei.bili_tube.core.util.PreferencesUtil
 import com.laohei.bili_tube.db.BiliTubeDB
 import com.laohei.bili_tube.model.DownloadStatus
 import com.laohei.bili_tube.model.DownloadTask
@@ -43,7 +45,8 @@ import java.nio.charset.Charset
 class DownloadManager(
     private val context: Context,
     client: HttpClient,
-    private val biliTubeDB: BiliTubeDB
+    private val biliTubeDB: BiliTubeDB,
+    private val preferencesUtil: PreferencesUtil
 ) {
     companion object {
         private val TAG = DownloadManager::class.simpleName
@@ -62,16 +65,20 @@ class DownloadManager(
 
     private var downloader = VideoAudioDownloader(client)
 
-    private val FILTER_CHARTERS = setOf("\"", "“", "”")
-
     private val mJobMap = ConcurrentMap<String, Job>()
 
     init {
         mCoroutineScope.launch {
             val tasks = biliTubeDB.downloadTaskDao().getAllTask()
             val deletedTasks = tasks.fastFilter {
-                it.status == DownloadStatus.COMPLETED
-                        && (it.mergedFile.isNullOrBlank() || File(it.mergedFile).exists().not())
+                val isCompleted = it.status == DownloadStatus.COMPLETED
+                val hasVideoAndAudio =
+                    it.videoFile.isNullOrBlank().not() && File(it.videoFile!!).exists()
+                            && it.audioFile.isNullOrBlank().not() && File(it.audioFile!!).exists()
+                val hasMerged =
+                    it.mergedFile.isNullOrBlank().not() && File(it.mergedFile!!).exists()
+
+                isCompleted && hasVideoAndAudio.not() && hasMerged.not()
             }
             _downloadQueue.update {
                 (tasks - deletedTasks.toSet()).map {
@@ -102,12 +109,7 @@ class DownloadManager(
             id = id,
             aid = aid,
             cid = cid,
-            name = name?.run {
-                FILTER_CHARTERS.forEach {
-                    replace(it, "_")
-                }
-                this
-            } ?: id,
+            name = name ?: id,
             archive = archive,
             cover = cover,
             quality = quality,
@@ -154,7 +156,7 @@ class DownloadManager(
             return
         }
         Log.d(TAG, "pauseTask: $selectedJob")
-        selectedJob?.cancel()
+        selectedJob.cancel()
         updateTaskStatus(task = task, progress = task.progress, status = DownloadStatus.PAUSE)
     }
 
@@ -215,9 +217,6 @@ class DownloadManager(
                     progress = newProgress,
                     status = DownloadStatus.DOWNLOADING
                 )
-                mutex.withLock { _downloadQueue.value.find { it.id == task.id } }?.let {
-                    biliTubeDB.downloadTaskDao().updateTask(it)
-                }
             }
 
             var videoFile: File? = null
@@ -234,7 +233,7 @@ class DownloadManager(
                         downloader.download(
                             url = url,
                             fileName = "video_${task.id}",
-                            parentDir = context.cacheDir
+//                            parentDir = context.cacheDir
                         ) { progress ->
                             adjustAndPostProgress(progress)
                         }
@@ -266,7 +265,7 @@ class DownloadManager(
                         audioFile = downloader.download(
                             url = url,
                             fileName = "audio_${task.id}",
-                            parentDir = context.cacheDir
+//                            parentDir = context.cacheDir
                         ) { progress ->
                             adjustAndPostProgress(progress, 50)
                         }
@@ -289,10 +288,19 @@ class DownloadManager(
                     }
                 }
             }
-
             when {
                 videoFile != null && audioFile != null -> {
-                    mergeFiles(task, videoFile, audioFile!!)
+                    val mergeSource = preferencesUtil.getValue(MERGE_SOURCE_KEY, false)
+                    if (mergeSource) {
+                        updateTaskStatus(
+                            task = task,
+                            progress = task.progress,
+                            status = task.status
+                        )
+                        mergeFiles(task, videoFile, audioFile!!)
+                    } else {
+                        renameFiles(task, videoFile, audioFile!!)
+                    }
                 }
 
                 videoFile != null -> {
@@ -306,13 +314,49 @@ class DownloadManager(
                         return
                     }
                     markTaskAsFailed(task)
-                    mutex.withLock { _downloadQueue.value.find { it.id == task.id } }?.let {
-                        biliTubeDB.downloadTaskDao().updateTask(it)
-                    }
                 }
             }
 
         }
+    }
+
+    private suspend fun renameFiles(
+        task: DownloadTask,
+        videoFile: File,
+        audioFile: File,
+        parentDir: File = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+    ) {
+        updateTaskStatus(task, progress = 100, status = DownloadStatus.PROCESSING)
+        val targetVideoName = String("v_${task.name}.m4s".toByteArray(), Charset.forName("UTF-8"))
+        val targetAudioName = String("a_${task.name}.m4s".toByteArray(), Charset.forName("UTF-8"))
+        val downloadDir = File(parentDir, "BiliTube").apply {
+            if (exists().not()) {
+                mkdirs()
+            }
+        }
+        val targetVideo = File(downloadDir, targetVideoName).run {
+            val success = videoFile.renameTo(this)
+            if (success) {
+                videoFile.delete()
+                this
+            } else {
+                videoFile
+            }
+        }
+        val targetAudio = File(downloadDir, targetAudioName).run {
+            val success = audioFile.renameTo(this)
+            if (success) {
+                audioFile.delete()
+                this
+            } else {
+                audioFile
+            }
+        }
+        markTaskAsSuccess(
+            task = task,
+            videoFile = targetVideo.absolutePath,
+            audioFile = targetAudio.absolutePath
+        )
     }
 
     private suspend fun mergeFiles(
@@ -322,9 +366,6 @@ class DownloadManager(
         parentDir: File = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
     ) {
         updateTaskStatus(task, progress = 100, status = DownloadStatus.PROCESSING)
-        mutex.withLock { _downloadQueue.value.find { it.id == task.id } }?.let {
-            biliTubeDB.downloadTaskDao().updateTask(it)
-        }
         val outputName = String("${task.id}.mp4".toByteArray(), Charset.forName("UTF-8"))
         val targetName = String("${task.name}.mp4".toByteArray(), Charset.forName("UTF-8"))
         val downloadDir = File(parentDir, "BiliTube").apply {
@@ -348,8 +389,8 @@ class DownloadManager(
                 }
                 if (success) {
                     val targetFile = task.archive?.run {
-                        val archiveFile = File(downloadDir,this).apply {
-                            if(exists().not()){
+                        val archiveFile = File(downloadDir, this).apply {
+                            if (exists().not()) {
                                 mkdirs()
                             }
                         }
@@ -363,9 +404,6 @@ class DownloadManager(
                 } else {
                     markTaskAsFailed(task = task)
                 }
-                mutex.withLock { _downloadQueue.value.find { it.id == task.id } }?.let {
-                    biliTubeDB.downloadTaskDao().updateTask(it)
-                }
             }
         }
     }
@@ -373,12 +411,16 @@ class DownloadManager(
     private suspend fun markTaskAsSuccess(
         task: DownloadTask,
         mergeFile: String? = null,
+        videoFile: String? = null,
+        audioFile: String? = null,
     ) {
         updateTaskStatus(
             task = task,
             progress = 100,
             mergeFile = mergeFile,
-            status = DownloadStatus.COMPLETED
+            videoFile = videoFile,
+            audioFile = audioFile,
+            status = DownloadStatus.COMPLETED,
         )
         notificationHelper.showCompletedNotification(
             task.id.hashCode(),
@@ -404,6 +446,8 @@ class DownloadManager(
         task: DownloadTask,
         progress: Int,
         mergeFile: String? = null,
+        videoFile: String? = null,
+        audioFile: String? = null,
         status: DownloadStatus
     ) {
         mutex.withLock {
@@ -413,13 +457,22 @@ class DownloadManager(
                         it.copy(
                             mergedFile = mergeFile,
                             status = status,
-                            progress = progress
+                            progress = progress,
+                            videoFile = videoFile,
+                            audioFile = audioFile
                         )
                     } else {
                         it
                     }
                 }
             }
+        }
+        updateTask(task)
+    }
+
+    private suspend fun updateTask(task: DownloadTask) {
+        mutex.withLock { _downloadQueue.value.find { it.id == task.id } }?.let {
+            biliTubeDB.downloadTaskDao().updateTask(it)
         }
     }
 

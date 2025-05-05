@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laohei.bili_tube.model.DownloadTask
 import com.laohei.bili_tube.utill.download.DownloadManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class DownloadViewModel(
@@ -12,14 +13,14 @@ class DownloadViewModel(
     val downloadQueue = downloadManager.downloadQueue
 
     fun pauseTask(task: DownloadTask) {
-        viewModelScope.launch { downloadManager.pauseTask(task) }
+        viewModelScope.launch(Dispatchers.IO) { downloadManager.pauseTask(task) }
     }
 
     fun startTask(task: DownloadTask) {
-        viewModelScope.launch { downloadManager.startTask(task) }
+        viewModelScope.launch(Dispatchers.IO) { downloadManager.startTask(task) }
     }
 
-    fun deleteTask(task: DownloadTask){
-        viewModelScope.launch { downloadManager.deleteTask(task) }
+    fun deleteTask(task: DownloadTask) {
+        viewModelScope.launch(Dispatchers.IO) { downloadManager.deleteTask(task) }
     }
 }
