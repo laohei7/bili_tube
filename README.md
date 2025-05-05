@@ -18,22 +18,13 @@
 
 ## 预览
 
-<div style="display: flex;">
-    <img src="./assets/img/Screenshot_1.jpg" width="120">
-    <img src="./assets/img/Screenshot_2.jpg" width="120">
-    <img src="./assets/img/Screenshot_3.jpg" width="120">
-    <img src="./assets/img/Screenshot_4.jpg" width="120">
-    <img src="./assets/img/Screenshot_5.jpg" width="120">
-    <img src="./assets/img/Screenshot_6.jpg" width="120">
-    <img src="./assets/img/Screenshot_7.jpg" width="120">
-    <img src="./assets/img/Screenshot_8.jpg" width="120">
-    <img src="./assets/img/Screenshot_9.jpg" width="120">
-    <img src="./assets/img/Screenshot_10.jpg" width="120">
-    <img src="./assets/img/Screenshot_11.jpg" width="120">
-    <img src="./assets/img/Screenshot_12.jpg" width="120">
-    <img src="./assets/img/Screenshot_13.jpg" width="120">
-    <img src="./assets/img/history_quality_speed_serial.png" width="120">
-</div>
+![Home Cover](./assets/img/HomeCover.png)
+![Home Cover](./assets/img/Cover2.png)
+![Home Cover](./assets/img/SearchCover.png)
+![Home Cover](./assets/img/SettingsCover.png)
+![Home Cover](./assets/img/PlayerCover1.png)
+![Home Cover](./assets/img/PlayerCover2.png)
+![Home Cover](./assets/img/PlayerCover3.png)
 
 ## 技术栈
 
@@ -66,6 +57,10 @@
 - [x] 扫码登陆
 - [x] 动态
 - [x] 个人页面（播放列表、历史记录、关注、粉丝、动态数据）
+- [x] 搜索视频、番剧
+- [x] 视频、番剧下载
+- [x] 番剧、番剧相关推荐
+- [x] 设置
 
 ## 💦交流
 
