@@ -1,4 +1,4 @@
-package com.laohei.bili_tube.presentation.dynamic
+package com.laohei.bili_tube.presentation.subscription
 
 import android.util.Log
 import androidx.compose.ui.util.fastFilter
@@ -7,13 +7,13 @@ import androidx.paging.PagingState
 import com.laohei.bili_sdk.dynamic.GetWebDynamic
 import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
 
-class DynamicPaging(
+class SubscriptionPaging(
     private val webDynamic: GetWebDynamic,
     private val cookie: String?
 ) : PagingSource<Pair<Int, Long?>, DynamicItem>() {
 
     companion object {
-        private val TAG = DynamicPaging::class.simpleName
+        private val TAG = SubscriptionPaging::class.simpleName
     }
 
     private val filterTypes = listOf(

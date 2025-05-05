@@ -2,9 +2,6 @@ package com.laohei.bili_tube.di
 
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.media3.database.StandaloneDatabaseProvider
-import androidx.media3.datasource.cache.LeastRecentlyUsedCacheEvictor
-import androidx.media3.datasource.cache.SimpleCache
 import com.laohei.bili_sdk.anime.GetBangumi
 import com.laohei.bili_sdk.anime.GetTimeline
 import com.laohei.bili_sdk.dynamic.GetWebDynamic
@@ -28,7 +25,7 @@ import com.laohei.bili_tube.core.util.NetworkUtil
 import com.laohei.bili_tube.core.util.PreferencesUtil
 import com.laohei.bili_tube.db.BiliTubeDB
 import com.laohei.bili_tube.presentation.download.DownloadViewModel
-import com.laohei.bili_tube.presentation.dynamic.DynamicViewModel
+import com.laohei.bili_tube.presentation.subscription.SubscriptionViewModel
 import com.laohei.bili_tube.presentation.history.HistoryViewModel
 import com.laohei.bili_tube.presentation.home.HomeViewModel
 import com.laohei.bili_tube.presentation.home.hot.HotViewModel
@@ -37,7 +34,8 @@ import com.laohei.bili_tube.presentation.mine.MineViewModel
 import com.laohei.bili_tube.presentation.player.PlayerViewModel
 import com.laohei.bili_tube.presentation.playlist.PlaylistViewModel
 import com.laohei.bili_tube.presentation.search.SearchViewModel
-import com.laohei.bili_tube.repository.BiliDynamicRepository
+import com.laohei.bili_tube.presentation.settings.SettingsViewModel
+import com.laohei.bili_tube.repository.BiliSubscriptionRepository
 import com.laohei.bili_tube.repository.BiliHistoryRepository
 import com.laohei.bili_tube.repository.BiliHomeRepository
 import com.laohei.bili_tube.repository.BiliMineRepository
@@ -46,11 +44,9 @@ import com.laohei.bili_tube.repository.BiliPlaylistRepository
 import com.laohei.bili_tube.repository.BiliSearchRepository
 import com.laohei.bili_tube.utill.HttpClientFactory
 import com.laohei.bili_tube.utill.download.DownloadManager
-import org.chromium.net.CronetEngine
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
-import java.io.File
 
 @SuppressLint("UnsafeOptInUsageError")
 val appModule = module {
@@ -84,7 +80,7 @@ val appModule = module {
 
     singleOf(::BiliHomeRepository)
     singleOf(::BiliPlayRepository)
-    singleOf(::BiliDynamicRepository)
+    singleOf(::BiliSubscriptionRepository)
     singleOf(::BiliHistoryRepository)
     singleOf(::BiliMineRepository)
     singleOf(::BiliHistoryRepository)
@@ -97,7 +93,7 @@ val appModule = module {
     viewModelOf(::RecommendViewModel)
     viewModelOf(::HotViewModel)
     viewModelOf(::PlayerViewModel)
-    viewModelOf(::DynamicViewModel)
+    viewModelOf(::SubscriptionViewModel)
     viewModelOf(::MineViewModel)
     viewModelOf(::HistoryViewModel)
     viewModelOf(::PlaylistViewModel)

@@ -2,7 +2,7 @@ package com.laohei.bili_tube.core.util
 
 import android.content.Context
 
-class PreferenceUtil(
+class PreferencesUtil(
     private val context: Context
 ) {
     fun setValue(key: String, value: Any) = context.setValue(key, value)

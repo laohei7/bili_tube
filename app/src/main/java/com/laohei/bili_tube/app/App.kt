@@ -65,7 +65,7 @@ import com.laohei.bili_tube.core.util.setValue
 import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.presentation.download.DownloadScreen
-import com.laohei.bili_tube.presentation.dynamic.DynamicScreen
+import com.laohei.bili_tube.presentation.subscription.SubscriptionScreen
 import com.laohei.bili_tube.presentation.history.HistoryScreen
 import com.laohei.bili_tube.presentation.home.HomeScreen
 import com.laohei.bili_tube.presentation.login.QRCodeLoginScreen
@@ -75,7 +75,6 @@ import com.laohei.bili_tube.presentation.playlist.PlaylistScreen
 import com.laohei.bili_tube.presentation.search.SearchScreen
 import com.laohei.bili_tube.presentation.settings.SettingsScreen
 import com.laohei.bili_tube.presentation.splash.SplashScreen
-import com.laohei.bili_tube.presentation.subscription.SubscriptionScreen
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -217,14 +216,14 @@ private fun MainChildGraph(navController: NavController) {
     fun handleBottomEvent(index: Int) {
         val route = when (index) {
             0 -> Route.HomeGraph.Home
-            1 -> Route.HomeGraph.Dynamic
+            1 -> Route.HomeGraph.Subscription
             else -> Route.HomeGraph.Mine
         }
 
         val isHomeRoute =
             index == 0 && currentDestination?.destination?.hasRoute<Route.HomeGraph.Home>() == true
         val isDynamicRoute =
-            index == 1 && currentDestination?.destination?.hasRoute<Route.HomeGraph.Dynamic>() == true
+            index == 1 && currentDestination?.destination?.hasRoute<Route.HomeGraph.Subscription>() == true
 
         when {
             isHomeRoute || isDynamicRoute -> {
@@ -401,9 +400,8 @@ private fun NavGraphBuilder.homeGraph(navController: NavController) {
         )
     }
     composable<Route.HomeGraph.Mine> { MineScreen(navigateToRoute = { navController.navigate(it) }) }
-    composable<Route.HomeGraph.Subscription> { SubscriptionScreen() }
-    composable<Route.HomeGraph.Dynamic> {
-        DynamicScreen(
+    composable<Route.HomeGraph.Subscription> {
+        SubscriptionScreen(
             navigateToRoute = {
                 navController.navigate(it)
             }

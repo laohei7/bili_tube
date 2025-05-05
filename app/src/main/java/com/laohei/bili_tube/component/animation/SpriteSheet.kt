@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
 @Composable
-fun APNGAnimationWidget(
+fun SpriteSheetWidget(
     @DrawableRes id: Int,
     frameCount: Int = 24, // 总帧数（你的精灵图有多少帧）
     frameWidth: Float = 187f,  // 单帧宽度（根据你的图片尺寸调整）

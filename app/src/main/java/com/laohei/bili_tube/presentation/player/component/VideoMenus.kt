@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.component.animation.APNGAnimationWidget
+import com.laohei.bili_tube.component.animation.SpriteSheetWidget
 import com.laohei.bili_tube.component.button.ExtendedIconButton
 import com.laohei.bili_tube.component.lottie.LottieIconLike
 import com.laohei.bili_tube.component.sheet.ModalBottomSheet
@@ -278,7 +278,7 @@ private fun CoinItem(
             color = borderColor
         )
         Spacer(Modifier.height(8.dp))
-        APNGAnimationWidget(
+        SpriteSheetWidget(
             id = id,
             frameCount = frameCount,
             frameWidth = frameWidth,
