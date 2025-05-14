@@ -11,7 +11,8 @@ import com.laohei.bili_sdk.history.GetHistory
 import com.laohei.bili_sdk.history.GetWatchLater
 import com.laohei.bili_sdk.history.PostToView
 import com.laohei.bili_sdk.hot.GetHots
-import com.laohei.bili_sdk.login.QRLogin
+import com.laohei.bili_sdk.location.GetCountryList
+import com.laohei.bili_sdk.login.Login
 import com.laohei.bili_sdk.recommend.GetRecommend
 import com.laohei.bili_sdk.search.SearchRequest
 import com.laohei.bili_sdk.user.GetUserInfo
@@ -30,6 +31,7 @@ import com.laohei.bili_tube.presentation.history.HistoryViewModel
 import com.laohei.bili_tube.presentation.home.HomeViewModel
 import com.laohei.bili_tube.presentation.home.hot.HotViewModel
 import com.laohei.bili_tube.presentation.home.recommend.RecommendViewModel
+import com.laohei.bili_tube.presentation.login.LoginViewModel
 import com.laohei.bili_tube.presentation.mine.MineViewModel
 import com.laohei.bili_tube.presentation.player.PlayerViewModel
 import com.laohei.bili_tube.presentation.playlist.PlaylistViewModel
@@ -38,6 +40,7 @@ import com.laohei.bili_tube.presentation.settings.SettingsViewModel
 import com.laohei.bili_tube.repository.BiliSubscriptionRepository
 import com.laohei.bili_tube.repository.BiliHistoryRepository
 import com.laohei.bili_tube.repository.BiliHomeRepository
+import com.laohei.bili_tube.repository.BiliLoginRepository
 import com.laohei.bili_tube.repository.BiliMineRepository
 import com.laohei.bili_tube.repository.BiliPlayRepository
 import com.laohei.bili_tube.repository.BiliPlaylistRepository
@@ -58,7 +61,7 @@ val appModule = module {
     single { HttpClientFactory.getSimpleCache(get()) }
 
     singleOf(::DownloadManager)
-    singleOf(::QRLogin)
+    singleOf(::Login)
     singleOf(::GetRecommend)
     singleOf(::GetHots)
     singleOf(::GetURL)
@@ -77,6 +80,7 @@ val appModule = module {
     singleOf(::PostToView)
     singleOf(::SearchRequest)
     singleOf(::GetBangumi)
+    singleOf(::GetCountryList)
 
     singleOf(::BiliHomeRepository)
     singleOf(::BiliPlayRepository)
@@ -86,6 +90,7 @@ val appModule = module {
     singleOf(::BiliHistoryRepository)
     singleOf(::BiliPlaylistRepository)
     singleOf(::BiliSearchRepository)
+    singleOf(::BiliLoginRepository)
 
 //    factoryOf(::DefaultMediaManager)
 
@@ -100,5 +105,6 @@ val appModule = module {
     viewModelOf(::DownloadViewModel)
     viewModelOf(::SearchViewModel)
     viewModelOf(::SettingsViewModel)
+    viewModelOf(::LoginViewModel)
 
 }

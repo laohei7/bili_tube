@@ -2,8 +2,10 @@ package com.laohei.bili_tube.core
 
 import android.Manifest
 import android.os.Build
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 
+val IS_LOGIN_KEY = booleanPreferencesKey("is_login")
 val COOKIE_KEY = stringPreferencesKey("cookie")
 val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
 val IMG_URL_KEY = stringPreferencesKey("img_url")

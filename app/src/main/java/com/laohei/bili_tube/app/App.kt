@@ -40,7 +40,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.util.fastJoinToString
 import androidx.core.net.toUri
+import androidx.datastore.preferences.core.edit
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraphBuilder
@@ -49,6 +51,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.laohei.bili_sdk.model.BiliUserProfile
 import com.laohei.bili_sdk.user.GetUserInfo
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.component.SideNavigateRail
@@ -56,6 +59,7 @@ import com.laohei.bili_tube.component.appbar.BottomAppBarItem
 import com.laohei.bili_tube.component.appbar.SmallBottomAppBar
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.core.FACE_URL_KEY
+import com.laohei.bili_tube.core.IS_LOGIN_KEY
 import com.laohei.bili_tube.core.UP_MID_KEY
 import com.laohei.bili_tube.core.USERNAME_KEY
 import com.laohei.bili_tube.core.VIP_STATUS_KEY
@@ -65,16 +69,22 @@ import com.laohei.bili_tube.core.util.setValue
 import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.presentation.download.DownloadScreen
-import com.laohei.bili_tube.presentation.subscription.SubscriptionScreen
 import com.laohei.bili_tube.presentation.history.HistoryScreen
 import com.laohei.bili_tube.presentation.home.HomeScreen
-import com.laohei.bili_tube.presentation.login.QRCodeLoginScreen
+import com.laohei.bili_tube.presentation.login.LoginScreen
 import com.laohei.bili_tube.presentation.mine.MineScreen
 import com.laohei.bili_tube.presentation.player.PlayerScreen
 import com.laohei.bili_tube.presentation.playlist.PlaylistScreen
 import com.laohei.bili_tube.presentation.search.SearchScreen
 import com.laohei.bili_tube.presentation.settings.SettingsScreen
 import com.laohei.bili_tube.presentation.splash.SplashScreen
+import com.laohei.bili_tube.presentation.subscription.SubscriptionScreen
+import io.ktor.client.HttpClient
+import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -82,6 +92,7 @@ import org.koin.compose.koinInject
 import kotlin.system.exitProcess
 
 private const val TAG = "App"
+private const val DBG = true
 
 @Composable
 fun App() {
@@ -118,13 +129,13 @@ fun App() {
 
     LaunchedEffect(Unit) {
         context.dataStore.data.map { preferences ->
-            !preferences[COOKIE_KEY].isNullOrBlank()
+            preferences[IS_LOGIN_KEY] == true
         }.collect {
             isLogin = it
         }
     }
 
-    GetAndCacheUserProfile(isLogin)
+    InitCookieAndProfile(isLogin)
 
     ExitAppHandle()
 
@@ -156,7 +167,7 @@ fun App() {
                 }
             }
         }
-        composable<Route.Login> { QRCodeLoginScreen() }
+        composable<Route.Login> { LoginScreen() }
         composable<Route.Play> {
             PlayerScreen(
                 params = it.toRoute(),
@@ -370,23 +381,56 @@ private fun AppEventListener() {
 }
 
 @Composable
-private fun GetAndCacheUserProfile(isLogin: Boolean) {
+private fun InitCookieAndProfile(isLogin: Boolean) {
     val context = LocalContext.current
     val userInfo = koinInject<GetUserInfo>()
+    val client = koinInject<HttpClient>()
 
     LaunchedEffect(isLogin) {
-        context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
-            ?.apply {
-                userInfo.getUserProfile(
-                    cookie = this
-                )?.data?.let {
-                    Log.d(TAG, "App: $it")
-                    context.setValue(UP_MID_KEY.name, it.mid)
-                    context.setValue(FACE_URL_KEY.name, it.face)
-                    context.setValue(USERNAME_KEY.name, it.uname)
-                    context.setValue(VIP_STATUS_KEY.name, it.vipStatus)
+        var cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
+        Log.d(TAG, "InitCookieAndProfile: $cookie")
+        val hasBuvid4 = cookie?.contains("buvid4") == true
+        val hasBuvid3 = cookie?.contains("buvid3") == true
+        val newCookie = cookie?.split("; ")?.toMutableList() ?: mutableListOf()
+        async(Dispatchers.IO) {
+            userInfo.getSpiInfo(cookie)?.data?.let {
+                if (hasBuvid4.not()) {
+                    newCookie.add("buvid4=${it.b4}")
                 }
             }
+        }.await()
+
+        async(Dispatchers.IO) {
+            val response = client.get("https://www.bilibili.com/") {
+                header(HttpHeaders.UserAgent, "awa")
+            }
+            val tempCookies = response.headers.getAll(HttpHeaders.SetCookie) ?: emptyList()
+            if (hasBuvid3.not()) {
+                newCookie.addAll(tempCookies)
+            }
+        }.await()
+
+        context.dataStore.edit { settings ->
+            val cookieStr = newCookie.fastJoinToString("; ")
+            settings[COOKIE_KEY] = cookieStr
+        }
+        cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
+        Log.d(TAG, "InitCookieAndProfile: $cookie")
+        if (isLogin.not()) {
+            return@LaunchedEffect
+        }
+        cookie?.run {
+            userInfo.getUserProfile(cookie = this)?.let {
+                if (it.code == -101) {
+                    return@let
+                }
+                val profile = it.data as BiliUserProfile
+                context.setValue(UP_MID_KEY.name, profile.mid)
+                context.setValue(FACE_URL_KEY.name, profile.face)
+                context.setValue(USERNAME_KEY.name, profile.uname)
+                context.setValue(VIP_STATUS_KEY.name, profile.vipStatus)
+            }
+        }
     }
 }
 

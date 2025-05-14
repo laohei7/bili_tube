@@ -100,4 +100,16 @@
     <string name="str_download_folder">下载位置</string>
     <string name="str_merge_source">是否合并音视频输出为MP4</string>
     <string name="str_merge_source_hint">（仅数据源音视频分离有效）</string>
+    <string name="str_password_login">密码登录</string>
+    <string name="str_sms_login">短信登录</string>
+    <string name="str_login">登录</string>
+    <string name="str_get_sms_code">获取验证码</string>
+    <string name="str_sms_code">验证码</string>
+    <string name="str_phone_number">手机号</string>
+    <string name="str_account">账号</string>
+    <string name="str_password">密码</string>
+    <string name="str_country_name">%1s(+%2s)</string>
+    <string name="str_captcha_hint">请先进行人机认证</string>
+    <string name="str_login_success">登录成功</string>
+    <string name="str_resend_sms_code">重新发送(%d)</string>
 </resources>
