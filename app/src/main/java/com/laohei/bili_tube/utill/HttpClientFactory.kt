@@ -16,6 +16,7 @@ import io.ktor.serialization.kotlinx.json.json
 import org.chromium.net.CronetEngine
 import java.io.File
 
+@UnstableApi
 object HttpClientFactory {
     val client: HttpClient by lazy {
         HttpClient(OkHttp) {
@@ -26,10 +27,6 @@ object HttpClientFactory {
                 header(
                     HttpHeaders.UserAgent,
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
-                )
-                header(
-                    HttpHeaders.Referrer,
-                    "https://www.bilibili.com"
                 )
             }
         }

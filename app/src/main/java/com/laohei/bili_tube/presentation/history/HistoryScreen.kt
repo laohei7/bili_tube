@@ -1,7 +1,6 @@
 package com.laohei.bili_tube.presentation.history
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -31,7 +30,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -126,67 +124,7 @@ fun HistoryScreen(
                         }
                     ) { index ->
                         histories[index]?.let { item ->
-                            when (item) {
-                                is UIModel.Header<*> -> {
-                                    ListItem(
-                                        headlineContent = {
-                                            Text(
-                                                text = item.header as String,
-                                                style = MaterialTheme.typography.titleLarge,
-                                                fontWeight = FontWeight.Bold
-                                            )
-                                        }
-                                    )
-                                }
-
-                                is UIModel.Item<*> -> {
-                                    val it = item.item as HistoryItem
-                                    if (DBG) {
-                                        SideEffect {
-                                            Log.d(
-                                                TAG,
-                                                "HistoryScreen: progress ${it.progress.toFloat()}"
-                                            )
-                                            Log.d(
-                                                TAG,
-                                                "HistoryScreen: duration ${it.duration.toFloat()}"
-                                            )
-                                            Log.d(
-                                                TAG,
-                                                "HistoryScreen: ${it.progress.toFloat() / it.duration}"
-                                            )
-                                        }
-                                    }
-                                    val progress = when {
-                                        it.duration > 0L -> (it.progress.toFloat() / it.duration)
-                                            .coerceIn(0f, 1f)
-
-                                        else -> 0f
-                                    }
-                                    HorizontalVideoItem(
-                                        cover = it.cover,
-                                        title = it.title,
-                                        ownerName = it.authorName,
-                                        duration = it.duration.formatTimeString(false),
-                                        progress = progress,
-                                        viewAt = buildString {
-                                            append(it.viewAt.toTimeAgoString2(false))
-                                            append(" ")
-                                            append(it.viewAt.formatDateTimeToString(false))
-                                        },
-                                        onClick = {
-                                            navigateToRoute.invoke(
-                                                Route.Play(
-                                                    aid = it.history.oid,
-                                                    bvid = it.history.bvid,
-                                                    cid = it.history.cid
-                                                )
-                                            )
-                                        },
-                                        leadingIcon = null
-                                    )
-                                }
-                            }
+                            GetHistoryItem(item = item, navigateToRoute = navigateToRoute)
                         }
                     }
                     item(span = { GridItemSpan(fixedCount) }) {
@@ -194,6 +132,59 @@ fun HistoryScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+
+@Composable
+private fun GetHistoryItem(
+    item: UIModel<out Any?>,
+    navigateToRoute: (Route) -> Unit
+) {
+    when (item) {
+        is UIModel.Header<*> -> {
+            ListItem(
+                headlineContent = {
+                    Text(
+                        text = item.header as String,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            )
+        }
+
+        is UIModel.Item<*> -> {
+            val it = item.item as HistoryItem
+            val progress = when {
+                it.duration > 0L -> (it.progress.toFloat() / it.duration)
+                    .coerceIn(0f, 1f)
+
+                else -> 0f
+            }
+            HorizontalVideoItem(
+                cover = it.cover,
+                title = it.title,
+                ownerName = it.authorName,
+                duration = it.duration.formatTimeString(false),
+                progress = progress,
+                viewAt = buildString {
+                    append(it.viewAt.toTimeAgoString2(false))
+                    append(" ")
+                    append(it.viewAt.formatDateTimeToString(false))
+                },
+                onClick = {
+                    navigateToRoute.invoke(
+                        Route.Play(
+                            aid = it.history.oid,
+                            bvid = it.history.bvid,
+                            cid = it.history.cid
+                        )
+                    )
+                },
+                leadingIcon = null
+            )
         }
     }
 }

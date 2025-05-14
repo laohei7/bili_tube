@@ -133,47 +133,47 @@ class DownloadManager(
         }
     }
 
-    suspend fun deleteTask(task: DownloadTask) {
+    suspend fun deleteTask(task: DownloadTask) = withContext(Dispatchers.IO) {
         pauseTask(task)
         val deletedTasks: List<DownloadTask>
         mutex.withLock {
             deletedTasks = _downloadQueue.value.filter { it.id == task.id }
             _downloadQueue.update { it - deletedTasks.toSet() }
         }
-        mCoroutineScope.launch {
-            biliTubeDB.downloadTaskDao().deleteTasks(deletedTasks)
-            deletedTasks.fastForEach { item ->
-                item.mergedFile?.let { File(it).delete() }
-                item.videoFile?.let { File(it).delete() }
-                item.audioFile?.let { File(it).delete() }
-            }
+        biliTubeDB.downloadTaskDao().deleteTasks(deletedTasks)
+        deletedTasks.fastForEach { item ->
+            item.mergedFile?.let { File(it).delete() }
+            item.videoFile?.let { File(it).delete() }
+            item.audioFile?.let { File(it).delete() }
         }
     }
 
-    suspend fun pauseTask(task: DownloadTask) {
+    suspend fun pauseTask(task: DownloadTask) = withContext(Dispatchers.IO) {
         val selectedJob = mJobMap[task.id]
         if (selectedJob == null || selectedJob.isCancelled) {
-            return
+            return@withContext
         }
-        Log.d(TAG, "pauseTask: $selectedJob")
+        if (DBG) {
+            Log.d(TAG, "pauseTask: $selectedJob")
+        }
         selectedJob.cancel()
         updateTaskStatus(task = task, progress = task.progress, status = DownloadStatus.PAUSE)
     }
 
-    suspend fun startTask(task: DownloadTask) {
+    suspend fun startTask(task: DownloadTask) = withContext(Dispatchers.IO) {
         updateTaskStatus(task = task, progress = task.progress, status = DownloadStatus.PENDING)
         val pendingTask: DownloadTask
         mutex.withLock {
             pendingTask =
                 _downloadQueue.value.find { it.id == task.id }
-                    ?: return
+                    ?: return@withContext
         }
         if (DBG) {
             Log.d(TAG, "startTask: $pendingTask")
         }
         val currentJob = mJobMap[pendingTask.id]
         if (currentJob?.isActive == true) {
-            return
+            return@withContext
         }
         downloadTaskAsync(pendingTask)
     }
