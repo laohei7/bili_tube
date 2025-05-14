@@ -1,10 +1,22 @@
 package com.laohei.bili_sdk.apis
 
-const val SPI_URL = "https://api.bilibili.com/x/frontend/finger/spi"
+const val BILIBILI_API = "https://api.bilibili.com"
+const val BILIBILI_PASSPORT = "https://passport.bilibili.com"
 
-const val REQUEST_QRCODE = "https://passport.bilibili.com/x/passport-login/web/qrcode/generate"
+// 风控
+const val URL_SPI = "$BILIBILI_API/x/frontend/finger/spi"
+const val URL_CAPTCHA = "$BILIBILI_PASSPORT/x/passport-login/captcha"
 
-const val CHECK_SCAN_STATUS = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll"
+
+// 登录
+/// 1、扫码登录
+const val URL_REQUEST_QRCODE = "$BILIBILI_PASSPORT/x/passport-login/web/qrcode/generate"
+const val URL_CHECK_SCAN_STATUS = "$BILIBILI_PASSPORT/x/passport-login/web/qrcode/poll"
+
+/// 2、短信登录
+const val URL_COUNTRY_LIST = "$BILIBILI_PASSPORT/web/generic/country/list"
+const val URL_SEND_SMS_CODE = "$BILIBILI_PASSPORT/x/passport-login/web/sms/send"
+const val URL_SMS_LOGIN = "$BILIBILI_PASSPORT/x/passport-login/web/login/sms"
 
 const val RECOMMEND_VIDEOS = "https://api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd"
 
@@ -68,3 +80,5 @@ const val VIDEO_PAGELIST_URL = "https://api.bilibili.com/x/player/pagelist"
 
 const val SEARCH_URL = "https://api.bilibili.com/x/web-interface/wbi/search/all/v2"
 const val SEARCH_TYPE_URL = "https://api.bilibili.com/x/web-interface/wbi/search/type"
+
+const val USER_INFO_URL = "https://api.bilibili.com/x/space/wbi/acc/info"
