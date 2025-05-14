@@ -7,6 +7,7 @@ import androidx.paging.PagingData
 import com.laohei.bili_sdk.anime.GetBangumi
 import com.laohei.bili_sdk.folder.PostFolder
 import com.laohei.bili_sdk.module_v2.reply.ReplyItem
+import com.laohei.bili_sdk.user.GetUserInfo
 import com.laohei.bili_sdk.video.GetArchive
 import com.laohei.bili_sdk.video.GetInfo
 import com.laohei.bili_sdk.video.GetReply
@@ -33,6 +34,7 @@ class BiliPlayRepository(
     private val postInfo: PostInfo,
     private val postHeartBeat: PostHeartBeat,
     private val postFolder: PostFolder,
+    private val getUserInfo: GetUserInfo,
     private val biliTubeDB: BiliTubeDB
 ) {
 
@@ -202,4 +204,9 @@ class BiliPlayRepository(
     )
 
     suspend fun getRelatedBangumis(seasonId: Long) = getBangumi.relatedBangumis(seasonId)
+
+    suspend fun getUserInfoCard(mid: Long) = getUserInfo.getUserInfoCard(
+        cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
+        mid = mid
+    )
 }

@@ -112,4 +112,5 @@
     <string name="str_captcha_hint">请先进行人机认证</string>
     <string name="str_login_success">登录成功</string>
     <string name="str_resend_sms_code">重新发送(%d)</string>
+    <string name="str_subscribed">已订阅</string>
 </resources>

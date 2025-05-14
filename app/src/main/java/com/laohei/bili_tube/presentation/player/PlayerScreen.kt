@@ -79,6 +79,7 @@ import androidx.media3.datasource.cache.SimpleCache
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiItem
+import com.laohei.bili_sdk.module_v2.user.InfoCardModel
 import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
 import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.module_v2.video.BangumiStat
@@ -688,6 +689,7 @@ private fun GetContent(
                     isShowLikeAnimation = screenState.isShowLikeAnimation,
                     isFullscreen = screenState.isFullscreen,
                     videoDetail = it,
+                    infoCardModel = playerState.infoCardModel,
                     videoArchiveMeta = playerState.videoArchiveMeta,
                     currentArchiveIndex = playerState.currentArchiveIndex + 1,
                     videoPageList = playerState.videoPageList,
@@ -854,6 +856,7 @@ private fun VideoContent(
     modifier: Modifier = Modifier,
     lazyListState: LazyListState,
     videoDetail: VideoDetailModel,
+    infoCardModel: InfoCardModel?,
     videoArchiveMeta: ArchiveMeta?,
     videoPageList: List<VideoPageListModel>?,
     hasLike: Boolean,
@@ -895,6 +898,7 @@ private fun VideoContent(
                     face = videoDetail.view.owner.face,
                     name = videoDetail.view.owner.name,
                     fans = videoDetail.card.card.fans.toViewString(),
+                    isSubscribed = infoCardModel?.following == true,
                     onClick = {}
                 )
             }

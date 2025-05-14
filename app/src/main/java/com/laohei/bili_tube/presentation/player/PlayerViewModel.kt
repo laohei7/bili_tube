@@ -339,23 +339,33 @@ internal class PlayerViewModel(
             bvid = params.bvid,
         )
         response?.run {
-            _mPlayerState.update {
-                it.copy(videoDetail = data)
-            }
-            if (params.cid == -1L) {
-                params = params.copy(
-                    cid = data.view.cid
-                )
-                viewModelScope.launch { getURL() }
-            }
             viewModelScope.launch {
-                this@run.data.view.seasonId?.let {
-                    getArchives(mid = this@run.data.view.owner.mid, seasonId = it)
-                } ?: run {
-                    _mPlayerState.update { it.copy(videoArchiveMeta = null) }
+                _mPlayerState.update {
+                    it.copy(videoDetail = data)
                 }
+                if (params.cid == -1L) {
+                    params = params.copy(
+                        cid = data.view.cid
+                    )
+                    launch { getURL() }
+                }
+                launch {
+                    this@run.data.view.seasonId?.let {
+                        getArchives(mid = this@run.data.view.owner.mid, seasonId = it)
+                    } ?: run {
+                        _mPlayerState.update { it.copy(videoArchiveMeta = null) }
+                    }
+                }
+                launch { getPageList(bvid = params.bvid, cid = params.cid) }
+                launch { getUserInfoCard(data.view.owner.mid) }
             }
-            viewModelScope.launch { getPageList(bvid = params.bvid, cid = params.cid) }
+        }
+    }
+
+    private suspend fun getUserInfoCard(mid: Long) {
+        biliPlayRepository.getUserInfoCard(mid)?.run {
+            Log.d(TAG, "getUserInfoCard: $data")
+            _mPlayerState.update { it.copy(infoCardModel = this.data) }
         }
     }
 
