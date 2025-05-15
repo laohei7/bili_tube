@@ -7,4 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="level0">#FFBFBFBF</color>
+    <color name="level1">#FFBFBFBF</color>
+    <color name="level2">#FF95DDB2</color>
+    <color name="level3">#FF92D1E5</color>
+    <color name="level4">#FFFFB37C</color>
+    <color name="level5">#FFFF6C00</color>
+    <color name="level6">#FFFF0000</color>
 </resources>
