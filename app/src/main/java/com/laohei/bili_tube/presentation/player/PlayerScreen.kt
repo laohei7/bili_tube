@@ -113,6 +113,7 @@ import com.laohei.bili_tube.presentation.player.component.PlayerPlaceholder
 import com.laohei.bili_tube.presentation.player.component.PlayerSnackHost
 import com.laohei.bili_tube.presentation.player.component.RelatedBangumiHorizontalList
 import com.laohei.bili_tube.presentation.player.component.RelatedHorizontalList
+import com.laohei.bili_tube.presentation.player.component.UserInfoCardSheet
 import com.laohei.bili_tube.presentation.player.component.UserSimpleInfo
 import com.laohei.bili_tube.presentation.player.component.VideoDetailSheet
 import com.laohei.bili_tube.presentation.player.component.VideoMenus
@@ -660,6 +661,34 @@ fun PlayerScreen(
             videoSettingActionClick = viewModel::videoSettingActionHandle
         )
 
+        UserInfoCardSheet(
+            isShowSheet = screenState.isShowUpInfoSheet,
+            isLoading = playerState.infoCardModel == null,
+            face = playerState.infoCardModel?.card?.face ?: "",
+            name = playerState.infoCardModel?.card?.name ?: "",
+            sign = playerState.infoCardModel?.card?.sign ?: "",
+            isSubscribed = playerState.infoCardModel?.following == true,
+            follower = playerState.infoCardModel?.follower ?: 0,
+            likeNum = playerState.infoCardModel?.likeNum ?: 0,
+            attention = playerState.infoCardModel?.card?.attention ?: 0,
+            official = playerState.infoCardModel?.card?.official?.title ?: "",
+            level = playerState.infoCardModel?.card?.levelInfo?.currentLevel ?: 0,
+            onSubscriptionClick = {},
+            onDismiss = {
+                viewModel.screenActionHandle(
+                    ScreenAction.ShowUpInfoSheetAction(false),
+                    isOrientationPortrait
+                )
+            },
+            modifier = otherSheetModifier,
+            maskAlphaChanged = {
+                if (isOrientationPortrait) {
+                    viewModel.maskAlphaChanged(it)
+                }
+            },
+            bottomPadding = screenState.videoHeight + 80.dp
+        )
+
         PlayerSnackHost(
             modifier = Modifier.align(Alignment.BottomStart)
         )
@@ -899,7 +928,7 @@ private fun VideoContent(
                     name = videoDetail.view.owner.name,
                     fans = videoDetail.card.card.fans.toViewString(),
                     isSubscribed = infoCardModel?.following == true,
-                    onClick = {}
+                    onClick = { screenActionClick.invoke(ScreenAction.ShowUpInfoSheetAction(true)) }
                 )
             }
             item {
