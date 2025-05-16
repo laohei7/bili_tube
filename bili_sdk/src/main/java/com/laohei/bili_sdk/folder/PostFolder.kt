@@ -1,11 +1,12 @@
 package com.laohei.bili_sdk.folder
 
-import android.util.Log
+import com.laohei.bili_sdk.apis.BILIBILI
 import com.laohei.bili_sdk.apis.VIDEO_FOLDER_DEAL_URL
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.folder.FolderDealModel
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.FormDataContent
+import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -21,7 +22,7 @@ class PostFolder(
     private val client: HttpClient
 ) {
 
-    companion object{
+    companion object {
         private val TAG = PostFolder::class.simpleName
     }
 
@@ -31,15 +32,14 @@ class PostFolder(
         addMediaIds: Set<Long>,
         delMediaIds: Set<Long>,
         cookie: String? = null,
+        biliJct: String
     ) = withContext(Dispatchers.IO) {
         val response = try {
             client.post(VIDEO_FOLDER_DEAL_URL) {
-                url {
-                    cookie?.apply {
-                        headers.append(HttpHeaders.Cookie, cookie)
-                    }
+                cookie?.apply {
+                    header(HttpHeaders.Cookie, cookie)
                 }
-                Log.d(TAG, "videoInfo: $url")
+                header(HttpHeaders.Referrer, BILIBILI)
                 contentType(ContentType.Application.FormUrlEncoded)
                 setBody(
                     FormDataContent(
@@ -48,12 +48,10 @@ class PostFolder(
                             append("type", type.toString())
                             append("add_media_ids", addMediaIds.joinToString(","))
                             append("del_media_ids", delMediaIds.joinToString(","))
-                            append(
-                                "csrf",
-                                cookie?.substringAfter("bili_jct=")?.substringBefore(";") ?: ""
-                            )
+                            append("csrf", biliJct)
                         }
-                    ))
+                    )
+                )
             }
         } catch (e: Exception) {
             null

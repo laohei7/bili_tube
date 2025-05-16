@@ -1,5 +1,6 @@
 package com.laohei.bili_sdk.apis
 
+const val BILIBILI = "https://www.bilibili.com"
 const val BILIBILI_API = "https://api.bilibili.com"
 const val BILIBILI_PASSPORT = "https://passport.bilibili.com"
 const val BILIBILI_APP = "https://app.biliapi.com"
