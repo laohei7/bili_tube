@@ -410,10 +410,7 @@ internal class DefaultMediaManager(
                         dash.video.filter { it.id == videoQuality.first }
                     }
                 }
-//            if (currentQualityVideos.isEmpty()) {
-//                return
-//            }
-            if (mCurrentSelectedIndex >= currentQualityVideos.size) { // 寻找下一级画质
+            while (mCurrentSelectedIndex >= currentQualityVideos.size) {
                 var nextQuality = qualities.indexOfFirst { videoQuality.first == it.first }
                 nextQuality = if (nextQuality + 1 >= qualities.size) {
                     0
@@ -423,7 +420,10 @@ internal class DefaultMediaManager(
                 videoQuality = qualities[nextQuality]
                 _mState.update { it.copy(videoQuality = videoQuality) }
                 currentQualityVideos =
-                    mVideoURLModel!!.dash!!.video.filter { it.id == _mState.value.videoQuality.first }
+                    mVideoURLModel!!.dash!!.video.filter { it.id == videoQuality.first }
+            }
+            if (DBG) {
+                Log.d(TAG, "play: $currentQualityVideos")
             }
             val videoUrl = currentQualityVideos[mCurrentSelectedIndex].baseUrl
             if (DBG) {

@@ -2,6 +2,7 @@ package com.laohei.bili_sdk.video
 
 import android.util.Log
 import com.laohei.bili_sdk.apis.BANGUMI_PLAY_URL
+import com.laohei.bili_sdk.apis.BILIBILI
 import com.laohei.bili_sdk.apis.VIDEO_PLAY_URL
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.common.BiliResponse2
@@ -10,6 +11,7 @@ import com.laohei.bili_sdk.wbi.GetWbi
 import com.laohei.bili_sdk.wbi.WbiParams
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import io.ktor.client.request.header
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.Dispatchers
@@ -89,11 +91,10 @@ class GetURL(private val client: HttpClient) {
         )
         val response = try {
             client.get("${BANGUMI_PLAY_URL}?$param") {
-                url {
-                    cookie?.apply {
-                        headers.append(HttpHeaders.Cookie, this)
-                    }
+                cookie?.apply {
+                    header(HttpHeaders.Cookie, this)
                 }
+                header(HttpHeaders.Referrer, BILIBILI)
                 if (DBG) {
                     Log.d(TAG, "mediaUrl: $url")
                 }
