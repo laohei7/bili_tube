@@ -1,14 +1,19 @@
 package com.laohei.bili_sdk.user
 
-import com.laohei.bili_sdk.apis.SPI_URL
+import com.laohei.bili_sdk.apis.URL_SPI
+import com.laohei.bili_sdk.apis.URL_USER_INFO_CARD
 import com.laohei.bili_sdk.apis.USER_PROFILE_URL
 import com.laohei.bili_sdk.apis.USER_STAT_URL
 import com.laohei.bili_sdk.model.BiliUserProfile
+import com.laohei.bili_sdk.model.BiliWbi
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
+import com.laohei.bili_sdk.module_v2.user.InfoCardModel
 import com.laohei.bili_sdk.module_v2.user.SpiModel
 import com.laohei.bili_sdk.module_v2.user.UserStatModel
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import io.ktor.client.request.header
+import io.ktor.client.request.parameter
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +23,11 @@ import kotlinx.serialization.json.Json
 class GetUserInfo(
     private val client: HttpClient
 ) {
+
+    companion object {
+        private val TAG = GetUserInfo::class.simpleName
+        private const val DBG = true
+    }
 
     suspend fun getUserProfile(cookie: String? = null) = withContext(Dispatchers.IO) {
         val response = try {
@@ -32,7 +42,11 @@ class GetUserInfo(
             null
         }
         response?.run {
-            Json.decodeFromString<BiliResponse<BiliUserProfile>>(bodyAsText())
+            try {
+                Json.decodeFromString<BiliResponse<BiliUserProfile>>(bodyAsText())
+            } catch (e: Exception) {
+                Json.decodeFromString<BiliResponse<BiliWbi>>(bodyAsText())
+            }
         }
     }
 
@@ -54,9 +68,9 @@ class GetUserInfo(
         }
     }
 
-    suspend fun getSpiInfo(cookie: String?=null) = withContext(Dispatchers.IO){
+    suspend fun getSpiInfo(cookie: String? = null) = withContext(Dispatchers.IO) {
         val response = try {
-            client.get(SPI_URL) {
+            client.get(URL_SPI) {
                 url {
                     cookie?.apply {
                         headers.append(HttpHeaders.Cookie, this)
@@ -70,5 +84,26 @@ class GetUserInfo(
             Json.decodeFromString<BiliResponse<SpiModel>>(bodyAsText())
         }
     }
+
+    suspend fun getUserInfoCard(
+        cookie: String?,
+        mid: Long
+    ) = withContext(Dispatchers.IO) {
+        val response = try {
+            client.get(URL_USER_INFO_CARD) {
+                cookie?.apply {
+                    header(HttpHeaders.Cookie, this)
+                }
+                parameter("mid", mid)
+            }
+        } catch (e: Exception) {
+            null
+        }
+        response?.run {
+            Json.decodeFromString<BiliResponse<InfoCardModel>>(bodyAsText())
+        }
+    }
+
+
 
 }

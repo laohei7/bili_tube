@@ -1,7 +1,9 @@
 package com.laohei.bili_sdk.apis
 
+const val BILIBILI = "https://www.bilibili.com"
 const val BILIBILI_API = "https://api.bilibili.com"
 const val BILIBILI_PASSPORT = "https://passport.bilibili.com"
+const val BILIBILI_APP = "https://app.biliapi.com"
 
 // 风控
 const val URL_SPI = "$BILIBILI_API/x/frontend/finger/spi"
@@ -17,6 +19,10 @@ const val URL_CHECK_SCAN_STATUS = "$BILIBILI_PASSPORT/x/passport-login/web/qrcod
 const val URL_COUNTRY_LIST = "$BILIBILI_PASSPORT/web/generic/country/list"
 const val URL_SEND_SMS_CODE = "$BILIBILI_PASSPORT/x/passport-login/web/sms/send"
 const val URL_SMS_LOGIN = "$BILIBILI_PASSPORT/x/passport-login/web/login/sms"
+
+// 用户
+const val URL_USER_UPLOADED_VIDEO = "$BILIBILI_APP/x/v2/space/archive/cursor"
+const val URL_USER_INFO_CARD = "$BILIBILI_API/x/web-interface/card"
 
 const val RECOMMEND_VIDEOS = "https://api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd"
 

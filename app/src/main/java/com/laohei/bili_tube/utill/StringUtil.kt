@@ -7,3 +7,7 @@ fun String.completeUrl(): String {
         else -> this
     }
 }
+
+fun String?.getBiliJct(): String {
+    return this?.substringAfter("bili_jct=")?.substringBefore(";") ?: ""
+}

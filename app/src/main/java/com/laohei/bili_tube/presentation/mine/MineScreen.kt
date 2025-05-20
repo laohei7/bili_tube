@@ -85,6 +85,7 @@ import com.laohei.bili_sdk.module_v2.history.HistoryItem
 import com.laohei.bili_sdk.module_v2.video.VideoView
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.component.text.VerticalDataText
 import com.laohei.bili_tube.core.FACE_URL_KEY
 import com.laohei.bili_tube.core.USERNAME_KEY
 import com.laohei.bili_tube.core.util.getValue
@@ -307,42 +308,9 @@ private fun UserDataWidget(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = dynamicCount.toViewString(),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
-                        text = stringResource(R.string.str_dynamic),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = following.toViewString(),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
-                        text = stringResource(R.string.str_following),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = follower.toViewString(),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Text(
-                        text = stringResource(R.string.str_follower),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
+                VerticalDataText(dynamicCount.toLong(), stringResource(R.string.str_dynamic))
+                VerticalDataText(following.toLong(), stringResource(R.string.str_following))
+                VerticalDataText(follower.toLong(), stringResource(R.string.str_follower))
             }
         },
     )

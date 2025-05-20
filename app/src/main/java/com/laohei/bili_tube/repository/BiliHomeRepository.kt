@@ -12,6 +12,8 @@ import com.laohei.bili_sdk.hot.GetHots
 import com.laohei.bili_sdk.model.BiliAnimeSchedule
 import com.laohei.bili_sdk.model.BiliHotVideoItem
 import com.laohei.bili_sdk.module_v2.bangumi.BangumiItem
+import com.laohei.bili_sdk.module_v2.common.BiliResponse
+import com.laohei.bili_sdk.module_v2.folder.FolderDealModel
 import com.laohei.bili_sdk.module_v2.recomment.RecommendItem
 import com.laohei.bili_sdk.recommend.GetRecommend
 import com.laohei.bili_sdk.video.PostInfo
@@ -22,6 +24,7 @@ import com.laohei.bili_tube.presentation.home.anime.BangumiPaging
 import com.laohei.bili_tube.presentation.home.anime.TimelinePaging
 import com.laohei.bili_tube.presentation.home.hot.HotPaging
 import com.laohei.bili_tube.presentation.home.recommend.RecommendPaging
+import com.laohei.bili_tube.utill.getBiliJct
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -129,12 +132,16 @@ class BiliHomeRepository(
         aid: Long,
         addMediaIds: Set<Long>,
         delMediaIds: Set<Long>,
-    ) = postFolder.folderDeal(
-        rid = aid,
-        addMediaIds = addMediaIds,
-        delMediaIds = delMediaIds,
-        cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
-    )
+    ): BiliResponse<FolderDealModel>? {
+        val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
+        return postFolder.folderDeal(
+            rid = aid,
+            addMediaIds = addMediaIds,
+            delMediaIds = delMediaIds,
+            cookie = cookie,
+            biliJct = cookie.getBiliJct()
+        )
+    }
 
     suspend fun addToView(
         aid: Long,

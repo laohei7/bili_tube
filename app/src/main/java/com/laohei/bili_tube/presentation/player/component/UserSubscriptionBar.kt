@@ -1,5 +1,6 @@
 package com.laohei.bili_tube.presentation.player.component
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -8,10 +9,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -22,18 +21,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.component.button.SubscribeButton
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
+import com.laohei.bili_tube.utill.toViewString
 
 @Composable
-internal fun UserSimpleInfo(
+internal fun UserSubscriptionBar(
     face: String,
     name: String,
     fans: String,
+    isSubscribed: Boolean,
     onClick: (ScreenAction) -> Unit
 ) {
     val context = LocalContext.current
@@ -60,7 +63,8 @@ internal fun UserSimpleInfo(
                 modifier = Modifier
                     .padding(top = 4.dp)
                     .size(32.dp)
-                    .clip(CircleShape),
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceContainer),
                 contentScale = ContentScale.Crop,
                 placeholder = painterResource(R.drawable.icon_loading_1_1),
                 error = painterResource(R.drawable.icon_loading_1_1)
@@ -79,23 +83,36 @@ internal fun UserSimpleInfo(
             )
         }
 
-        Surface(
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.onBackground,
-            contentColor = MaterialTheme.colorScheme.background,
-            modifier = Modifier
-                .clip(CircleShape)
-                .clickable {
-                    onClick.invoke(ScreenAction.SubscribeAction)
-                }
+        SubscribeButton(
+            isSubscribed = isSubscribed
         ) {
-            Text(
-                text = "订阅",
-                style = MaterialTheme.typography.labelSmall,
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(horizontal = 16.dp, vertical = 6.dp)
-            )
+            onClick.invoke(ScreenAction.SubscribeAction)
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+internal fun UserSubscriptionBarPreview() {
+    UserSubscriptionBar(
+        face = "",
+        name = "IC实验室",
+        fans = 10000.toViewString(),
+        isSubscribed = false
+    ) {
+
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+internal fun UserSubscriptionBarPreview2() {
+    UserSubscriptionBar(
+        face = "",
+        name = "IC实验室",
+        fans = 10000.toViewString(),
+        isSubscribed = true
+    ) {
+
     }
 }

@@ -182,22 +182,33 @@ internal class DefaultScreenManager(
                 }
                 lockScreenCallback?.invoke()
             }
-            is ScreenAction.ShowOtherSettingsSheetAction->{
+
+            is ScreenAction.ShowUpInfoSheetAction -> {
+                _mState.update {
+                    it.copy(
+                        isShowUpInfoSheet = action.flag,
+                        videoHeight = it.minLimitedHeight
+                    )
+                }
+            }
+
+            is ScreenAction.ShowOtherSettingsSheetAction -> {
                 _mState.update { it.copy(isShowOtherSettingsSheet = action.flag) }
             }
-            is ScreenAction.ShowDownloadSheetAction->{
+
+            is ScreenAction.ShowDownloadSheetAction -> {
                 _mState.update { it.copy(isShowDownloadSheet = action.flag) }
             }
 
-            is ScreenAction.ShowLikeAnimationAction ->{
+            is ScreenAction.ShowLikeAnimationAction -> {
                 _mState.update { it.copy(isShowLikeAnimation = action.flag) }
             }
 
-            is ScreenAction.ShowFolderSheetAction ->{
+            is ScreenAction.ShowFolderSheetAction -> {
                 _mState.update { it.copy(isShowFolderSheet = action.flag) }
             }
 
-            is ScreenAction.ShowCoinSheetAction ->{
+            is ScreenAction.ShowCoinSheetAction -> {
                 _mState.update { it.copy(isShowCoinSheet = action.flag) }
             }
 
@@ -347,6 +358,7 @@ internal class DefaultScreenManager(
     }
 
     private fun isShowMask(): Boolean {
-        return _mState.value.isShowDetailSheet || _mState.value.isShowReplySheet || _mState.value.isShowArchiveSheet
+        return _mState.value.isShowDetailSheet || _mState.value.isShowReplySheet
+                || _mState.value.isShowArchiveSheet || _mState.value.isShowUpInfoSheet
     }
 }

@@ -46,7 +46,7 @@ internal class PlayerViewModel(
     private val playlistRepository: BiliPlaylistRepository,
     private val preferenceUtil: PreferencesUtil,
     private val networkUtil: NetworkUtil,
-    private var params: Route.Play,
+    var params: Route.Play,
     private val defaultMediaManager: DefaultMediaManager,
     private val screenManager: DefaultScreenManager,
 ) : ViewModel(), MediaManager by defaultMediaManager, ScreenManager by screenManager {
@@ -158,13 +158,7 @@ internal class PlayerViewModel(
             launch { getURL() }
             launch {
                 getVideoDetail()
-                val replies = biliPlayRepository.getVideoReplyPager(
-                    type = 1,
-                    oid = params.aid.toString()
-                )
-                _mPlayerState.update {
-                    it.copy(replies = replies)
-                }
+                getReplies()
             }
             launch {
                 hasLike()
@@ -172,6 +166,21 @@ internal class PlayerViewModel(
                 hasFavoured()
             }
         }
+    }
+
+    private fun getReplies() {
+        val replies = biliPlayRepository.getVideoReplyPager(
+            type = 1,
+            oid = params.aid.toString()
+        )
+        _mPlayerState.update {
+            it.copy(replies = replies)
+        }
+    }
+
+    private fun getUserUploadedVideos(mid: Long) {
+        val uploadedVideos = biliPlayRepository.userUploadedVideos(mid)
+        _mPlayerState.update { it.copy(uploadedVideos = uploadedVideos) }
     }
 
     private suspend fun hasLike() {
@@ -339,23 +348,36 @@ internal class PlayerViewModel(
             bvid = params.bvid,
         )
         response?.run {
-            _mPlayerState.update {
-                it.copy(videoDetail = data)
-            }
-            if (params.cid == -1L) {
-                params = params.copy(
-                    cid = data.view.cid
-                )
-                viewModelScope.launch { getURL() }
-            }
             viewModelScope.launch {
-                this@run.data.view.seasonId?.let {
-                    getArchives(mid = this@run.data.view.owner.mid, seasonId = it)
-                } ?: run {
-                    _mPlayerState.update { it.copy(videoArchiveMeta = null) }
+                _mPlayerState.update {
+                    it.copy(videoDetail = data)
+                }
+                if (params.cid == -1L) {
+                    params = params.copy(
+                        cid = data.view.cid
+                    )
+                    launch { getURL() }
+                }
+                launch {
+                    this@run.data.view.seasonId?.let {
+                        getArchives(mid = this@run.data.view.owner.mid, seasonId = it)
+                    } ?: run {
+                        _mPlayerState.update { it.copy(videoArchiveMeta = null) }
+                    }
+                }
+                launch { getPageList(bvid = params.bvid, cid = params.cid) }
+                launch {
+                    getUserInfoCard(data.view.owner.mid)
+                    getUserUploadedVideos(data.view.owner.mid)
                 }
             }
-            viewModelScope.launch { getPageList(bvid = params.bvid, cid = params.cid) }
+        }
+    }
+
+    private suspend fun getUserInfoCard(mid: Long) {
+        biliPlayRepository.getUserInfoCard(mid)?.run {
+            Log.d(TAG, "getUserInfoCard: $data")
+            _mPlayerState.update { it.copy(infoCardModel = this.data) }
         }
     }
 
