@@ -114,7 +114,7 @@ import com.laohei.bili_tube.presentation.player.component.PlayerSnackHost
 import com.laohei.bili_tube.presentation.player.component.RelatedBangumiHorizontalList
 import com.laohei.bili_tube.presentation.player.component.RelatedHorizontalList
 import com.laohei.bili_tube.presentation.player.component.UserInfoCardSheet
-import com.laohei.bili_tube.presentation.player.component.UserSimpleInfo
+import com.laohei.bili_tube.presentation.player.component.UserSubscriptionBar
 import com.laohei.bili_tube.presentation.player.component.VideoDetailSheet
 import com.laohei.bili_tube.presentation.player.component.VideoMenus
 import com.laohei.bili_tube.presentation.player.component.VideoSimpleInfo
@@ -189,6 +189,7 @@ fun PlayerScreen(
     val playerState by viewModel.playerState.collectAsState()
     val videoReplies = playerState.replies.collectAsLazyPagingItems()
     val mediaState by viewModel.state.collectAsStateWithLifecycle()
+    val uploadedVideos = playerState.uploadedVideos.collectAsLazyPagingItems()
 
 
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
@@ -673,6 +674,8 @@ fun PlayerScreen(
             attention = playerState.infoCardModel?.card?.attention ?: 0,
             official = playerState.infoCardModel?.card?.official?.title ?: "",
             level = playerState.infoCardModel?.card?.levelInfo?.currentLevel ?: 0,
+            uploadedVideos = uploadedVideos,
+            currentBvid = viewModel.params.bvid,
             onSubscriptionClick = {},
             onDismiss = {
                 viewModel.screenActionHandle(
@@ -685,6 +688,9 @@ fun PlayerScreen(
                 if (isOrientationPortrait) {
                     viewModel.maskAlphaChanged(it)
                 }
+            },
+            onVideoChanged = {
+                scope.launch { viewModel.updateParams(it) }
             },
             bottomPadding = screenState.videoHeight + 80.dp
         )
@@ -923,7 +929,7 @@ private fun VideoContent(
                 )
             }
             item {
-                UserSimpleInfo(
+                UserSubscriptionBar(
                     face = videoDetail.view.owner.face,
                     name = videoDetail.view.owner.name,
                     fans = videoDetail.card.card.fans.toViewString(),

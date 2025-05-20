@@ -9,7 +9,9 @@ import com.laohei.bili_sdk.folder.PostFolder
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.folder.FolderDealModel
 import com.laohei.bili_sdk.module_v2.reply.ReplyItem
+import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
 import com.laohei.bili_sdk.module_v2.video.AddCoinModel
+import com.laohei.bili_sdk.user.GetUploadedVideo
 import com.laohei.bili_sdk.user.GetUserInfo
 import com.laohei.bili_sdk.video.GetArchive
 import com.laohei.bili_sdk.video.GetInfo
@@ -21,6 +23,7 @@ import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.db.BiliTubeDB
 import com.laohei.bili_tube.presentation.player.component.reply.VideoReplyPaging
+import com.laohei.bili_tube.presentation.user.UserUploadedVideoPaging
 import com.laohei.bili_tube.utill.getBiliJct
 import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -40,7 +43,8 @@ class BiliPlayRepository(
     private val postHeartBeat: PostHeartBeat,
     private val postFolder: PostFolder,
     private val getUserInfo: GetUserInfo,
-    private val biliTubeDB: BiliTubeDB
+    private val biliTubeDB: BiliTubeDB,
+    private val getUploadedVideo: GetUploadedVideo
 ) {
 
     suspend fun getVideoPlayURLByLocal(bvid: String) =
@@ -110,6 +114,25 @@ class BiliPlayRepository(
                         VideoReplyPaging(
                             getReply,
                             cookie, type, oid
+                        )
+                    }
+                ).flow
+            )
+        }.flattenConcat()
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun userUploadedVideos(mid: Long): Flow<PagingData<UploadedVideoItem>> {
+        return flow {
+            val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
+            emit(
+                Pager(
+                    config = PagingConfig(pageSize = 20),
+                    pagingSourceFactory = {
+                        UserUploadedVideoPaging(
+                            getUploadedVideo = getUploadedVideo,
+                            cookie = cookie,
+                            mid = mid
                         )
                     }
                 ).flow

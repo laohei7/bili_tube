@@ -46,7 +46,7 @@ internal class PlayerViewModel(
     private val playlistRepository: BiliPlaylistRepository,
     private val preferenceUtil: PreferencesUtil,
     private val networkUtil: NetworkUtil,
-    private var params: Route.Play,
+    var params: Route.Play,
     private val defaultMediaManager: DefaultMediaManager,
     private val screenManager: DefaultScreenManager,
 ) : ViewModel(), MediaManager by defaultMediaManager, ScreenManager by screenManager {
@@ -158,13 +158,7 @@ internal class PlayerViewModel(
             launch { getURL() }
             launch {
                 getVideoDetail()
-                val replies = biliPlayRepository.getVideoReplyPager(
-                    type = 1,
-                    oid = params.aid.toString()
-                )
-                _mPlayerState.update {
-                    it.copy(replies = replies)
-                }
+                getReplies()
             }
             launch {
                 hasLike()
@@ -172,6 +166,21 @@ internal class PlayerViewModel(
                 hasFavoured()
             }
         }
+    }
+
+    private fun getReplies() {
+        val replies = biliPlayRepository.getVideoReplyPager(
+            type = 1,
+            oid = params.aid.toString()
+        )
+        _mPlayerState.update {
+            it.copy(replies = replies)
+        }
+    }
+
+    private fun getUserUploadedVideos(mid: Long) {
+        val uploadedVideos = biliPlayRepository.userUploadedVideos(mid)
+        _mPlayerState.update { it.copy(uploadedVideos = uploadedVideos) }
     }
 
     private suspend fun hasLike() {
@@ -357,7 +366,10 @@ internal class PlayerViewModel(
                     }
                 }
                 launch { getPageList(bvid = params.bvid, cid = params.cid) }
-                launch { getUserInfoCard(data.view.owner.mid) }
+                launch {
+                    getUserInfoCard(data.view.owner.mid)
+                    getUserUploadedVideos(data.view.owner.mid)
+                }
             }
         }
     }

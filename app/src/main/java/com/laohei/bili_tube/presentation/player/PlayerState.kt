@@ -5,6 +5,7 @@ import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiItem
 import com.laohei.bili_sdk.module_v2.folder.FolderSimpleItem
 import com.laohei.bili_sdk.module_v2.reply.ReplyItem
 import com.laohei.bili_sdk.module_v2.user.InfoCardModel
+import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
 import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
 import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
@@ -33,5 +34,6 @@ data class PlayerState(
     val replies: Flow<PagingData<ReplyItem>> = flow { PagingData.empty<ReplyItem>() },
     val relatedBangumis: List<RelatedBangumiItem>? = null,
     val autoSkip: Boolean = false,
-    val infoCardModel: InfoCardModel? = null
+    val infoCardModel: InfoCardModel? = null,
+    val uploadedVideos: Flow<PagingData<UploadedVideoItem>> = flow { PagingData.empty<UploadedVideoItem>() }
 )

@@ -15,6 +15,7 @@ import com.laohei.bili_sdk.location.GetCountryList
 import com.laohei.bili_sdk.login.Login
 import com.laohei.bili_sdk.recommend.GetRecommend
 import com.laohei.bili_sdk.search.SearchRequest
+import com.laohei.bili_sdk.user.GetUploadedVideo
 import com.laohei.bili_sdk.user.GetUserInfo
 import com.laohei.bili_sdk.video.GetArchive
 import com.laohei.bili_sdk.video.GetInfo
@@ -81,6 +82,7 @@ val appModule = module {
     singleOf(::SearchRequest)
     singleOf(::GetBangumi)
     singleOf(::GetCountryList)
+    singleOf(::GetUploadedVideo)
 
     singleOf(::BiliHomeRepository)
     singleOf(::BiliPlayRepository)
