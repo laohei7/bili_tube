@@ -142,7 +142,7 @@ internal class DefaultScreenManager(
         return newState - oldState
     }
 
-    override fun fullscreenChanged(
+    override fun changeFullscreen(
         fullscreen: Boolean,
         newHeight: Dp,
         isOrientationPortrait: Boolean
@@ -164,7 +164,7 @@ internal class DefaultScreenManager(
         }
     }
 
-    override fun screenActionHandle(
+    override fun handleScreenAction(
         action: ScreenAction,
         isOrientationPortrait: Boolean,
         scope: CoroutineScope?,
@@ -268,7 +268,7 @@ internal class DefaultScreenManager(
                 when {
                     isOrientationPortrait && _mState.value.isFullscreen -> {
                         val lazyListState = _mState.value.listState
-                        fullscreenChanged(false, _mState.value.minLimitedHeight, true)
+                        changeFullscreen(false, _mState.value.minLimitedHeight, true)
                         scope?.launch {
                             lazyListState.animateScrollToItem(5)
                         }
@@ -288,7 +288,7 @@ internal class DefaultScreenManager(
         }
     }
 
-    override fun maskAlphaChanged(offset: Float) {
+    override fun changeMaskAlpha(offset: Float) {
         when {
             isShowMask() -> {
                 val maxOffset =
@@ -302,7 +302,7 @@ internal class DefaultScreenManager(
         }
     }
 
-    override fun relatedListDragHandle(offset: Float) {
+    override fun handleRelatedListDrag(offset: Float) {
         val newOffset = (_mState.value.relatedListOffset + offset).coerceIn(0f, 500f)
         _mState.update {
             it.copy(relatedListOffset = newOffset)

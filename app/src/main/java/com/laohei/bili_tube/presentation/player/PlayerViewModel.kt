@@ -445,7 +445,7 @@ internal class PlayerViewModel(
         }
     }
 
-    fun videoSettingActionHandle(action: VideoAction.VideoSettingAction) {
+    fun handlevideoSettingAction(action: VideoAction.VideoSettingAction) {
         when (action) {
             is VideoAction.VideoSettingAction.AutoSkipAction -> {
                 _mPlayerState.update { it.copy(autoSkip = action.flag) }
@@ -490,7 +490,7 @@ internal class PlayerViewModel(
         }
     }
 
-    fun videoPlayActionHandle(action: VideoAction.VideoPlayAction) {
+    fun handleVvideoPlayAction(action: VideoAction.VideoPlayAction) {
         when (action) {
             is VideoAction.VideoPlayAction.SwitchPlayListAction -> {
                 viewModelScope.launch { updateParams(params.copy(cid = action.cid)) }
@@ -552,7 +552,7 @@ internal class PlayerViewModel(
             )?.run {
                 val hasLike = like == 1
                 _mPlayerState.update { it.copy(hasLike = hasLike) }
-                screenActionHandle(
+                handleScreenAction(
                     ScreenAction.ShowLikeAnimationAction(hasLike),
                     false
                 )
