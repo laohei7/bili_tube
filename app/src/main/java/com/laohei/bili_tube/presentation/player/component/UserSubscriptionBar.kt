@@ -13,7 +13,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,8 +30,10 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.laohei.bili_sdk.apis.UserRelationAction
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.component.button.SubscribeButton
+import com.laohei.bili_tube.component.video.VideoAction
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
 import com.laohei.bili_tube.utill.toViewString
 
@@ -37,8 +43,10 @@ internal fun UserSubscriptionBar(
     name: String,
     fans: String,
     isSubscribed: Boolean,
-    onClick: (ScreenAction) -> Unit
+    onClick: (ScreenAction) -> Unit,
+    onSubscriptionChanged: (VideoAction.VideoMenuAction.UserRelationModifyAction) -> Unit
 ) {
+    var localIsSubscribed by remember { mutableStateOf(isSubscribed) }
     val context = LocalContext.current
     val faceRequest = remember(face) {
         ImageRequest.Builder(context)
@@ -46,6 +54,7 @@ internal fun UserSubscriptionBar(
             .crossfade(true)
             .build()
     }
+    LaunchedEffect(isSubscribed) { localIsSubscribed = isSubscribed }
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -84,10 +93,18 @@ internal fun UserSubscriptionBar(
         }
 
         SubscribeButton(
-            isSubscribed = isSubscribed
-        ) {
-            onClick.invoke(ScreenAction.SubscribeAction)
-        }
+            isSubscribed = localIsSubscribed,
+            onClick = {
+                onSubscriptionChanged(
+                    VideoAction.VideoMenuAction.UserRelationModifyAction(
+                        action = when {
+                            localIsSubscribed -> UserRelationAction.UNFOLLOW
+                            else -> UserRelationAction.FOLLOW
+                        }
+                    )
+                )
+            }
+        )
     }
 }
 
@@ -98,10 +115,10 @@ internal fun UserSubscriptionBarPreview() {
         face = "",
         name = "IC实验室",
         fans = 10000.toViewString(),
-        isSubscribed = false
-    ) {
-
-    }
+        isSubscribed = false,
+        onClick = {},
+        onSubscriptionChanged = {}
+    )
 }
 
 @Preview(showBackground = true)
@@ -111,8 +128,8 @@ internal fun UserSubscriptionBarPreview2() {
         face = "",
         name = "IC实验室",
         fans = 10000.toViewString(),
-        isSubscribed = true
-    ) {
-
-    }
+        isSubscribed = true,
+        onClick = {},
+        onSubscriptionChanged = {}
+    )
 }

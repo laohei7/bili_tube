@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
+import com.laohei.bili_sdk.apis.UserRelationAction
+import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
 import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.component.video.VideoAction
@@ -376,7 +378,6 @@ internal class PlayerViewModel(
 
     private suspend fun getUserInfoCard(mid: Long) {
         biliPlayRepository.getUserInfoCard(mid)?.run {
-            Log.d(TAG, "getUserInfoCard: $data")
             _mPlayerState.update { it.copy(infoCardModel = this.data) }
         }
     }
@@ -463,7 +464,7 @@ internal class PlayerViewModel(
         }
     }
 
-    fun videoMenuActionHandle(action: VideoAction.VideoMenuAction) {
+    fun handleVideoMenuAction(action: VideoAction.VideoMenuAction) {
         when (action) {
             is VideoAction.VideoMenuAction.VideoLikeAction -> {
                 videoLike(action.like)
@@ -479,6 +480,10 @@ internal class PlayerViewModel(
 
             is VideoAction.VideoMenuAction.VideoDislikeAction -> {
 
+            }
+
+            is VideoAction.VideoMenuAction.UserRelationModifyAction -> {
+                userRelationModify(action.action)
             }
 
             else -> {}
@@ -515,6 +520,25 @@ internal class PlayerViewModel(
                         )
                     )
                 }
+            }
+        }
+    }
+
+    private fun userRelationModify(act: UserRelationAction) {
+        viewModelScope.launch {
+            val owner = _mPlayerState.value.videoDetail!!.view.owner
+            biliPlayRepository.userRelationModify(
+                mid = owner.mid,
+                act = act
+            ).let {
+                if (it == BiliResponseNoData.ERROR) {
+                    return@launch
+                }
+                if (it.code == 0) {
+                    getUserInfoCard(owner.mid)
+                    return@let
+                }
+                EventBus.send(Event.AppEvent.ToastEvent(it.message))
             }
         }
     }

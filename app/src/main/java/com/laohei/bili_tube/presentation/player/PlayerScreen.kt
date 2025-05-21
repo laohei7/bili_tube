@@ -404,7 +404,7 @@ fun PlayerScreen(
                     scope = scope,
                 )
             },
-            videoMenuClick = viewModel::videoMenuActionHandle
+            videoMenuClick = viewModel::handleVideoMenuAction
         )
 
         when {
@@ -421,7 +421,7 @@ fun PlayerScreen(
                                 scope.launch { viewModel.updateParams(newParams) }
                             })
                     },
-                    videoMenuActionClick = viewModel::videoMenuActionHandle,
+                    videoMenuActionClick = viewModel::handleVideoMenuAction,
                     videoPlayActionClick = viewModel::videoPlayActionHandle
                 )
 
@@ -624,7 +624,7 @@ fun PlayerScreen(
                 )
             },
             onClick = {
-                viewModel.videoMenuActionHandle(it)
+                viewModel.handleVideoMenuAction(it)
                 viewModel.screenActionHandle(
                     ScreenAction.ShowCoinSheetAction(false),
                     isOrientationPortrait
@@ -642,7 +642,7 @@ fun PlayerScreen(
                 )
             },
             onClick = {
-                viewModel.videoMenuActionHandle(it)
+                viewModel.handleVideoMenuAction(it)
                 viewModel.screenActionHandle(
                     ScreenAction.ShowFolderSheetAction(false),
                     isOrientationPortrait
@@ -676,7 +676,9 @@ fun PlayerScreen(
             level = playerState.infoCardModel?.card?.levelInfo?.currentLevel ?: 0,
             uploadedVideos = uploadedVideos,
             currentBvid = viewModel.params.bvid,
-            onSubscriptionClick = {},
+            onSubscriptionChanged = {
+                viewModel.handleVideoMenuAction(it)
+            },
             onDismiss = {
                 viewModel.screenActionHandle(
                     ScreenAction.ShowUpInfoSheetAction(false),
@@ -934,7 +936,8 @@ private fun VideoContent(
                     name = videoDetail.view.owner.name,
                     fans = videoDetail.card.card.fans.toViewString(),
                     isSubscribed = infoCardModel?.following == true,
-                    onClick = { screenActionClick.invoke(ScreenAction.ShowUpInfoSheetAction(true)) }
+                    onClick = { screenActionClick.invoke(ScreenAction.ShowUpInfoSheetAction(true)) },
+                    onSubscriptionChanged = { videoMenuClick(it) }
                 )
             }
             item {

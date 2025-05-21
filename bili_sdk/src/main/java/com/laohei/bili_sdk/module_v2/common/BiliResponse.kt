@@ -40,4 +40,8 @@ data class BiliResponseNoData(
     val code: Int,
     val message: String,
     val ttl: Int = 0,
-)
+) {
+    companion object {
+        val ERROR = BiliResponseNoData(400, "ERROR")
+    }
+}

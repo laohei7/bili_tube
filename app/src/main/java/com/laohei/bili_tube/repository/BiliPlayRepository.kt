@@ -5,8 +5,11 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.laohei.bili_sdk.anime.GetBangumi
+import com.laohei.bili_sdk.apis.UserApi
+import com.laohei.bili_sdk.apis.UserRelationAction
 import com.laohei.bili_sdk.folder.PostFolder
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
+import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
 import com.laohei.bili_sdk.module_v2.folder.FolderDealModel
 import com.laohei.bili_sdk.module_v2.reply.ReplyItem
 import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
@@ -44,7 +47,8 @@ class BiliPlayRepository(
     private val postFolder: PostFolder,
     private val getUserInfo: GetUserInfo,
     private val biliTubeDB: BiliTubeDB,
-    private val getUploadedVideo: GetUploadedVideo
+    private val getUploadedVideo: GetUploadedVideo,
+    private val userApi: UserApi
 ) {
 
     suspend fun getVideoPlayURLByLocal(bvid: String) =
@@ -249,4 +253,17 @@ class BiliPlayRepository(
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
         mid = mid
     )
+
+    suspend fun userRelationModify(
+        mid: Long,
+        act: UserRelationAction,
+    ): BiliResponseNoData {
+        val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
+        return userApi.postRelationModify(
+            cookie = cookie,
+            mid = mid,
+            act = act,
+            csrf = cookie.getBiliJct()
+        )
+    }
 }

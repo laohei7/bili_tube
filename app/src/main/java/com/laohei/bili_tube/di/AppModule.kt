@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import com.laohei.bili_sdk.anime.GetBangumi
 import com.laohei.bili_sdk.anime.GetTimeline
+import com.laohei.bili_sdk.apis.UserApi
+import com.laohei.bili_sdk.apis.impl.UserApiImpl
 import com.laohei.bili_sdk.dynamic.GetWebDynamic
 import com.laohei.bili_sdk.folder.GetFolder
 import com.laohei.bili_sdk.folder.PostFolder
@@ -50,6 +52,7 @@ import com.laohei.bili_tube.utill.HttpClientFactory
 import com.laohei.bili_tube.utill.download.DownloadManager
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 @SuppressLint("UnsafeOptInUsageError")
@@ -83,6 +86,7 @@ val appModule = module {
     singleOf(::GetBangumi)
     singleOf(::GetCountryList)
     singleOf(::GetUploadedVideo)
+    singleOf(::UserApiImpl).bind(UserApi::class)
 
     singleOf(::BiliHomeRepository)
     singleOf(::BiliPlayRepository)

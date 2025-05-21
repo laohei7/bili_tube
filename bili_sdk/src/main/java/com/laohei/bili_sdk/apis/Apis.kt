@@ -23,6 +23,7 @@ const val URL_SMS_LOGIN = "$BILIBILI_PASSPORT/x/passport-login/web/login/sms"
 // 用户
 const val URL_USER_UPLOADED_VIDEO = "$BILIBILI_APP/x/v2/space/archive/cursor"
 const val URL_USER_INFO_CARD = "$BILIBILI_API/x/web-interface/card"
+const val URL_USER_RELATION_MODIFY = "$BILIBILI_API/x/relation/modify"
 
 const val RECOMMEND_VIDEOS = "https://api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd"
 

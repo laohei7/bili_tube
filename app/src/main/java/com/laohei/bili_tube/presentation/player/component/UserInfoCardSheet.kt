@@ -24,7 +24,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +49,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.request.error
 import coil3.request.placeholder
+import com.laohei.bili_sdk.apis.UserRelationAction
 import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
@@ -61,6 +65,7 @@ import com.laohei.bili_tube.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.component.sheet.rememberModalBottomSheet
 import com.laohei.bili_tube.component.text.VerticalDataText
 import com.laohei.bili_tube.component.video.HorizontalVideoItem2
+import com.laohei.bili_tube.component.video.VideoAction
 import com.laohei.bili_tube.utill.formatTimeString
 import kotlinx.coroutines.flow.flowOf
 
@@ -83,11 +88,13 @@ fun UserInfoCardSheet(
     official: String,
     currentBvid: String? = null,
     uploadedVideos: LazyPagingItems<UploadedVideoItem>,
-    onSubscriptionClick: () -> Unit,
+    onSubscriptionChanged: (VideoAction.VideoMenuAction.UserRelationModifyAction) -> Unit,
     onDismiss: () -> Unit = {},
     maskAlphaChanged: (Float) -> Unit = { _ -> },
     onVideoChanged: (Route.Play) -> Unit = {}
 ) {
+    var localIsSubscribed by remember { mutableStateOf(isSubscribed) }
+    LaunchedEffect(isSubscribed) { localIsSubscribed = isSubscribed }
     val sheetState = rememberModalBottomSheet(
         skipPartiallyExpanded = true
     )
@@ -121,8 +128,17 @@ fun UserInfoCardSheet(
                             face = face,
                             name = name,
                             sign = sign,
-                            isSubscribed = isSubscribed,
-                            onSubscriptionClick = onSubscriptionClick
+                            isSubscribed = localIsSubscribed,
+                            onSubscriptionClick = {
+                                onSubscriptionChanged(
+                                    VideoAction.VideoMenuAction.UserRelationModifyAction(
+                                        action = when {
+                                            localIsSubscribed -> UserRelationAction.UNFOLLOW
+                                            else -> UserRelationAction.FOLLOW
+                                        }
+                                    )
+                                )
+                            }
                         )
                     }
                     item {
@@ -369,7 +385,7 @@ private fun UserInfoCardSheetPreview() {
         uploadedVideos = remember {
             flowOf(PagingData.from(List(10) { videoItem }))
         }.collectAsLazyPagingItems(),
-        onSubscriptionClick = {}
+        onSubscriptionChanged = {}
     )
 }
 
@@ -390,7 +406,7 @@ private fun UserInfoCardSheetPreview2() {
         uploadedVideos = remember {
             flowOf(PagingData.from(List(10) { videoItem }))
         }.collectAsLazyPagingItems(),
-        onSubscriptionClick = {}
+        onSubscriptionChanged = {}
     )
 }
 
