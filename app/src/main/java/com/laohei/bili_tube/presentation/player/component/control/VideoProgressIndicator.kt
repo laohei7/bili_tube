@@ -18,6 +18,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -26,12 +27,12 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
-@Preview
 @Composable
 fun VideoProgressIndicator(
-    isShowThumb: Boolean = true,
-    progress: Float = 0.5f,
-    bufferProgress: Float = 0f,
+    isShowThumb: Boolean,
+    progress: Float,
+    bufferProgress: Float,
+    alignment: Alignment.Vertical,
     onProgressChanged: ((Float) -> Unit)? = null
 ) {
     var isDrag by remember { mutableStateOf(false) }
@@ -111,17 +112,71 @@ fun VideoProgressIndicator(
                 isDrag -> thumbX
                 else -> progress * barWidth
             }
-            val thumbHeight = thumb.height
 
             layout(constraints.maxWidth, thumb.height) {
-                track.place(0, thumbHeight - track.height) // 轨道居中
-                bufferProgressBar.place(0, thumbHeight - bufferProgressBar.height) // 进度条
-                progressBar.place(0, thumbHeight - progressBar.height) // 进度条
-                thumb.place(
-                    thumbX.toInt() - thumb.width / 2,
-                    thumbHeight / 2 - progressBar.height / 2
-                ) // 滑块居中
+                when (alignment) {
+                    Alignment.CenterVertically -> {
+                        track.place(0, thumb.height / 2 - track.height / 2) // 轨道居中
+                        bufferProgressBar.place(
+                            0,
+                            thumb.height / 2 - bufferProgressBar.height / 2
+                        ) // 进度条
+                        progressBar.place(0, thumb.height / 2 - progressBar.height / 2) // 进度条
+                        thumb.place(thumbX.toInt() - thumb.width / 2, 0) // 滑块居中
+                    }
+
+                    Alignment.Bottom -> {
+                        track.place(0, thumb.height - track.height / 2) // 轨道居中
+                        bufferProgressBar.place(
+                            0,
+                            thumb.height - bufferProgressBar.height / 2
+                        ) // 进度条
+                        progressBar.place(0, thumb.height - progressBar.height / 2) // 进度条
+                        thumb.place(thumbX.toInt() - thumb.width / 2, thumb.height / 2) // 滑块居中
+                    }
+
+                    else -> {
+                        track.place(0, 0) // 轨道居中
+                        bufferProgressBar.place(0, 0) // 进度条
+                        progressBar.place(0, 0) // 进度条
+                        thumb.place(thumbX.toInt() - thumb.width / 2, 0 - thumb.height / 2) // 滑块居中
+                    }
+                }
+
             }
         }
+    )
+}
+
+@Preview
+@Composable
+private fun VideoProgressIndicatorPreview1() {
+    VideoProgressIndicator(
+        isShowThumb = true,
+        progress = 0.5f,
+        bufferProgress = 0.8f,
+        alignment = Alignment.Top
+    )
+}
+
+@Preview
+@Composable
+private fun VideoProgressIndicatorPreview2() {
+    VideoProgressIndicator(
+        isShowThumb = true,
+        progress = 0.5f,
+        bufferProgress = 0.8f,
+        alignment = Alignment.CenterVertically
+    )
+}
+
+@Preview
+@Composable
+private fun VideoProgressIndicatorPreview3() {
+    VideoProgressIndicator(
+        isShowThumb = true,
+        progress = 0.5f,
+        bufferProgress = 0.8f,
+        alignment = Alignment.Bottom
     )
 }

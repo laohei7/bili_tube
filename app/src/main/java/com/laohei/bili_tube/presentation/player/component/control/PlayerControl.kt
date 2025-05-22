@@ -1,6 +1,5 @@
 package com.laohei.bili_tube.presentation.player.component.control
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.expandVertically
@@ -206,7 +205,8 @@ fun PlayerControl(
         AnimatedVisibility(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .statusBarsPadding(),
+                .statusBarsPadding()
+                .padding(top = 8.dp),
             visible = isLongPress,
             enter = fadeIn(),
             exit = fadeOut()
@@ -586,6 +586,7 @@ private fun BoxScope.BottomBar(
                 isShowThumb = isShowUI,
                 progress = progress,
                 bufferProgress = bufferProgress,
+                alignment = if (isFullscreen) Alignment.CenterVertically else Alignment.Bottom,
                 onProgressChanged = {
                     progressChanged.invoke(it)
                 }
