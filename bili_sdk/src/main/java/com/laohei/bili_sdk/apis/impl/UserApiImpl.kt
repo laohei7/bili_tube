@@ -1,9 +1,9 @@
 package com.laohei.bili_sdk.apis.impl
 
-import android.util.Log
 import com.laohei.bili_sdk.apis.URL_USER_RELATION_MODIFY
 import com.laohei.bili_sdk.apis.UserApi
 import com.laohei.bili_sdk.apis.UserRelationAction
+import com.laohei.bili_sdk.exception.globalSDKExceptionHandle
 import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.FormDataContent
@@ -34,8 +34,8 @@ class UserApiImpl(
         act: UserRelationAction,
         csrf: String?
     ): BiliResponseNoData = withContext(Dispatchers.IO) {
-        val response = try {
-            client.post(URL_USER_RELATION_MODIFY) {
+        runCatching {
+            val response = client.post(URL_USER_RELATION_MODIFY) {
                 cookie?.apply {
                     header(HttpHeaders.Cookie, cookie)
                 }
@@ -50,14 +50,15 @@ class UserApiImpl(
                     )
                 )
             }
-        } catch (e: Exception) {
-            if (DBG) {
-                Log.d(TAG, "postRelationModify: ${e.message}")
+            Json.decodeFromString<BiliResponseNoData>(response.bodyAsText())
+        }.fold(
+            onSuccess = { it },
+            onFailure = {
+                if (DBG) {
+                    globalSDKExceptionHandle(TAG.toString(), it)
+                }
+                BiliResponseNoData.ERROR
             }
-            null
-        }
-        response?.run {
-            Json.decodeFromString<BiliResponseNoData>(bodyAsText())
-        } ?: BiliResponseNoData.ERROR
+        )
     }
 }
