@@ -26,6 +26,7 @@ pagingRuntime = "3.3.6"
 kotlinxDatetime = "0.6.1"
 palette = "1.0.0"
 ksp = "2.1.10-1.0.31"
+reorderable = "0.9.6"
 room = "2.6.1"
 sensebot = "4.4.2.1"
 
@@ -84,6 +85,7 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottieCompose" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+reorderable = { module = "org.burnoutcrew.composereorderable:reorderable", version.ref = "reorderable" }
 sensebot = { module = "com.geetest.sensebot:sensebot", version.ref = "sensebot" }
 
 [plugins]

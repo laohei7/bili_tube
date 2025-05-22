@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.content.Context
 import com.laohei.bili_sdk.anime.GetBangumi
 import com.laohei.bili_sdk.anime.GetTimeline
+import com.laohei.bili_sdk.apis.HistoryApi
 import com.laohei.bili_sdk.apis.UserApi
+import com.laohei.bili_sdk.apis.impl.HistoryApiImpl
 import com.laohei.bili_sdk.apis.impl.UserApiImpl
 import com.laohei.bili_sdk.dynamic.GetWebDynamic
 import com.laohei.bili_sdk.folder.GetFolder
@@ -29,7 +31,6 @@ import com.laohei.bili_tube.core.util.NetworkUtil
 import com.laohei.bili_tube.core.util.PreferencesUtil
 import com.laohei.bili_tube.db.BiliTubeDB
 import com.laohei.bili_tube.presentation.download.DownloadViewModel
-import com.laohei.bili_tube.presentation.subscription.SubscriptionViewModel
 import com.laohei.bili_tube.presentation.history.HistoryViewModel
 import com.laohei.bili_tube.presentation.home.HomeViewModel
 import com.laohei.bili_tube.presentation.home.hot.HotViewModel
@@ -37,10 +38,11 @@ import com.laohei.bili_tube.presentation.home.recommend.RecommendViewModel
 import com.laohei.bili_tube.presentation.login.LoginViewModel
 import com.laohei.bili_tube.presentation.mine.MineViewModel
 import com.laohei.bili_tube.presentation.player.PlayerViewModel
+import com.laohei.bili_tube.presentation.playlist.PlaylistDetailViewModel
 import com.laohei.bili_tube.presentation.playlist.PlaylistViewModel
 import com.laohei.bili_tube.presentation.search.SearchViewModel
 import com.laohei.bili_tube.presentation.settings.SettingsViewModel
-import com.laohei.bili_tube.repository.BiliSubscriptionRepository
+import com.laohei.bili_tube.presentation.subscription.SubscriptionViewModel
 import com.laohei.bili_tube.repository.BiliHistoryRepository
 import com.laohei.bili_tube.repository.BiliHomeRepository
 import com.laohei.bili_tube.repository.BiliLoginRepository
@@ -48,6 +50,7 @@ import com.laohei.bili_tube.repository.BiliMineRepository
 import com.laohei.bili_tube.repository.BiliPlayRepository
 import com.laohei.bili_tube.repository.BiliPlaylistRepository
 import com.laohei.bili_tube.repository.BiliSearchRepository
+import com.laohei.bili_tube.repository.BiliSubscriptionRepository
 import com.laohei.bili_tube.utill.HttpClientFactory
 import com.laohei.bili_tube.utill.download.DownloadManager
 import org.koin.core.module.dsl.singleOf
@@ -87,6 +90,7 @@ val appModule = module {
     singleOf(::GetCountryList)
     singleOf(::GetUploadedVideo)
     singleOf(::UserApiImpl).bind(UserApi::class)
+    singleOf(::HistoryApiImpl).bind(HistoryApi::class)
 
     singleOf(::BiliHomeRepository)
     singleOf(::BiliPlayRepository)
@@ -112,5 +116,6 @@ val appModule = module {
     viewModelOf(::SearchViewModel)
     viewModelOf(::SettingsViewModel)
     viewModelOf(::LoginViewModel)
+    viewModelOf(::PlaylistDetailViewModel)
 
 }

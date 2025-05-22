@@ -32,6 +32,14 @@ sealed class Route {
     data object Playlist : Route()
 
     @Serializable
+    data class PlaylistDetail(
+        val cover: String,
+        val title: String,
+        val count: Int,
+        val isPrivate: Boolean
+    ): Route()
+
+    @Serializable
     data object DownloadManagement : Route()
 
     @Serializable

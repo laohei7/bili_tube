@@ -25,6 +25,10 @@ const val URL_USER_UPLOADED_VIDEO = "$BILIBILI_APP/x/v2/space/archive/cursor"
 const val URL_USER_INFO_CARD = "$BILIBILI_API/x/web-interface/card"
 const val URL_USER_RELATION_MODIFY = "$BILIBILI_API/x/relation/modify"
 
+// 稍后观看
+const val URL_TO_VIEW = "$BILIBILI_API/x/v2/history/toview"
+const val URL_ADD_TO_VIEW = "$BILIBILI_API/x/v2/history/toview/add"
+
 const val RECOMMEND_VIDEOS = "https://api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd"
 
 const val HOT_VIDEOS = "https://api.bilibili.com/x/web-interface/popular"
@@ -58,10 +62,6 @@ const val RANK_URL = "https://api.bilibili.com/pgc/web/rank/list"
 //?day=3&season_type=1
 
 const val WEB_DYNAMIC_URL = "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/all"
-
-const val WATCH_LATER_URL = "https://api.bilibili.com/x/v2/history/toview"
-
-const val ADD_TO_VIEW_URL = "https://api.bilibili.com/x/v2/history/toview/add"
 
 const val HISTORY_URL = "https://api.bilibili.com/x/web-interface/history/cursor"
 

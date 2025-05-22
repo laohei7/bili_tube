@@ -8,7 +8,11 @@ import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class WatchLaterModel(
+data class ToViewModel(
     val count: Int,
     val list: List<VideoView>
-)
+) {
+    companion object {
+        val EMPTY = ToViewModel(0, emptyList())
+    }
+}

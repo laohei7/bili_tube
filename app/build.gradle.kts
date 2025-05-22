@@ -99,6 +99,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
 //    implementation("org.jellyfin.media3:media3-ffmpeg-decoder:1.5.0+1")
     implementation(libs.sensebot)
+    implementation(libs.reorderable)
     implementation(project(":bili_sdk"))
 
 }

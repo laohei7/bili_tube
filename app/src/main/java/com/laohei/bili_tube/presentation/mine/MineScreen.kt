@@ -370,6 +370,7 @@ private fun PlaylistWidget(
     folderList: List<FolderItem>,
     navigateToRoute: (Route) -> Unit
 ) {
+    val context = LocalContext.current
     ListItem(
         headlineContent = {
             Text(
@@ -409,6 +410,16 @@ private fun PlaylistWidget(
                 cover = watchLaterList.firstOrNull()?.pic.orEmpty(),
                 title = stringResource(R.string.str_watch_later),
                 label = stringResource(R.string.str_private),
+                onClick = {
+                    navigateToRoute(
+                        Route.PlaylistDetail(
+                            cover = watchLaterList.firstOrNull()?.pic.orEmpty(),
+                            title = context.getString(R.string.str_watch_later),
+                            count = watchLaterCount,
+                            isPrivate = true
+                        )
+                    )
+                },
                 icon = {
                     Column(
                         modifier = Modifier
@@ -445,6 +456,9 @@ private fun PlaylistWidget(
                 cover = it.cover,
                 title = it.title,
                 label = stringResource(R.string.str_public),
+                onClick = {
+
+                },
                 icon = {
                     Row(
                         modifier = Modifier
@@ -572,13 +586,18 @@ private fun PlaylistItem(
     cover: String,
     title: String,
     label: String,
+    onClick: () -> Unit,
     icon: @Composable (BoxScope.() -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var dominantColor by remember { mutableStateOf(Color.LightGray) }
     Column(
-        modifier = Modifier.width(IntrinsicSize.Min),
+        modifier = Modifier
+            .width(IntrinsicSize.Min)
+            .clickable {
+                onClick.invoke()
+            },
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Box {
