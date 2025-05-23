@@ -4,9 +4,13 @@ import android.annotation.SuppressLint
 import android.content.Context
 import com.laohei.bili_sdk.anime.GetBangumi
 import com.laohei.bili_sdk.anime.GetTimeline
+import com.laohei.bili_sdk.apis.AuthApi
 import com.laohei.bili_sdk.apis.HistoryApi
+import com.laohei.bili_sdk.apis.InternationalizationApi
 import com.laohei.bili_sdk.apis.UserApi
+import com.laohei.bili_sdk.apis.impl.AuthApiImpl
 import com.laohei.bili_sdk.apis.impl.HistoryApiImpl
+import com.laohei.bili_sdk.apis.impl.InternationalizationApiImpl
 import com.laohei.bili_sdk.apis.impl.UserApiImpl
 import com.laohei.bili_sdk.dynamic.GetWebDynamic
 import com.laohei.bili_sdk.folder.GetFolder
@@ -91,6 +95,8 @@ val appModule = module {
     singleOf(::GetUploadedVideo)
     singleOf(::UserApiImpl).bind(UserApi::class)
     singleOf(::HistoryApiImpl).bind(HistoryApi::class)
+    singleOf(::AuthApiImpl).bind(AuthApi::class)
+    singleOf(::InternationalizationApiImpl).bind(InternationalizationApi::class)
 
     singleOf(::BiliHomeRepository)
     singleOf(::BiliPlayRepository)

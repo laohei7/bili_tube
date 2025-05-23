@@ -1,7 +1,8 @@
 package com.laohei.bili_tube.repository
 
 import android.content.Context
-import com.laohei.bili_sdk.login.Login
+import com.laohei.bili_sdk.apis.AuthApi
+import com.laohei.bili_sdk.apis.InternationalizationApi
 import com.laohei.bili_sdk.login.Login.Companion.LOGIN_SOURCE_HEADER
 import com.laohei.bili_sdk.module_v2.login.LoginSuccessModel
 import com.laohei.bili_tube.R
@@ -11,14 +12,15 @@ import io.ktor.http.Headers
 import kotlinx.coroutines.flow.firstOrNull
 
 class BiliLoginRepository(
-    private val login: Login,
+    private val authApi: AuthApi,
+    private val internationalizationApi: InternationalizationApi,
     private val context: Context
 ) {
+    suspend fun getCountries() = internationalizationApi.getCountries()
+
     suspend fun getCaptcha(
         source: String = LOGIN_SOURCE_HEADER,
-    ) = login.getCaptcha(
-        source = source,
-    )
+    ) = authApi.getCaptcha(source = source)
 
     suspend fun sendSMSCode(
         cid: String,
@@ -28,7 +30,7 @@ class BiliLoginRepository(
         challenge: String,
         validate: String,
         seccode: String
-    ) = login.sendSMSCode(
+    ) = authApi.sendSMSCode(
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
         cid = cid,
         tel = tel,
@@ -50,7 +52,7 @@ class BiliLoginRepository(
         headersCallback: suspend (Context, Headers) -> Unit,
         resultCallback: suspend (Context, LoginSuccessModel) -> Unit
     ): String? {
-        val msg = login.smsLogin(
+        val msg = authApi.smsLogin(
             cid = cid,
             tel = tel,
             code = code,
@@ -62,10 +64,10 @@ class BiliLoginRepository(
             resultCallback = { res -> resultCallback(context, res) }
         )
         return msg.run {
-            if (this == "0") {
-                context.getString(R.string.str_login_success)
-            } else {
-                this
+            when {
+                this == "0" -> context.getString(R.string.str_login_success)
+                this == "ERROR" -> context.getString(R.string.str_login_failed)
+                else -> this
             }
         }
     }
