@@ -405,88 +405,90 @@ private fun PlaylistWidget(
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item { Spacer(Modifier) }
-        item {
-            PlaylistItem(
-                cover = watchLaterList.firstOrNull()?.pic.orEmpty(),
-                title = stringResource(R.string.str_watch_later),
-                label = stringResource(R.string.str_private),
-                onClick = {
-                    navigateToRoute(
-                        Route.PlaylistDetail(
-                            cover = watchLaterList.firstOrNull()?.pic.orEmpty(),
-                            title = context.getString(R.string.str_watch_later),
-                            count = watchLaterCount,
-                            isPrivate = true
-                        )
-                    )
-                },
-                icon = {
-                    Column(
-                        modifier = Modifier
-                            .width(180.dp)
-                            .aspectRatio(16 / 9f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(
-                                color = Color.Black.copy(alpha = 0.5f),
-                                shape = RoundedCornerShape(12.dp)
-                            ),
-                        verticalArrangement = Arrangement.spacedBy(
-                            4.dp,
-                            Alignment.CenterVertically
-                        ),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.WatchLater,
-                            contentDescription = Icons.Outlined.WatchLater.name,
-                            tint = Color.White
-                        )
-
-                        Text(
-                            text = "$watchLaterCount",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White
-                        )
-                    }
-                }
-            )
-        }
-        items(folderList) {
-            PlaylistItem(
-                cover = it.cover,
-                title = it.title,
-                label = stringResource(R.string.str_public),
-                onClick = {
-
-                },
-                icon = {
-                    Row(
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(end = 12.dp, bottom = 12.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(
-                                color = Color.Black.copy(alpha = 0.5f),
-                                shape = RoundedCornerShape(4.dp)
+        if(folderList.isNotEmpty()){
+            item {
+                PlaylistItem(
+                    cover = watchLaterList.firstOrNull()?.pic.orEmpty(),
+                    title = stringResource(R.string.str_watch_later),
+                    label = stringResource(R.string.str_private),
+                    onClick = {
+                        navigateToRoute(
+                            Route.PlaylistDetail(
+                                cover = watchLaterList.firstOrNull()?.pic.orEmpty(),
+                                title = context.getString(R.string.str_watch_later),
+                                count = watchLaterCount,
+                                isPrivate = true
                             )
-                            .padding(vertical = 3.dp, horizontal = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.PlaylistPlay,
-                            contentDescription = Icons.AutoMirrored.Outlined.PlaylistPlay.name,
-                            tint = Color.White,
-                            modifier = Modifier.size(16.dp)
                         )
-                        Text(
-                            text = it.mediaCount.toViewString(),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = Color.White
-                        )
+                    },
+                    icon = {
+                        Column(
+                            modifier = Modifier
+                                .width(180.dp)
+                                .aspectRatio(16 / 9f)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(
+                                    color = Color.Black.copy(alpha = 0.5f),
+                                    shape = RoundedCornerShape(12.dp)
+                                ),
+                            verticalArrangement = Arrangement.spacedBy(
+                                4.dp,
+                                Alignment.CenterVertically
+                            ),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.WatchLater,
+                                contentDescription = Icons.Outlined.WatchLater.name,
+                                tint = Color.White
+                            )
+
+                            Text(
+                                text = "$watchLaterCount",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White
+                            )
+                        }
                     }
-                }
-            )
+                )
+            }
+            items(folderList) {
+                PlaylistItem(
+                    cover = it.cover,
+                    title = it.title,
+                    label = stringResource(R.string.str_public),
+                    onClick = {
+
+                    },
+                    icon = {
+                        Row(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(end = 12.dp, bottom = 12.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(
+                                    color = Color.Black.copy(alpha = 0.5f),
+                                    shape = RoundedCornerShape(4.dp)
+                                )
+                                .padding(vertical = 3.dp, horizontal = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Outlined.PlaylistPlay,
+                                contentDescription = Icons.AutoMirrored.Outlined.PlaylistPlay.name,
+                                tint = Color.White,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = it.mediaCount.toViewString(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White
+                            )
+                        }
+                    }
+                )
+            }
         }
         item { Spacer(Modifier) }
     }

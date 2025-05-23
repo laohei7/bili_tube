@@ -178,7 +178,6 @@ fun UserInfoCardSheet(
                         val item = uploadedVideos[index]
                         item?.let {
                             HorizontalVideoItem2(
-                                modifier = Modifier.padding(horizontal = 8.dp),
                                 cover = it.cover,
                                 title = it.title,
                                 view = it.viewContent,
@@ -357,7 +356,7 @@ private fun UserLevelAndOfficialWidget(
             Modifier
                 .size(8.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary)
+                .background(MaterialTheme.colorScheme.primaryContainer)
         )
         Text(
             text = official.ifEmpty { stringResource(R.string.str_no_official) },
