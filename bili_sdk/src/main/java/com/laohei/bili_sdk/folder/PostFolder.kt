@@ -1,7 +1,7 @@
 package com.laohei.bili_sdk.folder
 
 import com.laohei.bili_sdk.apis.BILIBILI
-import com.laohei.bili_sdk.apis.VIDEO_FOLDER_DEAL_URL
+import com.laohei.bili_sdk.apis.URL_FOLDER_DEAL
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.folder.FolderDealModel
 import io.ktor.client.HttpClient
@@ -35,7 +35,7 @@ class PostFolder(
         biliJct: String
     ) = withContext(Dispatchers.IO) {
         val response = try {
-            client.post(VIDEO_FOLDER_DEAL_URL) {
+            client.post(URL_FOLDER_DEAL) {
                 cookie?.apply {
                     header(HttpHeaders.Cookie, cookie)
                 }

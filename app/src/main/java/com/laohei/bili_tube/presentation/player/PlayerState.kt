@@ -2,7 +2,7 @@ package com.laohei.bili_tube.presentation.player
 
 import androidx.paging.PagingData
 import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiItem
-import com.laohei.bili_sdk.module_v2.folder.FolderSimpleItem
+import com.laohei.bili_sdk.module_v2.folder.SimpleFolderItem
 import com.laohei.bili_sdk.module_v2.reply.ReplyItem
 import com.laohei.bili_sdk.module_v2.user.InfoCardModel
 import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
@@ -24,7 +24,7 @@ data class PlayerState(
     val hasLike: Boolean = false,
     val hasCoin: Boolean = false,
     val hasFavoured: Boolean = false,
-    val folders: List<FolderSimpleItem> = emptyList(),
+    val folders: List<SimpleFolderItem> = emptyList(),
     val isDownloaded: Boolean = false,
     val isVideo: Boolean = true,
     val bangumiDetail: BangumiDetailModel? = null,

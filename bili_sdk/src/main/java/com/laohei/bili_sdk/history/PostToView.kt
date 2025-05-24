@@ -1,10 +1,7 @@
 package com.laohei.bili_sdk.history
 
-import com.laohei.bili_sdk.apis.ADD_TO_VIEW_URL
-import com.laohei.bili_sdk.apis.VIDEO_FOLDER_DEAL_URL
-import com.laohei.bili_sdk.module_v2.common.BiliResponse
+import com.laohei.bili_sdk.apis.URL_ADD_TO_VIEW
 import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
-import com.laohei.bili_sdk.module_v2.folder.FolderDealModel
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.post
@@ -27,7 +24,7 @@ class PostToView(
         cookie: String? = null
     ) = withContext(Dispatchers.IO) {
         val response = try {
-            client.post(ADD_TO_VIEW_URL) {
+            client.post(URL_ADD_TO_VIEW) {
                 url {
                     cookie?.apply {
                         headers.append(HttpHeaders.Cookie, cookie)

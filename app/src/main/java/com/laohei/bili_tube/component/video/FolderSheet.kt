@@ -34,7 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
-import com.laohei.bili_sdk.module_v2.folder.FolderSimpleItem
+import com.laohei.bili_sdk.module_v2.folder.SimpleFolderItem
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.component.sheet.ModalBottomSheetProperties
@@ -45,7 +45,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun FolderSheet(
     isShowSheet: Boolean = true,
-    folders: List<FolderSimpleItem>,
+    folders: List<SimpleFolderItem>,
     onDismiss: () -> Unit = {},
     onClick: (VideoAction.VideoMenuAction) -> Unit = {}
 ) {
