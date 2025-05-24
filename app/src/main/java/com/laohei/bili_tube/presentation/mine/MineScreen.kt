@@ -405,7 +405,7 @@ private fun PlaylistWidget(
         horizontalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         item { Spacer(Modifier) }
-        if(folderList.isNotEmpty()){
+        if (folderList.isNotEmpty()) {
             item {
                 PlaylistItem(
                     cover = watchLaterList.firstOrNull()?.pic.orEmpty(),
@@ -458,7 +458,16 @@ private fun PlaylistWidget(
                     title = it.title,
                     label = stringResource(R.string.str_public),
                     onClick = {
-
+                        navigateToRoute(
+                            Route.PlaylistDetail(
+                                cover = it.cover,
+                                title = it.title,
+                                count = it.mediaCount,
+                                isPrivate = false,
+                                isToView = false,
+                                fid = it.id
+                            )
+                        )
                     },
                     icon = {
                         Row(

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.history.ToViewModel
+import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.repository.BiliPlaylistRepository
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -17,16 +18,28 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class PlaylistDetailViewModel(
-    private val biliPlaylistRepository: BiliPlaylistRepository
+    private val biliPlaylistRepository: BiliPlaylistRepository,
+    private val param: Route.PlaylistDetail
 ) : ViewModel() {
     private val _mState = MutableStateFlow(PlaylistDetailState())
     val state = _mState.onStart {
-        initToViews()
+        if (param.isToView) {
+            initToViews()
+        } else {
+            initFolderResources()
+        }
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
         _mState.value
     )
+
+    private fun initFolderResources() {
+        viewModelScope.launch {
+            val pager = biliPlaylistRepository.getFolderResourcePager(mlid = param.fid!!)
+            _mState.update { it.copy(folderResources = pager) }
+        }
+    }
 
     private fun initToViews() {
         viewModelScope.launch {

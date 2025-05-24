@@ -29,6 +29,13 @@ const val URL_USER_RELATION_MODIFY = "$BILIBILI_API/x/relation/modify"
 const val URL_TO_VIEW = "$BILIBILI_API/x/v2/history/toview"
 const val URL_ADD_TO_VIEW = "$BILIBILI_API/x/v2/history/toview/add"
 
+// 合集
+const val URL_FOLDER = "$BILIBILI_API/x/v3/fav/folder/list4navigate"
+const val URL_SIMPLE_FOLDER = "$BILIBILI_API/x/v3/fav/folder/created/list-all"
+const val URL_FOLDER_DEAL = "$BILIBILI_API/medialist/gateway/coll/resource/deal"
+const val URL_FOLDER_RESOURCE_LIST = "$BILIBILI_API/x/v3/fav/resource/list"
+
+
 const val RECOMMEND_VIDEOS = "https://api.bilibili.com/x/web-interface/wbi/index/top/feed/rcmd"
 
 const val HOT_VIDEOS = "https://api.bilibili.com/x/web-interface/popular"
@@ -65,9 +72,6 @@ const val WEB_DYNAMIC_URL = "https://api.bilibili.com/x/polymer/web-dynamic/v1/f
 
 const val HISTORY_URL = "https://api.bilibili.com/x/web-interface/history/cursor"
 
-const val FOLDER_URL = "https://api.bilibili.com/x/v3/fav/folder/list4navigate"
-const val FOLDER_SIMPLE_URL = "https://api.bilibili.com/x/v3/fav/folder/created/list-all"
-
 const val USER_STAT_URL = "https://api.bilibili.com/x/web-interface/nav/stat"
 const val VIDEO_ARCHIVE_URL = "https://api.bilibili.com/x/polymer/web-space/seasons_archives_list"
 
@@ -80,8 +84,6 @@ const val VIDEO_HAS_COIN_URL = "https://api.bilibili.com/x/web-interface/archive
 const val VIDEO_COIN_ADD_URL = "https://api.bilibili.com/x/web-interface/coin/add"
 
 const val VIDEO_HAS_FAVORED_URL = "https://api.bilibili.com/x/v2/fav/video/favoured"
-
-const val VIDEO_FOLDER_DEAL_URL = "https://api.bilibili.com/medialist/gateway/coll/resource/deal"
 
 const val VIDEO_PAGELIST_URL = "https://api.bilibili.com/x/player/pagelist"
 

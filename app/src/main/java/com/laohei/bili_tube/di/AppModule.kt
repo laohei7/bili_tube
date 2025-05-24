@@ -5,10 +5,12 @@ import android.content.Context
 import com.laohei.bili_sdk.anime.GetBangumi
 import com.laohei.bili_sdk.anime.GetTimeline
 import com.laohei.bili_sdk.apis.AuthApi
+import com.laohei.bili_sdk.apis.FolderApi
 import com.laohei.bili_sdk.apis.HistoryApi
 import com.laohei.bili_sdk.apis.InternationalizationApi
 import com.laohei.bili_sdk.apis.UserApi
 import com.laohei.bili_sdk.apis.impl.AuthApiImpl
+import com.laohei.bili_sdk.apis.impl.FolderApiImpl
 import com.laohei.bili_sdk.apis.impl.HistoryApiImpl
 import com.laohei.bili_sdk.apis.impl.InternationalizationApiImpl
 import com.laohei.bili_sdk.apis.impl.UserApiImpl
@@ -97,6 +99,7 @@ val appModule = module {
     singleOf(::HistoryApiImpl).bind(HistoryApi::class)
     singleOf(::AuthApiImpl).bind(AuthApi::class)
     singleOf(::InternationalizationApiImpl).bind(InternationalizationApi::class)
+    singleOf(::FolderApiImpl).bind(FolderApi::class)
 
     singleOf(::BiliHomeRepository)
     singleOf(::BiliPlayRepository)

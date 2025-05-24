@@ -36,14 +36,17 @@ sealed class Route {
         val cover: String,
         val title: String,
         val count: Int,
-        val isPrivate: Boolean
-    ): Route()
+        val isPrivate: Boolean,
+        val isToView: Boolean = true,
+        val fid: Long? = null
+    ) : Route()
 
     @Serializable
     data object DownloadManagement : Route()
 
     @Serializable
     data object Search : Route()
+
     @Serializable
     data object Settings : Route()
 

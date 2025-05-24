@@ -46,15 +46,21 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.palette.graphics.Palette
 import coil3.asDrawable
 import coil3.compose.AsyncImage
+import com.laohei.bili_sdk.apis.impl.FolderApiImpl
 import com.laohei.bili_sdk.apis.impl.HistoryApiImpl
 import com.laohei.bili_sdk.folder.GetFolder
 import com.laohei.bili_sdk.history.GetWatchLater
+import com.laohei.bili_sdk.module_v2.folder.FolderMediaItem
+import com.laohei.bili_sdk.module_v2.video.VideoView
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.component.appbar.BackTopAppBar
+import com.laohei.bili_tube.component.placeholder.NoMoreData
 import com.laohei.bili_tube.component.video.HorizontalVideoItem
 import com.laohei.bili_tube.core.USERNAME_KEY
 import com.laohei.bili_tube.core.util.getValue
@@ -70,18 +76,21 @@ import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @androidx.annotation.OptIn(UnstableApi::class)
 @Composable
-private fun injectPreviewViewModel(): PlaylistDetailViewModel {
+private fun injectPreviewViewModel(param: Route.PlaylistDetail): PlaylistDetailViewModel {
     val context = LocalContext.current
     return PlaylistDetailViewModel(
         BiliPlaylistRepository(
             context = context,
             getFolder = GetFolder(HttpClientFactory.client),
             getWatchLater = GetWatchLater(HttpClientFactory.client),
-            historyApi = HistoryApiImpl(HttpClientFactory.client)
-        )
+            historyApi = HistoryApiImpl(HttpClientFactory.client),
+            folderApi = FolderApiImpl(HttpClientFactory.client)
+        ),
+        param = param
     )
 }
 
@@ -90,68 +99,120 @@ private fun injectPreviewViewModel(): PlaylistDetailViewModel {
 fun PlaylistDetailScreen(
     isPreview: Boolean = false,
     param: Route.PlaylistDetail,
-    upPress: () -> Unit = {}
+    upPress: () -> Unit = {},
+    navigateToRoute: (Route) -> Unit = {}
 ) {
     val viewModel = if (isPreview) {
-        injectPreviewViewModel()
+        injectPreviewViewModel(param)
     } else {
-        koinViewModel<PlaylistDetailViewModel>()
+        koinViewModel<PlaylistDetailViewModel> {
+            parametersOf(param)
+        }
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    val reorderableState = rememberReorderableLazyListState(
-        onMove = { from, to ->
-            viewModel.reorderItem(from.index - 1, to.index - 1)
-        }
-    )
     Scaffold(
         topBar = {
-            BackTopAppBar(backup = upPress, search = {})
+            BackTopAppBar(
+                backup = upPress,
+                search = {
+                    navigateToRoute.invoke(Route.Search)
+                }
+            )
         }
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .reorderable(reorderableState)
-                .detectReorderAfterLongPress(reorderableState),
-            state = reorderableState.listState,
-        ) {
-            item {
-                PlaylistInfoCard(param)
+        when {
+            param.isToView -> {
+                ToViewList(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    param = param,
+                    toViews = state.toViewList,
+                    reorderItem = viewModel::reorderItem
+                )
             }
-            items(state.toViewList, key = { it.bvid }) { item ->
-                ReorderableItem(reorderableState, key = item.bvid) { isDragging ->
-                    val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
-                    HorizontalVideoItem(
-                        modifier = Modifier.shadow(elevation.value),
-                        cover = item.pic,
-                        title = item.title,
-                        ownerName = item.owner.name,
-                        duration = item.duration.formatTimeString(false),
-                        view = item.stat.view.toViewString(),
-                        publishDate = item.pubdate.toTimeAgoString(),
-                    )
-                }
+
+            else -> {
+                val folderResources = state.folderResources.collectAsLazyPagingItems()
+                FolderResourceList(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    param = param,
+                    resources = folderResources
+                )
             }
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun PlaylistDetailScreenPreview() {
-    PlaylistDetailScreen(
-        isPreview = true,
-        Route.PlaylistDetail(
-            cover = "",
-            title = "稍后观看",
-            count = 12,
-            isPrivate = true
-        )
-    )
+private fun FolderResourceList(
+    modifier: Modifier = Modifier,
+    param: Route.PlaylistDetail,
+    resources: LazyPagingItems<FolderMediaItem>,
+) {
+    LazyColumn(
+        modifier = modifier,
+    ) {
+        item(key = "header_info") {
+            PlaylistInfoCard(param)
+        }
+        items(resources.itemCount, { resources[it]!!.bvid }) { index ->
+            resources[index]?.let {
+                HorizontalVideoItem(
+                    cover = it.cover,
+                    title = it.title,
+                    ownerName = it.upper.name,
+                    duration = it.duration.formatTimeString(false),
+                    view = it.cntInfo.play.toViewString(),
+                    publishDate = it.pubtime.toTimeAgoString(),
+                    leadingIcon = null
+                )
+            }
+        }
+        item(key = "no_more_data") { NoMoreData(resources.loadState.append) }
+    }
 }
 
+@Composable
+private fun ToViewList(
+    modifier: Modifier = Modifier,
+    param: Route.PlaylistDetail,
+    toViews: List<VideoView>,
+    reorderItem: (Int, Int) -> Unit,
+) {
+    val reorderableState = rememberReorderableLazyListState(
+        onMove = { from, to ->
+            reorderItem(from.index - 1, to.index - 1)
+        }
+    )
+    LazyColumn(
+        modifier = modifier
+            .reorderable(reorderableState)
+            .detectReorderAfterLongPress(reorderableState),
+        state = reorderableState.listState,
+    ) {
+        item(key = "header_info") {
+            PlaylistInfoCard(param)
+        }
+        items(toViews, key = { it.bvid }) { item ->
+            ReorderableItem(reorderableState, key = item.bvid) { isDragging ->
+                val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
+                HorizontalVideoItem(
+                    modifier = Modifier.shadow(elevation.value),
+                    cover = item.pic,
+                    title = item.title,
+                    ownerName = item.owner.name,
+                    duration = item.duration.formatTimeString(false),
+                    view = item.stat.view.toViewString(),
+                    publishDate = item.pubdate.toTimeAgoString(),
+                )
+            }
+        }
+    }
+}
 
 @Composable
 private fun PlaylistInfoCard(
@@ -221,8 +282,8 @@ private fun PlaylistInfoCard(
                         }
                     }
                 },
-                placeholder = painterResource(R.drawable.bg),
-                error = painterResource(R.drawable.bg),
+                placeholder = painterResource(R.drawable.icon_loading),
+                error = painterResource(R.drawable.icon_loading),
                 contentScale = ContentScale.Crop
             )
             Text(
@@ -257,4 +318,33 @@ private fun PlaylistInfoCard(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PlaylistDetailScreenPreview() {
+    PlaylistDetailScreen(
+        isPreview = true,
+        Route.PlaylistDetail(
+            cover = "",
+            title = "稍后观看",
+            count = 12,
+            isPrivate = true
+        )
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PlaylistDetailScreenPreview2() {
+    PlaylistDetailScreen(
+        isPreview = true,
+        Route.PlaylistDetail(
+            cover = "",
+            title = "默认收藏夹",
+            count = 90,
+            isPrivate = false,
+            isToView = false
+        )
+    )
 }

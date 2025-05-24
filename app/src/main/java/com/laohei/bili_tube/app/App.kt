@@ -179,7 +179,9 @@ fun App() {
         composable<Route.PlaylistDetail> {
             PlaylistDetailScreen(
                 param = it.toRoute(),
-                upPress = { navController.navigateUp() })
+                upPress = { navController.navigateUp() },
+                navigateToRoute = { navController.navigate(it) }
+            )
         }
         composable<Route.History> {
             HistoryScreen(
