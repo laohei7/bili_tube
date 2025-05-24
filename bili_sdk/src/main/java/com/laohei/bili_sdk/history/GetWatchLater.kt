@@ -1,8 +1,8 @@
 package com.laohei.bili_sdk.history
 
-import com.laohei.bili_sdk.apis.WATCH_LATER_URL
+import com.laohei.bili_sdk.apis.URL_TO_VIEW
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
-import com.laohei.bili_sdk.module_v2.history.WatchLaterModel
+import com.laohei.bili_sdk.module_v2.history.ToViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -20,7 +20,7 @@ class GetWatchLater(
         ps: Int = 20
     ) = withContext(Dispatchers.IO) {
         val response = try {
-            client.get(WATCH_LATER_URL) {
+            client.get(URL_TO_VIEW) {
                 url {
                     cookie?.apply {
                         headers.append(HttpHeaders.Cookie, this)
@@ -33,7 +33,7 @@ class GetWatchLater(
             null
         }
         response?.run {
-            Json.decodeFromString<BiliResponse<WatchLaterModel>>(this.bodyAsText())
+            Json.decodeFromString<BiliResponse<ToViewModel>>(this.bodyAsText())
         }
     }
 }

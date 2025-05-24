@@ -1,11 +1,11 @@
 package com.laohei.bili_sdk.folder
 
 import android.util.Log
-import com.laohei.bili_sdk.apis.FOLDER_SIMPLE_URL
-import com.laohei.bili_sdk.apis.FOLDER_URL
+import com.laohei.bili_sdk.apis.URL_SIMPLE_FOLDER
+import com.laohei.bili_sdk.apis.URL_FOLDER
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.folder.FolderModel
-import com.laohei.bili_sdk.module_v2.folder.FolderSimpleModel
+import com.laohei.bili_sdk.module_v2.folder.SimpleFolderModel
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
@@ -26,7 +26,7 @@ class GetFolder(
         cookie: String? = null,
     ) = withContext(Dispatchers.IO) {
         val response = try {
-            client.get(FOLDER_URL) {
+            client.get(URL_FOLDER) {
                 url {
                     cookie?.apply {
                         headers.append(HttpHeaders.Cookie, this)
@@ -48,7 +48,7 @@ class GetFolder(
         upMid: Long
     ) = withContext(Dispatchers.IO) {
         val response = try {
-            client.get(FOLDER_SIMPLE_URL) {
+            client.get(URL_SIMPLE_FOLDER) {
                 url {
                     cookie?.apply {
                         headers.append(HttpHeaders.Cookie, this)
@@ -62,7 +62,7 @@ class GetFolder(
             null
         }
         response?.run {
-            Json.decodeFromString<BiliResponse<FolderSimpleModel>>(this.bodyAsText())
+            Json.decodeFromString<BiliResponse<SimpleFolderModel>>(this.bodyAsText())
         }
     }
 }

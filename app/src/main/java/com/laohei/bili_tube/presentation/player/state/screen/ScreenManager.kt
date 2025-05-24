@@ -15,9 +15,9 @@ internal interface ScreenManager {
 
     fun onNewDelta(delta: Float): Float
 
-    fun fullscreenChanged(fullscreen: Boolean, newHeight: Dp, isOrientationPortrait: Boolean)
+    fun changeFullscreen(fullscreen: Boolean, newHeight: Dp, isOrientationPortrait: Boolean)
 
-    fun screenActionHandle(
+    fun handleScreenAction(
         action: ScreenAction,
         isOrientationPortrait: Boolean,
         scope: CoroutineScope? = null,
@@ -25,9 +25,9 @@ internal interface ScreenManager {
         lockScreenCallback:(()-> Unit)?=null
     )
 
-    fun maskAlphaChanged(offset: Float)
+    fun changeMaskAlpha(offset: Float)
 
-    fun relatedListDragHandle(offset: Float)
+    fun handleRelatedListDrag(offset: Float)
 
     fun adjustRelatedListOffset()
 

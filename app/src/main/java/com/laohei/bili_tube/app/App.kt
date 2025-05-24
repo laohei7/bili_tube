@@ -74,6 +74,7 @@ import com.laohei.bili_tube.presentation.home.HomeScreen
 import com.laohei.bili_tube.presentation.login.LoginScreen
 import com.laohei.bili_tube.presentation.mine.MineScreen
 import com.laohei.bili_tube.presentation.player.PlayerScreen
+import com.laohei.bili_tube.presentation.playlist.PlaylistDetailScreen
 import com.laohei.bili_tube.presentation.playlist.PlaylistScreen
 import com.laohei.bili_tube.presentation.search.SearchScreen
 import com.laohei.bili_tube.presentation.settings.SettingsScreen
@@ -175,6 +176,13 @@ fun App() {
             )
         }
         composable<Route.Playlist> { PlaylistScreen() }
+        composable<Route.PlaylistDetail> {
+            PlaylistDetailScreen(
+                param = it.toRoute(),
+                upPress = { navController.navigateUp() },
+                navigateToRoute = { navController.navigate(it) }
+            )
+        }
         composable<Route.History> {
             HistoryScreen(
                 navigateToRoute = { navController.navigate(it) }

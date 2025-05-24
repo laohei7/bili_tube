@@ -117,4 +117,7 @@
     <string name="str_get_like">获赞</string>
     <string name="str_no_official">暂无认证信息</string>
     <string name="str_uploaded_videos">投稿视频</string>
+    <string name="str_unknown">Unknown</string>
+    <string name="str_video_count">%d个视频</string>
+    <string name="str_login_failed">登录失败</string>
 </resources>

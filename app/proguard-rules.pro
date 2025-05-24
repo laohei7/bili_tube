@@ -19,3 +19,15 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep class com.geetest.** { *; }
+-keep class gt.** { *; }
+-keep class cn.geetest.** { *; }
+-keep class android.webkit.** { *; }
+-keepattributes *Annotation*
+-keepclassmembers class * {
+    public <init>(...);
+}
+-dontwarn cn.geetest.**
+-dontwarn com.geetest.**
+-dontwarn gt.**

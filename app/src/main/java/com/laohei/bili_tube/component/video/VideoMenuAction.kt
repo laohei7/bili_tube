@@ -1,5 +1,7 @@
 package com.laohei.bili_tube.component.video
 
+import com.laohei.bili_sdk.apis.UserRelationAction
+
 interface VideoAction {
     sealed class VideoMenuAction : VideoAction {
         data class VideoLikeAction(val like: Int) : VideoMenuAction() // 1点赞，2取消
@@ -11,6 +13,8 @@ interface VideoAction {
             val delAids: Set<Long>,
             val aid: Long
         ) : VideoMenuAction()
+
+        data class UserRelationModifyAction(val action: UserRelationAction) : VideoMenuAction()
     }
 
     sealed class VideoSheetAction : VideoAction {

@@ -19,9 +19,9 @@ data class FolderModel(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class FolderSimpleModel(
+data class SimpleFolderModel(
     val count: Int,
-    val list: List<FolderSimpleItem>
+    val list: List<SimpleFolderItem>
 )
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -51,7 +51,7 @@ data class FolderItem(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class FolderSimpleItem(
+data class SimpleFolderItem(
     val id: Long,
     val fid: Long,
     val mid: Long,

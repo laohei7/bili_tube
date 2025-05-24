@@ -6,7 +6,7 @@ import com.laohei.bili_sdk.history.GetHistory
 import com.laohei.bili_sdk.history.GetWatchLater
 import com.laohei.bili_sdk.module_v2.folder.FolderModel
 import com.laohei.bili_sdk.module_v2.history.HistoryModel
-import com.laohei.bili_sdk.module_v2.history.WatchLaterModel
+import com.laohei.bili_sdk.module_v2.history.ToViewModel
 import com.laohei.bili_sdk.module_v2.user.UserStatModel
 import com.laohei.bili_sdk.user.GetUserInfo
 import com.laohei.bili_tube.core.COOKIE_KEY
@@ -20,7 +20,7 @@ class BiliMineRepository(
     private val getFolder: GetFolder,
     private val getUserInfo: GetUserInfo
 ) {
-    suspend fun getWatchLaterList(ps: Int = 20): WatchLaterModel? {
+    suspend fun getWatchLaterList(ps: Int = 20): ToViewModel? {
         val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
         return getWatchLater.watchLaterList(cookie = cookie, ps = ps)?.data
     }

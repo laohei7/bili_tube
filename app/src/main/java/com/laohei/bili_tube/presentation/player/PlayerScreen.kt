@@ -277,7 +277,7 @@ fun PlayerScreen(
         if (screenState.isFullscreen.not()) {
             upPress.invoke()
         }
-        viewModel.fullscreenChanged(false, screenState.originalVideoHeight, isOrientationPortrait)
+        viewModel.changeFullscreen(false, screenState.originalVideoHeight, isOrientationPortrait)
         if (!isOrientationPortrait) {
             activity?.toggleOrientation()
         }
@@ -337,7 +337,7 @@ fun PlayerScreen(
             .draggable(
                 enabled = enabledDraggable,
                 state = rememberDraggableState {
-                    viewModel.relatedListDragHandle(it)
+                    viewModel.handleRelatedListDrag(it)
                 },
                 onDragStopped = {
                     viewModel.adjustRelatedListOffset()
@@ -369,7 +369,7 @@ fun PlayerScreen(
                 val aspectRatio = mediaState.width.toFloat() / mediaState.height
                 val toLandscape = aspectRatio > 1f
                 Log.d("TAG", "PlayerScreen: $aspectRatio")
-                viewModel.fullscreenChanged(
+                viewModel.changeFullscreen(
                     it,
                     when {
                         toLandscape.not() && it -> screenState.screenHeight.dp
@@ -398,13 +398,13 @@ fun PlayerScreen(
                         backPressHandle()
                     }
                 }
-                viewModel.screenActionHandle(
+                viewModel.handleScreenAction(
                     action = it,
                     isOrientationPortrait = isOrientationPortrait,
                     scope = scope,
                 )
             },
-            videoMenuClick = viewModel::videoMenuActionHandle
+            videoMenuClick = viewModel::handleVideoMenuAction
         )
 
         when {
@@ -415,14 +415,14 @@ fun PlayerScreen(
                     screenState = screenState,
                     bottomPadding = screenState.videoHeight + 80.dp,
                     screenActionClick = {
-                        viewModel.screenActionHandle(
+                        viewModel.handleScreenAction(
                             it, true, scope,
                             updateParamsCallback = { newParams ->
                                 scope.launch { viewModel.updateParams(newParams) }
                             })
                     },
-                    videoMenuActionClick = viewModel::videoMenuActionHandle,
-                    videoPlayActionClick = viewModel::videoPlayActionHandle
+                    videoMenuActionClick = viewModel::handleVideoMenuAction,
+                    videoPlayActionClick = viewModel::handleVvideoPlayAction
                 )
 
                 Box(
@@ -478,7 +478,7 @@ fun PlayerScreen(
             ),
             maskAlphaChanged = {
                 if (isOrientationPortrait) {
-                    viewModel.maskAlphaChanged(it)
+                    viewModel.changeMaskAlpha(it)
                 }
             },
             bottomPadding = screenState.videoHeight + 80.dp
@@ -491,7 +491,7 @@ fun PlayerScreen(
             modifier = otherSheetModifier,
             maskAlphaChanged = {
                 if (isOrientationPortrait) {
-                    viewModel.maskAlphaChanged(it)
+                    viewModel.changeMaskAlpha(it)
                 }
             },
             bottomPadding = screenState.videoHeight + 80.dp
@@ -506,11 +506,11 @@ fun PlayerScreen(
             isShowSheet = screenState.isShowArchiveSheet,
             maskAlphaChanged = {
                 if (isOrientationPortrait) {
-                    viewModel.maskAlphaChanged(it)
+                    viewModel.changeMaskAlpha(it)
                 }
             },
             onDismiss = {
-                viewModel.screenActionHandle(
+                viewModel.handleScreenAction(
                     ScreenAction.ShowArchiveSheetAction(false),
                     true
                 )
@@ -526,23 +526,23 @@ fun PlayerScreen(
             speed = mediaState.speed,
             quality = mediaState.videoQuality.second,
             onDismiss = {
-                viewModel.screenActionHandle(
+                viewModel.handleScreenAction(
                     ScreenAction.ShowSettingsSheetAction(false),
                     isOrientationPortrait
                 )
             },
             screenActionClick = { action ->
-                viewModel.screenActionHandle(
+                viewModel.handleScreenAction(
                     ScreenAction.ShowSettingsSheetAction(false),
                     isOrientationPortrait,
                 )
-                viewModel.screenActionHandle(
+                viewModel.handleScreenAction(
                     action,
                     isOrientationPortrait,
                     lockScreenCallback = {
                         val aspectRatio = mediaState.width.toFloat() / mediaState.height
                         val toLandscape = aspectRatio > 1f
-                        viewModel.fullscreenChanged(
+                        viewModel.changeFullscreen(
                             true,
                             when {
                                 toLandscape.not() -> screenState.screenHeight.dp
@@ -565,7 +565,7 @@ fun PlayerScreen(
                 viewModel.setSpeed(it)
             },
             onDismiss = {
-                viewModel.screenActionHandle(
+                viewModel.handleScreenAction(
                     ScreenAction.ShowSpeedSheetAction(false),
                     isOrientationPortrait
                 )
@@ -576,13 +576,13 @@ fun PlayerScreen(
             quality = mediaState.quality,
             defaultQuality = mediaState.videoQuality,
             onDismiss = {
-                viewModel.screenActionHandle(
+                viewModel.handleScreenAction(
                     ScreenAction.ShowQualitySheetAction(false),
                     isOrientationPortrait
                 )
             },
             onQualityChanged = {
-                viewModel.screenActionHandle(
+                viewModel.handleScreenAction(
                     ScreenAction.ShowQualitySheetAction(false),
                     isOrientationPortrait
                 )
@@ -595,7 +595,7 @@ fun PlayerScreen(
             quality = mediaState.quality,
             defaultQuality = mediaState.videoQuality,
             onDismiss = {
-                viewModel.screenActionHandle(
+                viewModel.handleScreenAction(
                     ScreenAction.ShowDownloadSheetAction(false),
                     isOrientationPortrait
                 )
@@ -606,7 +606,7 @@ fun PlayerScreen(
                         EventBus.send(Event.AppEvent.PermissionRequestEvent(WRITE_STORAGE_PERMISSION))
                     } else {
                         viewModel.download(it)
-                        viewModel.screenActionHandle(
+                        viewModel.handleScreenAction(
                             ScreenAction.ShowDownloadSheetAction(false),
                             isOrientationPortrait
                         )
@@ -618,14 +618,14 @@ fun PlayerScreen(
         CoinSheet(
             isShowSheet = screenState.isShowCoinSheet,
             onDismiss = {
-                viewModel.screenActionHandle(
+                viewModel.handleScreenAction(
                     ScreenAction.ShowCoinSheetAction(false),
                     isOrientationPortrait
                 )
             },
             onClick = {
-                viewModel.videoMenuActionHandle(it)
-                viewModel.screenActionHandle(
+                viewModel.handleVideoMenuAction(it)
+                viewModel.handleScreenAction(
                     ScreenAction.ShowCoinSheetAction(false),
                     isOrientationPortrait
                 )
@@ -636,14 +636,14 @@ fun PlayerScreen(
             folders = playerState.folders,
             isShowSheet = screenState.isShowFolderSheet,
             onDismiss = {
-                viewModel.screenActionHandle(
+                viewModel.handleScreenAction(
                     ScreenAction.ShowFolderSheetAction(false),
                     isOrientationPortrait
                 )
             },
             onClick = {
-                viewModel.videoMenuActionHandle(it)
-                viewModel.screenActionHandle(
+                viewModel.handleVideoMenuAction(it)
+                viewModel.handleScreenAction(
                     ScreenAction.ShowFolderSheetAction(false),
                     isOrientationPortrait
                 )
@@ -654,12 +654,12 @@ fun PlayerScreen(
             isShowSheet = screenState.isShowOtherSettingsSheet,
             autoSkip = playerState.autoSkip,
             onDismiss = {
-                viewModel.screenActionHandle(
+                viewModel.handleScreenAction(
                     ScreenAction.ShowOtherSettingsSheetAction(false),
                     isOrientationPortrait
                 )
             },
-            videoSettingActionClick = viewModel::videoSettingActionHandle
+            videoSettingActionClick = viewModel::handlevideoSettingAction
         )
 
         UserInfoCardSheet(
@@ -676,9 +676,11 @@ fun PlayerScreen(
             level = playerState.infoCardModel?.card?.levelInfo?.currentLevel ?: 0,
             uploadedVideos = uploadedVideos,
             currentBvid = viewModel.params.bvid,
-            onSubscriptionClick = {},
+            onSubscriptionChanged = {
+                viewModel.handleVideoMenuAction(it)
+            },
             onDismiss = {
-                viewModel.screenActionHandle(
+                viewModel.handleScreenAction(
                     ScreenAction.ShowUpInfoSheetAction(false),
                     isOrientationPortrait
                 )
@@ -686,7 +688,7 @@ fun PlayerScreen(
             modifier = otherSheetModifier,
             maskAlphaChanged = {
                 if (isOrientationPortrait) {
-                    viewModel.maskAlphaChanged(it)
+                    viewModel.changeMaskAlpha(it)
                 }
             },
             onVideoChanged = {
@@ -934,7 +936,8 @@ private fun VideoContent(
                     name = videoDetail.view.owner.name,
                     fans = videoDetail.card.card.fans.toViewString(),
                     isSubscribed = infoCardModel?.following == true,
-                    onClick = { screenActionClick.invoke(ScreenAction.ShowUpInfoSheetAction(true)) }
+                    onClick = { screenActionClick.invoke(ScreenAction.ShowUpInfoSheetAction(true)) },
+                    onSubscriptionChanged = { videoMenuClick(it) }
                 )
             }
             item {

@@ -5,7 +5,6 @@ import androidx.core.text.isDigitsOnly
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laohei.bili_sdk.location.GetCountryList
 import com.laohei.bili_sdk.module_v2.captcha.CaptchaModel
 import com.laohei.bili_sdk.module_v2.captcha.GeetestSuccessModel
 import com.laohei.bili_sdk.module_v2.location.CountryItem
@@ -20,7 +19,6 @@ import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -28,7 +26,6 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
 class LoginViewModel(
-    private val getCountryList: GetCountryList,
     private val biliLoginRepository: BiliLoginRepository
 ) : ViewModel() {
 
@@ -47,11 +44,9 @@ class LoginViewModel(
     )
 
     private suspend fun initCountryList() {
-        getCountryList.countryList()?.run {
+        biliLoginRepository.getCountries().run {
             _mState.update {
-                it.copy(
-                    countryItems = this.data.common + this.data.others
-                )
+                it.copy(countryItems = this.data.common + this.data.others)
             }
         }
     }

@@ -22,7 +22,7 @@ fun Context.setValue(key: String, value: Any) {
     }
 }
 
-fun <T> Context.getValue(key: String, defaultValue: T): T {
+inline fun <reified T: Any> Context.getValue(key: String, defaultValue: T): T {
     val prefs = getSharedPreferences(SHARED_FILE, Activity.MODE_PRIVATE)
     return when (defaultValue) {
         is String -> prefs.getString(key, defaultValue) as T
