@@ -1,5 +1,6 @@
 package com.laohei.bili_tube.presentation.home.anime
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -25,15 +26,19 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.module_v2.bangumi.BangumiItem
+import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.app.SharedViewModel
 import com.laohei.bili_tube.component.placeholder.NoMoreData
 import com.laohei.bili_tube.model.BangumiFilterModel
 import com.laohei.bili_tube.presentation.home.anime.component.BangumiWidget
 import com.laohei.bili_tube.presentation.home.anime.component.FilterWidget
 import com.laohei.bili_tube.presentation.home.state.HomePageAction
+import org.koin.compose.koinInject
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalUuidApi::class)
 @Composable
 fun BangumiScreen(
@@ -43,6 +48,7 @@ fun BangumiScreen(
     homePageActionClick: (HomePageAction) -> Unit,
     navigateToRoute: (Route) -> Unit
 ) {
+    val sharedViewModel = koinInject<SharedViewModel>()
     val refreshState = rememberPullToRefreshState()
     val isRefreshing = bangumis.loadState.refresh is LoadState.Loading
 
@@ -102,14 +108,17 @@ fun BangumiScreen(
                             modifier = Modifier
                                 .padding(horizontal = 8.dp)
                                 .clickable {
-                                    navigateToRoute.invoke(
-                                        Route.Play(
+                                    sharedViewModel.setPlayParam(
+                                        PlayParam.Bangumi(
                                             seasonId = it.seasonId,
                                             epId = it.firstEp.epId,
                                             mediaId = it.mediaId,
-                                            isVideo = false
+                                            aid = -1,
+                                            cid = -1,
+                                            bvid = ""
                                         )
                                     )
+                                    navigateToRoute.invoke(Route.Play)
                                 },
                             cover = it.cover,
                             title = it.title,

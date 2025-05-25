@@ -1,6 +1,7 @@
 package com.laohei.bili_tube.component.video
 
 import com.laohei.bili_sdk.apis.UserRelationAction
+import com.laohei.bili_tube.app.PlayParam
 
 interface VideoAction {
     sealed class VideoMenuAction : VideoAction {
@@ -31,6 +32,8 @@ interface VideoAction {
             val cid: Long,
             val bvid: String
         ) : VideoPlayAction()
+
+        data class SwitchVideoAction(val playParam: PlayParam) : VideoPlayAction()
     }
 
     sealed class VideoSettingAction : VideoAction {

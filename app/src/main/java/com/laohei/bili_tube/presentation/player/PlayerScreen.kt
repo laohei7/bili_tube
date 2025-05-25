@@ -88,7 +88,7 @@ import com.laohei.bili_sdk.module_v2.video.RatingModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoPageListModel
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.component.lottie.LottieIconPlaying
 import com.laohei.bili_tube.component.text.IconText
 import com.laohei.bili_tube.component.video.FolderSheet
@@ -152,7 +152,7 @@ private const val TAG = "PlayerScreen"
 @OptIn(UnstableApi::class)
 @Composable
 fun PlayerScreen(
-    params: Route.Play,
+    playParam: PlayParam,
     upPress: () -> Unit
 ) {
     val context = LocalContext.current
@@ -169,20 +169,20 @@ fun PlayerScreen(
     val viewModel =
         koinViewModel<PlayerViewModel> {
             parametersOf(
-                params,
+                playParam,
                 DefaultMediaManager(
                     context = context,
                     cronetEngine = cronetEngine,
                     simpleCache = simpleCache,
-                    originalWidth = params.width,
-                    originalHeight = params.height
+                    originalWidth = playParam.width,
+                    originalHeight = playParam.height
                 ),
                 DefaultScreenManager(
                     density,
                     configuration.screenHeightDp + systemBarHeight.value.roundToInt(),
                     configuration.screenWidthDp,
-                    params.width,
-                    params.height
+                    playParam.width,
+                    playParam.height
                 )
             )
         }
@@ -415,14 +415,10 @@ fun PlayerScreen(
                     screenState = screenState,
                     bottomPadding = screenState.videoHeight + 80.dp,
                     screenActionClick = {
-                        viewModel.handleScreenAction(
-                            it, true, scope,
-                            updateParamsCallback = { newParams ->
-                                scope.launch { viewModel.updateParams(newParams) }
-                            })
+                        viewModel.handleScreenAction(it, true, scope)
                     },
                     videoMenuActionClick = viewModel::handleVideoMenuAction,
-                    videoPlayActionClick = viewModel::handleVvideoPlayAction
+                    videoPlayActionClick = viewModel::handleVideoPlayAction
                 )
 
                 Box(
@@ -447,7 +443,7 @@ fun PlayerScreen(
                             modifier = relatedListModifier,
                             related = playerState.videoDetail?.related ?: emptyList(),
                             onClick = {
-                                scope.launch { viewModel.updateParams(it) }
+                                viewModel.updatePlayParam(it)
                             }
                         )
                     }
@@ -457,7 +453,7 @@ fun PlayerScreen(
                             modifier = relatedListModifier,
                             related = playerState.relatedBangumis ?: emptyList(),
                             onClick = {
-                                scope.launch { viewModel.updateParams(it) }
+                                viewModel.updatePlayParam(it)
                             }
                         )
                     }
@@ -516,7 +512,7 @@ fun PlayerScreen(
                 )
             },
             onClick = {
-                scope.launch { viewModel.updateParams(it) }
+                viewModel.updatePlayParam(it)
             },
             bottomPadding = screenState.videoHeight + 80.dp
         )
@@ -659,7 +655,7 @@ fun PlayerScreen(
                     isOrientationPortrait
                 )
             },
-            videoSettingActionClick = viewModel::handlevideoSettingAction
+            videoSettingActionClick = viewModel::handleVideoSettingAction
         )
 
         UserInfoCardSheet(
@@ -675,7 +671,7 @@ fun PlayerScreen(
             official = playerState.infoCardModel?.card?.official?.title ?: "",
             level = playerState.infoCardModel?.card?.levelInfo?.currentLevel ?: 0,
             uploadedVideos = uploadedVideos,
-            currentBvid = viewModel.params.bvid,
+            currentBvid = viewModel.playParam.bvid,
             onSubscriptionChanged = {
                 viewModel.handleVideoMenuAction(it)
             },
@@ -692,7 +688,7 @@ fun PlayerScreen(
                 }
             },
             onVideoChanged = {
-                scope.launch { viewModel.updateParams(it) }
+                viewModel.updatePlayParam(it)
             },
             bottomPadding = screenState.videoHeight + 80.dp
         )
@@ -1009,14 +1005,17 @@ private fun VideoContent(
                     date = video.pubdate.toTimeAgoString(),
                     duration = video.duration.formatTimeString(false),
                     onClick = {
-                        val newParams = Route.Play(
-                            width = video.dimension.width,
-                            height = video.dimension.height,
-                            aid = video.aid,
-                            bvid = video.bvid,
-                            cid = video.cid,
+                        videoPlayClick(
+                            VideoAction.VideoPlayAction.SwitchVideoAction(
+                                PlayParam.Video(
+                                    width = video.dimension.width,
+                                    height = video.dimension.height,
+                                    aid = video.aid,
+                                    bvid = video.bvid,
+                                    cid = video.cid,
+                                )
+                            )
                         )
-                        screenActionClick.invoke(ScreenAction.SwitchVideoAction(newParams))
                     }
                 )
             }
@@ -1323,11 +1322,13 @@ private fun BangumiContent(
                     publishDate = it.stat.follow.toViewString() + "追番",
                     leadingIcon = null,
                     onClick = {
-                        screenActionClick.invoke(
-                            ScreenAction.SwitchVideoAction(
-                                Route.Play(
+                        videoPlayActionClick(
+                            VideoAction.VideoPlayAction.SwitchVideoAction(
+                                PlayParam.Bangumi(
                                     seasonId = it.seasonId,
-                                    isVideo = false
+                                    bvid = "",
+                                    aid = -1,
+                                    cid = -1
                                 )
                             )
                         )

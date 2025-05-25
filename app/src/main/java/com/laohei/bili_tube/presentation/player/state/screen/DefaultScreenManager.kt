@@ -9,7 +9,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.utill.areFloatsEqualCompareTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -168,7 +167,6 @@ internal class DefaultScreenManager(
         action: ScreenAction,
         isOrientationPortrait: Boolean,
         scope: CoroutineScope?,
-        updateParamsCallback: ((Route.Play) -> Unit)?,
         lockScreenCallback: (() -> Unit)?
     ) {
         when (action) {
@@ -250,11 +248,6 @@ internal class DefaultScreenManager(
                     )
                 }
             }
-
-            is ScreenAction.SwitchVideoAction -> {
-                updateParamsCallback?.invoke(action.params)
-            }
-
 
             ScreenAction.SubscribeAction -> {
 

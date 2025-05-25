@@ -72,6 +72,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
+import androidx.media3.common.util.UnstableApi
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -83,7 +84,9 @@ import coil3.request.placeholder
 import com.laohei.bili_sdk.module_v2.search.SearchResultItemType
 import com.laohei.bili_sdk.search.SearchRequest
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.app.SharedViewModel
 import com.laohei.bili_tube.component.input.BasicInput
 import com.laohei.bili_tube.component.placeholder.NoMoreData
 import com.laohei.bili_tube.component.text.RichText
@@ -98,6 +101,7 @@ import com.laohei.bili_tube.utill.toTimeAgoString
 import com.laohei.bili_tube.utill.toViewString
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 private const val TAG = "SearchScreen"
 private const val DBG = true
@@ -338,6 +342,7 @@ private fun GetSearchItem(
     item: SearchResultItemType,
     navigateToRoute: (Route) -> Unit
 ) {
+    val sharedViewModel = koinInject<SharedViewModel>()
     when (item) {
         is SearchResultItemType.MediaBangumiItem -> {
             BangumiItem(
@@ -350,12 +355,13 @@ private fun GetSearchItem(
                 userCount = item.mediaScore.userCount.toViewString(),
                 episodes = item.eps?.fastMap { it.title },
                 onClick = {
-                    navigateToRoute(
-                        Route.Play(
-                            isVideo = false,
-                            epId = item.eps?.first()?.id
+                    sharedViewModel.setPlayParam(
+                        PlayParam.Bangumi(
+                            epId = item.eps?.first()?.id,
+                            aid = -1, cid = -1, bvid = ""
                         )
                     )
+                    navigateToRoute(Route.Play)
                 }
             )
         }
@@ -371,12 +377,12 @@ private fun GetSearchItem(
                 userCount = item.mediaScore.userCount.toViewString(),
                 episodes = item.eps?.fastMap { it.title },
                 onClick = {
-                    navigateToRoute(
-                        Route.Play(
-                            isVideo = false,
-                            epId = item.eps?.first()?.id
-                        )
-                    )
+//                    navigateToRoute(
+//                        Route.Play(
+//                            isVideo = false,
+//                            epId = item.eps?.first()?.id
+//                        )
+//                    )
                 }
             )
         }
@@ -391,13 +397,14 @@ private fun GetSearchItem(
                 view = item.play.toViewString(),
                 publishDate = item.pubDate.toTimeAgoString(),
                 onClick = {
-                    navigateToRoute(
-                        Route.Play(
+                    sharedViewModel.setPlayParam(
+                        PlayParam.Video(
                             aid = item.aid,
                             bvid = item.bvid,
                             cid = -1L,
                         )
                     )
+                    navigateToRoute(Route.Play)
                 },
                 trailingOnClick = {
 
@@ -662,6 +669,7 @@ private fun SearchHistoryItem(
     )
 }
 
+@androidx.annotation.OptIn(UnstableApi::class)
 @Preview
 @Composable
 private fun SearchScreenPreview() {

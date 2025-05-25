@@ -171,7 +171,7 @@ fun App() {
         composable<Route.Login> { LoginScreen() }
         composable<Route.Play> {
             PlayerScreen(
-                params = it.toRoute(),
+                playParam = koinInject<SharedViewModel>().mPlayParam,
                 upPress = { navController.navigateUp() }
             )
         }

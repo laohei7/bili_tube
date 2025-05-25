@@ -55,11 +55,14 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.app.SharedViewModel
 import com.laohei.bili_tube.model.DownloadStatus
 import com.laohei.bili_tube.model.DownloadTask
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 private sealed interface DownloadAction {
     data object UpPressAction : DownloadAction
@@ -161,6 +164,7 @@ private fun DownloadTopAppBar(
 
 @Composable
 private fun DownloadItem(task: DownloadTask, onClick: (DownloadAction) -> Unit) {
+    val sharedViewModel = koinInject<SharedViewModel>()
     val context = LocalContext.current
     val coverRequest = remember(task.id) {
         ImageRequest.Builder(context)
@@ -189,14 +193,14 @@ private fun DownloadItem(task: DownloadTask, onClick: (DownloadAction) -> Unit) 
                     }
 
                     DownloadStatus.COMPLETED -> {
-                        DownloadAction.NavigateAction(
-                            Route.Play(
+                        sharedViewModel.setPlayParam(
+                            PlayParam.Video(
                                 aid = task.aid,
                                 bvid = task.id,
                                 cid = task.cid,
-                                isLocal = true
                             )
                         )
+                        DownloadAction.NavigateAction(Route.Play)
                     }
                 }
                 onClick.invoke(action)

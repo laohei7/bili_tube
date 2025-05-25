@@ -33,6 +33,7 @@ import com.laohei.bili_sdk.video.GetReply
 import com.laohei.bili_sdk.video.GetURL
 import com.laohei.bili_sdk.video.PostHeartBeat
 import com.laohei.bili_sdk.video.PostInfo
+import com.laohei.bili_tube.app.SharedViewModel
 import com.laohei.bili_tube.core.util.NetworkUtil
 import com.laohei.bili_tube.core.util.PreferencesUtil
 import com.laohei.bili_tube.db.BiliTubeDB
@@ -68,6 +69,7 @@ import org.koin.dsl.module
 val appModule = module {
     singleOf(::PreferencesUtil)
     singleOf(::NetworkUtil)
+    singleOf(::SharedViewModel)
     single { BiliTubeDB.getInstance(get(Context::class) as Context) }
     single { HttpClientFactory.client }
     single { HttpClientFactory.getCronetEngine(get()) }

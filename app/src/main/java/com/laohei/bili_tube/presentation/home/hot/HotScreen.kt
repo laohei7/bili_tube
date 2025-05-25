@@ -25,13 +25,16 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.model.BiliHotVideoItem
+import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.app.SharedViewModel
 import com.laohei.bili_tube.component.placeholder.NoMoreData
 import com.laohei.bili_tube.component.video.HorizontalVideoItem
 import com.laohei.bili_tube.presentation.home.state.HomePageAction
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.toTimeAgoString
 import com.laohei.bili_tube.utill.toViewString
+import org.koin.compose.koinInject
 
 private const val TAG = "HotScreen"
 
@@ -44,6 +47,7 @@ fun HotScreen(
     navigateToRoute: (Route) -> Unit,
     homeActionHandle: (HomePageAction) -> Unit,
 ) {
+    val sharedViewModel = koinInject<SharedViewModel>()
     val refreshState = rememberPullToRefreshState()
 
     BoxWithConstraints(
@@ -92,8 +96,8 @@ fun HotScreen(
                             view = it.stat.view.toViewString(),
                             publishDate = it.pubdate.toTimeAgoString(),
                             onClick = {
-                                navigateToRoute(
-                                    Route.Play(
+                                sharedViewModel.setPlayParam(
+                                    PlayParam.Video(
                                         aid = it.aid,
                                         bvid = it.bvid,
                                         cid = it.cid,
@@ -101,6 +105,7 @@ fun HotScreen(
                                         height = it.dimension.height
                                     )
                                 )
+                                navigateToRoute(Route.Play)
                             },
                             trailingOnClick = {
                                 homeActionHandle.invoke(

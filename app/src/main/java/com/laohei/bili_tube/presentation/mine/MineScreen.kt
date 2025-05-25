@@ -84,7 +84,9 @@ import com.laohei.bili_sdk.module_v2.folder.FolderItem
 import com.laohei.bili_sdk.module_v2.history.HistoryItem
 import com.laohei.bili_sdk.module_v2.video.VideoView
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.app.SharedViewModel
 import com.laohei.bili_tube.component.text.VerticalDataText
 import com.laohei.bili_tube.core.FACE_URL_KEY
 import com.laohei.bili_tube.core.USERNAME_KEY
@@ -94,6 +96,7 @@ import com.laohei.bili_tube.utill.toNonHardwareBitmap
 import com.laohei.bili_tube.utill.toViewString
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 private sealed interface MineAction {
     data class NavigateAction(val route: Route) : MineAction
@@ -321,6 +324,7 @@ private fun HistoryWidget(
     histories: List<HistoryItem>,
     navigateToRoute: (Route) -> Unit
 ) {
+    val sharedViewModel = koinInject<SharedViewModel>()
     ListItem(
         headlineContent = {
             Text(
@@ -349,13 +353,14 @@ private fun HistoryWidget(
                 duration = it.duration.formatTimeString(false),
                 progress = it.progress.toFloat() / it.duration,
                 onClick = {
-                    navigateToRoute.invoke(
-                        Route.Play(
+                    sharedViewModel.setPlayParam(
+                        PlayParam.Video(
                             aid = it.history.oid,
                             bvid = it.history.bvid,
                             cid = it.history.cid
                         )
                     )
+                    navigateToRoute.invoke(Route.Play)
                 }
             )
         }
