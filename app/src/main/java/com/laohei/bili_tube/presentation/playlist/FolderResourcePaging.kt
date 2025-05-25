@@ -1,6 +1,7 @@
 package com.laohei.bili_tube.presentation.playlist
 
 import android.util.Log
+import androidx.compose.ui.util.fastFilter
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.laohei.bili_sdk.apis.FolderApi
@@ -31,7 +32,7 @@ class FolderResourcePaging(
                 mlid = mlid,
                 pn = page
             )
-            val data = res.data.medias
+            val data = res.data.medias.fastFilter { it.attr == 0 }
             val hasMore = res.data.hasMore
             LoadResult.Page(
                 data = data,
