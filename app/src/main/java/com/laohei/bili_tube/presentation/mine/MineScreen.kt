@@ -346,12 +346,18 @@ private fun HistoryWidget(
     ) {
         item { Spacer(Modifier) }
         items(histories) {
+            val progress = when {
+                it.duration > 0L -> (it.progress.toFloat() / it.duration)
+                    .coerceIn(0f, 1f)
+
+                else -> 0f
+            }
             HistoryItem(
                 cover = it.cover,
                 title = it.title,
                 ownerName = it.authorName,
                 duration = it.duration.formatTimeString(false),
-                progress = it.progress.toFloat() / it.duration,
+                progress = progress,
                 onClick = {
                     sharedViewModel.setPlayParam(
                         PlayParam.Video(
