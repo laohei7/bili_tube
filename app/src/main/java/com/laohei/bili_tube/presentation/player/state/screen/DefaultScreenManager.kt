@@ -190,6 +190,15 @@ internal class DefaultScreenManager(
                 }
             }
 
+            is ScreenAction.ShowPlaylistSheetAction -> {
+                _mState.update {
+                    it.copy(
+                        isShowPlaylistSheet = action.flag,
+                        videoHeight = it.minLimitedHeight
+                    )
+                }
+            }
+
             is ScreenAction.ShowOtherSettingsSheetAction -> {
                 _mState.update { it.copy(isShowOtherSettingsSheet = action.flag) }
             }
@@ -353,5 +362,6 @@ internal class DefaultScreenManager(
     private fun isShowMask(): Boolean {
         return _mState.value.isShowDetailSheet || _mState.value.isShowReplySheet
                 || _mState.value.isShowArchiveSheet || _mState.value.isShowUpInfoSheet
+                || _mState.value.isShowPlaylistSheet
     }
 }

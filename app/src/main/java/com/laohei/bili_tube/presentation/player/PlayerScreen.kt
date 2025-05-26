@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -111,6 +112,8 @@ import com.laohei.bili_tube.presentation.player.component.CommentCard
 import com.laohei.bili_tube.presentation.player.component.FullscreenVideoActions
 import com.laohei.bili_tube.presentation.player.component.PlayerPlaceholder
 import com.laohei.bili_tube.presentation.player.component.PlayerSnackHost
+import com.laohei.bili_tube.presentation.player.component.PlaylistBar
+import com.laohei.bili_tube.presentation.player.component.PlaylistSheet
 import com.laohei.bili_tube.presentation.player.component.RelatedBangumiHorizontalList
 import com.laohei.bili_tube.presentation.player.component.RelatedHorizontalList
 import com.laohei.bili_tube.presentation.player.component.UserInfoCardSheet
@@ -120,7 +123,7 @@ import com.laohei.bili_tube.presentation.player.component.VideoMenus
 import com.laohei.bili_tube.presentation.player.component.VideoSimpleInfo
 import com.laohei.bili_tube.presentation.player.component.archive.ArchiveMetaItem
 import com.laohei.bili_tube.presentation.player.component.archive.ArchiveSheet
-import com.laohei.bili_tube.presentation.player.component.archive.PageListWidget
+import com.laohei.bili_tube.presentation.player.component.archive.MediaSeriesList
 import com.laohei.bili_tube.presentation.player.component.control.PlayerControl
 import com.laohei.bili_tube.presentation.player.component.reply.VideoReplySheet
 import com.laohei.bili_tube.presentation.player.component.settings.DownloadSheet
@@ -134,7 +137,6 @@ import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManage
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenState
 import com.laohei.bili_tube.ui.theme.Pink
-import com.laohei.bili_tube.utill.displayTitle
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
 import com.laohei.bili_tube.utill.toTimeAgoString
@@ -152,6 +154,7 @@ private const val TAG = "PlayerScreen"
 @OptIn(UnstableApi::class)
 @Composable
 fun PlayerScreen(
+    isPreview: Boolean = false,
     playParam: PlayParam,
     upPress: () -> Unit
 ) {
@@ -269,6 +272,7 @@ fun PlayerScreen(
     val animatedOffset by animateIntAsState(targetValue = screenState.relatedListOffset.toInt())
     val enabledDraggable =
         !isOrientationPortrait && screenState.isFullscreen && !screenState.isLockScreen
+    val folderResources = playerState.folderResources.collectAsLazyPagingItems()
 
     fun backPressHandle() {
         if (screenState.isLockScreen) {
@@ -696,6 +700,70 @@ fun PlayerScreen(
         PlayerSnackHost(
             modifier = Modifier.align(Alignment.BottomStart)
         )
+        if (screenState.isFullscreen.not() &&
+            (playerState.toViewList.isNotEmpty() || folderResources.itemCount != 0)
+        ) {
+            val nextVideoTitle by remember {
+                derivedStateOf {
+                    if (folderResources.itemCount != 0) {
+                        if (playerState.playlistIndex + 1 < folderResources.itemCount - 1) {
+                            folderResources[playerState.playlistIndex + 1]?.title ?: ""
+                        } else {
+                            "已最后一个视频"
+                        }
+                    } else {
+                        playerState.nextVideoTitle
+                    }
+                }
+            }
+            PlaylistBar(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(horizontal = 8.dp)
+                    .padding(bottom = 16.dp)
+                    .navigationBarsPadding(),
+                nextTitle = stringResource(
+                    R.string.str_next_title,
+                    nextVideoTitle,
+                    playerState.playlistTitle
+                ),
+                folderTitle = stringResource(
+                    R.string.str_folder_title,
+                    playerState.playlistTitle,
+                    playerState.playlistIndex + 1,
+                    playerState.playlistCount
+                ),
+                onClick = {
+                    viewModel.handleScreenAction(
+                        ScreenAction.ShowPlaylistSheetAction(true),
+                        isOrientationPortrait
+                    )
+                }
+            )
+        }
+
+        PlaylistSheet(
+            folderTitle = playerState.playlistTitle,
+            playlistIndex = playerState.playlistIndex,
+            playlistCount = playerState.playlistCount,
+            toViewList = playerState.toViewList,
+            folderResources = folderResources,
+            modifier = otherSheetModifier,
+            maskAlphaChanged = {
+                if (isOrientationPortrait) {
+                    viewModel.changeMaskAlpha(it)
+                }
+            },
+            bottomPadding = screenState.videoHeight + 80.dp,
+            isShowSheet = screenState.isShowPlaylistSheet,
+            onDismiss = {
+                viewModel.handleScreenAction(
+                    ScreenAction.ShowPlaylistSheetAction(false),
+                    isOrientationPortrait
+                )
+            },
+            videoPlayActionClick = viewModel::handleVideoPlayAction
+        )
     }
 }
 
@@ -788,15 +856,6 @@ private fun VideoArea(
     val localContext = LocalContext.current
     val textureView = remember { TextureView(localContext) }
 
-    val title by remember {
-        derivedStateOf {
-            playerState.videoDetail?.view?.title
-                ?: playerState.bangumiDetail
-                    ?.episodes?.find { playerState.currentEpId == it.epId }?.displayTitle()
-                ?: ""
-        }
-    }
-
     LaunchedEffect(mediaState.isPlaying) {
         while (mediaState.isPlaying) {
             val bitmap = textureView.bitmap
@@ -817,7 +876,7 @@ private fun VideoArea(
 
     PlayerControl(
         modifier = videoControlModifier.zIndex(99f),
-        title = title,
+        title = playerState.title,
         progress = mediaState.progress,
         bufferProgress = mediaState.bufferProgress,
         isShowUI = screenState.isShowUI,
@@ -964,7 +1023,7 @@ private fun VideoContent(
             }
             videoPageList?.let {
                 item {
-                    PageListWidget(
+                    MediaSeriesList(
                         pageList = it,
                         currentPageListIndex = currentPageListIndex,
                         onClick = videoPlayClick

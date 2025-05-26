@@ -43,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastMap
 import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
@@ -58,7 +59,9 @@ import com.laohei.bili_sdk.history.GetWatchLater
 import com.laohei.bili_sdk.module_v2.folder.FolderMediaItem
 import com.laohei.bili_sdk.module_v2.video.VideoView
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.app.SharedViewModel
 import com.laohei.bili_tube.component.appbar.BackTopAppBar
 import com.laohei.bili_tube.component.placeholder.NoMoreData
 import com.laohei.bili_tube.component.video.HorizontalVideoItem
@@ -76,6 +79,7 @@ import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
 @androidx.annotation.OptIn(UnstableApi::class)
@@ -129,7 +133,8 @@ fun PlaylistDetailScreen(
                         .padding(innerPadding),
                     param = param,
                     toViews = state.toViewList,
-                    reorderItem = viewModel::reorderItem
+                    reorderItem = viewModel::reorderItem,
+                    navigateToRoute = navigateToRoute
                 )
             }
 
@@ -140,7 +145,8 @@ fun PlaylistDetailScreen(
                         .fillMaxSize()
                         .padding(innerPadding),
                     param = param,
-                    resources = folderResources
+                    resources = folderResources,
+                    navigateToRoute = navigateToRoute
                 )
             }
         }
@@ -152,7 +158,9 @@ private fun FolderResourceList(
     modifier: Modifier = Modifier,
     param: Route.PlaylistDetail,
     resources: LazyPagingItems<FolderMediaItem>,
+    navigateToRoute: (Route) -> Unit
 ) {
+    val sharedViewModel = koinInject<SharedViewModel>()
     LazyColumn(
         modifier = modifier,
     ) {
@@ -168,7 +176,29 @@ private fun FolderResourceList(
                     duration = it.duration.formatTimeString(false),
                     view = it.cntInfo.play.toViewString(),
                     publishDate = it.pubtime.toTimeAgoString(),
-                    leadingIcon = null
+                    leadingIcon = null,
+                    onClick = {
+                        sharedViewModel.setPlayParam(
+                            PlayParam.MediaList(
+                                mediaKeys = buildList {
+                                    repeat(resources.itemCount) { index ->
+                                        val item = resources[index]
+                                        if (item != null) {
+                                            add(Triple(item.id, item.bvid, -1))
+                                        }
+                                    }
+                                },
+                                aid = it.id,
+                                bvid = it.bvid,
+                                cid = -1,
+                                title = param.title,
+                                count = param.count,
+                                isToView = false,
+                                fid = param.fid
+                            )
+                        )
+                        navigateToRoute(Route.Play)
+                    }
                 )
             }
         }
@@ -182,7 +212,9 @@ private fun ToViewList(
     param: Route.PlaylistDetail,
     toViews: List<VideoView>,
     reorderItem: (Int, Int) -> Unit,
+    navigateToRoute: (Route) -> Unit
 ) {
+    val sharedViewModel = koinInject<SharedViewModel>()
     val reorderableState = rememberReorderableLazyListState(
         onMove = { from, to ->
             reorderItem(from.index - 1, to.index - 1)
@@ -208,6 +240,21 @@ private fun ToViewList(
                     duration = item.duration.formatTimeString(false),
                     view = item.stat.view.toViewString(),
                     publishDate = item.pubdate.toTimeAgoString(),
+                    onClick = {
+                        sharedViewModel.setPlayParam(
+                            PlayParam.MediaList(
+                                mediaKeys = toViews.fastMap {
+                                    Triple(it.aid, it.bvid, it.cid)
+                                },
+                                aid = item.aid,
+                                bvid = item.bvid,
+                                cid = item.cid,
+                                title = param.title,
+                                count = param.count
+                            )
+                        )
+                        navigateToRoute(Route.Play)
+                    }
                 )
             }
         }

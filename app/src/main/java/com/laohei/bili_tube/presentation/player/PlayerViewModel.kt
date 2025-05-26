@@ -1,11 +1,14 @@
 package com.laohei.bili_tube.presentation.player
 
 import android.util.Log
+import androidx.compose.ui.util.fastMap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
 import com.laohei.bili_sdk.apis.UserRelationAction
+import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
+import com.laohei.bili_sdk.module_v2.history.ToViewModel
 import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.component.video.VideoAction
@@ -29,7 +32,10 @@ import com.laohei.bili_tube.repository.BiliPlayRepository
 import com.laohei.bili_tube.repository.BiliPlaylistRepository
 import com.laohei.bili_tube.utill.displayTitle
 import com.laohei.bili_tube.utill.download.DownloadManager
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -45,7 +51,7 @@ import kotlin.math.ceil
 internal class PlayerViewModel(
     private val downloadManager: DownloadManager,
     private val biliPlayRepository: BiliPlayRepository,
-    private val playlistRepository: BiliPlaylistRepository,
+    private val biliPlaylistRepository: BiliPlaylistRepository,
     private val preferenceUtil: PreferencesUtil,
     private val networkUtil: NetworkUtil,
     var playParam: PlayParam,
@@ -72,6 +78,9 @@ internal class PlayerViewModel(
         _mPlayerState.value
     )
 
+    private var mPlaylist: List<Triple<Long, String, Long>> = emptyList()// aid,bvid,cid
+    private var mPlaylistIndex = 0
+
     init {
         defaultMediaManager.playErrorCallback = { playErrorCallback() }
         defaultMediaManager.playEndCallback = { playEndCallback() }
@@ -88,50 +97,60 @@ internal class PlayerViewModel(
 
     private fun autoSwitchVideo() {
         var newPlayPlaParam: PlayParam? = null
-        when (playParam) {
-            is PlayParam.Video -> {
-                // next playlist
-                _mPlayerState.value.videoPageList?.let {
-                    val next = _mPlayerState.value.currentPageListIndex + 1
-                    if (next < it.size) {
-                        newPlayPlaParam = (playParam as PlayParam.Video).copy(cid = it[next].cid)
-                    }
-                }
-                // next archive
-                _mPlayerState.value.videoArchives?.let {
-                    if (newPlayPlaParam != null) {
-                        return@let
-                    }
-                    val next = _mPlayerState.value.currentArchiveIndex + 1
-                    if (next < it.size) {
-                        val nextVideo = it[next]
-                        newPlayPlaParam =
-                            (playParam as PlayParam.Video).copy(
-                                aid = nextVideo.aid,
-                                bvid = nextVideo.bvid,
-                                cid = -1L
-                            )
-                    }
-                }
+        if (mPlaylist.isNotEmpty()) {
+            if (mPlaylistIndex >= mPlaylist.size) {
+                return
             }
-
-            is PlayParam.Bangumi -> {
-                _mPlayerState.value.bangumiDetail?.episodes?.run {
-                    val next = indexOfFirst { it.epId == _mPlayerState.value.currentEpId } + 1
-                    if (next < this.size) {
-                        val nextEpisode = this[next]
-                        newPlayPlaParam =
-                            (playParam as PlayParam.Bangumi).copy(
-                                aid = nextEpisode.aid,
-                                bvid = nextEpisode.bvid,
-                                cid = nextEpisode.cid,
-                                epId = nextEpisode.epId
-                            )
+            val item = mPlaylist[mPlaylistIndex]
+            newPlayPlaParam =
+                PlayParam.Video(bvid = item.second, aid = item.first, cid = item.third)
+        } else {
+            when (playParam) {
+                is PlayParam.Video -> {
+                    // next playlist
+                    _mPlayerState.value.videoPageList?.let {
+                        val next = _mPlayerState.value.currentPageListIndex + 1
+                        if (next < it.size) {
+                            newPlayPlaParam =
+                                (playParam as PlayParam.Video).copy(cid = it[next].cid)
+                        }
+                    }
+                    // next archive
+                    _mPlayerState.value.videoArchives?.let {
+                        if (newPlayPlaParam != null) {
+                            return@let
+                        }
+                        val next = _mPlayerState.value.currentArchiveIndex + 1
+                        if (next < it.size) {
+                            val nextVideo = it[next]
+                            newPlayPlaParam =
+                                (playParam as PlayParam.Video).copy(
+                                    aid = nextVideo.aid,
+                                    bvid = nextVideo.bvid,
+                                    cid = -1L
+                                )
+                        }
                     }
                 }
-            }
 
-            else -> {}
+                is PlayParam.Bangumi -> {
+                    _mPlayerState.value.bangumiDetail?.episodes?.run {
+                        val next = indexOfFirst { it.epId == _mPlayerState.value.currentEpId } + 1
+                        if (next < this.size) {
+                            val nextEpisode = this[next]
+                            newPlayPlaParam =
+                                (playParam as PlayParam.Bangumi).copy(
+                                    aid = nextEpisode.aid,
+                                    bvid = nextEpisode.bvid,
+                                    cid = nextEpisode.cid,
+                                    epId = nextEpisode.epId
+                                )
+                        }
+                    }
+                }
+
+                else -> {}
+            }
         }
         newPlayPlaParam?.let {
             viewModelScope.launch { updatePlayParam(it) }
@@ -151,7 +170,26 @@ internal class PlayerViewModel(
                 }
 
                 is PlayParam.MediaList -> {
-                    _mPlayerState.update { it.copy(isVideo = true) }
+                    val mediaList = playParam as PlayParam.MediaList
+                    _mPlayerState.update {
+                        it.copy(
+                            isVideo = true,
+                            playlistCount = mediaList.count,
+                            playlistTitle = mediaList.title
+                        )
+                    }
+                    mPlaylist = mediaList.mediaKeys
+                    launch { loadPlaylist(mediaList.bvid) }
+                    if ((playParam as PlayParam.MediaList).isToView) {
+                        getToViews()
+                    } else {
+                        val resources =
+                            biliPlaylistRepository.getFolderResourcePager(mediaList.fid!!)
+                                .stateIn(viewModelScope)
+                        _mPlayerState.update {
+                            it.copy(folderResources = resources)
+                        }
+                    }
                 }
 
                 is PlayParam.Video -> {
@@ -162,6 +200,54 @@ internal class PlayerViewModel(
                 PlayParam.NONE -> {}
             }
         }
+    }
+
+    private fun getToViews() {
+        viewModelScope.launch {
+            val deferredList = mutableListOf<Deferred<BiliResponse<ToViewModel>>>()
+            for (pn in 1..5) {
+                val deferred = async {
+                    biliPlaylistRepository.getToViewList(pn = pn)
+                }
+                deferredList.add(deferred)
+            }
+            val results = deferredList.awaitAll()
+            val idIndexMap = mPlaylist.withIndex().associate { it.value.first to it.index }
+            val toViews = results.fastMap { it.data.list }.flatten()
+                .sortedWith(compareBy { idIndexMap[it.aid] })
+            _mPlayerState.update {
+                it.copy(
+                    toViewList = toViews,
+                    nextVideoTitle = if (mPlaylistIndex + 1 < it.toViewList.size - 1) {
+                        toViews[mPlaylistIndex + 1].title
+                    } else {
+                        "已最后一个视频"
+                    }
+                )
+            }
+        }
+    }
+
+    private suspend fun loadPlaylist(bvid: String) = withContext(Dispatchers.IO) {
+        mPlaylistIndex = mPlaylist.indexOfFirst { it.second == bvid }.coerceAtLeast(0)
+        _mPlayerState.update {
+            it.copy(
+                playlistIndex = mPlaylistIndex,
+                nextVideoTitle = when {
+                    it.toViewList.isNotEmpty() -> {
+                        if (mPlaylistIndex + 1 < it.toViewList.size - 1) {
+                            it.toViewList[mPlaylistIndex + 1].title
+                        } else {
+                            "已最后一个视频"
+                        }
+                    }
+
+                    else -> ""
+                }
+            )
+        }
+        val item = mPlaylist[mPlaylistIndex]
+        loadVideo(PlayParam.Video(bvid = item.second, aid = item.first, cid = item.third))
     }
 
     private suspend fun loadBangumi(bangumiParam: PlayParam.Bangumi) {
@@ -343,12 +429,17 @@ internal class PlayerViewModel(
                     else -> result.episodes.find { it.epId == epId }
                 }
                 episode?.let {
+                    _mPlayerState.update { state ->
+                        state.copy(
+                            title = it.displayTitle()
+                        )
+                    }
                     playParam = (playParam as PlayParam.Bangumi).copy(
                         mediaId = result.mediaId,
                         epId = it.epId,
                         aid = it.aid,
                         bvid = it.bvid,
-                        cid = it.cid
+                        cid = it.cid,
                     )
                     val skipModel = when {
                         preferenceUtil.getValue(AUTO_SKIP_KEY, false) -> it.skip
@@ -383,9 +474,24 @@ internal class PlayerViewModel(
         val response = biliPlayRepository.getVideoDetail(aid = aid, bvid = bvid)
         response?.run {
             viewModelScope.launch {
-                _mPlayerState.update { it.copy(videoDetail = data) }
+                _mPlayerState.update {
+                    it.copy(
+                        videoDetail = data,
+                        title = data.view.title
+                    )
+                }
                 if (cid == -1L) {
-                    playParam = (playParam as PlayParam.Video).copy(cid = data.view.cid)
+                    playParam = when (playParam) {
+                        is PlayParam.Video -> {
+                            (playParam as PlayParam.Video).copy(cid = data.view.cid)
+                        }
+
+                        is PlayParam.MediaList -> {
+                            (playParam as PlayParam.MediaList).copy(cid = data.view.cid)
+                        }
+
+                        else -> playParam
+                    }
                     launch {
                         getURL(
                             bvid = bvid,
@@ -530,7 +636,7 @@ internal class PlayerViewModel(
 
     fun handleVideoPlayAction(action: VideoAction.VideoPlayAction) {
         when (action) {
-            is VideoAction.VideoPlayAction.SwitchPlayListAction -> {
+            is VideoAction.VideoPlayAction.SwitchMediaSeriesAction -> {
                 updatePlayParam((playParam as PlayParam.Video).copy(cid = action.cid))
             }
 
@@ -557,6 +663,10 @@ internal class PlayerViewModel(
 
             is VideoAction.VideoPlayAction.SwitchVideoAction -> {
                 updatePlayParam(action.playParam)
+            }
+
+            is VideoAction.VideoPlayAction.SwitchPlaylistAction -> {
+                viewModelScope.launch { loadPlaylist(action.bvid) }
             }
         }
     }
@@ -640,7 +750,7 @@ internal class PlayerViewModel(
     }
 
     private suspend fun getFolderSimpleList() {
-        playlistRepository.getFolderSimpleList(playParam.aid)?.apply {
+        biliPlaylistRepository.getFolderSimpleList(playParam.aid)?.apply {
             Log.d(TAG, "getFolderSimpleList: $this")
             _mPlayerState.update {
                 it.copy(

@@ -36,5 +36,6 @@ internal data class ScreenState(
     val isShowCoinSheet: Boolean = false,
     val isShowFolderSheet: Boolean = false,
     val isShowLikeAnimation: Boolean = false,
-    val isShowUpInfoSheet: Boolean = false
+    val isShowUpInfoSheet: Boolean = false,
+    val isShowPlaylistSheet: Boolean = false,
 )

@@ -24,7 +24,7 @@ interface VideoAction {
     }
 
     sealed class VideoPlayAction : VideoAction {
-        data class SwitchPlayListAction(val cid: Long) : VideoPlayAction()
+        data class SwitchMediaSeriesAction(val cid: Long) : VideoPlayAction()
         data class SwitchSeasonAction(val seasonId: Long) : VideoPlayAction()
         data class SwitchEpisodeAction(
             val episodeId: Long,
@@ -34,6 +34,7 @@ interface VideoAction {
         ) : VideoPlayAction()
 
         data class SwitchVideoAction(val playParam: PlayParam) : VideoPlayAction()
+        data class SwitchPlaylistAction(val bvid: String) : VideoPlayAction()
     }
 
     sealed class VideoSettingAction : VideoAction {

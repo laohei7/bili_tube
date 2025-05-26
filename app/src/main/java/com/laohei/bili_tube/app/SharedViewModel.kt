@@ -32,8 +32,15 @@ sealed class PlayParam(
     ) : PlayParam(bvid, aid, cid, width, height, isLocal)
 
     data class MediaList(
+        override val bvid: String,
+        override val aid: Long,
+        override val cid: Long,
         val mediaKeys: List<Triple<Long, String, Long>>,
-    ) : PlayParam("", -1, -1, 1920, 1080, false)
+        val isToView: Boolean = true,
+        val fid: Long? = null,
+        val title: String,
+        val count: Int
+    ) : PlayParam(bvid, aid, cid, 1920, 1080, false)
 
     data object NONE : PlayParam("", -1, -1, 1920, 1080, false)
 }
