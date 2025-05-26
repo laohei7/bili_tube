@@ -81,7 +81,7 @@ data class SupportFormatItem(
     @SerialName("new_description") val newDescription: String,
     @SerialName("display_desc") val displayDesc: String,
     val superscript: String,
-    val codecs: List<String>
+    val codecs: List<String>?
 )
 
 @OptIn(ExperimentalSerializationApi::class)
