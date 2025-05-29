@@ -68,16 +68,29 @@ const val VIDEO_HISTORY_REPORT = "https://api.bilibili.com/x/v2/history/report"
 const val RANK_URL = "https://api.bilibili.com/pgc/web/rank/list"
 //?day=3&season_type=1
 
-const val WEB_DYNAMIC_URL = "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/all"
+// 番剧
+const val URL_BANGUMI_FILTER = "$BILIBILI_API/pgc/season/index/result"
+const val URL_RELATED_BANGUMI = "$BILIBILI_API/pgc/season/web/related/recommend"
+const val URL_BANGUMI_TIMELINE = "$BILIBILI_API/pgc/web/timeline"
+const val URL_BANGUMI_DETAIL = "$BILIBILI_API/pgc/view/web/season"
+const val URL_BANGUMI_PLAY = "$BILIBILI_API/pgc/player/web/playurl"
 
-const val HISTORY_URL = "https://api.bilibili.com/x/web-interface/history/cursor"
 
-const val USER_STAT_URL = "https://api.bilibili.com/x/web-interface/nav/stat"
-const val VIDEO_ARCHIVE_URL = "https://api.bilibili.com/x/polymer/web-space/seasons_archives_list"
+// 视频
+const val URL_RECOMMEND = "$BILIBILI_API/x/web-interface/wbi/index/top/feed/rcmd"
+const val URL_HOT = "$BILIBILI_API/x/web-interface/popular"
+const val URL_DYNAMIC = "$BILIBILI_API/x/polymer/web-dynamic/v1/feed/all"
+const val URL_VIDEO_PLAY = "$BILIBILI_API/x/player/wbi/playurl"
+const val URL_VIDEO_DETAIL = "$BILIBILI_API/x/web-interface/wbi/view/detail"
 
-const val VIDEO_HAS_LIKE_URL = "https://api.bilibili.com/x/web-interface/archive/has/like"
+// 状态（点赞、收藏等）
+const val URL_HAS_LIKE = "$BILIBILI_API/x/web-interface/archive/has/like"
+const val URL_HAS_COIN = "$BILIBILI_API/x/web-interface/archive/coins"
+const val URL_HAS_FAVORED = "$BILIBILI_API/x/v2/fav/video/favoured"
+const val URL_DEAL_LIKE = "$BILIBILI_API/x/web-interface/archive/like"
 
-const val VIDEO_LIKE_URL = "https://api.bilibili.com/x/web-interface/archive/like"
+// 评论
+const val URL_VIDEO_REPLY = "$BILIBILI_API/x/v2/reply"
 
 const val VIDEO_HAS_COIN_URL = "https://api.bilibili.com/x/web-interface/archive/coins"
 

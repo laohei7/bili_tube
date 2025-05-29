@@ -2,11 +2,11 @@ package com.laohei.bili_tube.presentation.player.component.reply
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.laohei.bili_sdk.apis.PlayApi
 import com.laohei.bili_sdk.module_v2.reply.ReplyItem
-import com.laohei.bili_sdk.video.GetReply
 
 class VideoReplyPaging(
-    private val videoReply: GetReply,
+    private val playApi: PlayApi,
     private val cookie: String?,
     private val type: Int = 1,
     private val oid: String
@@ -29,7 +29,7 @@ class VideoReplyPaging(
             val page = params.key ?: 1
             val pageSize = 20
 
-            val response = videoReply.getVideoReplies(
+            val response = playApi.getVideoReplies(
                 cookie = cookie,
                 type = type,
                 oid = oid,
@@ -37,7 +37,7 @@ class VideoReplyPaging(
                 ps = pageSize
             )
 
-            val data = response?.data?.replies ?: emptyList()
+            val data = response.data.replies
 
             LoadResult.Page(
                 data = data,

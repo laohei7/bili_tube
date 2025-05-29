@@ -185,7 +185,6 @@ internal class PlayerViewModel(
                     } else {
                         val resources =
                             biliPlaylistRepository.getFolderResourcePager(mediaList.fid!!)
-                                .stateIn(viewModelScope)
                         _mPlayerState.update {
                             it.copy(folderResources = resources)
                         }
@@ -472,48 +471,44 @@ internal class PlayerViewModel(
 
     private suspend fun getVideoDetail(aid: Long, bvid: String, cid: Long) {
         val response = biliPlayRepository.getVideoDetail(aid = aid, bvid = bvid)
-        response?.run {
-            viewModelScope.launch {
-                _mPlayerState.update {
-                    it.copy(
-                        videoDetail = data,
-                        title = data.view.title
+        val data = response.data
+        viewModelScope.launch {
+            _mPlayerState.update {
+                it.copy(videoDetail = data, title = data.view.title)
+            }
+            if (cid == -1L) {
+                playParam = when (playParam) {
+                    is PlayParam.Video -> {
+                        (playParam as PlayParam.Video).copy(cid = data.view.cid)
+                    }
+
+                    is PlayParam.MediaList -> {
+                        (playParam as PlayParam.MediaList).copy(cid = data.view.cid)
+                    }
+
+                    else -> playParam
+                }
+                launch {
+                    getURL(
+                        bvid = bvid,
+                        aid = aid,
+                        cid = data.view.cid,
+                        epId = Long.MIN_VALUE,
+                        isVideo = true
                     )
                 }
-                if (cid == -1L) {
-                    playParam = when (playParam) {
-                        is PlayParam.Video -> {
-                            (playParam as PlayParam.Video).copy(cid = data.view.cid)
-                        }
-
-                        is PlayParam.MediaList -> {
-                            (playParam as PlayParam.MediaList).copy(cid = data.view.cid)
-                        }
-
-                        else -> playParam
-                    }
-                    launch {
-                        getURL(
-                            bvid = bvid,
-                            aid = aid,
-                            cid = data.view.cid,
-                            epId = Long.MIN_VALUE,
-                            isVideo = true
-                        )
-                    }
+            }
+            launch {
+                data.view.seasonId?.let {
+                    getArchives(mid = data.view.owner.mid, seasonId = it)
+                } ?: run {
+                    _mPlayerState.update { it.copy(videoArchiveMeta = null) }
                 }
-                launch {
-                    this@run.data.view.seasonId?.let {
-                        getArchives(mid = this@run.data.view.owner.mid, seasonId = it)
-                    } ?: run {
-                        _mPlayerState.update { it.copy(videoArchiveMeta = null) }
-                    }
-                }
-                launch { getPageList(bvid = bvid, cid = data.view.cid) }
-                launch {
-                    getUserInfoCard(data.view.owner.mid)
-                    getUserUploadedVideos(data.view.owner.mid)
-                }
+            }
+            launch { getPageList(bvid = bvid, cid = playParam.cid) }
+            launch {
+                getUserInfoCard(data.view.owner.mid)
+                getUserUploadedVideos(data.view.owner.mid)
             }
         }
     }
@@ -568,10 +563,14 @@ internal class PlayerViewModel(
     private suspend fun getPageList(bvid: String, cid: Long) {
         val pageList = biliPlayRepository.getPageList(bvid)
         pageList?.let { data ->
+            val index = data.data.indexOfFirst { item -> item.cid == cid }.coerceAtLeast(0)
+            if (DBG) {
+                Log.d(TAG, "getPageList: media serial index $index")
+            }
             _mPlayerState.update {
                 it.copy(
                     videoPageList = if (data.data.size <= 1) null else data.data,
-                    currentPageListIndex = data.data.indexOfFirst { item -> item.cid == cid }
+                    currentPageListIndex = index
                 )
             }
         }
@@ -579,7 +578,7 @@ internal class PlayerViewModel(
 
     fun uploadVideoHistory(duration: Long) {
         viewModelScope.launch {
-            biliPlayRepository.uploadVideoHistory(
+            biliPlayRepository.postHistory(
                 aid = playParam.aid.toString(),
                 cid = playParam.cid.toString(),
                 progress = duration
@@ -637,7 +636,13 @@ internal class PlayerViewModel(
     fun handleVideoPlayAction(action: VideoAction.VideoPlayAction) {
         when (action) {
             is VideoAction.VideoPlayAction.SwitchMediaSeriesAction -> {
-                updatePlayParam((playParam as PlayParam.Video).copy(cid = action.cid))
+                updatePlayParam(
+                    PlayParam.Video(
+                        aid = playParam.aid,
+                        bvid = playParam.bvid,
+                        cid = action.cid
+                    )
+                )
             }
 
             is VideoAction.VideoPlayAction.SwitchEpisodeAction -> {

@@ -5,15 +5,21 @@ import android.content.Context
 import com.laohei.bili_sdk.anime.GetBangumi
 import com.laohei.bili_sdk.anime.GetTimeline
 import com.laohei.bili_sdk.apis.AuthApi
+import com.laohei.bili_sdk.apis.BangumiApi
 import com.laohei.bili_sdk.apis.FolderApi
 import com.laohei.bili_sdk.apis.HistoryApi
 import com.laohei.bili_sdk.apis.InternationalizationApi
+import com.laohei.bili_sdk.apis.PlayApi
 import com.laohei.bili_sdk.apis.UserApi
+import com.laohei.bili_sdk.apis.VideoApi
 import com.laohei.bili_sdk.apis.impl.AuthApiImpl
+import com.laohei.bili_sdk.apis.impl.BangumiApiImpl
 import com.laohei.bili_sdk.apis.impl.FolderApiImpl
 import com.laohei.bili_sdk.apis.impl.HistoryApiImpl
 import com.laohei.bili_sdk.apis.impl.InternationalizationApiImpl
+import com.laohei.bili_sdk.apis.impl.PlayApiImpl
 import com.laohei.bili_sdk.apis.impl.UserApiImpl
+import com.laohei.bili_sdk.apis.impl.VideoApiImpl
 import com.laohei.bili_sdk.dynamic.GetWebDynamic
 import com.laohei.bili_sdk.folder.GetFolder
 import com.laohei.bili_sdk.folder.PostFolder
@@ -102,6 +108,9 @@ val appModule = module {
     singleOf(::AuthApiImpl).bind(AuthApi::class)
     singleOf(::InternationalizationApiImpl).bind(InternationalizationApi::class)
     singleOf(::FolderApiImpl).bind(FolderApi::class)
+    singleOf(::VideoApiImpl).bind(VideoApi::class)
+    singleOf(::BangumiApiImpl).bind(BangumiApi::class)
+    singleOf(::PlayApiImpl).bind(PlayApi::class)
 
     singleOf(::BiliHomeRepository)
     singleOf(::BiliPlayRepository)

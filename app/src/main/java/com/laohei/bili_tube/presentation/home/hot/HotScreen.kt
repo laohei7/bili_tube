@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
-import com.laohei.bili_sdk.model.BiliHotVideoItem
+import com.laohei.bili_sdk.module_v2.hot.HotItem
 import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.app.SharedViewModel
@@ -42,7 +42,7 @@ private const val TAG = "HotScreen"
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HotScreen(
-    hotVideos: LazyPagingItems<BiliHotVideoItem>,
+    hotVideos: LazyPagingItems<HotItem>,
     gridState: LazyGridState = rememberLazyGridState(),
     navigateToRoute: (Route) -> Unit,
     homeActionHandle: (HomePageAction) -> Unit,

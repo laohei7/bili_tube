@@ -40,11 +40,11 @@ class HomeViewModel(
 
     val gridStates = List(tabs.size) { LazyGridState() }
 
-    val hotVideos = biliHomeRepository.getPagedHotVideo()
+    val hotVideos = biliHomeRepository.getHotPager()
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1)
         .cachedIn(viewModelScope)
 
-    val randomVideos = biliHomeRepository.getPagedRecommendVideo()
+    val randomVideos = biliHomeRepository.getRecommendPager()
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1)
         .cachedIn(viewModelScope)
 

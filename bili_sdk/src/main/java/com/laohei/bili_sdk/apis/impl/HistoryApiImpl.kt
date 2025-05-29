@@ -1,9 +1,11 @@
 package com.laohei.bili_sdk.apis.impl
 
+import com.laohei.bili_sdk.apis.BILIBILI
 import com.laohei.bili_sdk.apis.HISTORY_URL
 import com.laohei.bili_sdk.apis.HistoryApi
 import com.laohei.bili_sdk.apis.URL_ADD_TO_VIEW
 import com.laohei.bili_sdk.apis.URL_TO_VIEW
+import com.laohei.bili_sdk.apis.VIDEO_HISTORY_REPORT
 import com.laohei.bili_sdk.exception.globalSDKExceptionHandle
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
@@ -138,4 +140,44 @@ class HistoryApiImpl(
             }
         )
     }
+
+    override suspend fun postHistory(
+        cookie: String?,
+        aid: String,
+        cid: String,
+        progress: Long,
+        biliJct: String
+    ): BiliResponseNoData = withContext(Dispatchers.IO) {
+        runCatching {
+            val response = client.post(VIDEO_HISTORY_REPORT) {
+                cookie?.apply {
+                    header(HttpHeaders.Cookie, this)
+                }
+                header(HttpHeaders.Referrer, BILIBILI)
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    FormDataContent(
+                        Parameters.build {
+                            append("aid", aid)
+                            append("cid", cid)
+                            append("progress", progress.toString())
+                            append("csrf", biliJct)
+                        }
+                    )
+                )
+            }
+            Json.decodeFromString<BiliResponseNoData>(response.bodyAsText())
+        }
+    }.fold(
+        onSuccess = { it },
+        onFailure = {
+            if (DBG) {
+                globalSDKExceptionHandle(TAG.toString(), it)
+            }
+            BiliResponseNoData(
+                code = 400,
+                message = "EMPTY",
+            )
+        }
+    )
 }

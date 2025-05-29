@@ -6,8 +6,8 @@ import androidx.compose.ui.util.fastForEachIndexed
 import androidx.datastore.preferences.core.edit
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.laohei.bili_sdk.apis.VideoApi
 import com.laohei.bili_sdk.module_v2.recomment.RecommendItem
-import com.laohei.bili_sdk.recommend.GetRecommend
 import com.laohei.bili_tube.core.LAST_SHOW_LIST_KEY
 import com.laohei.bili_tube.dataStore
 import kotlinx.coroutines.flow.firstOrNull
@@ -28,7 +28,7 @@ private data class RecommendParams(
 )
 
 class RecommendPaging(
-    private val recommend: GetRecommend,
+    private val videoApi: VideoApi,
     private val context: Context,
     private val cookie: String?
 ) : PagingSource<Int, RecommendItem>() {
@@ -56,7 +56,7 @@ class RecommendPaging(
                 )
             }
 
-            val response = recommend.recommendVideos(
+            val response = videoApi.getRecommends(
                 cookie,
                 refreshType = Random.nextInt(3, 12),
                 webLocation = _mParams.webLocation,
@@ -70,12 +70,9 @@ class RecommendPaging(
                 ps = _mParams.ps
             )
 
-            val data = response?.data?.item
-                ?.fastFilter { it.owner != null && it.stat != null }
-                ?: emptyList()
+            val data = response.data.item.fastFilter { it.owner != null && it.stat != null }
 
-
-            response?.data?.let {
+            response.data.let {
                 _mParams = _mParams.copy(
                     freshIdx = page + 1,
                     freshIdx1h = page + 1,
