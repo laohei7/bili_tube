@@ -1,11 +1,11 @@
 package com.laohei.bili_sdk.apis.impl
 
 import com.laohei.bili_sdk.apis.BILIBILI
-import com.laohei.bili_sdk.apis.HISTORY_URL
+import com.laohei.bili_sdk.apis.URL_HISTORY
 import com.laohei.bili_sdk.apis.HistoryApi
 import com.laohei.bili_sdk.apis.URL_ADD_TO_VIEW
 import com.laohei.bili_sdk.apis.URL_TO_VIEW
-import com.laohei.bili_sdk.apis.VIDEO_HISTORY_REPORT
+import com.laohei.bili_sdk.apis.URL_VIDEO_HISTORY_REPORT
 import com.laohei.bili_sdk.exception.globalSDKExceptionHandle
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
@@ -107,7 +107,7 @@ class HistoryApiImpl(
         viewAt: Long?
     ): BiliResponse<HistoryModel> = withContext(Dispatchers.IO) {
         runCatching {
-            val response = client.get(HISTORY_URL) {
+            val response = client.get(URL_HISTORY) {
                 cookie?.let {
                     header(HttpHeaders.Cookie, it)
                 }
@@ -149,7 +149,7 @@ class HistoryApiImpl(
         biliJct: String
     ): BiliResponseNoData = withContext(Dispatchers.IO) {
         runCatching {
-            val response = client.post(VIDEO_HISTORY_REPORT) {
+            val response = client.post(URL_VIDEO_HISTORY_REPORT) {
                 cookie?.apply {
                     header(HttpHeaders.Cookie, this)
                 }

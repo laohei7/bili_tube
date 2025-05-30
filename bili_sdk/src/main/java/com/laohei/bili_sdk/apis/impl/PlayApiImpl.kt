@@ -1,29 +1,35 @@
 package com.laohei.bili_sdk.apis.impl
 
-import com.laohei.bili_sdk.apis.URL_BANGUMI_DETAIL
-import com.laohei.bili_sdk.apis.URL_BANGUMI_PLAY
 import com.laohei.bili_sdk.apis.BILIBILI
 import com.laohei.bili_sdk.apis.PlayApi
-import com.laohei.bili_sdk.apis.URL_VIDEO_DETAIL
+import com.laohei.bili_sdk.apis.URL_BANGUMI_DETAIL
+import com.laohei.bili_sdk.apis.URL_BANGUMI_PLAY
+import com.laohei.bili_sdk.apis.URL_DEAL_LIKE
 import com.laohei.bili_sdk.apis.URL_HAS_COIN
 import com.laohei.bili_sdk.apis.URL_HAS_FAVORED
 import com.laohei.bili_sdk.apis.URL_HAS_LIKE
-import com.laohei.bili_sdk.apis.URL_DEAL_LIKE
+import com.laohei.bili_sdk.apis.URL_VIDEO_DETAIL
 import com.laohei.bili_sdk.apis.URL_VIDEO_PLAY
 import com.laohei.bili_sdk.apis.URL_VIDEO_REPLY
+import com.laohei.bili_sdk.apis.URL_VIDEO_ARCHIVE
+import com.laohei.bili_sdk.apis.URL_ADD_COIN
+import com.laohei.bili_sdk.apis.URL_VIDEO_MEDIA_SERIES
 import com.laohei.bili_sdk.exception.globalSDKExceptionHandle
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.common.BiliResponse2
 import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
 import com.laohei.bili_sdk.module_v2.reply.ReplyModel
+import com.laohei.bili_sdk.module_v2.video.AddCoinModel
 import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.module_v2.video.CoinModel
 import com.laohei.bili_sdk.module_v2.video.FavouredModel
+import com.laohei.bili_sdk.module_v2.video.VideoArchiveModel
 import com.laohei.bili_sdk.module_v2.video.VideoCard
 import com.laohei.bili_sdk.module_v2.video.VideoCardContent
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoDimension
 import com.laohei.bili_sdk.module_v2.video.VideoOwner
+import com.laohei.bili_sdk.module_v2.video.VideoPageListModel
 import com.laohei.bili_sdk.module_v2.video.VideoStat
 import com.laohei.bili_sdk.module_v2.video.VideoURLModel
 import com.laohei.bili_sdk.module_v2.video.VideoView
@@ -383,6 +389,123 @@ class PlayApiImpl(
                     code = 400,
                     message = "ERROR",
                     data = ReplyModel.ERROR
+                )
+            }
+        )
+    }
+
+    override suspend fun getArchives(
+        mid: Long,
+        seasonId: Long,
+        pageNum: Int,
+        pageSize: Int,
+        sortReverse: Boolean,
+        cookie: String?
+    ): BiliResponse<VideoArchiveModel> = withContext(Dispatchers.IO) {
+        runCatching {
+            val url = WbiParams.wbi?.run {
+                val param = this.enc(
+                    mapOf(
+                        "mid" to mid.toString(),
+                        "season_id" to seasonId.toString(),
+                        "page_num" to pageNum.toString(),
+                        "page_size" to pageSize.toString(),
+                        "sort_reverse" to sortReverse.toString()
+                    )
+                )
+                "$URL_VIDEO_ARCHIVE?$param"
+            } ?: URL_VIDEO_ARCHIVE
+
+            val response = client.get(url) {
+                cookie?.apply {
+                    header(HttpHeaders.Cookie, this)
+                }
+                if (WbiParams.wbi == null) {
+                    parameter("mid", mid.toString())
+                    parameter("season_id", seasonId.toString())
+                    parameter("page_num", pageNum.toString())
+                    parameter("page_size", pageSize.toString())
+                    parameter("sort_reverse", sortReverse.toString())
+                }
+            }
+            Json.decodeFromString<BiliResponse<VideoArchiveModel>>(response.bodyAsText())
+        }.fold(
+            onSuccess = { it },
+            onFailure = {
+                if (DBG) {
+                    globalSDKExceptionHandle(TAG.toString(), it)
+                }
+                BiliResponse(
+                    code = 400,
+                    message = "ERROR",
+                    data = VideoArchiveModel.ERROR
+                )
+            }
+        )
+    }
+
+    override suspend fun getMediaSeries(
+        bvid: String,
+        cookie: String?
+    ): BiliResponse<List<VideoPageListModel>> = withContext(Dispatchers.IO) {
+        runCatching {
+            val response = client.get(URL_VIDEO_MEDIA_SERIES) {
+                cookie?.apply {
+                    header(HttpHeaders.Cookie, this)
+                }
+                parameter("bvid", bvid)
+            }
+            Json.decodeFromString<BiliResponse<List<VideoPageListModel>>>(response.bodyAsText())
+        }.fold(
+            onSuccess = { it },
+            onFailure = {
+                if (DBG) {
+                    globalSDKExceptionHandle(TAG.toString(), it)
+                }
+                BiliResponse(
+                    code = 400,
+                    message = "ERROR",
+                    data = emptyList()
+                )
+            }
+        )
+    }
+
+    override suspend fun postCoins(
+        aid: Long,
+        bvid: String,
+        multiply: Int,
+        cookie: String?,
+        biliJct: String
+    ): BiliResponse<AddCoinModel> = withContext(Dispatchers.IO) {
+        runCatching {
+            val response = client.post(URL_ADD_COIN) {
+                cookie?.apply {
+                    header(HttpHeaders.Cookie, cookie)
+                }
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    FormDataContent(
+                        Parameters.build {
+                            append("aid", aid.toString())
+                            append("bvid", bvid)
+                            append("multiply", multiply.toString())
+                            append("csrf", biliJct)
+                        }
+                    )
+                )
+            }
+            Json.decodeFromString<BiliResponse<AddCoinModel>>(response.bodyAsText())
+        }.fold(
+            onSuccess = { it },
+            onFailure = {
+                if (DBG) {
+                    globalSDKExceptionHandle(TAG.toString(), it)
+                }
+                BiliResponse(
+                    code = 400,
+                    message = "ERROR",
+                    data = AddCoinModel(false)
                 )
             }
         )

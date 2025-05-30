@@ -103,7 +103,7 @@ class HomeViewModel(
     }
 
     private suspend fun getFolderSimpleList(aid: Long) {
-        biliPlaylistRepository.getFolderSimpleList(aid)?.let { data ->
+        biliPlaylistRepository.getFolderSimpleList(aid).let { data ->
             updateState(
                 homeState.value.copy(
                     folders = data.list,

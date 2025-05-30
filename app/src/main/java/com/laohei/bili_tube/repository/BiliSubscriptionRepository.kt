@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.laohei.bili_sdk.dynamic.GetWebDynamic
+import com.laohei.bili_sdk.apis.VideoApi
 import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.dataStore
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.flow
 
 class BiliSubscriptionRepository(
     private val context: Context,
-    private val getWebDynamic: GetWebDynamic
+    private val videoApi: VideoApi
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getDynamicList(): Flow<PagingData<DynamicItem>> {
@@ -32,7 +32,7 @@ class BiliSubscriptionRepository(
                     pagingSourceFactory = {
                         SubscriptionPaging(
                             cookie = cookie,
-                            webDynamic = getWebDynamic
+                            videoApi = videoApi
                         )
                     }
                 ).flow

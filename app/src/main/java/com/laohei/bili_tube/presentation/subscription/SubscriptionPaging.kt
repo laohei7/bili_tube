@@ -4,11 +4,11 @@ import android.util.Log
 import androidx.compose.ui.util.fastFilter
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.laohei.bili_sdk.dynamic.GetWebDynamic
+import com.laohei.bili_sdk.apis.VideoApi
 import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
 
 class SubscriptionPaging(
-    private val webDynamic: GetWebDynamic,
+    private val videoApi: VideoApi,
     private val cookie: String?
 ) : PagingSource<Pair<Int, Long?>, DynamicItem>() {
 
@@ -48,19 +48,19 @@ class SubscriptionPaging(
 
             Log.d(TAG, "load: $page $offset")
 
-            val response = webDynamic.dynamicList(
+            val response = videoApi.getDynamics(
                 cookie = cookie,
                 page = page,
                 offset = offset
             )
 
 
-            val data = response?.data?.items
+            val data = response.data.items
                 ?.fastFilter { it.type in filterTypes }
                 ?: emptyList()
 
-            val hasMore = response?.data?.hasMore == true
-            val nextOffset = response?.data?.offset
+            val hasMore = response.data.hasMore == true
+            val nextOffset = response.data.offset
 
             LoadResult.Page(
                 data = data,

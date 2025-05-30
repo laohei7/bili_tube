@@ -4,10 +4,13 @@ import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.common.BiliResponse2
 import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
 import com.laohei.bili_sdk.module_v2.reply.ReplyModel
+import com.laohei.bili_sdk.module_v2.video.AddCoinModel
 import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.module_v2.video.CoinModel
 import com.laohei.bili_sdk.module_v2.video.FavouredModel
+import com.laohei.bili_sdk.module_v2.video.VideoArchiveModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
+import com.laohei.bili_sdk.module_v2.video.VideoPageListModel
 import com.laohei.bili_sdk.module_v2.video.VideoURLModel
 
 interface PlayApi {
@@ -69,5 +72,28 @@ interface PlayApi {
 
     suspend fun getVideoReplies(
         cookie: String? = null, type: Int = 1, oid: String, ps: Int = 20, pn: Int = 1
-    ):BiliResponse<ReplyModel>
+    ): BiliResponse<ReplyModel>
+
+
+    suspend fun getArchives(
+        mid: Long,
+        seasonId: Long,
+        pageNum: Int = 1,
+        pageSize: Int = 30,
+        sortReverse: Boolean = true,
+        cookie: String? = null
+    ): BiliResponse<VideoArchiveModel>
+
+    suspend fun getMediaSeries(
+        bvid: String,
+        cookie: String? = null
+    ): BiliResponse<List<VideoPageListModel>>
+
+    suspend fun postCoins(
+        aid: Long,
+        bvid: String,
+        multiply: Int,
+        cookie: String? = null,
+        biliJct: String
+    ):BiliResponse<AddCoinModel>
 }

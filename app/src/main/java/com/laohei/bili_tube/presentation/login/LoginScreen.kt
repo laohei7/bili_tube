@@ -64,7 +64,7 @@ import com.geetest.sdk.GT3ErrorBean
 import com.geetest.sdk.GT3GeetestUtils
 import com.geetest.sdk.GT3Listener
 import com.geetest.sdk.views.GT3GeetestButton
-import com.laohei.bili_sdk.login.Login
+import com.laohei.bili_sdk.apis.AuthApi
 import com.laohei.bili_sdk.model.BiliQRCode
 import com.laohei.bili_sdk.model.BiliQRCodeStatus
 import com.laohei.bili_sdk.module_v2.location.CountryItem
@@ -482,19 +482,19 @@ private fun QRCodeLoginWidget(
     switchLoginType: (LoginType) -> Unit
 ) {
     val context = LocalContext.current
-    val qrcodeLogin = koinInject<Login>()
+    val authApi = koinInject<AuthApi>()
     var biliQRCode by remember { mutableStateOf<BiliQRCode?>(null) }
     var biliQRCodeStatus by remember { mutableStateOf<BiliQRCodeStatus?>(null) }
 
     LaunchedEffect(Unit) {
-        qrcodeLogin.requestQRCode()?.apply {
+        authApi.requestQRCode().apply {
             biliQRCode = this.data
         }
     }
 
     LaunchedEffect(biliQRCode) {
         biliQRCodeStatus = biliQRCode?.run {
-            qrcodeLogin.checkScanStatus(qrcodeKey) { headers ->
+            authApi.checkScanStatus(qrcodeKey) { headers ->
                 val cookie = headers.getAll(HttpHeaders.SetCookie)
                     ?.fastJoinToString("; ") ?: ""
                 context.dataStore.edit { settings ->

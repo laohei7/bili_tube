@@ -15,7 +15,22 @@ data class InfoCardModel(
     @SerialName("archive_count") val archiveCount: Int,
     val follower: Long,
     @SerialName("like_num") val likeNum: Long
-)
+) {
+    companion object {
+        val ERROR = InfoCardModel(
+            card = InfoCard(
+                "", "", "", "", "", "", 0, 0, 0, "",
+                OfficialModel(1, "", "", 0),
+                OfficialModel(1, "", "", 0),
+                LevelInfo(0, 0, 0, 0)
+            ),
+            following = false,
+            archiveCount = 0,
+            follower = 0,
+            likeNum = 0
+        )
+    }
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable

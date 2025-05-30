@@ -531,7 +531,7 @@ internal class PlayerViewModel(
             pageNum = pageNum,
             pageSize = pageSize
         )
-        firstPage?.run {
+        firstPage.run {
             val count = ceil((this.data.page.total - pageSize) / pageSize.toFloat()).toInt()
             val leftovers = mutableListOf<ArchiveItem>()
             for (i in 0 until count) {
@@ -540,7 +540,7 @@ internal class PlayerViewModel(
                     seasonId = seasonId,
                     pageNum = pageNum + i + 1,
                     pageSize = pageSize
-                )?.let {
+                ).let {
                     leftovers += it.data.archives
                 }
             }
@@ -562,7 +562,7 @@ internal class PlayerViewModel(
 
     private suspend fun getPageList(bvid: String, cid: Long) {
         val pageList = biliPlayRepository.getPageList(bvid)
-        pageList?.let { data ->
+        pageList.let { data ->
             val index = data.data.indexOfFirst { item -> item.cid == cid }.coerceAtLeast(0)
             if (DBG) {
                 Log.d(TAG, "getPageList: media serial index $index")
@@ -755,7 +755,7 @@ internal class PlayerViewModel(
     }
 
     private suspend fun getFolderSimpleList() {
-        biliPlaylistRepository.getFolderSimpleList(playParam.aid)?.apply {
+        biliPlaylistRepository.getFolderSimpleList(playParam.aid).apply {
             Log.d(TAG, "getFolderSimpleList: $this")
             _mPlayerState.update {
                 it.copy(

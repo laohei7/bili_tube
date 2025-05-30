@@ -6,8 +6,6 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.laohei.bili_sdk.apis.FolderApi
 import com.laohei.bili_sdk.apis.HistoryApi
-import com.laohei.bili_sdk.folder.GetFolder
-import com.laohei.bili_sdk.history.GetWatchLater
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.folder.FolderMediaItem
 import com.laohei.bili_sdk.module_v2.folder.FolderModel
@@ -27,24 +25,17 @@ import kotlinx.coroutines.flow.flow
 
 class BiliPlaylistRepository(
     private val context: Context,
-    private val getFolder: GetFolder,
-    private val getWatchLater: GetWatchLater,
     private val historyApi: HistoryApi,
     private val folderApi: FolderApi
 ) {
-    suspend fun getFolderList(): List<FolderModel>? {
+    suspend fun getFolderList(): List<FolderModel> {
         val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
-        return getFolder.folderList(cookie)?.data
+        return folderApi.getFolders(cookie).data
     }
 
-    suspend fun getFolderSimpleList(aid: Long): SimpleFolderModel? {
+    suspend fun getFolderSimpleList(aid: Long): SimpleFolderModel {
         val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
-        return getFolder.folderSimpleList(cookie, aid, context.getValue(UP_MID_KEY.name, 0L))?.data
-    }
-
-    suspend fun getWatchLaterList(ps: Int = 20): ToViewModel? {
-        val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
-        return getWatchLater.watchLaterList(cookie = cookie, ps = ps)?.data
+        return folderApi.getSimpleFolders(cookie, aid, context.getValue(UP_MID_KEY.name, 0L)).data
     }
 
     suspend fun getToViewList(

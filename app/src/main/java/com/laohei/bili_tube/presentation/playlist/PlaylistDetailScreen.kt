@@ -54,8 +54,6 @@ import coil3.asDrawable
 import coil3.compose.AsyncImage
 import com.laohei.bili_sdk.apis.impl.FolderApiImpl
 import com.laohei.bili_sdk.apis.impl.HistoryApiImpl
-import com.laohei.bili_sdk.folder.GetFolder
-import com.laohei.bili_sdk.history.GetWatchLater
 import com.laohei.bili_sdk.module_v2.folder.FolderMediaItem
 import com.laohei.bili_sdk.module_v2.video.VideoView
 import com.laohei.bili_tube.R
@@ -89,8 +87,6 @@ private fun injectPreviewViewModel(param: Route.PlaylistDetail): PlaylistDetailV
     return PlaylistDetailViewModel(
         BiliPlaylistRepository(
             context = context,
-            getFolder = GetFolder(HttpClientFactory.client),
-            getWatchLater = GetWatchLater(HttpClientFactory.client),
             historyApi = HistoryApiImpl(HttpClientFactory.client),
             folderApi = FolderApiImpl(HttpClientFactory.client)
         ),

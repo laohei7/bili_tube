@@ -16,10 +16,6 @@ import com.laohei.bili_sdk.module_v2.folder.FolderDealModel
 import com.laohei.bili_sdk.module_v2.reply.ReplyItem
 import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
 import com.laohei.bili_sdk.module_v2.video.AddCoinModel
-import com.laohei.bili_sdk.user.GetUploadedVideo
-import com.laohei.bili_sdk.user.GetUserInfo
-import com.laohei.bili_sdk.video.GetArchive
-import com.laohei.bili_sdk.video.PostInfo
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.db.BiliTubeDB
@@ -39,11 +35,7 @@ class BiliPlayRepository(
     private val folderApi: FolderApi,
     private val bangumiApi: BangumiApi,
     private val userApi: UserApi,
-    private val getArchive: GetArchive,
-    private val postInfo: PostInfo,
-    private val getUserInfo: GetUserInfo,
     private val biliTubeDB: BiliTubeDB,
-    private val getUploadedVideo: GetUploadedVideo,
 ) {
 
     suspend fun getVideoPlayURLByLocal(bvid: String) =
@@ -118,7 +110,7 @@ class BiliPlayRepository(
                     config = PagingConfig(pageSize = 20),
                     pagingSourceFactory = {
                         UserUploadedVideoPaging(
-                            getUploadedVideo = getUploadedVideo,
+                            userApi = userApi,
                             cookie = cookie,
                             mid = mid
                         )
@@ -147,7 +139,7 @@ class BiliPlayRepository(
         pageNum: Int = 1,
         pageSize: Int = 30,
         sortReverse: Boolean = false,
-    ) = getArchive.videoArchive(
+    ) = playApi.getArchives(
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
         mid = mid,
         seasonId = seasonId,
@@ -156,7 +148,7 @@ class BiliPlayRepository(
         sortReverse = sortReverse
     )
 
-    suspend fun getPageList(bvid: String) = getArchive.videoPageList(
+    suspend fun getPageList(bvid: String) = playApi.getMediaSeries(
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
         bvid = bvid
     )
@@ -199,7 +191,7 @@ class BiliPlayRepository(
         multiply: Int
     ): BiliResponse<AddCoinModel>? {
         val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
-        return postInfo.videoCoin(
+        return playApi.postCoins(
             aid = aid, bvid = bvid, multiply = multiply,
             cookie = cookie,
             biliJct = cookie.getBiliJct()
@@ -223,7 +215,7 @@ class BiliPlayRepository(
 
     suspend fun getRelatedBangumis(seasonId: Long) = bangumiApi.relatedBangumis(seasonId)
 
-    suspend fun getUserInfoCard(mid: Long) = getUserInfo.getUserInfoCard(
+    suspend fun getUserInfoCard(mid: Long) = userApi.getUserInfoCard(
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
         mid = mid
     )
