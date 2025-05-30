@@ -514,7 +514,7 @@ internal class PlayerViewModel(
     }
 
     private suspend fun getUserInfoCard(mid: Long) {
-        biliPlayRepository.getUserInfoCard(mid)?.run {
+        biliPlayRepository.getUserInfoCard(mid).run {
             _mPlayerState.update { it.copy(infoCardModel = this.data) }
         }
     }
