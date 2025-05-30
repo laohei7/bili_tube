@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laohei.bili_tube.repository.BiliMineRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
@@ -43,7 +44,7 @@ class MineViewModel(
     }
 
     private suspend fun getUserStat() {
-        biliMineRepository.getUserStat()?.run {
+        biliMineRepository.getUserStat().run {
             _mMineState.update {
                 it.copy(
                     following = this.following,
@@ -55,7 +56,7 @@ class MineViewModel(
     }
 
     private suspend fun getShortHistoryList() {
-        biliMineRepository.getHistoryList()?.run {
+        biliMineRepository.getHistoryList().run {
             _mMineState.update {
                 it.copy(
                     historyList = this.list
@@ -65,7 +66,7 @@ class MineViewModel(
     }
 
     private suspend fun getShortWatchLater() {
-        biliMineRepository.getWatchLaterList(ps = 3)?.run {
+        biliMineRepository.getWatchLaterList(ps = 3).run {
             _mMineState.update {
                 it.copy(
                     watchLaterList = this.list,
@@ -76,7 +77,7 @@ class MineViewModel(
     }
 
     private suspend fun getFolderList() {
-        biliMineRepository.getFolderList()?.run {
+        biliMineRepository.getFolderList().run {
             val folders = this.fastFilter { item -> item.id == 1 }
                 .firstOrNull()?.mediaListResponse?.list
             folders?.apply {
@@ -84,6 +85,15 @@ class MineViewModel(
                     it.copy(folderList = this)
                 }
             }
+        }
+    }
+
+    fun refresh() {
+        _mMineState.update { it.copy(isRefreshing = true) }
+        viewModelScope.launch {
+            initData()
+            delay(500)
+            _mMineState.update { it.copy(isRefreshing = false) }
         }
     }
 

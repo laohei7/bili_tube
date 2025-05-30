@@ -29,7 +29,31 @@ data class BangumiDetailModel(
     val publish: PublishModel,
     val rating: RatingModel? = null,
     val seasons: List<SeasonModel>
-)
+) {
+    companion object {
+        val ERROR = BangumiDetailModel(
+            "",
+            "",
+            "",
+            0,
+            0,
+            "",
+            0,
+            "",
+            "",
+            BangumiStat(),
+            emptyList(),
+            "",
+            "",
+            0,
+            emptyList(),
+            emptyList(),
+            PublishModel(0, 0, "", "", 0),
+            null,
+            emptyList()
+        )
+    }
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable

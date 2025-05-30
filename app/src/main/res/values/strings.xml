@@ -120,4 +120,7 @@
     <string name="str_unknown">Unknown</string>
     <string name="str_video_count">%d个视频</string>
     <string name="str_login_failed">登录失败</string>
+    <string name="str_next_title">下一个: %1s - %2s</string>
+    <string name="str_folder_title">%1s · %2d/%3d</string>
+    <string name="str_folder_title_count">%1s · %2d/%3d</string>
 </resources>

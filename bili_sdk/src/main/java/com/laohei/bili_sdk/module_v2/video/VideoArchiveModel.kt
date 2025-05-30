@@ -13,7 +13,16 @@ data class VideoArchiveModel(
     val archives: List<ArchiveItem>,
     val meta: ArchiveMeta,
     val page: ArchivePage
-)
+) {
+    companion object {
+        val ERROR = VideoArchiveModel(
+            aids = emptyList(),
+            archives = emptyList(),
+            meta = ArchiveMeta(0, "", "", 0, "", 0, 0, 0),
+            page = ArchivePage(0, 0, 0)
+        )
+    }
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable

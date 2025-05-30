@@ -1,7 +1,7 @@
 package com.laohei.bili_sdk.wbi
 
 import android.util.Log
-import com.laohei.bili_sdk.apis.WBI
+import com.laohei.bili_sdk.apis.URL_USER_PROFILE
 import com.laohei.bili_sdk.model.BiliResponse
 import com.laohei.bili_sdk.model.BiliWbi
 import io.ktor.client.HttpClient
@@ -30,7 +30,7 @@ class GetWbi(private val client: HttpClient) {
     suspend fun wbi(cookie: String? = null, setWbiBlock: (suspend (BiliWbi) -> Unit)? = null) =
         withContext(Dispatchers.IO) {
             val response = try {
-                client.get(WBI) {
+                client.get(URL_USER_PROFILE) {
                     url {
                         cookie?.apply {
                             headers.append(HttpHeaders.Cookie, this)

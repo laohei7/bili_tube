@@ -51,16 +51,5 @@ sealed class Route {
     data object Settings : Route()
 
     @Serializable
-    data class Play(
-        val aid: Long = -1,
-        val bvid: String = "",
-        val cid: Long = -1,
-        val width: Int = 1920,
-        val height: Int = 1080,
-        val isLocal: Boolean = false,
-        val isVideo: Boolean = true,
-        val mediaId: Long? = null,
-        val seasonId: Long? = null,
-        val epId: Long? = null
-    ) : Route()
+    data object Play : Route()
 }

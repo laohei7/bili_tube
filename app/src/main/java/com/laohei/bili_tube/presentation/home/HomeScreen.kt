@@ -52,6 +52,7 @@ import com.laohei.bili_tube.presentation.home.hot.HotScreen
 import com.laohei.bili_tube.presentation.home.recommend.RecommendScreen
 import com.laohei.bili_tube.presentation.home.state.DefaultHomePageManager
 import com.laohei.bili_tube.presentation.home.state.HomePageAction
+import com.laohei.bili_tube.presentation.playlist.CreatedFolderDialog
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -226,7 +227,7 @@ fun HomeScreen(
                     .height(IntrinsicSize.Min),
                 selectedTabIndex = pagerState.currentPage,
                 containerColor = Color.Transparent,
-                divider={
+                divider = {
                     HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainer)
                 }
             ) {
@@ -281,7 +282,7 @@ fun HomeScreen(
                     HomePageAction.ShowFolderSheetAction(false)
                 )
             },
-            onClick = {
+            onVideoMenuActionClick = {
                 if (homeState.currentAid == null) {
                     return@FolderSheet
                 }
@@ -295,6 +296,26 @@ fun HomeScreen(
                 )
                 homeViewModel.homeActionHandle(
                     HomePageAction.ShowFolderSheetAction(false)
+                )
+            },
+            onCreatedFolderClick = {
+                homeViewModel.homeActionHandle(
+                    HomePageAction.CreatedFolderAction(true)
+                )
+            }
+        )
+
+        CreatedFolderDialog(
+            isShowDialog = homeState.isShowAddFolder,
+            value = homeState.folderName,
+            onValueChange = homeViewModel::onFolderNameChanged,
+            onSubmit = homeViewModel::addNewFolder,
+            checked = homeState.isPrivate,
+            onCheckedChange = homeViewModel::onPrivateChanged,
+            onDismiss = {
+                homeViewModel.onFolderNameChanged("")
+                homeViewModel.homeActionHandle(
+                    HomePageAction.CreatedFolderAction(false)
                 )
             }
         )

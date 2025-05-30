@@ -29,13 +29,16 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.module_v2.recomment.RecommendItem
+import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.app.SharedViewModel
 import com.laohei.bili_tube.component.placeholder.RecommendPlaceholder
 import com.laohei.bili_tube.component.video.VideoItem
 import com.laohei.bili_tube.presentation.home.state.HomePageAction
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.toTimeAgoString
 import com.laohei.bili_tube.utill.toViewString
+import org.koin.compose.koinInject
 
 private const val TAG = "RecommendScreen"
 
@@ -48,6 +51,7 @@ fun RecommendScreen(
     navigateToRoute: (Route) -> Unit,
     homeActionHandle: (HomePageAction) -> Unit,
 ) {
+    val sharedViewModel = koinInject<SharedViewModel>()
     val refreshState = rememberPullToRefreshState()
 
     BoxWithConstraints(
@@ -105,13 +109,14 @@ fun RecommendScreen(
                                 date = it.pubDate.toTimeAgoString(),
                                 duration = it.duration.formatTimeString(false),
                                 onClick = {
-                                    navigateToRoute(
-                                        Route.Play(
+                                    sharedViewModel.setPlayParam(
+                                        PlayParam.Video(
                                             aid = it.id,
                                             bvid = it.bvid,
                                             cid = it.cid,
                                         )
                                     )
+                                    navigateToRoute(Route.Play)
                                 },
                                 onMenuClick = {
                                     homeActionHandle.invoke(

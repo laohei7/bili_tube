@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.laohei.bili_sdk.history.GetHistory
+import com.laohei.bili_sdk.apis.HistoryApi
 import com.laohei.bili_sdk.module_v2.history.HistoryItem
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.dataStore
@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.flow
 
 class BiliHistoryRepository(
     private val context: Context,
-    private val getHistory: GetHistory,
+    private val historyApi: HistoryApi
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     fun getHistoryList(): Flow<PagingData<HistoryItem>> {
@@ -29,7 +29,7 @@ class BiliHistoryRepository(
                         pageSize = 20,
                         enablePlaceholders = false
                     ),
-                    pagingSourceFactory = { HistoryPaging(getHistory, cookie) }
+                    pagingSourceFactory = { HistoryPaging(historyApi, cookie) }
                 ).flow
             )
         }.flattenConcat()

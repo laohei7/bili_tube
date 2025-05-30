@@ -25,5 +25,13 @@ interface HistoryApi {
         max: Long? = null,
         business: String? = null,
         viewAt: Long? = null
-    ):BiliResponse<HistoryModel>
+    ): BiliResponse<HistoryModel>
+
+    suspend fun postHistory(
+        cookie: String? = null,
+        aid: String,
+        cid: String,
+        progress: Long = 0L,
+        biliJct: String
+    ): BiliResponseNoData
 }

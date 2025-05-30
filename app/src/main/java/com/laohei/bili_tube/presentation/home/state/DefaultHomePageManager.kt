@@ -18,6 +18,15 @@ class DefaultHomePageManager : HomePageManager {
                 _mHomeState.update { it.copy(isShowFolderSheet = action.flag) }
             }
 
+            is HomePageAction.CreatedFolderAction -> {
+                _mHomeState.update {
+                    it.copy(
+                        isShowFolderSheet = action.flag.not(),
+                        isShowAddFolder = action.flag
+                    )
+                }
+            }
+
             is HomePageAction.ShowVideoMenuSheetAction -> {
                 _mHomeState.update {
                     it.copy(

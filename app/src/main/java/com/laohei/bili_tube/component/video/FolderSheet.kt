@@ -47,7 +47,8 @@ internal fun FolderSheet(
     isShowSheet: Boolean = true,
     folders: List<SimpleFolderItem>,
     onDismiss: () -> Unit = {},
-    onClick: (VideoAction.VideoMenuAction) -> Unit = {}
+    onVideoMenuActionClick: (VideoAction.VideoMenuAction) -> Unit = {},
+    onCreatedFolderClick: () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true)
@@ -80,7 +81,8 @@ internal fun FolderSheet(
             onDismissRequest = { closeSheet() }
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -92,7 +94,7 @@ internal fun FolderSheet(
                         )
                     },
                     trailingContent = {
-                        TextButton(onClick = {}) {
+                        TextButton(onClick = { onCreatedFolderClick.invoke() }) {
                             Icon(
                                 imageVector = Icons.Outlined.Add,
                                 contentDescription = Icons.Outlined.Add.name,
@@ -128,7 +130,7 @@ internal fun FolderSheet(
                                 folders.filter { it.favState == 1 }.map { it.id }.toSet()
                             val needAdd =
                                 checkedAidSet.filter { alreadyAdd.contains(it).not() }.toSet()
-                            onClick.invoke(
+                            onVideoMenuActionClick.invoke(
                                 VideoAction.VideoMenuAction.CollectAction(
                                     addAids = needAdd,
                                     delAids = deletedAidSet.toSet()

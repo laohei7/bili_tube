@@ -435,7 +435,7 @@ internal class DefaultMediaManager(
                     30251 -> getHiResAudio() ?: getDolbyAudio() ?: getNormalAudio()
                     30250 -> getDolbyAudio() ?: getHiResAudio() ?: getNormalAudio()
                     else -> {
-                        it.audio.find { audio -> audio.id == audioQuality }
+                        it.audio.find { audio -> audio.id == audioQuality } ?: getNormalAudio()
                     }
                 }
             }

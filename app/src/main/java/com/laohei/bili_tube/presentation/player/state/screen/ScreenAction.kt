@@ -1,9 +1,6 @@
 package com.laohei.bili_tube.presentation.player.state.screen
 
-import com.laohei.bili_tube.app.Route
-
 sealed interface ScreenAction {
-    data class SwitchVideoAction(val params: Route.Play) : ScreenAction
     data object ShowReplyAction : ScreenAction
     data object ShowVideoDetailAction : ScreenAction
     data object ToUserSpaceAction : ScreenAction
@@ -20,4 +17,6 @@ sealed interface ScreenAction {
     data class ShowLikeAnimationAction(val flag: Boolean) : ScreenAction
     data class ShowDownloadSheetAction(val flag: Boolean) : ScreenAction
     data class ShowUpInfoSheetAction(val flag: Boolean) : ScreenAction
+    data class ShowPlaylistSheetAction(val flag: Boolean) : ScreenAction
+    data class CreatedFolderAction(val flag: Boolean) : ScreenAction
 }

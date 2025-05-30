@@ -27,7 +27,7 @@ import com.laohei.bili_tube.component.lottie.LottieIconPlaying
 import com.laohei.bili_tube.component.video.VideoAction
 
 @Composable
-internal fun PageListWidget(
+internal fun MediaSeriesList(
     pageList: List<VideoPageListModel>,
     currentPageListIndex: Int,
     onClick: (VideoAction.VideoPlayAction) -> Unit
@@ -41,13 +41,13 @@ internal fun PageListWidget(
     ) {
         item { Spacer(modifier = Modifier) }
         itemsIndexed(pageList) { index, it ->
-            PageListItem(
+            MediaSeriesItem(
                 modifier = Modifier
                     .padding(end = 8.dp),
                 item = it,
                 isSelected = index == currentPageListIndex,
                 onClick = { cid ->
-                    onClick.invoke(VideoAction.VideoPlayAction.SwitchPlayListAction(cid = cid))
+                    onClick.invoke(VideoAction.VideoPlayAction.SwitchMediaSeriesAction(cid = cid))
                 }
             )
         }
@@ -56,7 +56,7 @@ internal fun PageListWidget(
 }
 
 @Composable
-private fun PageListItem(
+private fun MediaSeriesItem(
     modifier: Modifier = Modifier,
     item: VideoPageListModel,
     isSelected: Boolean,
@@ -103,7 +103,7 @@ private fun PageListItem(
 
 @Preview(showBackground = true)
 @Composable
-private fun PageListItemPreview() {
+private fun MediaSeriesItemPreview() {
     val item = remember {
         VideoPageListModel(
             cid = -1L,
@@ -118,7 +118,7 @@ private fun PageListItemPreview() {
             dimension = Dimension(0, 0, 0)
         )
     }
-    PageListItem(
+    MediaSeriesItem(
         item = item,
         isSelected = true,
         onClick = {}

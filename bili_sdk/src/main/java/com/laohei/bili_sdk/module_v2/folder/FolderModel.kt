@@ -43,6 +43,7 @@ data class FolderItem(
     val title: String,
     val cover: String,
     val upper: VideoOwner,
+    val attr: Int = 7,
     val ctime: Long,
     val mtime: Long,
     @SerialName("media_count") val mediaCount: Int

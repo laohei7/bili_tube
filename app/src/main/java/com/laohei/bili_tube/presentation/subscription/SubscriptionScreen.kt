@@ -70,7 +70,9 @@ import coil3.request.placeholder
 import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
 import com.laohei.bili_sdk.module_v2.dynamic.MajorLiveRcmdContent
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.app.SharedViewModel
 import com.laohei.bili_tube.component.appbar.LogoTopAppBar
 import com.laohei.bili_tube.component.placeholder.NoMoreData
 import com.laohei.bili_tube.component.placeholder.RecommendPlaceholder
@@ -85,6 +87,7 @@ import com.laohei.bili_tube.utill.toTimeAgoString
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 private const val TAG = "DynamicScreen"
 
@@ -232,6 +235,7 @@ private fun GetDynamicItem(
     navigateToRoute: (Route) -> Unit,
     onMenuClick: (() -> Unit)? = null
 ) {
+    val sharedViewModel = koinInject<SharedViewModel>()
     val author = item.modules.moduleAuthor
     when (item.type) {
         DynamicItem.DYNAMIC_TYPE_AV -> {
@@ -247,13 +251,14 @@ private fun GetDynamicItem(
                 date = author.pubTs.toTimeAgoString(),
                 duration = archive.durationText,
                 onClick = {
-                    navigateToRoute.invoke(
-                        Route.Play(
+                    sharedViewModel.setPlayParam(
+                        PlayParam.Video(
                             aid = archive.aid.toLong(),
                             bvid = archive.bvid,
                             cid = -1
                         )
                     )
+                    navigateToRoute.invoke(Route.Play)
                 },
                 onMenuClick = onMenuClick
             )

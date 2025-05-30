@@ -13,7 +13,15 @@ data class ReplyModel(
     val page: ReplyPage,
     val config: ReplyConfig,
     val replies: List<ReplyItem>
-)
+) {
+    companion object {
+        val ERROR = ReplyModel(
+            page = ReplyPage(0, 0, 0),
+            config = ReplyConfig(0, false, false),
+            replies = emptyList()
+        )
+    }
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable

@@ -52,7 +52,7 @@ import coil3.request.placeholder
 import com.laohei.bili_sdk.apis.UserRelationAction
 import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.component.button.SubscribeButton
 import com.laohei.bili_tube.component.icons.Level0
 import com.laohei.bili_tube.component.icons.Level1
@@ -91,7 +91,7 @@ fun UserInfoCardSheet(
     onSubscriptionChanged: (VideoAction.VideoMenuAction.UserRelationModifyAction) -> Unit,
     onDismiss: () -> Unit = {},
     maskAlphaChanged: (Float) -> Unit = { _ -> },
-    onVideoChanged: (Route.Play) -> Unit = {}
+    onVideoChanged: (PlayParam) -> Unit = {}
 ) {
     var localIsSubscribed by remember { mutableStateOf(isSubscribed) }
     LaunchedEffect(isSubscribed) { localIsSubscribed = isSubscribed }
@@ -186,7 +186,7 @@ fun UserInfoCardSheet(
                                 isCurrentPlaying = it.bvid == currentBvid,
                                 onClick = {
                                     onVideoChanged(
-                                        Route.Play(
+                                        PlayParam.Video(
                                             aid = item.aid.toLong(),
                                             bvid = item.bvid,
                                             cid = it.cid

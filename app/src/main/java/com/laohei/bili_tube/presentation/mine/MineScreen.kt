@@ -1,5 +1,6 @@
 package com.laohei.bili_tube.presentation.mine
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -42,6 +43,7 @@ import androidx.compose.material.icons.outlined.VideoLibrary
 import androidx.compose.material.icons.outlined.WatchLater
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,6 +54,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -84,7 +88,9 @@ import com.laohei.bili_sdk.module_v2.folder.FolderItem
 import com.laohei.bili_sdk.module_v2.history.HistoryItem
 import com.laohei.bili_sdk.module_v2.video.VideoView
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.app.SharedViewModel
 import com.laohei.bili_tube.component.text.VerticalDataText
 import com.laohei.bili_tube.core.FACE_URL_KEY
 import com.laohei.bili_tube.core.USERNAME_KEY
@@ -94,18 +100,20 @@ import com.laohei.bili_tube.utill.toNonHardwareBitmap
 import com.laohei.bili_tube.utill.toViewString
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 private sealed interface MineAction {
     data class NavigateAction(val route: Route) : MineAction
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MineScreen(
     viewModel: MineViewModel = koinViewModel(),
     navigateToRoute: (Route) -> Unit = {}
 ) {
     val state by viewModel.mineState.collectAsStateWithLifecycle()
-
+    val refreshState = rememberPullToRefreshState()
     fun handleMineAction(action: MineAction) {
         when (action) {
             is MineAction.NavigateAction -> navigateToRoute.invoke(action.route)
@@ -117,42 +125,53 @@ fun MineScreen(
             MineTopBar(mineActionClick = ::handleMineAction)
         }
     ) { innerPadding ->
-        Column(
+        PullToRefreshBox(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(
-                    state = rememberScrollState()
-                )
+                .padding(innerPadding),
+            isRefreshing = state.isRefreshing,
+            state = refreshState,
+            onRefresh = {
+                viewModel.refresh()
+            },
         ) {
-            AvatarWidget()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(
+                        state = rememberScrollState()
+                    )
+            ) {
+                AvatarWidget()
 
-            UserDataWidget(
-                following = state.following,
-                follower = state.follower,
-                dynamicCount = state.dynamicCount
-            )
-            HistoryWidget(
-                histories = state.historyList,
-                navigateToRoute = navigateToRoute
-            )
-            Spacer(Modifier.height(12.dp))
-            PlaylistWidget(
-                watchLaterList = state.watchLaterList,
-                watchLaterCount = state.watchLaterCount,
-                folderList = state.folderList,
-                navigateToRoute = navigateToRoute
-            )
-            Spacer(Modifier.height(12.dp))
-            OtherWidget {
-                when (it) {
-                    is MineAction.NavigateAction -> navigateToRoute.invoke(it.route)
-                    else -> {}
+                UserDataWidget(
+                    following = state.following,
+                    follower = state.follower,
+                    dynamicCount = state.dynamicCount
+                )
+                HistoryWidget(
+                    histories = state.historyList,
+                    navigateToRoute = navigateToRoute
+                )
+                Spacer(Modifier.height(12.dp))
+                PlaylistWidget(
+                    watchLaterList = state.watchLaterList,
+                    watchLaterCount = state.watchLaterCount,
+                    folderList = state.folderList,
+                    navigateToRoute = navigateToRoute
+                )
+                Spacer(Modifier.height(12.dp))
+                OtherWidget {
+                    when (it) {
+                        is MineAction.NavigateAction -> navigateToRoute.invoke(it.route)
+                        else -> {}
+                    }
                 }
-            }
 
-            Spacer(Modifier.height(80.dp))
+                Spacer(Modifier.height(80.dp))
+            }
         }
+
     }
 }
 
@@ -321,6 +340,7 @@ private fun HistoryWidget(
     histories: List<HistoryItem>,
     navigateToRoute: (Route) -> Unit
 ) {
+    val sharedViewModel = koinInject<SharedViewModel>()
     ListItem(
         headlineContent = {
             Text(
@@ -342,20 +362,27 @@ private fun HistoryWidget(
     ) {
         item { Spacer(Modifier) }
         items(histories) {
+            val progress = when {
+                it.duration > 0L -> (it.progress.toFloat() / it.duration)
+                    .coerceIn(0f, 1f)
+
+                else -> 0f
+            }
             HistoryItem(
                 cover = it.cover,
                 title = it.title,
                 ownerName = it.authorName,
                 duration = it.duration.formatTimeString(false),
-                progress = it.progress.toFloat() / it.duration,
+                progress = progress,
                 onClick = {
-                    navigateToRoute.invoke(
-                        Route.Play(
+                    sharedViewModel.setPlayParam(
+                        PlayParam.Video(
                             aid = it.history.oid,
                             bvid = it.history.bvid,
                             cid = it.history.cid
                         )
                     )
+                    navigateToRoute.invoke(Route.Play)
                 }
             )
         }
@@ -453,10 +480,15 @@ private fun PlaylistWidget(
                 )
             }
             items(folderList) {
+                Log.d("TAG", "PlaylistWidget: $it")
                 PlaylistItem(
                     cover = it.cover,
                     title = it.title,
-                    label = stringResource(R.string.str_public),
+                    label = if (it.attr == 23) {
+                        stringResource(R.string.str_private)
+                    } else {
+                        stringResource(R.string.str_public)
+                    },
                     onClick = {
                         navigateToRoute(
                             Route.PlaylistDetail(

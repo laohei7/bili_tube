@@ -11,6 +11,6 @@ class RecommendViewModel(
 ) : ViewModel() {
     val gridState = LazyGridState()
 
-    val randomVideos = biliHomeRepository.getPagedRecommendVideo()
+    val randomVideos = biliHomeRepository.getRecommendPager()
         .cachedIn(viewModelScope)
 }

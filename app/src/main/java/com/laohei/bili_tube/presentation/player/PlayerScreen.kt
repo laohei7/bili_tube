@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -88,7 +89,7 @@ import com.laohei.bili_sdk.module_v2.video.RatingModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoPageListModel
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.component.lottie.LottieIconPlaying
 import com.laohei.bili_tube.component.text.IconText
 import com.laohei.bili_tube.component.video.FolderSheet
@@ -111,6 +112,8 @@ import com.laohei.bili_tube.presentation.player.component.CommentCard
 import com.laohei.bili_tube.presentation.player.component.FullscreenVideoActions
 import com.laohei.bili_tube.presentation.player.component.PlayerPlaceholder
 import com.laohei.bili_tube.presentation.player.component.PlayerSnackHost
+import com.laohei.bili_tube.presentation.player.component.PlaylistBar
+import com.laohei.bili_tube.presentation.player.component.PlaylistSheet
 import com.laohei.bili_tube.presentation.player.component.RelatedBangumiHorizontalList
 import com.laohei.bili_tube.presentation.player.component.RelatedHorizontalList
 import com.laohei.bili_tube.presentation.player.component.UserInfoCardSheet
@@ -120,7 +123,7 @@ import com.laohei.bili_tube.presentation.player.component.VideoMenus
 import com.laohei.bili_tube.presentation.player.component.VideoSimpleInfo
 import com.laohei.bili_tube.presentation.player.component.archive.ArchiveMetaItem
 import com.laohei.bili_tube.presentation.player.component.archive.ArchiveSheet
-import com.laohei.bili_tube.presentation.player.component.archive.PageListWidget
+import com.laohei.bili_tube.presentation.player.component.archive.MediaSeriesList
 import com.laohei.bili_tube.presentation.player.component.control.PlayerControl
 import com.laohei.bili_tube.presentation.player.component.reply.VideoReplySheet
 import com.laohei.bili_tube.presentation.player.component.settings.DownloadSheet
@@ -133,8 +136,8 @@ import com.laohei.bili_tube.presentation.player.state.media.MediaState
 import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManager
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenState
+import com.laohei.bili_tube.presentation.playlist.CreatedFolderDialog
 import com.laohei.bili_tube.ui.theme.Pink
-import com.laohei.bili_tube.utill.displayTitle
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
 import com.laohei.bili_tube.utill.toTimeAgoString
@@ -152,7 +155,8 @@ private const val TAG = "PlayerScreen"
 @OptIn(UnstableApi::class)
 @Composable
 fun PlayerScreen(
-    params: Route.Play,
+    isPreview: Boolean = false,
+    playParam: PlayParam,
     upPress: () -> Unit
 ) {
     val context = LocalContext.current
@@ -169,20 +173,20 @@ fun PlayerScreen(
     val viewModel =
         koinViewModel<PlayerViewModel> {
             parametersOf(
-                params,
+                playParam,
                 DefaultMediaManager(
                     context = context,
                     cronetEngine = cronetEngine,
                     simpleCache = simpleCache,
-                    originalWidth = params.width,
-                    originalHeight = params.height
+                    originalWidth = playParam.width,
+                    originalHeight = playParam.height
                 ),
                 DefaultScreenManager(
                     density,
                     configuration.screenHeightDp + systemBarHeight.value.roundToInt(),
                     configuration.screenWidthDp,
-                    params.width,
-                    params.height
+                    playParam.width,
+                    playParam.height
                 )
             )
         }
@@ -269,6 +273,7 @@ fun PlayerScreen(
     val animatedOffset by animateIntAsState(targetValue = screenState.relatedListOffset.toInt())
     val enabledDraggable =
         !isOrientationPortrait && screenState.isFullscreen && !screenState.isLockScreen
+    val folderResources = playerState.folderResources.collectAsLazyPagingItems()
 
     fun backPressHandle() {
         if (screenState.isLockScreen) {
@@ -415,14 +420,10 @@ fun PlayerScreen(
                     screenState = screenState,
                     bottomPadding = screenState.videoHeight + 80.dp,
                     screenActionClick = {
-                        viewModel.handleScreenAction(
-                            it, true, scope,
-                            updateParamsCallback = { newParams ->
-                                scope.launch { viewModel.updateParams(newParams) }
-                            })
+                        viewModel.handleScreenAction(it, true, scope)
                     },
                     videoMenuActionClick = viewModel::handleVideoMenuAction,
-                    videoPlayActionClick = viewModel::handleVvideoPlayAction
+                    videoPlayActionClick = viewModel::handleVideoPlayAction
                 )
 
                 Box(
@@ -447,7 +448,7 @@ fun PlayerScreen(
                             modifier = relatedListModifier,
                             related = playerState.videoDetail?.related ?: emptyList(),
                             onClick = {
-                                scope.launch { viewModel.updateParams(it) }
+                                viewModel.updatePlayParam(it)
                             }
                         )
                     }
@@ -457,7 +458,7 @@ fun PlayerScreen(
                             modifier = relatedListModifier,
                             related = playerState.relatedBangumis ?: emptyList(),
                             onClick = {
-                                scope.launch { viewModel.updateParams(it) }
+                                viewModel.updatePlayParam(it)
                             }
                         )
                     }
@@ -516,7 +517,7 @@ fun PlayerScreen(
                 )
             },
             onClick = {
-                scope.launch { viewModel.updateParams(it) }
+                viewModel.updatePlayParam(it)
             },
             bottomPadding = screenState.videoHeight + 80.dp
         )
@@ -641,10 +642,32 @@ fun PlayerScreen(
                     isOrientationPortrait
                 )
             },
-            onClick = {
+            onVideoMenuActionClick = {
                 viewModel.handleVideoMenuAction(it)
                 viewModel.handleScreenAction(
                     ScreenAction.ShowFolderSheetAction(false),
+                    isOrientationPortrait
+                )
+            },
+            onCreatedFolderClick = {
+                viewModel.handleScreenAction(
+                    ScreenAction.CreatedFolderAction(true),
+                    isOrientationPortrait
+                )
+            }
+        )
+
+        CreatedFolderDialog(
+            isShowDialog = screenState.isShowAddFolder,
+            value = playerState.folderName,
+            onValueChange = viewModel::onFolderNameChanged,
+            onSubmit = viewModel::addNewFolder,
+            checked = playerState.isPrivate,
+            onCheckedChange = viewModel::onPrivateChanged,
+            onDismiss = {
+                viewModel.onFolderNameChanged("")
+                viewModel.handleScreenAction(
+                    ScreenAction.CreatedFolderAction(false),
                     isOrientationPortrait
                 )
             }
@@ -659,7 +682,7 @@ fun PlayerScreen(
                     isOrientationPortrait
                 )
             },
-            videoSettingActionClick = viewModel::handlevideoSettingAction
+            videoSettingActionClick = viewModel::handleVideoSettingAction
         )
 
         UserInfoCardSheet(
@@ -675,7 +698,7 @@ fun PlayerScreen(
             official = playerState.infoCardModel?.card?.official?.title ?: "",
             level = playerState.infoCardModel?.card?.levelInfo?.currentLevel ?: 0,
             uploadedVideos = uploadedVideos,
-            currentBvid = viewModel.params.bvid,
+            currentBvid = viewModel.playParam.bvid,
             onSubscriptionChanged = {
                 viewModel.handleVideoMenuAction(it)
             },
@@ -692,13 +715,77 @@ fun PlayerScreen(
                 }
             },
             onVideoChanged = {
-                scope.launch { viewModel.updateParams(it) }
+                viewModel.updatePlayParam(it)
             },
             bottomPadding = screenState.videoHeight + 80.dp
         )
 
         PlayerSnackHost(
             modifier = Modifier.align(Alignment.BottomStart)
+        )
+        if (screenState.isFullscreen.not() &&
+            (playerState.toViewList.isNotEmpty() || folderResources.itemCount != 0)
+        ) {
+            val nextVideoTitle by remember {
+                derivedStateOf {
+                    if (folderResources.itemCount != 0) {
+                        if (playerState.playlistIndex + 1 < folderResources.itemCount - 1) {
+                            folderResources[playerState.playlistIndex + 1]?.title ?: ""
+                        } else {
+                            "已最后一个视频"
+                        }
+                    } else {
+                        playerState.nextVideoTitle
+                    }
+                }
+            }
+            PlaylistBar(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(horizontal = 8.dp)
+                    .padding(bottom = 16.dp)
+                    .navigationBarsPadding(),
+                nextTitle = stringResource(
+                    R.string.str_next_title,
+                    nextVideoTitle,
+                    playerState.playlistTitle
+                ),
+                folderTitle = stringResource(
+                    R.string.str_folder_title,
+                    playerState.playlistTitle,
+                    playerState.playlistIndex + 1,
+                    playerState.playlistCount
+                ),
+                onClick = {
+                    viewModel.handleScreenAction(
+                        ScreenAction.ShowPlaylistSheetAction(true),
+                        isOrientationPortrait
+                    )
+                }
+            )
+        }
+
+        PlaylistSheet(
+            folderTitle = playerState.playlistTitle,
+            playlistIndex = playerState.playlistIndex,
+            playlistCount = playerState.playlistCount,
+            toViewList = playerState.toViewList,
+            folderResources = folderResources,
+            modifier = otherSheetModifier,
+            maskAlphaChanged = {
+                if (isOrientationPortrait) {
+                    viewModel.changeMaskAlpha(it)
+                }
+            },
+            bottomPadding = screenState.videoHeight + 80.dp,
+            isShowSheet = screenState.isShowPlaylistSheet,
+            onDismiss = {
+                viewModel.handleScreenAction(
+                    ScreenAction.ShowPlaylistSheetAction(false),
+                    isOrientationPortrait
+                )
+            },
+            videoPlayActionClick = viewModel::handleVideoPlayAction
         )
     }
 }
@@ -792,15 +879,6 @@ private fun VideoArea(
     val localContext = LocalContext.current
     val textureView = remember { TextureView(localContext) }
 
-    val title by remember {
-        derivedStateOf {
-            playerState.videoDetail?.view?.title
-                ?: playerState.bangumiDetail
-                    ?.episodes?.find { playerState.currentEpId == it.epId }?.displayTitle()
-                ?: ""
-        }
-    }
-
     LaunchedEffect(mediaState.isPlaying) {
         while (mediaState.isPlaying) {
             val bitmap = textureView.bitmap
@@ -821,7 +899,7 @@ private fun VideoArea(
 
     PlayerControl(
         modifier = videoControlModifier.zIndex(99f),
-        title = title,
+        title = playerState.title,
         progress = mediaState.progress,
         bufferProgress = mediaState.bufferProgress,
         isShowUI = screenState.isShowUI,
@@ -968,7 +1046,7 @@ private fun VideoContent(
             }
             videoPageList?.let {
                 item {
-                    PageListWidget(
+                    MediaSeriesList(
                         pageList = it,
                         currentPageListIndex = currentPageListIndex,
                         onClick = videoPlayClick
@@ -1009,14 +1087,17 @@ private fun VideoContent(
                     date = video.pubdate.toTimeAgoString(),
                     duration = video.duration.formatTimeString(false),
                     onClick = {
-                        val newParams = Route.Play(
-                            width = video.dimension.width,
-                            height = video.dimension.height,
-                            aid = video.aid,
-                            bvid = video.bvid,
-                            cid = video.cid,
+                        videoPlayClick(
+                            VideoAction.VideoPlayAction.SwitchVideoAction(
+                                PlayParam.Video(
+                                    width = video.dimension.width,
+                                    height = video.dimension.height,
+                                    aid = video.aid,
+                                    bvid = video.bvid,
+                                    cid = video.cid,
+                                )
+                            )
                         )
-                        screenActionClick.invoke(ScreenAction.SwitchVideoAction(newParams))
                     }
                 )
             }
@@ -1323,11 +1404,13 @@ private fun BangumiContent(
                     publishDate = it.stat.follow.toViewString() + "追番",
                     leadingIcon = null,
                     onClick = {
-                        screenActionClick.invoke(
-                            ScreenAction.SwitchVideoAction(
-                                Route.Play(
+                        videoPlayActionClick(
+                            VideoAction.VideoPlayAction.SwitchVideoAction(
+                                PlayParam.Bangumi(
                                     seasonId = it.seasonId,
-                                    isVideo = false
+                                    bvid = "",
+                                    aid = -1,
+                                    cid = -1
                                 )
                             )
                         )

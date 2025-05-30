@@ -8,6 +8,6 @@ import com.laohei.bili_tube.repository.BiliHomeRepository
 class HotViewModel(
     biliHomeRepository: BiliHomeRepository,
 ) : ViewModel() {
-    val hotVideos = biliHomeRepository.getPagedHotVideo()
+    val hotVideos = biliHomeRepository.getHotPager()
         .cachedIn(viewModelScope)
 }

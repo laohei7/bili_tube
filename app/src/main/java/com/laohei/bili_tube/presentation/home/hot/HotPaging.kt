@@ -2,32 +2,32 @@ package com.laohei.bili_tube.presentation.home.hot
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.laohei.bili_sdk.hot.GetHots
-import com.laohei.bili_sdk.model.BiliHotVideoItem
+import com.laohei.bili_sdk.apis.VideoApi
+import com.laohei.bili_sdk.module_v2.hot.HotItem
 
 class HotPaging(
-    private val hots: GetHots,
+    private val videoApi: VideoApi,
     private val cookie: String?
-) : PagingSource<Int, BiliHotVideoItem>() {
-    override fun getRefreshKey(state: PagingState<Int, BiliHotVideoItem>): Int? {
+) : PagingSource<Int, HotItem>() {
+    override fun getRefreshKey(state: PagingState<Int, HotItem>): Int? {
         return state.anchorPosition?.let { anchor ->
             state.closestPageToPosition(anchor)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchor)?.nextKey?.minus(1)
         }
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, BiliHotVideoItem> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, HotItem> {
         return try {
             val page = params.key ?: 1
             val pageSize = 20
 
-            val response = hots.hotVideos(
+            val response = videoApi.getHots(
                 cookie = cookie,
                 pn = page,
                 ps = pageSize
             )
 
-            val data = response?.data?.list ?: emptyList()
+            val data = response.data.list
 
             LoadResult.Page(
                 data = data,

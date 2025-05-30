@@ -51,8 +51,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.laohei.bili_sdk.model.BiliUserProfile
-import com.laohei.bili_sdk.user.GetUserInfo
+import com.laohei.bili_sdk.apis.UserApi
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.component.SideNavigateRail
 import com.laohei.bili_tube.component.appbar.BottomAppBarItem
@@ -171,7 +170,7 @@ fun App() {
         composable<Route.Login> { LoginScreen() }
         composable<Route.Play> {
             PlayerScreen(
-                params = it.toRoute(),
+                playParam = koinInject<SharedViewModel>().mPlayParam,
                 upPress = { navController.navigateUp() }
             )
         }
@@ -391,7 +390,7 @@ private fun AppEventListener() {
 @Composable
 private fun InitCookieAndProfile(isLogin: Boolean) {
     val context = LocalContext.current
-    val userInfo = koinInject<GetUserInfo>()
+    val userApi = koinInject<UserApi>()
     val client = koinInject<HttpClient>()
 
     LaunchedEffect(isLogin) {
@@ -401,7 +400,7 @@ private fun InitCookieAndProfile(isLogin: Boolean) {
         val hasBuvid3 = cookie?.contains("buvid3") == true
         val newCookie = cookie?.split("; ")?.toMutableList() ?: mutableListOf()
         async(Dispatchers.IO) {
-            userInfo.getSpiInfo(cookie)?.data?.let {
+            userApi.getSpiInfo(cookie).data.let {
                 if (hasBuvid4.not()) {
                     newCookie.add("buvid4=${it.b4}")
                 }
@@ -428,11 +427,11 @@ private fun InitCookieAndProfile(isLogin: Boolean) {
             return@LaunchedEffect
         }
         cookie?.run {
-            userInfo.getUserProfile(cookie = this)?.let {
+            userApi.getUserProfile(cookie = this)?.let {
                 if (it.code == -101) {
                     return@let
                 }
-                val profile = it.data as BiliUserProfile
+                val profile = it.data
                 context.setValue(UP_MID_KEY.name, profile.mid)
                 context.setValue(FACE_URL_KEY.name, profile.face)
                 context.setValue(USERNAME_KEY.name, profile.uname)

@@ -40,16 +40,18 @@ class HomeViewModel(
 
     val gridStates = List(tabs.size) { LazyGridState() }
 
-    val hotVideos = biliHomeRepository.getPagedHotVideo()
+    val hotVideos = biliHomeRepository.getHotPager()
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1)
         .cachedIn(viewModelScope)
 
-    val randomVideos = biliHomeRepository.getPagedRecommendVideo()
+    val randomVideos = biliHomeRepository.getRecommendPager()
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1)
         .cachedIn(viewModelScope)
 
     val timeline = biliHomeRepository.getTimelineEpisode()
         .cachedIn(viewModelScope)
+
+    private var mAid: Long = 0
 
     init {
         loadBangumis()
@@ -87,6 +89,7 @@ class HomeViewModel(
         when (action) {
             is VideoAction.VideoSheetAction.PlaylistAction -> {
                 viewModelScope.launch {
+                    mAid = action.aid
                     getFolderSimpleList(action.aid)
                 }
             }
@@ -100,7 +103,7 @@ class HomeViewModel(
     }
 
     private suspend fun getFolderSimpleList(aid: Long) {
-        biliPlaylistRepository.getFolderSimpleList(aid)?.let { data ->
+        biliPlaylistRepository.getFolderSimpleList(aid).let { data ->
             updateState(
                 homeState.value.copy(
                     folders = data.list,
@@ -156,6 +159,42 @@ class HomeViewModel(
                         .cachedIn(viewModelScope)
                 )
             )
+        }
+    }
+
+    fun onFolderNameChanged(value: String) {
+        updateState(homeState.value.copy(folderName = value))
+    }
+
+    fun onPrivateChanged(value: Boolean) {
+        updateState(homeState.value.copy(isPrivate = value))
+    }
+
+    fun addNewFolder() {
+        viewModelScope.launch {
+            val folderName = homeState.value.folderName
+            val privacy = homeState.value.isPrivate
+            if (folderName.isBlank()) {
+                EventBus.send(
+                    Event.AppEvent.ToastEvent("收藏夹名称不允许为空")
+                )
+                return@launch
+            }
+            val success = biliPlaylistRepository.addNewFolder(
+                title = folderName,
+                privacy = privacy
+            )
+            if (success) {
+                getFolderSimpleList(mAid)
+                homeActionHandle(HomePageAction.CreatedFolderAction(false))
+                EventBus.send(
+                    Event.AppEvent.ToastEvent("收藏夹创建成功")
+                )
+            } else {
+                EventBus.send(
+                    Event.AppEvent.ToastEvent("收藏夹创建失败")
+                )
+            }
         }
     }
 }

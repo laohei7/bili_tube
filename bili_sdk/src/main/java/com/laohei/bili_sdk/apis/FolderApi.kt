@@ -1,7 +1,9 @@
 package com.laohei.bili_sdk.apis
 
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
+import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
 import com.laohei.bili_sdk.module_v2.folder.FolderDealModel
+import com.laohei.bili_sdk.module_v2.folder.FolderItem
 import com.laohei.bili_sdk.module_v2.folder.FolderModel
 import com.laohei.bili_sdk.module_v2.folder.FolderResourceModel
 import com.laohei.bili_sdk.module_v2.folder.SimpleFolderModel
@@ -35,4 +37,9 @@ interface FolderApi {
         ps: Int = 20,
         pn: Int = 1
     ): BiliResponse<FolderResourceModel>
+
+    suspend fun addNewFolder(
+        cookie: String? = null,
+        title: String, privacy: Boolean = false, csrf: String? = null
+    ): BiliResponse<FolderItem?>
 }

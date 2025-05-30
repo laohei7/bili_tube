@@ -15,7 +15,7 @@ data class FolderResourceModel(
 ) {
     companion object {
         val ERROR = FolderResourceModel(
-            info = FolderInfoModel(0, 0, 0, "", "", UpperModel(0, "", ""), 0, 0, 0),
+            info = FolderInfoModel(0, 0,0, 0, "", "", UpperModel(0, "", ""), 0, 0, 0),
             medias = emptyList(),
             hasMore = false
         )
@@ -29,6 +29,7 @@ data class FolderInfoModel(
     val id: Long,
     val fid: Long,
     val mid: Long,
+    val attr: Int,
     val title: String,
     val cover: String,
     val upper: UpperModel,
@@ -44,6 +45,7 @@ data class FolderMediaItem(
     val id: Long,
     val type: Int,
     val title: String,
+    val attr: Int,
     val cover: String,
     val intro: String,
     val page: Int,

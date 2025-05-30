@@ -56,7 +56,7 @@ import androidx.compose.ui.unit.lerp
 import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.component.sheet.rememberModalBottomSheet
 import com.laohei.bili_tube.component.video.HorizontalVideoItem2
@@ -78,7 +78,7 @@ fun ArchiveSheet(
     bottomPadding: Dp = 0.dp,
     onDismiss: () -> Unit = {},
     maskAlphaChanged: (Float) -> Unit = { _ -> },
-    onClick: (Route.Play) -> Unit
+    onClick: (PlayParam) -> Unit
 ) {
     if (archiveMeta == null && archives == null) {
         return
@@ -256,7 +256,7 @@ fun ArchiveSheet(
                         isCurrentPlaying = index == currentArchiveIndex,
                         onClick = {
                             onClick.invoke(
-                                Route.Play(
+                                PlayParam.Video(
                                     aid = item.aid,
                                     bvid = item.bvid,
                                     cid = -1

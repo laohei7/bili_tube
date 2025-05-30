@@ -4,19 +4,17 @@ import android.content.Context
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.laohei.bili_sdk.anime.GetBangumi
-import com.laohei.bili_sdk.anime.GetTimeline
-import com.laohei.bili_sdk.folder.PostFolder
-import com.laohei.bili_sdk.history.PostToView
-import com.laohei.bili_sdk.hot.GetHots
-import com.laohei.bili_sdk.model.BiliAnimeSchedule
-import com.laohei.bili_sdk.model.BiliHotVideoItem
+import com.laohei.bili_sdk.apis.BangumiApi
+import com.laohei.bili_sdk.apis.FolderApi
+import com.laohei.bili_sdk.apis.HistoryApi
+import com.laohei.bili_sdk.apis.VideoApi
+import com.laohei.bili_sdk.module_v2.bangumi.AnimeScheduleModel
 import com.laohei.bili_sdk.module_v2.bangumi.BangumiItem
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
+import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
 import com.laohei.bili_sdk.module_v2.folder.FolderDealModel
+import com.laohei.bili_sdk.module_v2.hot.HotItem
 import com.laohei.bili_sdk.module_v2.recomment.RecommendItem
-import com.laohei.bili_sdk.recommend.GetRecommend
-import com.laohei.bili_sdk.video.PostInfo
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.model.BangumiFilterModel
@@ -33,16 +31,13 @@ import kotlinx.coroutines.flow.flow
 
 class BiliHomeRepository(
     private val context: Context,
-    private val getRecommend: GetRecommend,
-    private val getHots: GetHots,
-    private val getTimeline: GetTimeline,
-    private val getBangumi: GetBangumi,
-    private val postInfo: PostInfo,
-    private val postToView: PostToView,
-    private val postFolder: PostFolder
+    private val videoApi: VideoApi,
+    private val folderApi: FolderApi,
+    private val historyApi: HistoryApi,
+    private val bangumiApi: BangumiApi
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun getPagedRecommendVideo(): Flow<PagingData<RecommendItem>> {
+    fun getRecommendPager(): Flow<PagingData<RecommendItem>> {
         return flow {
             val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
             emit(
@@ -51,14 +46,14 @@ class BiliHomeRepository(
                         pageSize = 12,
                         enablePlaceholders = false
                     ),
-                    pagingSourceFactory = { RecommendPaging(getRecommend, context, cookie) }
+                    pagingSourceFactory = { RecommendPaging(videoApi, context, cookie) }
                 ).flow
             )
         }.flattenConcat()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun getPagedHotVideo(): Flow<PagingData<BiliHotVideoItem>> {
+    fun getHotPager(): Flow<PagingData<HotItem>> {
         return flow {
             val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
             emit(
@@ -67,14 +62,14 @@ class BiliHomeRepository(
                         pageSize = 20,
                         enablePlaceholders = false
                     ),
-                    pagingSourceFactory = { HotPaging(getHots, cookie) }
+                    pagingSourceFactory = { HotPaging(videoApi, cookie) }
                 ).flow
             )
         }.flattenConcat()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun getTimelineEpisode(): Flow<PagingData<BiliAnimeSchedule>> {
+    fun getTimelineEpisode(): Flow<PagingData<AnimeScheduleModel>> {
         return flow {
             val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
             emit(
@@ -83,7 +78,7 @@ class BiliHomeRepository(
                         pageSize = 13,
                         enablePlaceholders = false
                     ),
-                    pagingSourceFactory = { TimelinePaging(getTimeline, cookie) }
+                    pagingSourceFactory = { TimelinePaging(bangumiApi, cookie) }
                 ).flow
             )
         }.flattenConcat()
@@ -99,7 +94,7 @@ class BiliHomeRepository(
                         pageSize = 20,
                         enablePlaceholders = false
                     ),
-                    pagingSourceFactory = { BangumiPaging(getBangumi, bangumiFilterModel, cookie) }
+                    pagingSourceFactory = { BangumiPaging(bangumiApi, bangumiFilterModel, cookie) }
                 ).flow
             )
         }.flattenConcat()
@@ -117,7 +112,7 @@ class BiliHomeRepository(
                     ),
                     pagingSourceFactory = {
                         BangumiPaging(
-                            getBangumi,
+                            bangumiApi,
                             bangumiFilterModel,
                             cookie,
                             4
@@ -134,8 +129,8 @@ class BiliHomeRepository(
         delMediaIds: Set<Long>,
     ): BiliResponse<FolderDealModel>? {
         val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
-        return postFolder.folderDeal(
-            rid = aid,
+        return folderApi.dealFolder(
+            aid = aid,
             addMediaIds = addMediaIds,
             delMediaIds = delMediaIds,
             cookie = cookie,
@@ -146,8 +141,12 @@ class BiliHomeRepository(
     suspend fun addToView(
         aid: Long,
         bvid: String
-    ) = postToView.addToView(
-        aid = aid, bvid = bvid,
-        cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY),
-    )
+    ): BiliResponseNoData {
+        val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
+        return historyApi.addToView(
+            aid = aid, bvid = bvid,
+            cookie = cookie,
+            csrf = cookie.getBiliJct()
+        )
+    }
 }

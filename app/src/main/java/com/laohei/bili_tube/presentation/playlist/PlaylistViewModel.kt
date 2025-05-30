@@ -33,7 +33,7 @@ class PlaylistViewModel(
     }
 
     private suspend fun getFolderList() {
-        playlistRepository.getFolderList()?.apply {
+        playlistRepository.getFolderList().apply {
             _mState.update {
                 it.copy(
                     isLoading = false,
@@ -44,11 +44,11 @@ class PlaylistViewModel(
     }
 
     private suspend fun getWatchLaterCover() {
-        playlistRepository.getWatchLaterList(ps = 3)?.apply {
-            if (this.list.isEmpty()) {
+        playlistRepository.getToViewList(ps = 3).apply {
+            if (this.data.list.isEmpty()) {
                 return@apply
             }
-            _mState.update { it.copy(watchLaterCover = this.list.first().pic) }
+            _mState.update { it.copy(watchLaterCover = this.data.list.first().pic) }
         }
     }
 }

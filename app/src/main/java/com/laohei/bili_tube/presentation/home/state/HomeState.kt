@@ -17,4 +17,7 @@ data class HomeState(
     val animationFilterModel: BangumiFilterModel = BangumiFilterModel(),
     val bangumis: Flow<PagingData<BangumiItem>> = flow { PagingData.empty<BangumiItem>() },
     val animations: Flow<PagingData<BangumiItem>> = flow { PagingData.empty<BangumiItem>() },
+    val isShowAddFolder: Boolean = false,
+    val folderName: String = "",
+    val isPrivate: Boolean = false
 )

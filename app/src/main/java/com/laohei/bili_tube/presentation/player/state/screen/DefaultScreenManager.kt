@@ -9,7 +9,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.utill.areFloatsEqualCompareTo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -168,7 +167,6 @@ internal class DefaultScreenManager(
         action: ScreenAction,
         isOrientationPortrait: Boolean,
         scope: CoroutineScope?,
-        updateParamsCallback: ((Route.Play) -> Unit)?,
         lockScreenCallback: (() -> Unit)?
     ) {
         when (action) {
@@ -192,6 +190,15 @@ internal class DefaultScreenManager(
                 }
             }
 
+            is ScreenAction.ShowPlaylistSheetAction -> {
+                _mState.update {
+                    it.copy(
+                        isShowPlaylistSheet = action.flag,
+                        videoHeight = it.minLimitedHeight
+                    )
+                }
+            }
+
             is ScreenAction.ShowOtherSettingsSheetAction -> {
                 _mState.update { it.copy(isShowOtherSettingsSheet = action.flag) }
             }
@@ -206,6 +213,15 @@ internal class DefaultScreenManager(
 
             is ScreenAction.ShowFolderSheetAction -> {
                 _mState.update { it.copy(isShowFolderSheet = action.flag) }
+            }
+
+            is ScreenAction.CreatedFolderAction -> {
+                _mState.update {
+                    it.copy(
+                        isShowFolderSheet = action.flag.not(),
+                        isShowAddFolder = action.flag
+                    )
+                }
             }
 
             is ScreenAction.ShowCoinSheetAction -> {
@@ -250,11 +266,6 @@ internal class DefaultScreenManager(
                     )
                 }
             }
-
-            is ScreenAction.SwitchVideoAction -> {
-                updateParamsCallback?.invoke(action.params)
-            }
-
 
             ScreenAction.SubscribeAction -> {
 
@@ -360,5 +371,6 @@ internal class DefaultScreenManager(
     private fun isShowMask(): Boolean {
         return _mState.value.isShowDetailSheet || _mState.value.isShowReplySheet
                 || _mState.value.isShowArchiveSheet || _mState.value.isShowUpInfoSheet
+                || _mState.value.isShowPlaylistSheet
     }
 }

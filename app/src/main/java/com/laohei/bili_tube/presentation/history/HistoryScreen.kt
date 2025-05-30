@@ -40,7 +40,9 @@ import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.laohei.bili_sdk.module_v2.history.HistoryItem
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.app.Route
+import com.laohei.bili_tube.app.SharedViewModel
 import com.laohei.bili_tube.component.placeholder.NoMoreData
 import com.laohei.bili_tube.component.video.HorizontalVideoItem
 import com.laohei.bili_tube.model.UIModel
@@ -48,6 +50,7 @@ import com.laohei.bili_tube.utill.formatDateTimeToString
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.toTimeAgoString2
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 private const val TAG = "HistoryScreen"
 private const val DBG = true
@@ -142,6 +145,7 @@ private fun GetHistoryItem(
     item: UIModel<out Any?>,
     navigateToRoute: (Route) -> Unit
 ) {
+    val sharedViewModel = koinInject<SharedViewModel>()
     when (item) {
         is UIModel.Header<*> -> {
             ListItem(
@@ -175,13 +179,14 @@ private fun GetHistoryItem(
                     append(it.viewAt.formatDateTimeToString(false))
                 },
                 onClick = {
-                    navigateToRoute.invoke(
-                        Route.Play(
+                    sharedViewModel.setPlayParam(
+                        PlayParam.Video(
                             aid = it.history.oid,
                             bvid = it.history.bvid,
                             cid = it.history.cid
                         )
                     )
+                    navigateToRoute.invoke(Route.Play)
                 },
                 leadingIcon = null
             )

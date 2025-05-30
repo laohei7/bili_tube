@@ -2,37 +2,24 @@ package com.laohei.bili_tube.di
 
 import android.annotation.SuppressLint
 import android.content.Context
-import com.laohei.bili_sdk.anime.GetBangumi
-import com.laohei.bili_sdk.anime.GetTimeline
 import com.laohei.bili_sdk.apis.AuthApi
+import com.laohei.bili_sdk.apis.BangumiApi
 import com.laohei.bili_sdk.apis.FolderApi
 import com.laohei.bili_sdk.apis.HistoryApi
 import com.laohei.bili_sdk.apis.InternationalizationApi
+import com.laohei.bili_sdk.apis.PlayApi
 import com.laohei.bili_sdk.apis.UserApi
+import com.laohei.bili_sdk.apis.VideoApi
 import com.laohei.bili_sdk.apis.impl.AuthApiImpl
+import com.laohei.bili_sdk.apis.impl.BangumiApiImpl
 import com.laohei.bili_sdk.apis.impl.FolderApiImpl
 import com.laohei.bili_sdk.apis.impl.HistoryApiImpl
 import com.laohei.bili_sdk.apis.impl.InternationalizationApiImpl
+import com.laohei.bili_sdk.apis.impl.PlayApiImpl
 import com.laohei.bili_sdk.apis.impl.UserApiImpl
-import com.laohei.bili_sdk.dynamic.GetWebDynamic
-import com.laohei.bili_sdk.folder.GetFolder
-import com.laohei.bili_sdk.folder.PostFolder
-import com.laohei.bili_sdk.history.GetHistory
-import com.laohei.bili_sdk.history.GetWatchLater
-import com.laohei.bili_sdk.history.PostToView
-import com.laohei.bili_sdk.hot.GetHots
-import com.laohei.bili_sdk.location.GetCountryList
-import com.laohei.bili_sdk.login.Login
-import com.laohei.bili_sdk.recommend.GetRecommend
+import com.laohei.bili_sdk.apis.impl.VideoApiImpl
 import com.laohei.bili_sdk.search.SearchRequest
-import com.laohei.bili_sdk.user.GetUploadedVideo
-import com.laohei.bili_sdk.user.GetUserInfo
-import com.laohei.bili_sdk.video.GetArchive
-import com.laohei.bili_sdk.video.GetInfo
-import com.laohei.bili_sdk.video.GetReply
-import com.laohei.bili_sdk.video.GetURL
-import com.laohei.bili_sdk.video.PostHeartBeat
-import com.laohei.bili_sdk.video.PostInfo
+import com.laohei.bili_tube.app.SharedViewModel
 import com.laohei.bili_tube.core.util.NetworkUtil
 import com.laohei.bili_tube.core.util.PreferencesUtil
 import com.laohei.bili_tube.db.BiliTubeDB
@@ -68,38 +55,22 @@ import org.koin.dsl.module
 val appModule = module {
     singleOf(::PreferencesUtil)
     singleOf(::NetworkUtil)
+    singleOf(::SharedViewModel)
     single { BiliTubeDB.getInstance(get(Context::class) as Context) }
     single { HttpClientFactory.client }
     single { HttpClientFactory.getCronetEngine(get()) }
     single { HttpClientFactory.getSimpleCache(get()) }
 
     singleOf(::DownloadManager)
-    singleOf(::Login)
-    singleOf(::GetRecommend)
-    singleOf(::GetHots)
-    singleOf(::GetURL)
-    singleOf(::GetTimeline)
-    singleOf(::GetInfo)
-    singleOf(::PostInfo)
-    singleOf(::GetUserInfo)
-    singleOf(::GetReply)
-    singleOf(::PostHeartBeat)
-    singleOf(::GetWebDynamic)
-    singleOf(::GetWatchLater)
-    singleOf(::GetHistory)
-    singleOf(::GetFolder)
-    singleOf(::PostFolder)
-    singleOf(::GetArchive)
-    singleOf(::PostToView)
     singleOf(::SearchRequest)
-    singleOf(::GetBangumi)
-    singleOf(::GetCountryList)
-    singleOf(::GetUploadedVideo)
     singleOf(::UserApiImpl).bind(UserApi::class)
     singleOf(::HistoryApiImpl).bind(HistoryApi::class)
     singleOf(::AuthApiImpl).bind(AuthApi::class)
     singleOf(::InternationalizationApiImpl).bind(InternationalizationApi::class)
     singleOf(::FolderApiImpl).bind(FolderApi::class)
+    singleOf(::VideoApiImpl).bind(VideoApi::class)
+    singleOf(::BangumiApiImpl).bind(BangumiApi::class)
+    singleOf(::PlayApiImpl).bind(PlayApi::class)
 
     singleOf(::BiliHomeRepository)
     singleOf(::BiliPlayRepository)
