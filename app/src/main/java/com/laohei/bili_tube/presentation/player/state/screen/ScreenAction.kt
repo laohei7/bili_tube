@@ -18,4 +18,5 @@ sealed interface ScreenAction {
     data class ShowDownloadSheetAction(val flag: Boolean) : ScreenAction
     data class ShowUpInfoSheetAction(val flag: Boolean) : ScreenAction
     data class ShowPlaylistSheetAction(val flag: Boolean) : ScreenAction
+    data class CreatedFolderAction(val flag: Boolean) : ScreenAction
 }

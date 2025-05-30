@@ -18,6 +18,7 @@ import com.laohei.bili_tube.core.UP_MID_KEY
 import com.laohei.bili_tube.core.util.getValue
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.presentation.playlist.FolderResourcePaging
+import com.laohei.bili_tube.utill.getBiliJct
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -80,5 +81,15 @@ class BiliPlaylistRepository(
                 ).flow
             )
         }.flattenConcat()
+    }
+
+    suspend fun addNewFolder(title: String, privacy: Boolean): Boolean {
+        val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
+        return folderApi.addNewFolder(
+            cookie = cookie,
+            title = title,
+            privacy = privacy,
+            csrf = cookie.getBiliJct()
+        ).data != null
     }
 }

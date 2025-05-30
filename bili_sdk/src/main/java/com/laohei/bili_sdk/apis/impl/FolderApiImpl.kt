@@ -2,6 +2,7 @@ package com.laohei.bili_sdk.apis.impl
 
 import com.laohei.bili_sdk.apis.BILIBILI
 import com.laohei.bili_sdk.apis.FolderApi
+import com.laohei.bili_sdk.apis.URL_ADD_FOLDER
 import com.laohei.bili_sdk.apis.URL_FOLDER
 import com.laohei.bili_sdk.apis.URL_FOLDER_DEAL
 import com.laohei.bili_sdk.apis.URL_FOLDER_RESOURCE_LIST
@@ -9,6 +10,7 @@ import com.laohei.bili_sdk.apis.URL_SIMPLE_FOLDER
 import com.laohei.bili_sdk.exception.globalSDKExceptionHandle
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.folder.FolderDealModel
+import com.laohei.bili_sdk.module_v2.folder.FolderItem
 import com.laohei.bili_sdk.module_v2.folder.FolderModel
 import com.laohei.bili_sdk.module_v2.folder.FolderResourceModel
 import com.laohei.bili_sdk.module_v2.folder.SimpleFolderModel
@@ -156,6 +158,45 @@ class FolderApiImpl(
                     code = 400,
                     message = "ERROR",
                     data = FolderResourceModel.ERROR
+                )
+            }
+        )
+    }
+
+    override suspend fun addNewFolder(
+        cookie: String?,
+        title: String,
+        privacy: Boolean,
+        csrf: String?
+    ): BiliResponse<FolderItem?> = withContext(Dispatchers.IO) {
+        runCatching {
+            val response = client.post(URL_ADD_FOLDER) {
+                cookie?.apply {
+                    header(HttpHeaders.Cookie, cookie)
+                }
+                header(HttpHeaders.Referrer, BILIBILI)
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    FormDataContent(
+                        Parameters.build {
+                            append("title", title)
+                            append("privacy", if (privacy) "1" else "0")
+                            csrf?.let { append("csrf", it) }
+                        }
+                    )
+                )
+            }
+            Json.decodeFromString<BiliResponse<FolderItem?>>(response.bodyAsText())
+        }.fold(
+            onSuccess = { it },
+            onFailure = {
+                if (DBG) {
+                    globalSDKExceptionHandle(TAG.toString(), it)
+                }
+                BiliResponse(
+                    code = 400,
+                    message = "ERROR",
+                    data = null
                 )
             }
         )

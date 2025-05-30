@@ -45,4 +45,6 @@ data class PlayerState(
     val playlistTitle: String = "",
     val nextVideoTitle: String = "",
     val folderResources: Flow<PagingData<FolderMediaItem>> = flow { PagingData.empty<FolderMediaItem>() },
+    val folderName: String = "",
+    val isPrivate: Boolean = false
 )

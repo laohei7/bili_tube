@@ -136,6 +136,7 @@ import com.laohei.bili_tube.presentation.player.state.media.MediaState
 import com.laohei.bili_tube.presentation.player.state.screen.DefaultScreenManager
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenAction
 import com.laohei.bili_tube.presentation.player.state.screen.ScreenState
+import com.laohei.bili_tube.presentation.playlist.CreatedFolderDialog
 import com.laohei.bili_tube.ui.theme.Pink
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
@@ -641,10 +642,32 @@ fun PlayerScreen(
                     isOrientationPortrait
                 )
             },
-            onClick = {
+            onVideoMenuActionClick = {
                 viewModel.handleVideoMenuAction(it)
                 viewModel.handleScreenAction(
                     ScreenAction.ShowFolderSheetAction(false),
+                    isOrientationPortrait
+                )
+            },
+            onCreatedFolderClick = {
+                viewModel.handleScreenAction(
+                    ScreenAction.CreatedFolderAction(true),
+                    isOrientationPortrait
+                )
+            }
+        )
+
+        CreatedFolderDialog(
+            isShowDialog = screenState.isShowAddFolder,
+            value = playerState.folderName,
+            onValueChange = viewModel::onFolderNameChanged,
+            onSubmit = viewModel::addNewFolder,
+            checked = playerState.isPrivate,
+            onCheckedChange = viewModel::onPrivateChanged,
+            onDismiss = {
+                viewModel.onFolderNameChanged("")
+                viewModel.handleScreenAction(
+                    ScreenAction.CreatedFolderAction(false),
                     isOrientationPortrait
                 )
             }

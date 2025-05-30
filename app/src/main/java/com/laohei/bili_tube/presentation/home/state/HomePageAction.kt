@@ -10,4 +10,6 @@ sealed interface HomePageAction {
 
     data class AnimeFilterAction(val isAnime: Boolean, val key: String, val value: String) :
         HomePageAction
+
+    data class CreatedFolderAction(val flag: Boolean) : HomePageAction
 }

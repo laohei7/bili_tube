@@ -303,7 +303,7 @@ internal class PlayerViewModel(
         biliPlayRepository.hasLike(
             aid = playParam.aid,
             bvid = playParam.bvid
-        )?.apply {
+        ).apply {
             _mPlayerState.update { it.copy(hasLike = data == 1) }
         }
     }
@@ -312,7 +312,7 @@ internal class PlayerViewModel(
         biliPlayRepository.hasCoin(
             aid = playParam.aid,
             bvid = playParam.bvid
-        )?.apply {
+        ).apply {
             _mPlayerState.update { it.copy(hasCoin = data.multiply != 0) }
         }
     }
@@ -320,7 +320,7 @@ internal class PlayerViewModel(
     private suspend fun hasFavoured() {
         biliPlayRepository.hasFavoured(
             aid = playParam.aid,
-        )?.apply {
+        ).apply {
             _mPlayerState.update { it.copy(hasCoin = data.favoured) }
         }
     }
@@ -361,7 +361,7 @@ internal class PlayerViewModel(
                     bvid = bvid,
                     cid = cid,
                 )
-                response?.data
+                response.data
             }
 
             else -> {
@@ -369,10 +369,10 @@ internal class PlayerViewModel(
                 val response = biliPlayRepository.getMediaPlayURL(
                     epId = epId
                 )
-                response?.result
+                response.result
             }
         }
-        data?.run {
+        data.run {
             val quality = data.supportFormats.map { Pair(it.quality, it.newDescription) }
             val userDefaultQuality = when (networkUtil.getNetworkType()) {
                 NetworkType.NETWORK_TYPE_WIFI -> {
@@ -403,13 +403,13 @@ internal class PlayerViewModel(
             withContext(Dispatchers.Main) {
                 play(data)
             }
-        } ?: updateMediaState(state.value.copy(isError = true))
+        }
     }
 
     private fun getBangumiDetial(seasonId: Long?, epId: Long?) {
         viewModelScope.launch {
             val response = biliPlayRepository.getBangumiDetail(seasonId = seasonId, epId = epId)
-            response?.run {
+            response.run {
                 _mPlayerState.update {
                     it.copy(
                         bangumiDetail = result,
@@ -701,7 +701,7 @@ internal class PlayerViewModel(
                 aid = playParam.aid,
                 bvid = playParam.bvid,
                 like = like
-            )?.run {
+            ).run {
                 val hasLike = like == 1
                 _mPlayerState.update { it.copy(hasLike = hasLike) }
                 handleScreenAction(
@@ -769,7 +769,7 @@ internal class PlayerViewModel(
         if (seasonId == null) {
             return
         }
-        biliPlayRepository.getRelatedBangumis(seasonId)?.run {
+        biliPlayRepository.getRelatedBangumis(seasonId).run {
             _mPlayerState.update { it.copy(relatedBangumis = this.data.season) }
         }
     }
@@ -817,6 +817,42 @@ internal class PlayerViewModel(
                 else -> _mPlayerState.value.bangumiDetail?.seasonTitle
             }
         )
+    }
+
+    fun onFolderNameChanged(value: String) {
+        _mPlayerState.update { it.copy(folderName = value) }
+    }
+
+    fun onPrivateChanged(value: Boolean) {
+        _mPlayerState.update { it.copy(isPrivate = value) }
+    }
+
+    fun addNewFolder() {
+        viewModelScope.launch {
+            val folderName = _mPlayerState.value.folderName
+            val privacy = _mPlayerState.value.isPrivate
+            if (folderName.isBlank()) {
+                EventBus.send(
+                    Event.AppEvent.ToastEvent("收藏夹名称不允许为空")
+                )
+                return@launch
+            }
+            val success = biliPlaylistRepository.addNewFolder(
+                title = folderName,
+                privacy = privacy
+            )
+            if (success) {
+                getFolderSimpleList()
+                handleScreenAction(ScreenAction.CreatedFolderAction(false), true)
+                EventBus.send(
+                    Event.AppEvent.ToastEvent("收藏夹创建成功")
+                )
+            } else {
+                EventBus.send(
+                    Event.AppEvent.ToastEvent("收藏夹创建失败")
+                )
+            }
+        }
     }
 
     override fun onCleared() {

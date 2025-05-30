@@ -215,6 +215,15 @@ internal class DefaultScreenManager(
                 _mState.update { it.copy(isShowFolderSheet = action.flag) }
             }
 
+            is ScreenAction.CreatedFolderAction -> {
+                _mState.update {
+                    it.copy(
+                        isShowFolderSheet = action.flag.not(),
+                        isShowAddFolder = action.flag
+                    )
+                }
+            }
+
             is ScreenAction.ShowCoinSheetAction -> {
                 _mState.update { it.copy(isShowCoinSheet = action.flag) }
             }

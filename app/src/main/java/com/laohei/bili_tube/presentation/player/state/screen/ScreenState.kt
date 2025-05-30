@@ -38,4 +38,5 @@ internal data class ScreenState(
     val isShowLikeAnimation: Boolean = false,
     val isShowUpInfoSheet: Boolean = false,
     val isShowPlaylistSheet: Boolean = false,
+    val isShowAddFolder: Boolean = false,
 )
