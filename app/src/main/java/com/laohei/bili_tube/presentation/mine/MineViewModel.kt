@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laohei.bili_tube.repository.BiliMineRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
@@ -84,6 +85,15 @@ class MineViewModel(
                     it.copy(folderList = this)
                 }
             }
+        }
+    }
+
+    fun refresh() {
+        _mMineState.update { it.copy(isRefreshing = true) }
+        viewModelScope.launch {
+            initData()
+            delay(500)
+            _mMineState.update { it.copy(isRefreshing = false) }
         }
     }
 

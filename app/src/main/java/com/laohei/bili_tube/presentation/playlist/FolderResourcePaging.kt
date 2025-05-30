@@ -29,6 +29,7 @@ class FolderResourcePaging(
         return runCatching {
             val page = params.key ?: 1
             val res = folderApi.getFolderResources(
+                cookie = cookie,
                 mlid = mlid,
                 pn = page
             )

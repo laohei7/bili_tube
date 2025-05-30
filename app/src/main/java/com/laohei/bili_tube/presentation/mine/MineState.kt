@@ -11,5 +11,6 @@ data class MineState(
     val folderList: List<FolderItem> = emptyList(),
     val following: Int = 0,
     val follower: Int = 0,
-    val dynamicCount: Int = 0
+    val dynamicCount: Int = 0,
+    val isRefreshing: Boolean = false
 )
