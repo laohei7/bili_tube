@@ -174,7 +174,9 @@ fun App() {
                 upPress = { navController.navigateUp() }
             )
         }
-        composable<Route.Playlist> { PlaylistScreen() }
+        composable<Route.Playlist> { PlaylistScreen(
+            navigateToRoute = {navController.navigate(it)}
+        ) }
         composable<Route.PlaylistDetail> {
             PlaylistDetailScreen(
                 param = it.toRoute(),

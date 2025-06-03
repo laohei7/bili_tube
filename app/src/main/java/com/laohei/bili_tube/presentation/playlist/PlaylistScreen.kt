@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -70,6 +71,7 @@ import coil3.asDrawable
 import coil3.compose.AsyncImage
 import com.laohei.bili_sdk.module_v2.folder.FolderModel
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.utill.toNonHardwareBitmap
 import com.laohei.bili_tube.utill.toViewString
 import kotlinx.coroutines.launch
@@ -79,7 +81,8 @@ import org.koin.androidx.compose.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlaylistScreen(
-    viewModel: PlaylistViewModel = koinViewModel()
+    viewModel: PlaylistViewModel = koinViewModel(),
+    navigateToRoute: (Route) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -133,7 +136,8 @@ fun PlaylistScreen(
                 ) {
                     getPlaylistWidget(
                         folderList = state.folderList,
-                        watchLaterCover = state.watchLaterCover
+                        watchLaterCover = state.watchLaterCover,
+                        navigateToRoute = navigateToRoute
                     )
                 }
             }
@@ -145,7 +149,8 @@ fun PlaylistScreen(
 
 private fun LazyGridScope.getPlaylistWidget(
     folderList: List<FolderModel>,
-    watchLaterCover: String
+    watchLaterCover: String,
+    navigateToRoute: (Route) -> Unit,
 ) {
     folderList.fastForEach { folder ->
         when (folder.id) {
@@ -155,6 +160,16 @@ private fun LazyGridScope.getPlaylistWidget(
                         cover = watchLaterCover,
                         title = folder.name,
                         label = stringResource(R.string.str_private),
+                        onClick = {
+                            navigateToRoute(
+                                Route.PlaylistDetail(
+                                    cover = watchLaterCover,
+                                    title = folder.name,
+                                    count = folder.mediaListResponse.count,
+                                    isPrivate = true
+                                )
+                            )
+                        },
                         icon = {
                             Column(
                                 modifier = Modifier
@@ -194,7 +209,23 @@ private fun LazyGridScope.getPlaylistWidget(
                         PlaylistItem(
                             cover = item.cover,
                             title = item.title,
-                            label = stringResource(R.string.str_public),
+                            label = if (item.attr == 23) {
+                                stringResource(R.string.str_private)
+                            } else {
+                                stringResource(R.string.str_public)
+                            },
+                            onClick = {
+                                navigateToRoute(
+                                    Route.PlaylistDetail(
+                                        cover = item.cover,
+                                        title = item.title,
+                                        count = item.mediaCount,
+                                        isPrivate = item.attr == 23,
+                                        isToView = false,
+                                        fid = item.id
+                                    )
+                                )
+                            },
                             icon = {
                                 Row(
                                     modifier = Modifier
@@ -283,6 +314,7 @@ private fun PlaylistItem(
     cover: String,
     title: String,
     label: String,
+    onClick: () -> Unit,
     icon: @Composable (BoxScope.() -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
@@ -292,6 +324,9 @@ private fun PlaylistItem(
         modifier = Modifier
             .width(IntrinsicSize.Min)
             .background(MaterialTheme.colorScheme.background)
+            .clickable {
+                onClick.invoke()
+            }
             .padding(horizontal = 16.dp)
             .padding(vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)

@@ -12,5 +12,8 @@ data class MineState(
     val following: Int = 0,
     val follower: Int = 0,
     val dynamicCount: Int = 0,
-    val isRefreshing: Boolean = false
+    val isRefreshing: Boolean = false,
+    val isShowAddFolder: Boolean = false,
+    val folderName: String = "",
+    val isPrivate: Boolean = false
 )

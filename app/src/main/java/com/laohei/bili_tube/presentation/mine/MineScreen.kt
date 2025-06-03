@@ -95,6 +95,7 @@ import com.laohei.bili_tube.component.text.VerticalDataText
 import com.laohei.bili_tube.core.FACE_URL_KEY
 import com.laohei.bili_tube.core.USERNAME_KEY
 import com.laohei.bili_tube.core.util.getValue
+import com.laohei.bili_tube.presentation.playlist.CreatedFolderDialog
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.toNonHardwareBitmap
 import com.laohei.bili_tube.utill.toViewString
@@ -158,7 +159,8 @@ fun MineScreen(
                     watchLaterList = state.watchLaterList,
                     watchLaterCount = state.watchLaterCount,
                     folderList = state.folderList,
-                    navigateToRoute = navigateToRoute
+                    navigateToRoute = navigateToRoute,
+                    showCreatedFolder = viewModel::showCreatedFolder
                 )
                 Spacer(Modifier.height(12.dp))
                 OtherWidget {
@@ -172,6 +174,18 @@ fun MineScreen(
             }
         }
 
+        CreatedFolderDialog(
+            isShowDialog = state.isShowAddFolder,
+            value = state.folderName,
+            onValueChange = viewModel::onFolderNameChanged,
+            onSubmit = viewModel::addNewFolder,
+            checked = state.isPrivate,
+            onCheckedChange = viewModel::onPrivateChanged,
+            onDismiss = {
+                viewModel.onFolderNameChanged("")
+                viewModel.hideCreatedFolder()
+            }
+        )
     }
 }
 
@@ -395,7 +409,8 @@ private fun PlaylistWidget(
     watchLaterList: List<VideoView>,
     watchLaterCount: Int = 0,
     folderList: List<FolderItem>,
-    navigateToRoute: (Route) -> Unit
+    navigateToRoute: (Route) -> Unit,
+    showCreatedFolder: () -> Unit
 ) {
     val context = LocalContext.current
     ListItem(
@@ -411,7 +426,7 @@ private fun PlaylistWidget(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = {}) {
+                IconButton(onClick = { showCreatedFolder.invoke() }) {
                     Icon(
                         imageVector = Icons.Outlined.Add,
                         contentDescription = Icons.Outlined.Add.name,
