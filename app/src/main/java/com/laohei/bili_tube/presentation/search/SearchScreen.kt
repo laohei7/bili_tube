@@ -357,6 +357,8 @@ private fun GetSearchItem(
                 onClick = {
                     sharedViewModel.setPlayParam(
                         PlayParam.Bangumi(
+                            mediaId = item.mediaId,
+                            seasonId = item.seasonId,
                             epId = item.eps?.first()?.id,
                             aid = -1, cid = -1, bvid = ""
                         )
@@ -377,12 +379,15 @@ private fun GetSearchItem(
                 userCount = item.mediaScore.userCount.toViewString(),
                 episodes = item.eps?.fastMap { it.title },
                 onClick = {
-//                    navigateToRoute(
-//                        Route.Play(
-//                            isVideo = false,
-//                            epId = item.eps?.first()?.id
-//                        )
-//                    )
+                    sharedViewModel.setPlayParam(
+                        PlayParam.Bangumi(
+                            mediaId = item.mediaId,
+                            seasonId = item.seasonId,
+                            epId = item.eps?.first()?.id,
+                            aid = -1, cid = -1, bvid = ""
+                        )
+                    )
+                    navigateToRoute(Route.Play)
                 }
             )
         }

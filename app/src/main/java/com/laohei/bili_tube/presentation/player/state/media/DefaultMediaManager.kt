@@ -3,11 +3,12 @@ package com.laohei.bili_tube.presentation.player.state.media
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.annotation.OptIn
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
+import androidx.media3.common.Tracks
 import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
@@ -18,8 +19,7 @@ import androidx.media3.datasource.cronet.CronetDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.media3.exoplayer.hls.HlsMediaSource
-import androidx.media3.exoplayer.source.MediaSource
+import androidx.media3.exoplayer.analytics.AnalyticsListener
 import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
@@ -27,7 +27,6 @@ import androidx.media3.exoplayer.upstream.DefaultAllocator
 import com.laohei.bili_sdk.module_v2.video.DashItem
 import com.laohei.bili_sdk.module_v2.video.SkipModel
 import com.laohei.bili_sdk.module_v2.video.VideoURLModel
-import com.laohei.bili_tube.model.SourceType
 import com.laohei.bili_tube.model.VideoSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -48,12 +47,14 @@ internal class DefaultMediaManager(
     simpleCache: SimpleCache,
     originalWidth: Int,
     originalHeight: Int
-) : MediaManager {
+) : MediaManager, AnalyticsListener, Player.Listener {
 
     companion object {
         private val TAG = DefaultMediaManager::class.simpleName
         private const val DBG = true
     }
+
+    private var mUnsupportedCodecFound = false
 
     private val mRenderersFactory = DefaultRenderersFactory(context)
         .setEnableDecoderFallback(true) // 允许解码器回退
@@ -117,158 +118,8 @@ internal class DefaultMediaManager(
     private var mSkipModel: Map<String, SkipModel>? = null
 
     init {
-        mExoPlayer.addListener(
-            object : Player.Listener {
-                override fun onPlaybackStateChanged(playbackState: Int) {
-                    super.onPlaybackStateChanged(playbackState)
-                    when (playbackState) {
-                        Player.STATE_READY -> {
-                            _mState.update {
-                                it.copy(
-                                    totalDuration = mExoPlayer.duration,
-                                    isLoading = false
-                                )
-                            }
-                        }
-
-                        Player.STATE_BUFFERING -> {
-                            _mState.update { it.copy(isLoading = true) }
-                        }
-
-                        Player.STATE_ENDED -> {
-                            _mState.update {
-                                it.copy(
-                                    currentDuration = mExoPlayer.duration,
-                                    progress = 1f
-                                )
-                            }
-                            playEndCallback?.invoke()
-                        }
-
-                        else -> {
-
-                        }
-                    }
-                }
-
-                override fun onPlaybackSuppressionReasonChanged(playbackSuppressionReason: Int) {
-                    super.onPlaybackSuppressionReasonChanged(playbackSuppressionReason)
-                    when {
-                        playbackSuppressionReason != Player.PLAYBACK_SUPPRESSION_REASON_NONE -> {
-                            _mState.update { it.copy(isLoading = true) }
-                        }
-                    }
-                }
-
-                override fun onIsPlayingChanged(isPlaying: Boolean) {
-                    super.onIsPlayingChanged(isPlaying)
-                    _mState.update {
-                        if (isPlaying) {
-                            it.copy(isPlaying = true, isLoading = false).also {
-                                startProgressUpdate()
-                            }
-                        } else {
-                            it.copy(isPlaying = false).also {
-                                stopProgressUpdate()
-                            }
-                        }
-                    }
-                }
-
-                override fun onVideoSizeChanged(videoSize: VideoSize) {
-                    super.onVideoSizeChanged(videoSize)
-                    val width = mCurrentVideoWidth ?: videoSize.width
-                    val height = mCurrentVideoHeight ?: videoSize.height
-                    if (width > 0 && height > 0) {
-                        _mState.update {
-                            it.copy(
-                                width = width,
-                                height = height
-                            )
-                        }
-                    }
-//                    mBackVideoSources?.let { sources ->
-//                        if (sources.isEmpty()) {
-//                            return@let
-//                        }
-//                        val video = sources[mCurrentSelectedIndex]
-//                        val width = video.width ?: videoSize.width
-//                        val height = video.height ?: videoSize.height
-//
-//                        if (width > 0 && height > 0) {
-//                            _mState.update {
-//                                it.copy(
-//                                    width = width,
-//                                    height = height
-//                                )
-//                            }
-//                        }
-//                    }
-                }
-
-                override fun onPlayerError(error: PlaybackException) {
-                    super.onPlayerError(error)
-                    mBackVideoSources?.let { sources ->
-                        if (mCurrentSelectedIndex < sources.size) {
-                            mCurrentSelectedIndex++
-                            play(getInitPosition())
-                        } else {
-                            _mState.update { it.copy(isError = true) }
-                            playErrorCallback?.invoke()
-                        }
-                    }
-                }
-            }
-        )
-    }
-
-    @OptIn(UnstableApi::class)
-    override fun play(mediaSource: MediaSource) {
-        resetBackSources()
-        mExoPlayer.setMediaSource(mediaSource)
-        mExoPlayer.prepare()
-        mExoPlayer.play()
-    }
-
-    override fun play(videoSources: List<VideoSource>, dataSourceFactory: DataSource.Factory?) {
-        resetBackSources(videoSources)
-        mOtherDataSourceFactory = dataSourceFactory
-
-        val currentVideoSource = mBackVideoSources!![mCurrentSelectedIndex]
-        val videoUrl = currentVideoSource.videoUrl
-        val audioUrl = currentVideoSource.audioUrl
-        val videoMediaSource = when (currentVideoSource.sourceType) {
-            is SourceType.Hls -> HlsMediaSource.Factory(
-                mOtherDataSourceFactory ?: mDefaultDataSourceFactory
-            )
-                .createMediaSource(MediaItem.fromUri(videoUrl))
-
-            else -> ProgressiveMediaSource.Factory(
-                mOtherDataSourceFactory ?: mDefaultDataSourceFactory
-            )
-                .createMediaSource(MediaItem.fromUri(videoUrl))
-        }
-
-        val mergedMediaSource = if (audioUrl != null) {
-            val audioMediaSource = when (currentVideoSource.sourceType) {
-                is SourceType.Hls -> HlsMediaSource.Factory(
-                    mOtherDataSourceFactory ?: mDefaultDataSourceFactory
-                )
-                    .createMediaSource(MediaItem.fromUri(audioUrl))
-
-                else -> ProgressiveMediaSource.Factory(
-                    mOtherDataSourceFactory ?: mDefaultDataSourceFactory
-                )
-                    .createMediaSource(MediaItem.fromUri(audioUrl))
-            }
-            MergingMediaSource(videoMediaSource, audioMediaSource)
-        } else {
-            videoMediaSource
-        }
-
-        mExoPlayer.setMediaSource(mergedMediaSource)
-        mExoPlayer.prepare()
-        mExoPlayer.play()
+        mExoPlayer.addAnalyticsListener(this)
+        mExoPlayer.addListener(this)
     }
 
     override fun play(
@@ -281,6 +132,7 @@ internal class DefaultMediaManager(
         play(getInitPosition())
     }
 
+    // 播放本地视频
     override fun play(video: String, audio: String?) {
         val videoFile = File(video)
         if (videoFile.exists().not()) {
@@ -299,7 +151,6 @@ internal class DefaultMediaManager(
             mExoPlayer.setMediaSource(mergedMediaSource)
         }
         mExoPlayer.prepare()
-        mExoPlayer.play()
     }
 
     override fun seekTo(duration: Long) {
@@ -410,7 +261,7 @@ internal class DefaultMediaManager(
                         dash.video.filter { it.id == videoQuality.first }
                     }
                 }
-            while (mCurrentSelectedIndex >= currentQualityVideos.size) {
+            while (mUnsupportedCodecFound || mCurrentSelectedIndex >= currentQualityVideos.size) {
                 var nextQuality = qualities.indexOfFirst { videoQuality.first == it.first }
                 nextQuality = if (nextQuality + 1 >= qualities.size) {
                     0
@@ -421,6 +272,7 @@ internal class DefaultMediaManager(
                 _mState.update { it.copy(videoQuality = videoQuality) }
                 currentQualityVideos =
                     mVideoURLModel!!.dash!!.video.filter { it.id == videoQuality.first }
+                break
             }
             if (DBG) {
                 Log.d(TAG, "play: $currentQualityVideos")
@@ -475,7 +327,6 @@ internal class DefaultMediaManager(
 
         mExoPlayer.seekTo(initialPosition)
         mExoPlayer.prepare()
-        mExoPlayer.play()
     }
 
     private fun getHiResAudio(): DashItem? {
@@ -491,11 +342,6 @@ internal class DefaultMediaManager(
     private fun getNormalAudio(): DashItem? {
         return mVideoURLModel?.dash?.audio?.filter { it.id in NormalAudioQuality }
             ?.maxByOrNull { it.id }
-    }
-
-    private fun resetBackSources(videoSources: List<VideoSource>? = null) {
-        mBackVideoSources = videoSources
-        mCurrentSelectedIndex = 0
     }
 
     override fun toggleLoading() {
@@ -550,5 +396,163 @@ internal class DefaultMediaManager(
         }
     }
 
+    // TODO AnalyticsListener
+    override fun onAudioDecoderInitialized(
+        eventTime: AnalyticsListener.EventTime,
+        decoderName: String,
+        initializedTimestampMs: Long,
+        initializationDurationMs: Long
+    ) {
+        if (DBG) {
+            Log.d(TAG, "音频解码器: $decoderName")
+        }
+    }
 
+    override fun onVideoDecoderInitialized(
+        eventTime: AnalyticsListener.EventTime,
+        decoderName: String,
+        initializedTimestampMs: Long,
+        initializationDurationMs: Long
+    ) {
+        if (DBG) {
+            Log.d(TAG, "视频解码器: $decoderName")
+        }
+    }
+
+    override fun onVideoCodecError(
+        eventTime: AnalyticsListener.EventTime,
+        videoCodecError: Exception
+    ) {
+        if (DBG) {
+            Log.d(TAG, "视频解码器: ${videoCodecError.message}")
+        }
+    }
+
+    // TODO Player.Listener
+    override fun onPlaybackStateChanged(playbackState: Int) {
+        when (playbackState) {
+            Player.STATE_READY -> {
+                _mState.update {
+                    it.copy(
+                        totalDuration = mExoPlayer.duration,
+                        isLoading = false
+                    )
+                }
+            }
+
+            Player.STATE_BUFFERING -> {
+                _mState.update { it.copy(isLoading = true) }
+            }
+
+            Player.STATE_ENDED -> {
+                _mState.update {
+                    it.copy(
+                        currentDuration = mExoPlayer.duration,
+                        progress = 1f
+                    )
+                }
+                playEndCallback?.invoke()
+            }
+
+            else -> {
+
+            }
+        }
+    }
+
+    override fun onPlaybackSuppressionReasonChanged(playbackSuppressionReason: Int) {
+        when {
+            playbackSuppressionReason != Player.PLAYBACK_SUPPRESSION_REASON_NONE -> {
+                _mState.update { it.copy(isLoading = true) }
+            }
+        }
+    }
+
+    override fun onIsPlayingChanged(isPlaying: Boolean) {
+        _mState.update {
+            if (isPlaying) {
+                it.copy(isPlaying = true, isLoading = false).also {
+                    startProgressUpdate()
+                }
+            } else {
+                it.copy(isPlaying = false).also {
+                    stopProgressUpdate()
+                }
+            }
+        }
+    }
+
+    override fun onVideoSizeChanged(videoSize: VideoSize) {
+        val width = mCurrentVideoWidth ?: videoSize.width
+        val height = mCurrentVideoHeight ?: videoSize.height
+        if (width > 0 && height > 0) {
+            _mState.update {
+                it.copy(
+                    width = width,
+                    height = height
+                )
+            }
+        }
+    }
+
+    override fun onPlayerError(error: PlaybackException) {
+        if (DBG) {
+            Log.d(TAG, "onPlayerError: ${error.message}")
+        }
+        mBackVideoSources?.let { sources ->
+            if (mCurrentSelectedIndex < sources.size) {
+                mCurrentSelectedIndex++
+                play(getInitPosition())
+            } else {
+                _mState.update { it.copy(isError = true) }
+                playErrorCallback?.invoke()
+            }
+        }
+    }
+
+    override fun onTracksChanged(tracks: Tracks) {
+        mUnsupportedCodecFound = false
+        val mappedTrackInfo = mDefaultTrackSelector.currentMappedTrackInfo ?: return
+
+        for (rendererIndex in 0 until mappedTrackInfo.rendererCount) {
+            val trackGroups = mappedTrackInfo.getTrackGroups(rendererIndex)
+            for (groupIndex in 0 until trackGroups.length) {
+                val group = trackGroups.get(groupIndex)
+                for (trackIndex in 0 until group.length) {
+                    val format = group.getFormat(trackIndex)
+                    if (format.sampleMimeType == MimeTypes.VIDEO_DOLBY_VISION) {
+                        val support = mappedTrackInfo.getTrackSupport(
+                            rendererIndex,
+                            groupIndex,
+                            trackIndex
+                        )
+                        val codec = format.codecs
+                        if (DBG) {
+                            Log.d(
+                                TAG,
+                                "MIME=${format.sampleMimeType}, CODEC=$codec, support=$support"
+                            )
+                        }
+
+                        if (support == C.FORMAT_HANDLED) {
+                            if (DBG) {
+                                Log.d(TAG, "✅ 支持播放 Dolby Vision track: $codec")
+                            }
+                        } else {
+                            if (DBG) {
+                                Log.w(TAG, "❌ 不支持播放 Dolby Vision track: $codec")
+                            }
+                            mUnsupportedCodecFound = true
+                        }
+                    }
+                }
+            }
+        }
+        if (mUnsupportedCodecFound) {
+            mExoPlayer.stop()
+            play(getInitPosition())
+        } else {
+            mExoPlayer.play()
+        }
+    }
 }

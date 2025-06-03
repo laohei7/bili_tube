@@ -3,7 +3,10 @@ package com.laohei.bili_tube.presentation.mine
 import androidx.compose.ui.util.fastFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laohei.bili_tube.core.correspondence.Event
+import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.repository.BiliMineRepository
+import com.laohei.bili_tube.repository.BiliPlaylistRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +18,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MineViewModel(
-    private val biliMineRepository: BiliMineRepository
+    private val biliMineRepository: BiliMineRepository,
+    private val biliPlaylistRepository: BiliPlaylistRepository
 ) : ViewModel() {
 
     private val _mMineState = MutableStateFlow(MineState())
@@ -94,6 +98,50 @@ class MineViewModel(
             initData()
             delay(500)
             _mMineState.update { it.copy(isRefreshing = false) }
+        }
+    }
+
+    fun showCreatedFolder(){
+        _mMineState.update { it.copy(isShowAddFolder = true) }
+    }
+
+    fun hideCreatedFolder(){
+        _mMineState.update { it.copy(isShowAddFolder = false) }
+    }
+
+    fun onFolderNameChanged(value: String) {
+        _mMineState.update { it.copy(folderName = value) }
+    }
+
+    fun onPrivateChanged(value: Boolean) {
+        _mMineState.update { it.copy(isPrivate = value) }
+    }
+
+    fun addNewFolder() {
+        viewModelScope.launch {
+            val folderName = _mMineState.value.folderName
+            val privacy = _mMineState.value.isPrivate
+            if (folderName.isBlank()) {
+                EventBus.send(
+                    Event.AppEvent.ToastEvent("收藏夹名称不允许为空")
+                )
+                return@launch
+            }
+            val success = biliPlaylistRepository.addNewFolder(
+                title = folderName,
+                privacy = privacy
+            )
+            if (success) {
+                refresh()
+                _mMineState.update { it.copy(isShowAddFolder = false) }
+                EventBus.send(
+                    Event.AppEvent.ToastEvent("收藏夹创建成功")
+                )
+            } else {
+                EventBus.send(
+                    Event.AppEvent.ToastEvent("收藏夹创建失败")
+                )
+            }
         }
     }
 

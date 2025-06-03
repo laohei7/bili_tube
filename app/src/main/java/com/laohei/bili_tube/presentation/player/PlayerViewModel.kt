@@ -101,9 +101,13 @@ internal class PlayerViewModel(
             if (mPlaylistIndex >= mPlaylist.size) {
                 return
             }
-            val item = mPlaylist[mPlaylistIndex]
+            val item = mPlaylist[mPlaylistIndex + 1]
             newPlayPlaParam =
-                PlayParam.Video(bvid = item.second, aid = item.first, cid = item.third)
+                (playParam as PlayParam.MediaList).copy(
+                    bvid = item.second,
+                    aid = item.first,
+                    cid = item.third
+                )
         } else {
             when (playParam) {
                 is PlayParam.Video -> {
@@ -498,14 +502,16 @@ internal class PlayerViewModel(
                     )
                 }
             }
-            launch {
-                data.view.seasonId?.let {
-                    getArchives(mid = data.view.owner.mid, seasonId = it)
-                } ?: run {
-                    _mPlayerState.update { it.copy(videoArchiveMeta = null) }
+            if (playParam !is PlayParam.MediaList) {
+                launch {
+                    data.view.seasonId?.let {
+                        getArchives(mid = data.view.owner.mid, seasonId = it)
+                    } ?: run {
+                        _mPlayerState.update { it.copy(videoArchiveMeta = null) }
+                    }
                 }
+                launch { getPageList(bvid = bvid, cid = playParam.cid) }
             }
-            launch { getPageList(bvid = bvid, cid = playParam.cid) }
             launch {
                 getUserInfoCard(data.view.owner.mid)
                 getUserUploadedVideos(data.view.owner.mid)
@@ -514,7 +520,7 @@ internal class PlayerViewModel(
     }
 
     private suspend fun getUserInfoCard(mid: Long) {
-        biliPlayRepository.getUserInfoCard(mid)?.run {
+        biliPlayRepository.getUserInfoCard(mid).run {
             _mPlayerState.update { it.copy(infoCardModel = this.data) }
         }
     }
