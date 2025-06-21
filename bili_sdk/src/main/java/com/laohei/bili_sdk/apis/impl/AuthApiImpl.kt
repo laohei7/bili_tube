@@ -1,6 +1,7 @@
 package com.laohei.bili_sdk.apis.impl
 
 import com.laohei.bili_sdk.apis.AuthApi
+import com.laohei.bili_sdk.apis.BILIBILI
 import com.laohei.bili_sdk.apis.URL_CAPTCHA
 import com.laohei.bili_sdk.apis.URL_CHECK_SCAN_STATUS
 import com.laohei.bili_sdk.apis.URL_REQUEST_QRCODE
@@ -214,5 +215,16 @@ class AuthApiImpl(
                 "ERROR"
             }
         )
+    }
+
+    override suspend fun getBubid3(): List<String> = withContext(Dispatchers.IO) {
+        runCatching {
+            val response = client.get(BILIBILI) {
+                header(HttpHeaders.UserAgent, "awa")
+            }
+            response.headers.getAll(HttpHeaders.SetCookie) ?: emptyList()
+        }.getOrElse {
+            emptyList()
+        }
     }
 }

@@ -3,10 +3,12 @@ package com.laohei.bili_tube
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.media3.common.util.UnstableApi
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
@@ -36,6 +38,7 @@ class BiliTubeApp : Application(), SingletonImageLoader.Factory {
         private val TAG = BiliTubeApp::class.simpleName
     }
 
+    @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
         SystemUtil.init(this)
@@ -64,6 +67,7 @@ class BiliTubeApp : Application(), SingletonImageLoader.Factory {
         }
     }
 
+    @OptIn(UnstableApi::class)
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         return ImageLoader.Builder(this)
             .memoryCache {

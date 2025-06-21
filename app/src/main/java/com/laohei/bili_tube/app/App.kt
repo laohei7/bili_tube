@@ -35,6 +35,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.laohei.bili_sdk.apis.AuthApi
 import com.laohei.bili_sdk.apis.UserApi
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.COOKIE_KEY
@@ -57,12 +58,6 @@ import com.laohei.bili_tube.presentation.playlist.PlaylistScreen
 import com.laohei.bili_tube.presentation.search.SearchScreen
 import com.laohei.bili_tube.presentation.settings.SettingsScreen
 import com.laohei.bili_tube.presentation.splash.SplashScreen
-import io.ktor.client.HttpClient
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.http.HttpHeaders
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -274,7 +269,7 @@ private fun AppEventListener() {
 private fun InitCookieAndProfile(isLogin: Boolean) {
     val context = LocalContext.current
     val userApi = koinInject<UserApi>()
-    val client = koinInject<HttpClient>()
+    val authApi = koinInject<AuthApi>()
 
     LaunchedEffect(isLogin) {
         var cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
@@ -282,23 +277,18 @@ private fun InitCookieAndProfile(isLogin: Boolean) {
         val hasBuvid4 = cookie?.contains("buvid4") == true
         val hasBuvid3 = cookie?.contains("buvid3") == true
         val newCookie = cookie?.split("; ")?.toMutableList() ?: mutableListOf()
-        async(Dispatchers.IO) {
-            userApi.getSpiInfo(cookie).data.let {
-                if (hasBuvid4.not()) {
+        userApi.getSpiInfo(cookie).data.let {
+            when {
+                hasBuvid4 -> return@let
+                else -> {
                     newCookie.add("buvid4=${it.b4}")
                 }
             }
-        }.await()
+        }
 
-        async(Dispatchers.IO) {
-            val response = client.get("https://www.bilibili.com/") {
-                header(HttpHeaders.UserAgent, "awa")
-            }
-            val tempCookies = response.headers.getAll(HttpHeaders.SetCookie) ?: emptyList()
-            if (hasBuvid3.not()) {
-                newCookie.addAll(tempCookies)
-            }
-        }.await()
+        if (hasBuvid3.not()) {
+            newCookie.addAll(authApi.getBubid3())
+        }
 
         context.dataStore.edit { settings ->
             val cookieStr = newCookie.fastJoinToString("; ")
