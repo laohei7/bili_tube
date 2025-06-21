@@ -20,10 +20,12 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
+import com.laohei.bili_tube.ui.theme.Pink
 
 @Stable
 data class BottomAppBarItem(
@@ -52,10 +54,10 @@ fun SmallBottomAppBar(
                     .fillMaxHeight()
                     .weight(1f),
                 onClick = { onClick.invoke(index) },
-                color = MaterialTheme.colorScheme.background.copy(alpha = 0.98f),
+                color = Color.Transparent,
                 contentColor = when {
-                    selectedIndex == index -> MaterialTheme.colorScheme.primary
-                    else -> MaterialTheme.colorScheme.secondary
+                    selectedIndex == index -> Pink
+                    else -> Color.Gray
                 }
             ) {
                 VerticalIconAndLabelItem(item)

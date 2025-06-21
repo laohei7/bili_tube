@@ -241,7 +241,7 @@ private fun SearchResultList(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(top = paddingValues.calculateTopPadding())
         ) {
             items(list.itemCount) { index ->
                 list[index]?.let { item ->

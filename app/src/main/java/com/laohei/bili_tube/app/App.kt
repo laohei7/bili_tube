@@ -15,37 +15,21 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Subscriptions
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.util.fastJoinToString
 import androidx.core.net.toUri
 import androidx.datastore.preferences.core.edit
-import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -53,9 +37,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.laohei.bili_sdk.apis.UserApi
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.app.component.SideNavigateRail
-import com.laohei.bili_tube.component.appbar.BottomAppBarItem
-import com.laohei.bili_tube.component.appbar.SmallBottomAppBar
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.core.FACE_URL_KEY
 import com.laohei.bili_tube.core.IS_LOGIN_KEY
@@ -69,16 +50,13 @@ import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.presentation.download.DownloadScreen
 import com.laohei.bili_tube.presentation.history.HistoryScreen
-import com.laohei.bili_tube.presentation.home.HomeScreen
 import com.laohei.bili_tube.presentation.login.LoginScreen
-import com.laohei.bili_tube.presentation.mine.MineScreen
 import com.laohei.bili_tube.presentation.player.PlayerScreen
 import com.laohei.bili_tube.presentation.playlist.PlaylistDetailScreen
 import com.laohei.bili_tube.presentation.playlist.PlaylistScreen
 import com.laohei.bili_tube.presentation.search.SearchScreen
 import com.laohei.bili_tube.presentation.settings.SettingsScreen
 import com.laohei.bili_tube.presentation.splash.SplashScreen
-import com.laohei.bili_tube.presentation.subscription.SubscriptionScreen
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -174,9 +152,11 @@ fun App() {
                 upPress = { navController.navigateUp() }
             )
         }
-        composable<Route.Playlist> { PlaylistScreen(
-            navigateToRoute = {navController.navigate(it)}
-        ) }
+        composable<Route.Playlist> {
+            PlaylistScreen(
+                navigateToRoute = { navController.navigate(it) }
+            )
+        }
         composable<Route.PlaylistDetail> {
             PlaylistDetailScreen(
                 param = it.toRoute(),
@@ -201,108 +181,9 @@ fun App() {
                 upPress = { navController.navigateUp() }
             )
         }
-        composable<Route.HomeGraph> { MainChildGraph(navController) }
+        composable<Route.HomeGraph> { MainGraph(navController) }
 
         composable<Route.Settings> { SettingsScreen(upPress = { navController.navigateUp() }) }
-    }
-}
-
-@Composable
-private fun MainChildGraph(navController: NavController) {
-    val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-    var bottomAppBarSelectedIndex by rememberSaveable { mutableIntStateOf(0) }
-    val bottomAppBarItems = remember {
-        listOf(
-            BottomAppBarItem(
-                icon = Icons.Outlined.Home,
-                label = context.getString(R.string.str_home)
-            ),
-            BottomAppBarItem(
-                icon = Icons.Outlined.Subscriptions,
-                label = context.getString(R.string.str_subscription)
-            ),
-            BottomAppBarItem(
-                icon = Icons.Outlined.Person,
-                label = context.getString(R.string.str_mine)
-            )
-        )
-    }
-    val mainChildNavController = rememberNavController()
-    val currentDestination by mainChildNavController.currentBackStackEntryAsState()
-    val navSuiteType =
-        NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(currentWindowAdaptiveInfo())
-
-    fun handleBottomEvent(index: Int) {
-        val route = when (index) {
-            0 -> Route.HomeGraph.Home
-            1 -> Route.HomeGraph.Subscription
-            else -> Route.HomeGraph.Mine
-        }
-
-        val isHomeRoute =
-            index == 0 && currentDestination?.destination?.hasRoute<Route.HomeGraph.Home>() == true
-        val isDynamicRoute =
-            index == 1 && currentDestination?.destination?.hasRoute<Route.HomeGraph.Subscription>() == true
-
-        when {
-            isHomeRoute || isDynamicRoute -> {
-                scope.launch {
-                    EventBus.send(Event.NotificationChildRefresh)
-                }
-            }
-
-            else -> {
-                mainChildNavController.navigate(route) {
-                    popUpTo(Route.HomeGraph.Home) {
-                        saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
-                }
-            }
-        }
-    }
-
-    NavigationSuiteScaffoldLayout(
-        navigationSuite = {
-            when (navSuiteType) {
-                NavigationSuiteType.NavigationDrawer,
-                NavigationSuiteType.NavigationRail -> {
-                    SideNavigateRail(
-                        items = bottomAppBarItems,
-                        selectedIndex = bottomAppBarSelectedIndex
-                    ) { index ->
-                        bottomAppBarSelectedIndex = index
-                        handleBottomEvent(index)
-                    }
-                }
-
-                NavigationSuiteType.None,
-                NavigationSuiteType.NavigationBar -> {
-                    Surface(
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.background)
-                            .navigationBarsPadding()
-                    ) {
-                        SmallBottomAppBar(
-                            items = bottomAppBarItems,
-                            selectedIndex = bottomAppBarSelectedIndex
-                        ) { index ->
-                            bottomAppBarSelectedIndex = index
-                            handleBottomEvent(index)
-                        }
-                    }
-                }
-            }
-        }
-    ) {
-        NavHost(
-            navController = mainChildNavController,
-            startDestination = Route.HomeGraph.Home,
-        ) {
-            homeGraph(navController)
-        }
     }
 }
 
@@ -366,13 +247,13 @@ private fun AppEventListener() {
             if ((event is Event.AppEvent).not()) {
                 return@collect
             }
-            when (val appEvent = event as Event.AppEvent) {
+            when (event) {
                 is Event.AppEvent.ToastEvent -> {
-                    Toast.makeText(context, appEvent.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, event.message, Toast.LENGTH_SHORT).show()
                 }
 
                 is Event.AppEvent.PermissionRequestEvent -> {
-                    if (appEvent.permissions.contains(Manifest.permission.MANAGE_EXTERNAL_STORAGE)) {
+                    if (event.permissions.contains(Manifest.permission.MANAGE_EXTERNAL_STORAGE)) {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                             val intent =
                                 Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
@@ -381,7 +262,7 @@ private fun AppEventListener() {
                             manageStorageLauncher.launch(intent)
                         }
                     } else {
-                        permissionsLauncher.launch(appEvent.permissions.toTypedArray())
+                        permissionsLauncher.launch(event.permissions.toTypedArray())
                     }
                 }
             }
@@ -440,24 +321,5 @@ private fun InitCookieAndProfile(isLogin: Boolean) {
                 context.setValue(VIP_STATUS_KEY.name, profile.vipStatus)
             }
         }
-    }
-}
-
-
-private fun NavGraphBuilder.homeGraph(navController: NavController) {
-    composable<Route.HomeGraph.Home> {
-        HomeScreen(
-            navigateToRoute = {
-                navController.navigate(it)
-            }
-        )
-    }
-    composable<Route.HomeGraph.Mine> { MineScreen(navigateToRoute = { navController.navigate(it) }) }
-    composable<Route.HomeGraph.Subscription> {
-        SubscriptionScreen(
-            navigateToRoute = {
-                navController.navigate(it)
-            }
-        )
     }
 }
