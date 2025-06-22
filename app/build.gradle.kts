@@ -101,5 +101,6 @@ dependencies {
     implementation(libs.sensebot)
     implementation(libs.reorderable)
     implementation(project(":bili_sdk"))
+    implementation(project(":core"))
 
 }

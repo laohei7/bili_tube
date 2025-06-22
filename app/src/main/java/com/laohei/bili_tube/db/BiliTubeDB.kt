@@ -6,13 +6,21 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.laohei.bili_tube.core.room.RoomTypeConverters
+import com.laohei.bili_tube.db.dao.BiliSharedSourceDao
 import com.laohei.bili_tube.db.dao.DownloadTaskDao
+import com.laohei.bili_tube.model.BiliAudioUrl
+import com.laohei.bili_tube.model.BiliVideoUrl
 import com.laohei.bili_tube.model.DownloadTask
 
-@Database(entities = [DownloadTask::class], version = 1)
+@Database(
+    entities = [DownloadTask::class,
+        BiliVideoUrl::class,
+        BiliAudioUrl::class], version = 1
+)
 @TypeConverters(RoomTypeConverters::class)
 abstract class BiliTubeDB : RoomDatabase() {
     abstract fun downloadTaskDao(): DownloadTaskDao
+    abstract fun biliSharedSourceDao(): BiliSharedSourceDao
 
     companion object {
         @Volatile

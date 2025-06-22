@@ -32,6 +32,7 @@ import com.laohei.bili_tube.repository.BiliPlayRepository
 import com.laohei.bili_tube.repository.BiliPlaylistRepository
 import com.laohei.bili_tube.utill.displayTitle
 import com.laohei.bili_tube.utill.download.DownloadManager
+import com.laohei.core.EXPORT_SHARED_SOURCE
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -407,6 +408,16 @@ internal class PlayerViewModel(
             withContext(Dispatchers.Main) {
                 play(data)
             }
+            val isExported = preferenceUtil.getValue(EXPORT_SHARED_SOURCE, false)
+            if (isExported.not()) {
+                return@run
+            }
+            biliPlayRepository.saveSharedSource(
+                bvid = playParam.bvid,
+                aid = playParam.aid,
+                cid = playParam.cid,
+                data = this
+            )
         }
     }
 

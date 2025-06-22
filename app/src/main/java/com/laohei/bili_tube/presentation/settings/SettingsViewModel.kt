@@ -9,6 +9,7 @@ import com.laohei.bili_tube.core.MOBILE_NET_VIDEO_QUALITY
 import com.laohei.bili_tube.core.WLAN_AUDIO_QUALITY
 import com.laohei.bili_tube.core.WLAN_VIDEO_QUALITY
 import com.laohei.bili_tube.core.util.PreferencesUtil
+import com.laohei.core.EXPORT_SHARED_SOURCE
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
@@ -47,7 +48,9 @@ class SettingsViewModel(
                     WLAN_AUDIO_QUALITY,
                     it.wlanAudioQuality
                 ),
-                autoSkipOpEnd = preferenceUtils.getValue(AUTO_SKIP_KEY, it.autoSkipOpEnd)
+                autoSkipOpEnd = preferenceUtils.getValue(AUTO_SKIP_KEY, it.autoSkipOpEnd),
+                mergeSource = preferenceUtils.getValue(MERGE_SOURCE_KEY, it.mergeSource),
+                sharedSource = preferenceUtils.getValue(EXPORT_SHARED_SOURCE, it.sharedSource)
             )
         }
     }
@@ -90,6 +93,11 @@ class SettingsViewModel(
             is SettingsAction.MergeSourceAction -> {
                 _mState.update { it.copy(mergeSource = action.merge) }
                 preferenceUtils.setValue(MERGE_SOURCE_KEY, action.merge)
+            }
+
+            is SettingsAction.SharedSourceAction -> {
+                _mState.update { it.copy(sharedSource = action.shared) }
+                preferenceUtils.setValue(EXPORT_SHARED_SOURCE, action.shared)
             }
         }
     }

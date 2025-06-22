@@ -6,5 +6,6 @@ data class SettingsState(
     val mobileNetAudioQuality:Int = 30280,
     val wlanAudioQuality:Int = 30251,
     val autoSkipOpEnd:Boolean = false,
-    val mergeSource:Boolean = false
+    val mergeSource:Boolean = false,
+    val sharedSource: Boolean = false
 )

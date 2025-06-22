@@ -123,4 +123,10 @@
     <string name="str_next_title">下一个: %1s - %2s</string>
     <string name="str_folder_title">%1s · %2d/%3d</string>
     <string name="str_folder_title_count">%1s · %2d/%3d</string>
+    <string name="str_shared_super_quality_source">是否共享超高画质、音质</string>
+    <string name="str_shared_setting">共享设置</string>
+    <string name="str_export_shared_source">导出共享数据</string>
+    <string name="str_input_shared_source">导入共享数据</string>
+    <string name="str_export">导出</string>
+    <string name="str_import">导入</string>
 </resources>

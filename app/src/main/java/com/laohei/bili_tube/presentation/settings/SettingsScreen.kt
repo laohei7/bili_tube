@@ -15,10 +15,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.CallMerge
+import androidx.compose.material.icons.automirrored.outlined.Input
 import androidx.compose.material.icons.outlined.Audiotrack
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Hd
+import androidx.compose.material.icons.outlined.Output
 import androidx.compose.material.icons.outlined.PlayArrow
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -29,6 +32,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -61,6 +65,12 @@ private val VideoAndAudioSettings = listOf(
 private val DownloadSettings = listOf(
     Triple(Icons.Outlined.Folder, R.string.str_download_folder, null),
     Triple(Icons.AutoMirrored.Outlined.CallMerge, R.string.str_merge_source, null),
+)
+
+private val SharedSettings = listOf(
+    Triple(Icons.Outlined.Share, R.string.str_shared_super_quality_source, null),
+    Triple(Icons.Outlined.Output, R.string.str_export_shared_source, null),
+    Triple(Icons.AutoMirrored.Outlined.Input, R.string.str_input_shared_source, null),
 )
 
 private enum class SettingsScreenType(@StringRes val title: Int) {
@@ -105,6 +115,7 @@ fun SettingsScreen(
                     MainSettings(
                         modifier = modifier,
                         mergeSource = state.mergeSource,
+                        sharedSource = state.sharedSource,
                         onClick = { settingType = it },
                         onSettingsActionClick = viewModel::handleSettingsAction
                     )
@@ -148,6 +159,7 @@ fun SettingsScreen(
 private fun MainSettings(
     modifier: Modifier = Modifier,
     mergeSource: Boolean,
+    sharedSource: Boolean,
     onSettingsActionClick: (SettingsAction) -> Unit,
     onClick: (SettingsScreenType) -> Unit
 ) {
@@ -199,6 +211,78 @@ private fun MainSettings(
                 item = it,
                 mergeSource = mergeSource,
                 onSettingsActionClick = onSettingsActionClick
+            )
+        }
+        item { HorizontalDivider(color = Color.LightGray) }
+        stickyHeader {
+            ListItem(
+                headlineContent = {
+                    Text(
+                        stringResource(R.string.str_shared_setting),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            )
+        }
+        items(SharedSettings) {
+            GetSharedSettingsItem(
+                item = it, sharedSource = sharedSource,
+                onSettingsActionClick = onSettingsActionClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun GetSharedSettingsItem(
+    item: Triple<ImageVector, Int, SettingsScreenType?>,
+    sharedSource: Boolean,
+    onSettingsActionClick: (SettingsAction) -> Unit
+) {
+    when (item.second) {
+        R.string.str_shared_super_quality_source -> {
+            SwitchListItem(
+                leadingContent = {
+                    Icon(
+                        imageVector = item.first,
+                        contentDescription = item.first.name
+                    )
+                },
+                headlineContent = {
+                    Text(
+                        text = stringResource(item.second),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                checked = sharedSource,
+                onCheckedChange = {
+                    onSettingsActionClick.invoke(SettingsAction.SharedSourceAction(it))
+                }
+            )
+        }
+
+        else -> {
+            ListItem(
+                leadingContent = {
+                    Icon(
+                        imageVector = item.first,
+                        contentDescription = item.first.name
+                    )
+                },
+                headlineContent = {
+                    Text(text = stringResource(item.second))
+                },
+                trailingContent = {
+                    TextButton(onClick = {}) {
+                        Text(
+                            text = when (item.second) {
+                                R.string.str_export_shared_source -> stringResource(R.string.str_export)
+                                else -> stringResource(R.string.str_import)
+                            }
+                        )
+                    }
+                }
             )
         }
     }

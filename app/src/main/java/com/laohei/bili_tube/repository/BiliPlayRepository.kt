@@ -16,17 +16,23 @@ import com.laohei.bili_sdk.module_v2.folder.FolderDealModel
 import com.laohei.bili_sdk.module_v2.reply.ReplyItem
 import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
 import com.laohei.bili_sdk.module_v2.video.AddCoinModel
+import com.laohei.bili_sdk.module_v2.video.VideoURLModel
 import com.laohei.bili_tube.core.COOKIE_KEY
+import com.laohei.bili_tube.core.VideoSuperQualities
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.db.BiliTubeDB
+import com.laohei.bili_tube.model.BiliAudioUrl
+import com.laohei.bili_tube.model.BiliVideoUrl
 import com.laohei.bili_tube.presentation.player.component.reply.VideoReplyPaging
 import com.laohei.bili_tube.presentation.user.UserUploadedVideoPaging
 import com.laohei.bili_tube.utill.getBiliJct
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flattenConcat
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 
 class BiliPlayRepository(
     private val context: Context,
@@ -231,5 +237,51 @@ class BiliPlayRepository(
             act = act,
             csrf = cookie.getBiliJct()
         )
+    }
+
+    suspend fun saveSharedSource(
+        bvid: String,
+        aid: Long,
+        cid: Long,
+        data: VideoURLModel
+    ) = withContext(Dispatchers.IO) {
+        data.dash?.let { dash ->
+            val videoList = dash.video
+                .filter { it -> VideoSuperQualities.any { quality -> quality.first == it.id } }
+                .map {
+                    BiliVideoUrl(
+                        bvid = bvid,
+                        aid = aid,
+                        cid = cid,
+                        quality = it.id,
+                        url = it.baseUrl
+                    )
+                }
+
+            val audioList = dash.audio
+                .filter { it.id in arrayOf(30250, 30251) }
+                .map {
+                    BiliAudioUrl(
+                        bvid = bvid,
+                        aid = aid,
+                        cid = cid,
+                        quality = it.id,
+                        url = it.baseUrl
+                    )
+                }.toMutableList()
+            dash.dolby?.audio?.let { dolby ->
+                audioList.add(
+                    BiliAudioUrl(
+                        bvid = bvid,
+                        aid = aid,
+                        cid = cid,
+                        quality = dolby.first().id,
+                        url = dolby.first().baseUrl
+                    )
+                )
+            }
+            biliTubeDB.biliSharedSourceDao().addVideos(videoList)
+            biliTubeDB.biliSharedSourceDao().addAudios(audioList)
+        }
     }
 }
