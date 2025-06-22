@@ -56,7 +56,7 @@ fun SmallBottomAppBar(
                 onClick = { onClick.invoke(index) },
                 color = Color.Transparent,
                 contentColor = when {
-                    selectedIndex == index -> Pink
+                    selectedIndex == index -> MaterialTheme.colorScheme.primary
                     else -> Color.Gray
                 }
             ) {

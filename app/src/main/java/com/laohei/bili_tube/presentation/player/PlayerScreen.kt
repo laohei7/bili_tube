@@ -105,7 +105,6 @@ import com.laohei.bili_tube.core.util.checkedPermissions
 import com.laohei.bili_tube.core.util.hideSystemUI
 import com.laohei.bili_tube.core.util.showSystemUI
 import com.laohei.bili_tube.core.util.toggleOrientation
-import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.presentation.player.component.BlurBackgroundImage
 import com.laohei.bili_tube.presentation.player.component.CoinSheet
 import com.laohei.bili_tube.presentation.player.component.CommentCard
@@ -290,14 +289,6 @@ fun PlayerScreen(
 
     BackHandler(enabled = screenState.isFullscreen) {
         backPressHandle()
-    }
-
-
-    DisposableEffect(Unit) {
-        activity?.useLightSystemBarIcon(false)
-        onDispose {
-            activity?.useLightSystemBarIcon(isSystemDarkTheme.not())
-        }
     }
 
     // video size changed

@@ -78,6 +78,8 @@ fun App() {
     val isPlayRoute = currentDestination?.destination?.hasRoute<Route.Play>() == true
     if (isPlayRoute.not()) {
         activity?.useLightSystemBarIcon(isSystemInDarkTheme().not())
+    }else{
+        activity?.useLightSystemBarIcon(false)
     }
 
     AppEventListener()
