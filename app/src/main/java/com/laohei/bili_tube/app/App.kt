@@ -78,7 +78,7 @@ fun App() {
     val isPlayRoute = currentDestination?.destination?.hasRoute<Route.Play>() == true
     if (isPlayRoute.not()) {
         activity?.useLightSystemBarIcon(isSystemInDarkTheme().not())
-    }else{
+    } else {
         activity?.useLightSystemBarIcon(false)
     }
 
@@ -178,7 +178,11 @@ fun App() {
                 upPress = { navController.navigateUp() }
             )
         }
-        composable<Route.HomeGraph> { MainGraph(navController) }
+        composable<Route.HomeGraph> {
+            MainGraph {
+                navController.navigate(it)
+            }
+        }
 
         composable<Route.Settings> { SettingsScreen(upPress = { navController.navigateUp() }) }
     }

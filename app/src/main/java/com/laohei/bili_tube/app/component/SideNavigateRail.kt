@@ -18,7 +18,7 @@ internal fun SideNavigateRail(
         items.fastForEachIndexed { index, item ->
             NavigationRailItem(
                 selected = selectedIndex == index,
-                onClick = {onClick.invoke(index)},
+                onClick = { onClick.invoke(index) },
                 icon = {
                     Icon(
                         imageVector = item.icon,

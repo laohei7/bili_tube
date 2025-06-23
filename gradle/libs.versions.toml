@@ -135,7 +135,11 @@ paging = [
     "androidx-paging-compose"
 ]
 
-datastore=[
+datastore = [
     "androidx-datastore",
     "androidx-datastore-preferences"
+]
+
+adaptive-layout = [
+    "androidx-material3-adaptive-navigation-suite"
 ]

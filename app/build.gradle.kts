@@ -90,7 +90,7 @@ dependencies {
     implementation(libs.androidx.palette)
 
     implementation(libs.lottie.compose)
-    implementation(libs.androidx.material3.adaptive.navigation.suite)
+    implementation(libs.bundles.adaptive.layout)
 
     implementation(libs.ffmpeg.kit.full)
 
@@ -102,5 +102,6 @@ dependencies {
     implementation(libs.reorderable)
     implementation(project(":bili_sdk"))
     implementation(project(":core"))
+    implementation(project(":common_ui"))
 
 }
