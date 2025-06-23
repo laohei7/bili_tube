@@ -48,7 +48,19 @@ sealed class Route {
     data object Search : Route()
 
     @Serializable
-    data object Settings : Route()
+    data object Settings : Route() {
+        @Serializable
+        data object MainSetting : Route()
+
+        @Serializable
+        data object VideoSetting : Route()
+
+        @Serializable
+        data object AudioSetting : Route()
+
+        @Serializable
+        data object PlaySetting : Route()
+    }
 
     @Serializable
     data object Play : Route()

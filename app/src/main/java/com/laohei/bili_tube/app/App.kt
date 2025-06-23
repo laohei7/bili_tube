@@ -56,7 +56,7 @@ import com.laohei.bili_tube.presentation.player.PlayerScreen
 import com.laohei.bili_tube.presentation.playlist.PlaylistDetailScreen
 import com.laohei.bili_tube.presentation.playlist.PlaylistScreen
 import com.laohei.bili_tube.presentation.search.SearchScreen
-import com.laohei.bili_tube.presentation.settings.SettingsScreen
+import com.laohei.bili_tube.presentation.settings.SettingGraph
 import com.laohei.bili_tube.presentation.splash.SplashScreen
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -184,7 +184,11 @@ fun App() {
             }
         }
 
-        composable<Route.Settings> { SettingsScreen(upPress = { navController.navigateUp() }) }
+        composable<Route.Settings> {
+            SettingGraph {
+                navController.navigateUp()
+            }
+        }
     }
 }
 
