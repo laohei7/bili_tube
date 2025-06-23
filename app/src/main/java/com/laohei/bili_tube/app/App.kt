@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
@@ -281,11 +280,21 @@ private fun InitCookieAndProfile(isLogin: Boolean) {
     val userApi = koinInject<UserApi>()
     val authApi = koinInject<AuthApi>()
 
-    LaunchedEffect(isLogin) {
+    LaunchedEffect(Unit) {
         var cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
-        Log.d(TAG, "InitCookieAndProfile: $cookie")
-        val hasBuvid4 = cookie?.contains("buvid4") == true
         val hasBuvid3 = cookie?.contains("buvid3") == true
+        val newCookie = cookie?.split("; ")?.toMutableList() ?: mutableListOf()
+        if (hasBuvid3.not()) {
+            newCookie.addAll(authApi.getBubid3())
+        }
+    }
+
+    LaunchedEffect(isLogin) {
+        if (isLogin.not()) {
+            return@LaunchedEffect
+        }
+        var cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
+        val hasBuvid4 = cookie?.contains("buvid4") == true
         val newCookie = cookie?.split("; ")?.toMutableList() ?: mutableListOf()
         userApi.getSpiInfo(cookie).data.let {
             when {
@@ -296,19 +305,11 @@ private fun InitCookieAndProfile(isLogin: Boolean) {
             }
         }
 
-        if (hasBuvid3.not()) {
-            newCookie.addAll(authApi.getBubid3())
-        }
-
         context.dataStore.edit { settings ->
             val cookieStr = newCookie.fastJoinToString("; ")
             settings[COOKIE_KEY] = cookieStr
         }
         cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
-        Log.d(TAG, "InitCookieAndProfile: $cookie")
-        if (isLogin.not()) {
-            return@LaunchedEffect
-        }
         cookie?.run {
             userApi.getUserProfile(cookie = this)?.let {
                 if (it.code == -101) {
