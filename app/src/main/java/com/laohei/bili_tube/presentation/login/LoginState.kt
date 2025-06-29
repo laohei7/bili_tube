@@ -10,7 +10,6 @@ data class LoginState(
     val isPhoneNUmberError: Boolean = false,
     val code: String = "",
     val isCodeError: Boolean = false,
-    val loginType: LoginType = LoginType.SMS,
     val selectedCountryItem: CountryItem = CountryItem.chain,
     val countryItems: List<CountryItem> = listOf(CountryItem.chain),
     val captchaModel: CaptchaModel? = null,

@@ -1,5 +1,6 @@
 package com.laohei.bili_tube.presentation.login
 
+import android.util.Log
 import androidx.compose.ui.util.fastJoinToString
 import androidx.core.text.isDigitsOnly
 import androidx.datastore.preferences.core.edit
@@ -15,6 +16,7 @@ import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.repository.BiliLoginRepository
+import com.laohei.bili_tube.utill.validatedPhoneNumber
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -51,17 +53,13 @@ class LoginViewModel(
         }
     }
 
-    fun switchLoginType(loginType: LoginType) {
-        _mState.update { it.copy(loginType = loginType, captchaModel = null) }
-    }
-
     fun changeCountry(countryItem: CountryItem) {
         _mState.update { it.copy(selectedCountryItem = countryItem) }
     }
 
     fun captcha(callback: (CaptchaModel) -> Unit) {
         viewModelScope.launch {
-            biliLoginRepository.getCaptcha()?.let { res ->
+            biliLoginRepository.getCaptcha().let { res ->
                 _mState.update { it.copy(captchaModel = res.data) }
                 callback.invoke(res.data)
             }
@@ -71,6 +69,7 @@ class LoginViewModel(
     fun handleCaptchaResult(result: String) {
         val geetestSuccessModel = Json.decodeFromString<GeetestSuccessModel>(result)
         _mState.update { it.copy(geetestSuccessModel = geetestSuccessModel) }
+        getSMSCode()
     }
 
     fun onPhoneNumberChanged(value: String) {
@@ -83,8 +82,7 @@ class LoginViewModel(
 
     fun getSMSCode() {
         val phoneNumber = _mState.value.phoneNumber
-        val validatedPhoneNumber = phoneNumber.isNotBlank() && phoneNumber.isDigitsOnly()
-                && phoneNumber.length == 11
+        val validatedPhoneNumber = phoneNumber.validatedPhoneNumber()
         if (validatedPhoneNumber) {
             _mState.update { it.copy(isPhoneNUmberError = false) }
         } else {
@@ -100,7 +98,8 @@ class LoginViewModel(
                 challenge = currentState.geetestSuccessModel!!.geetestChallenge,
                 validate = currentState.geetestSuccessModel.geetestValidate,
                 seccode = currentState.geetestSuccessModel.geetestSeccode
-            )?.let { res ->
+            ).let { res ->
+                Log.d(TAG, "getSMSCode: $res")
                 when {
                     res.code == 0 -> {
                         _mState.update { it.copy(smsCodeModel = res.data) }

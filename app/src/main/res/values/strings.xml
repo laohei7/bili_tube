@@ -129,4 +129,5 @@
     <string name="str_input_shared_source">导入共享数据</string>
     <string name="str_export">导出</string>
     <string name="str_import">导入</string>
+    <string name="str_phone_number_error">手机号错误</string>
 </resources>

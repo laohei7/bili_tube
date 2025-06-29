@@ -5,7 +5,16 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class Route {
     @Serializable
-    data object Login : Route()
+    data object Login : Route() {
+        @Serializable
+        data object SMS : Route()
+
+        @Serializable
+        data object Password: Route()
+
+        @Serializable
+        data object QRCode: Route()
+    }
 
     @Serializable
     data object HomeGraph : Route() {

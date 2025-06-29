@@ -1,5 +1,7 @@
 package com.laohei.bili_tube.utill
 
+import androidx.core.text.isDigitsOnly
+
 fun String.completeUrl(): String {
     return when {
         this.startsWith("//") -> "https:$this"
@@ -10,4 +12,8 @@ fun String.completeUrl(): String {
 
 fun String?.getBiliJct(): String {
     return this?.substringAfter("bili_jct=")?.substringBefore(";") ?: ""
+}
+
+fun String.validatedPhoneNumber(): Boolean {
+    return this.isNotBlank() && this.isDigitsOnly() && this.length == 11
 }

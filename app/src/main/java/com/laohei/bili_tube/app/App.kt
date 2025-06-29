@@ -50,7 +50,7 @@ import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.dataStore
 import com.laohei.bili_tube.presentation.download.DownloadScreen
 import com.laohei.bili_tube.presentation.history.HistoryScreen
-import com.laohei.bili_tube.presentation.login.LoginScreen
+import com.laohei.bili_tube.presentation.login.SignInGraph
 import com.laohei.bili_tube.presentation.player.PlayerScreen
 import com.laohei.bili_tube.presentation.playlist.PlaylistDetailScreen
 import com.laohei.bili_tube.presentation.playlist.PlaylistScreen
@@ -141,7 +141,7 @@ fun App() {
                 }
             }
         }
-        composable<Route.Login> { LoginScreen() }
+        composable<Route.Login> { SignInGraph() }
         composable<Route.Play> {
             PlayerScreen(
                 playParam = koinInject<SharedViewModel>().mPlayParam,
