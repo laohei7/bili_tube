@@ -1,8 +1,9 @@
 package com.laohei.bili_tube.presentation.subscription
 
 import android.annotation.SuppressLint
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.Image
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -19,9 +20,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
@@ -56,20 +55,18 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.compose.AsyncImage
 import coil3.compose.SubcomposeAsyncImage
-import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import coil3.request.error
-import coil3.request.placeholder
 import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
 import com.laohei.bili_sdk.module_v2.dynamic.MajorLiveRcmdContent
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.app.DRAWItemParam
 import com.laohei.bili_tube.app.PlayParam
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.app.SharedViewModel
@@ -77,7 +74,6 @@ import com.laohei.bili_tube.component.appbar.LogoTopAppBar
 import com.laohei.bili_tube.component.placeholder.NoMoreData
 import com.laohei.bili_tube.component.placeholder.RecommendPlaceholder
 import com.laohei.bili_tube.component.text.ExpandedText
-import com.laohei.bili_tube.component.text.RichText
 import com.laohei.bili_tube.component.video.VideoItem
 import com.laohei.bili_tube.component.video.VideoMenuSheet
 import com.laohei.bili_tube.component.video.VideoSimpleInfoBar
@@ -92,18 +88,20 @@ import org.koin.compose.koinInject
 private const val TAG = "DynamicScreen"
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun SubscriptionScreen(
     dynamicViewModel: SubscriptionViewModel = koinViewModel(),
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     navigateToRoute: (Route) -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val refreshState = rememberPullToRefreshState()
+
     val gridState = dynamicViewModel.gridState
     val dynamicList = dynamicViewModel.dynamicList.collectAsLazyPagingItems()
-    val isLoading = dynamicList.loadState.refresh is LoadState.Loading
-    var isShowMenuSheet by remember { mutableStateOf(false) }
+    val sharedViewModel = koinInject<SharedViewModel>()
+
 
     LaunchedEffect(Unit) {
         EventBus.events.collect { event ->
@@ -118,6 +116,33 @@ fun SubscriptionScreen(
         }
     }
 
+    SubscriptionBody(
+        gridState = gridState,
+        dynamicList = dynamicList,
+        navigateToRoute = navigateToRoute,
+        sharedTransitionScope = sharedTransitionScope,
+        animatedVisibilityScope = animatedVisibilityScope,
+        showImagesPreview = {
+            sharedViewModel.setDRAWItemParam(it)
+            navigateToRoute(Route.ImagesBrowser)
+        },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@SuppressLint("UnusedBoxWithConstraintsScope")
+@Composable
+private fun SubscriptionBody(
+    gridState: LazyStaggeredGridState,
+    dynamicList: LazyPagingItems<DynamicItem>,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    navigateToRoute: (Route) -> Unit,
+    showImagesPreview: (DRAWItemParam) -> Unit
+) {
+    val refreshState = rememberPullToRefreshState()
+    val isLoading = dynamicList.loadState.refresh is LoadState.Loading
+    var isShowMenuSheet by remember { mutableStateOf(false) }
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -175,9 +200,12 @@ fun SubscriptionScreen(
                                                 item = it,
                                                 isSingleLayout = true,
                                                 navigateToRoute = navigateToRoute,
+                                                sharedTransitionScope = sharedTransitionScope,
+                                                animatedVisibilityScope = animatedVisibilityScope,
                                                 onMenuClick = {
                                                     isShowMenuSheet = true
-                                                }
+                                                },
+                                                onPreviewClick = showImagesPreview
                                             )
 
                                             HorizontalDivider(
@@ -198,9 +226,12 @@ fun SubscriptionScreen(
                                                 item = it,
                                                 isSingleLayout = false,
                                                 navigateToRoute = navigateToRoute,
+                                                sharedTransitionScope = sharedTransitionScope,
+                                                animatedVisibilityScope = animatedVisibilityScope,
                                                 onMenuClick = {
                                                     isShowMenuSheet = true
-                                                }
+                                                },
+                                                onPreviewClick = showImagesPreview
                                             )
                                         }
                                     }
@@ -228,12 +259,16 @@ fun SubscriptionScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 private fun GetDynamicItem(
     isSingleLayout: Boolean = true,
     item: DynamicItem,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     navigateToRoute: (Route) -> Unit,
-    onMenuClick: (() -> Unit)? = null
+    onMenuClick: (() -> Unit)? = null,
+    onPreviewClick: (DRAWItemParam) -> Unit
 ) {
     val sharedViewModel = koinInject<SharedViewModel>()
     val author = item.modules.moduleAuthor
@@ -273,7 +308,21 @@ private fun GetDynamicItem(
                 date = author.pubTs.toTimeAgoString(),
                 desc = desc,
                 images = draw.items.map { it.src },
-                onMenuClick = onMenuClick
+                onMenuClick = onMenuClick,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
+                onPreviewClick = {
+                    onPreviewClick(
+                        DRAWItemParam(
+                            initialIndex = it,
+                            face = author.face,
+                            ownerName = author.name,
+                            date = author.pubTs.toTimeAgoString(),
+                            desc = desc,
+                            images = draw.items.map { it.src },
+                        )
+                    )
+                }
             )
         }
 
@@ -300,6 +349,8 @@ private fun GetDynamicItem(
                 date = author.pubTs.toTimeAgoString(),
                 desc = article.desc,
                 images = article.covers,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
                 onMenuClick = onMenuClick
             )
         }
@@ -373,129 +424,6 @@ private fun GetDynamicItem(
     }
 }
 
-@Composable
-private fun DRAWItem(
-    face: String,
-    ownerName: String,
-    date: String,
-    desc: String,
-    images: List<String>?,
-    @DrawableRes infoPlaceholder: Int = R.drawable.icon_loading_1_1,
-    @DrawableRes infoError: Int = R.drawable.icon_loading_1_1,
-    onMenuClick: (() -> Unit)? = null
-) {
-    val context = LocalContext.current
-    Column(
-        modifier = Modifier.background(
-            MaterialTheme.colorScheme.background
-        )
-    ) {
-        VideoSimpleInfoBar(
-            face = face,
-            title = ownerName,
-            pubDate = date,
-            placeholder = infoPlaceholder,
-            error = infoError,
-            trailingOnClick = { onMenuClick?.invoke() }
-        )
-
-        RichText(
-            modifier = Modifier
-                .padding(horizontal = 12.dp)
-                .padding(top = 18.dp)
-                .padding(bottom = 12.dp),
-            text = desc, style = MaterialTheme.typography.bodyMedium,
-            emote = emptyMap(),
-            color = MaterialTheme.colorScheme.onBackground
-        )
-
-        images?.let { list ->
-            val isSingle = list.size == 1
-            if (isSingle) {
-                val image = list.first()
-                val imageRequest = rememberAsyncImagePainter(
-                    ImageRequest.Builder(context)
-                        .data(image)
-                        .crossfade(true)
-                        .placeholder(R.drawable.icon_loading_1_1)
-                        .error(R.drawable.icon_loading_1_1)
-                        .build()
-                )
-                Image(
-                    painter = imageRequest,
-                    contentDescription = "",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    contentScale = ContentScale.FillWidth,
-                )
-            } else {
-                LazyRow {
-                    items(list) {
-                        val imageRequest = rememberAsyncImagePainter(
-                            ImageRequest.Builder(context)
-                                .data(it)
-                                .crossfade(true)
-                                .placeholder(R.drawable.icon_loading_1_1)
-                                .error(R.drawable.icon_loading_1_1)
-                                .build()
-                        )
-                        Image(
-                            painter = imageRequest,
-                            contentDescription = ownerName,
-                            modifier = Modifier
-                                .size(260.dp)
-                                .aspectRatio(1f)
-                                .padding(horizontal = 12.dp)
-                                .clip(RoundedCornerShape(12.dp)),
-                            contentScale = ContentScale.Crop,
-                        )
-                    }
-                }
-            }
-
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun DRAWItem1() {
-    DRAWItem(
-        face = "",
-        ownerName = "动漫作业本",
-        date = "11 小时前",
-        desc = "Hello World!!!",
-        images = null,
-        infoError = R.drawable.bg
-    )
-}
-
-@Preview
-@Composable
-private fun DRAWItem2() {
-    DRAWItem(
-        face = "",
-        ownerName = "动漫作业本",
-        date = "11 小时前",
-        desc = "Hello World!!!",
-        images = listOf(""),
-        infoError = R.drawable.bg
-    )
-}
-
-@Preview
-@Composable
-private fun DRAWItem3() {
-    DRAWItem(
-        face = "",
-        ownerName = "动漫作业本",
-        date = "11 小时前",
-        desc = "Hello World!!!",
-        images = listOf("", "", ""),
-        infoError = R.drawable.bg
-    )
-}
 
 @Composable
 private fun CommonItem(

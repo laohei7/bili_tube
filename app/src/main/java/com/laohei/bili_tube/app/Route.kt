@@ -73,4 +73,7 @@ sealed class Route {
 
     @Serializable
     data object Play : Route()
+
+    @Serializable
+    data object ImagesBrowser: Route()
 }

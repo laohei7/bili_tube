@@ -10,6 +10,8 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -48,6 +50,7 @@ import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.core.util.setValue
 import com.laohei.bili_tube.core.util.useLightSystemBarIcon
 import com.laohei.bili_tube.dataStore
+import com.laohei.bili_tube.presentation.browser.DRAWImagesBrowser
 import com.laohei.bili_tube.presentation.download.DownloadScreen
 import com.laohei.bili_tube.presentation.history.HistoryScreen
 import com.laohei.bili_tube.presentation.login.SignInGraph
@@ -66,6 +69,7 @@ import kotlin.system.exitProcess
 private const val TAG = "App"
 private const val DBG = true
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun App() {
     val activity = LocalActivity.current
@@ -75,10 +79,15 @@ fun App() {
     var isLogin by rememberSaveable(Unit) { mutableStateOf(false) }
 
     val isPlayRoute = currentDestination?.destination?.hasRoute<Route.Play>() == true
-    if (isPlayRoute.not()) {
-        activity?.useLightSystemBarIcon(isSystemInDarkTheme().not())
-    } else {
-        activity?.useLightSystemBarIcon(false)
+    val isPreviewRoute = currentDestination?.destination?.hasRoute<Route.ImagesBrowser>() == true
+    when {
+        isPlayRoute || isPreviewRoute -> {
+            activity?.useLightSystemBarIcon(false)
+        }
+
+        else -> {
+            activity?.useLightSystemBarIcon(isSystemInDarkTheme().not())
+        }
     }
 
     AppEventListener()
@@ -113,79 +122,93 @@ fun App() {
 
     ExitAppHandle()
 
-    NavHost(
-        navController = navController,
-        startDestination = Route.Splash,
-        enterTransition = {
-            slideInHorizontally { it }
-        },
-        popExitTransition = {
-            slideOutHorizontally { it }
-        },
-        popEnterTransition = {
-            slideInHorizontally { -it }
-        },
-        exitTransition = {
-            slideOutHorizontally { -it }
-        }
-    ) {
-        composable<Route.Splash>(
-            enterTransition = { fadeIn() },
-            exitTransition = { fadeOut() }
+    SharedTransitionLayout {
+        NavHost(
+            navController = navController,
+            startDestination = Route.Splash,
+            enterTransition = {
+                slideInHorizontally { it }
+            },
+            popExitTransition = {
+                slideOutHorizontally { it }
+            },
+            popEnterTransition = {
+                slideInHorizontally { -it }
+            },
+            exitTransition = {
+                slideOutHorizontally { -it }
+            }
         ) {
-            SplashScreen {
-                val startRoute = if (isLogin) Route.HomeGraph else Route.Login
-                navController.navigate(startRoute) {
-                    popUpTo<Route.Splash> { inclusive = true }
-                    launchSingleTop = true
+            composable<Route.Splash>(
+                enterTransition = { fadeIn() },
+                exitTransition = { fadeOut() }
+            ) {
+                SplashScreen {
+                    val startRoute = if (isLogin) Route.HomeGraph else Route.Login
+                    navController.navigate(startRoute) {
+                        popUpTo<Route.Splash> { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
             }
-        }
-        composable<Route.Login> { SignInGraph() }
-        composable<Route.Play> {
-            PlayerScreen(
-                playParam = koinInject<SharedViewModel>().mPlayParam,
-                upPress = { navController.navigateUp() }
-            )
-        }
-        composable<Route.Playlist> {
-            PlaylistScreen(
-                navigateToRoute = { navController.navigate(it) }
-            )
-        }
-        composable<Route.PlaylistDetail> {
-            PlaylistDetailScreen(
-                param = it.toRoute(),
-                upPress = { navController.navigateUp() },
-                navigateToRoute = { navController.navigate(it) }
-            )
-        }
-        composable<Route.History> {
-            HistoryScreen(
-                navigateToRoute = { navController.navigate(it) }
-            )
-        }
-        composable<Route.DownloadManagement> {
-            DownloadScreen(
-                navigateToRoute = { navController.navigate(it) },
-                upPress = { navController.navigateUp() }
-            )
-        }
-        composable<Route.Search> {
-            SearchScreen(
-                navigateToRoute = { navController.navigate(it) },
-                upPress = { navController.navigateUp() }
-            )
-        }
-        composable<Route.HomeGraph> {
-            MainGraph {
-                navController.navigate(it)
+            composable<Route.Login> { SignInGraph() }
+            composable<Route.Play> {
+                PlayerScreen(
+                    playParam = koinInject<SharedViewModel>().mPlayParam,
+                    upPress = { navController.navigateUp() }
+                )
             }
-        }
+            composable<Route.Playlist> {
+                PlaylistScreen(
+                    navigateToRoute = { navController.navigate(it) }
+                )
+            }
+            composable<Route.PlaylistDetail> {
+                PlaylistDetailScreen(
+                    param = it.toRoute(),
+                    upPress = { navController.navigateUp() },
+                    navigateToRoute = { navController.navigate(it) }
+                )
+            }
+            composable<Route.History> {
+                HistoryScreen(
+                    navigateToRoute = { navController.navigate(it) }
+                )
+            }
+            composable<Route.DownloadManagement> {
+                DownloadScreen(
+                    navigateToRoute = { navController.navigate(it) },
+                    upPress = { navController.navigateUp() }
+                )
+            }
+            composable<Route.Search> {
+                SearchScreen(
+                    navigateToRoute = { navController.navigate(it) },
+                    upPress = { navController.navigateUp() }
+                )
+            }
+            composable<Route.HomeGraph> {
+                MainGraph(
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedVisibilityScope = this
+                ) {
+                    navController.navigate(it)
+                }
+            }
 
-        composable<Route.Settings> {
-            SettingGraph {
-                navController.navigateUp()
+            composable<Route.Settings> {
+                SettingGraph {
+                    navController.navigateUp()
+                }
+            }
+            composable<Route.ImagesBrowser> {
+                val sharedViewModel = koinInject<SharedViewModel>()
+                DRAWImagesBrowser(
+                    drawItemParam = sharedViewModel.mDRAWItemParam,
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedVisibilityScope = this,
+                    upPress = { navController.navigateUp() }
+                )
             }
         }
     }

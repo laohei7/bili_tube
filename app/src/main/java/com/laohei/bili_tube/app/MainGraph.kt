@@ -1,5 +1,8 @@
 package com.laohei.bili_tube.app
 
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -37,8 +40,11 @@ import com.laohei.common_ui.layout.AdaptiveLayout
 import com.laohei.common_ui.layout.DeviceConfiguration
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun MainGraph(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     appNavigateToRoute: (Route) -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -117,7 +123,7 @@ fun MainGraph(
                     NavigationSuiteType.NavigationBar -> {
                         SmallBottomAppBar(
                             modifier = Modifier
-                                .background(MaterialTheme.colorScheme.background.copy(0.98f))
+                                .background(MaterialTheme.colorScheme.background)
                                 .navigationBarsPadding(),
                             items = bottomAppBarItems,
                             selectedIndex = bottomAppBarSelectedIndex
@@ -159,6 +165,8 @@ fun MainGraph(
                 }
                 composable<Route.HomeGraph.Subscription> {
                     SubscriptionScreen(
+                        sharedTransitionScope = sharedTransitionScope,
+                        animatedVisibilityScope = animatedVisibilityScope,
                         navigateToRoute = {
                             appNavigateToRoute.invoke(it)
                         }

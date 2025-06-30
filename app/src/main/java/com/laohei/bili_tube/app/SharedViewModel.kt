@@ -45,11 +45,27 @@ sealed class PlayParam(
     data object NONE : PlayParam("", -1, -1, 1920, 1080, false)
 }
 
+data class DRAWItemParam(
+    val initialIndex: Int = 0,
+    val face: String,
+    val ownerName: String,
+    val date: String,
+    val desc: String,
+    val images: List<String>,
+)
+
 class SharedViewModel : ViewModel() {
     var mPlayParam: PlayParam = PlayParam.NONE
         private set
 
+    lateinit var mDRAWItemParam: DRAWItemParam
+        private set
+
     fun setPlayParam(playParam: PlayParam) {
         mPlayParam = playParam
+    }
+
+    fun setDRAWItemParam(drawItemParam: DRAWItemParam){
+        mDRAWItemParam = drawItemParam
     }
 }
