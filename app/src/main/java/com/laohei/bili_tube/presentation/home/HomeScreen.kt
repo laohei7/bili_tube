@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -171,9 +172,8 @@ fun HomeScreen(
             .background(MaterialTheme.colorScheme.background)
     ) {
         HorizontalPager(
-            modifier = Modifier.offset {
-                IntOffset(0, logoHeight + with(density) { 40.dp.toPx().toInt() })
-            },
+            modifier = Modifier
+                .fillMaxSize(),
             state = pagerState,
             beyondViewportPageCount = 2
         ) { index ->

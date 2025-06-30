@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -70,7 +71,8 @@ fun AnimationScreen(
                 Indicator(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
-                        .statusBarsPadding(),
+                        .statusBarsPadding()
+                        .offset(y = 42.dp),
                     isRefreshing = isRefreshing,
                     state = refreshState,
                 )
@@ -84,7 +86,7 @@ fun AnimationScreen(
                 columns = GridCells.Fixed(fixedCount),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                item(span = { GridItemSpan(fixedCount) }) { Spacer(Modifier.height(30.dp)) }
+                item(span = { GridItemSpan(fixedCount) }) { Spacer(Modifier.height(36.dp)) }
                 item(span = { GridItemSpan(fixedCount) }) {
                     FilterWidget(
                         modifier = Modifier.padding(top = 8.dp, start = 8.dp),

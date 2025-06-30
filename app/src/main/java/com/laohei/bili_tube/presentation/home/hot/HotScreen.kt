@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -66,7 +67,8 @@ fun HotScreen(
                 Indicator(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
-                        .statusBarsPadding(),
+                        .statusBarsPadding()
+                        .offset(y = 42.dp),
                     isRefreshing = hotVideos.loadState.refresh is LoadState.Loading,
                     state = refreshState,
                 )
@@ -82,7 +84,7 @@ fun HotScreen(
                     Spacer(
                         modifier = Modifier
                             .statusBarsPadding()
-                            .height(40.dp)
+                            .height(82.dp)
                     )
                 }
                 items(hotVideos.itemCount) { index ->

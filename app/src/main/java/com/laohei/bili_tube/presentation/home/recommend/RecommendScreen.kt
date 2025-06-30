@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -71,7 +72,8 @@ fun RecommendScreen(
                 Indicator(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
-                        .statusBarsPadding(),
+                        .statusBarsPadding()
+                        .offset(y = 42.dp),
                     isRefreshing = randomVideos.loadState.refresh is LoadState.Loading,
                     state = refreshState,
                 )
@@ -88,7 +90,7 @@ fun RecommendScreen(
                     Spacer(
                         modifier = Modifier
                             .statusBarsPadding()
-                            .padding(top = 12.dp)
+                            .padding(top = 52.dp)
                     )
                 }
                 if (randomVideos.itemCount == 0) {
