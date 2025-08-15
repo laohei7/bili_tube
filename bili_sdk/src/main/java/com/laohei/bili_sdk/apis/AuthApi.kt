@@ -6,7 +6,6 @@ import com.laohei.bili_sdk.module_v2.captcha.CaptchaModel
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.login.LoginSuccessModel
 import com.laohei.bili_sdk.module_v2.login.SMSCodeModel
-import io.ktor.client.statement.HttpResponse
 import io.ktor.http.Headers
 
 interface AuthApi {
@@ -21,7 +20,7 @@ interface AuthApi {
 
     suspend fun checkScanStatus(
         qrcodeKey: String,
-        setCookieBlock: (suspend (Headers) -> Unit)? = null
+        saveCookieCallback: (suspend (Headers) -> Unit)? = null
     ): BiliQRCodeStatus
 
     suspend fun getCaptcha(
@@ -51,5 +50,5 @@ interface AuthApi {
         resultCallback: suspend (LoginSuccessModel) -> Unit
     ): String
 
-    suspend fun getBubid3(): List<String>
+    suspend fun getBuvid3(): List<String>
 }

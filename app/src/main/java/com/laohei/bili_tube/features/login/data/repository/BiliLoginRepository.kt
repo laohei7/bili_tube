@@ -1,8 +1,9 @@
-package com.laohei.bili_tube.repository
+package com.laohei.bili_tube.features.login.data.repository
 
 import android.content.Context
 import com.laohei.bili_sdk.apis.AuthApi
 import com.laohei.bili_sdk.apis.InternationalizationApi
+import com.laohei.bili_sdk.model.BiliQRCodeStatus
 import com.laohei.bili_sdk.module_v2.login.LoginSuccessModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.COOKIE_KEY
@@ -18,13 +19,13 @@ class BiliLoginRepository(
     suspend fun getCountries() = internationalizationApi.getCountries()
 
     suspend fun getCaptcha(
-        source: String = AuthApi.LOGIN_SOURCE_HEADER,
+        source: String = AuthApi.Companion.LOGIN_SOURCE_HEADER,
     ) = authApi.getCaptcha(source = source)
 
     suspend fun sendSMSCode(
         cid: String,
         tel: String,
-        source: String = AuthApi.LOGIN_SOURCE_HEADER,
+        source: String = AuthApi.Companion.LOGIN_SOURCE_HEADER,
         token: String,
         challenge: String,
         validate: String,
@@ -44,7 +45,7 @@ class BiliLoginRepository(
         cid: String,
         tel: String,
         code: String,
-        source: String = AuthApi.LOGIN_SOURCE_HEADER,
+        source: String = AuthApi.Companion.LOGIN_SOURCE_HEADER,
         captchaKey: String,
         goUrl: String? = null,
         keep: Boolean = true,
@@ -71,4 +72,19 @@ class BiliLoginRepository(
         }
     }
 
+    suspend fun requestQrcode() = authApi.requestQRCode().data
+
+    suspend fun checkScanStatus(
+        qrcodeKey: String,
+        headersCallback: suspend (Context, Headers) -> Unit,
+        resultCallback: suspend (Context, BiliQRCodeStatus) -> Unit
+    ) {
+        val status = authApi.checkScanStatus(
+            qrcodeKey = qrcodeKey,
+            saveCookieCallback = { headers ->
+                headersCallback(context, headers)
+            }
+        )
+        resultCallback(context, status)
+    }
 }

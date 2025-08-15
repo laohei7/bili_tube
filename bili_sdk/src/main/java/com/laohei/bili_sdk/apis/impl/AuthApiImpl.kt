@@ -46,24 +46,21 @@ class AuthApiImpl(
         runCatching {
             val response = client.get(URL_REQUEST_QRCODE)
             Json.decodeFromString<BiliResponse<BiliQRCode>>(response.bodyAsText())
-        }.fold(
-            onSuccess = { it },
-            onFailure = {
-                if (DBG) {
-                    globalSDKExceptionHandle(TAG.toString(), it)
-                }
-                BiliResponse(
-                    code = 400,
-                    message = "ERROR",
-                    data = BiliQRCode("", "")
-                )
+        }.getOrElse {
+            if (DBG) {
+                globalSDKExceptionHandle(TAG.toString(), it)
             }
-        )
+            BiliResponse(
+                code = 400,
+                message = "ERROR",
+                data = BiliQRCode("", "")
+            )
+        }
     }
 
     override suspend fun checkScanStatus(
         qrcodeKey: String,
-        setCookieBlock: (suspend (Headers) -> Unit)?
+        saveCookieCallback: (suspend (Headers) -> Unit)?
     ): BiliQRCodeStatus = withContext(Dispatchers.IO) {
         runCatching {
             val status: BiliQRCodeStatus
@@ -78,7 +75,7 @@ class AuthApiImpl(
                 when (currentStatus.code) {
                     86090, 86101 -> continue
                     0 -> {
-                        setCookieBlock?.invoke(response.headers)
+                        saveCookieCallback?.invoke(response.headers)
                         status = currentStatus
                         break
                     }
@@ -90,15 +87,12 @@ class AuthApiImpl(
                 }
             }
             status
-        }.fold(
-            onSuccess = { it },
-            onFailure = {
-                if (DBG) {
-                    globalSDKExceptionHandle(TAG.toString(), it)
-                }
-                BiliQRCodeStatus.networkError()
+        }.getOrElse {
+            if (DBG) {
+                globalSDKExceptionHandle(TAG.toString(), it)
             }
-        )
+            BiliQRCodeStatus.networkError()
+        }
     }
 
     override suspend fun getCaptcha(source: String): BiliResponse<CaptchaModel> =
@@ -217,11 +211,9 @@ class AuthApiImpl(
         )
     }
 
-    override suspend fun getBubid3(): List<String> = withContext(Dispatchers.IO) {
+    override suspend fun getBuvid3(): List<String> = withContext(Dispatchers.IO) {
         runCatching {
-            val response = client.get(BILIBILI) {
-                header(HttpHeaders.UserAgent, "awa")
-            }
+            val response = client.get(BILIBILI)
             response.headers.getAll(HttpHeaders.SetCookie) ?: emptyList()
         }.getOrElse {
             emptyList()

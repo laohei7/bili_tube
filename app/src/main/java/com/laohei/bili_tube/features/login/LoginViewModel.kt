@@ -1,4 +1,4 @@
-package com.laohei.bili_tube.presentation.login
+package com.laohei.bili_tube.features.login
 
 import android.util.Log
 import androidx.compose.ui.util.fastJoinToString
@@ -15,9 +15,10 @@ import com.laohei.bili_tube.core.REFRESH_TOKEN_KEY
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.dataStore
-import com.laohei.bili_tube.repository.BiliLoginRepository
+import com.laohei.bili_tube.features.login.data.repository.BiliLoginRepository
 import com.laohei.bili_tube.utill.validatedPhoneNumber
 import io.ktor.http.HttpHeaders
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
@@ -36,31 +37,32 @@ class LoginViewModel(
         private const val DBG = true
     }
 
-    private val _mState = MutableStateFlow(LoginState())
-    val state = _mState.onStart {
+    private val _uiState = MutableStateFlow(LoginUIState())
+    val uiState = _uiState.onStart {
         initCountryList()
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        _mState.value
+        _uiState.value
     )
+    private var _qrcodeLoginJob: Job? = null
 
     private suspend fun initCountryList() {
         biliLoginRepository.getCountries().run {
-            _mState.update {
+            _uiState.update {
                 it.copy(countryItems = this.data.common + this.data.others)
             }
         }
     }
 
-    fun changeCountry(countryItem: CountryItem) {
-        _mState.update { it.copy(selectedCountryItem = countryItem) }
+    fun onCountryChange(countryItem: CountryItem) {
+        _uiState.update { it.copy(selectedCountryId = countryItem.countryId) }
     }
 
     fun captcha(callback: (CaptchaModel) -> Unit) {
         viewModelScope.launch {
             biliLoginRepository.getCaptcha().let { res ->
-                _mState.update { it.copy(captchaModel = res.data) }
+                _uiState.update { it.copy(captchaModel = res.data) }
                 callback.invoke(res.data)
             }
         }
@@ -68,31 +70,31 @@ class LoginViewModel(
 
     fun handleCaptchaResult(result: String) {
         val geetestSuccessModel = Json.decodeFromString<GeetestSuccessModel>(result)
-        _mState.update { it.copy(geetestSuccessModel = geetestSuccessModel) }
+        _uiState.update { it.copy(geetestSuccessModel = geetestSuccessModel) }
         getSMSCode()
     }
 
-    fun onPhoneNumberChanged(value: String) {
-        _mState.update { it.copy(phoneNumber = value) }
+    fun onPhoneNumberChange(value: String) {
+        _uiState.update { it.copy(phoneNumber = value) }
     }
 
-    fun onCodeChanged(value: String) {
-        _mState.update { it.copy(code = value) }
+    fun onCodeChange(value: String) {
+        _uiState.update { it.copy(code = value) }
     }
 
     fun getSMSCode() {
-        val phoneNumber = _mState.value.phoneNumber
+        val phoneNumber = _uiState.value.phoneNumber
         val validatedPhoneNumber = phoneNumber.validatedPhoneNumber()
         if (validatedPhoneNumber) {
-            _mState.update { it.copy(isPhoneNUmberError = false) }
+            _uiState.update { it.copy(isPhoneNumberError = false) }
         } else {
-            _mState.update { it.copy(isPhoneNUmberError = true) }
+            _uiState.update { it.copy(isPhoneNumberError = true) }
             return
         }
         viewModelScope.launch {
-            val currentState = _mState.value
+            val currentState = _uiState.value
             biliLoginRepository.sendSMSCode(
-                cid = currentState.selectedCountryItem.countryId,
+                cid = currentState.selectedCountryId,
                 tel = currentState.phoneNumber,
                 token = currentState.captchaModel!!.token,
                 challenge = currentState.geetestSuccessModel!!.geetestChallenge,
@@ -102,33 +104,33 @@ class LoginViewModel(
                 Log.d(TAG, "getSMSCode: $res")
                 when {
                     res.code == 0 -> {
-                        _mState.update { it.copy(smsCodeModel = res.data) }
+                        _uiState.update { it.copy(smsCode = res.data) }
                     }
 
                     else -> {
-                        EventBus.send(Event.AppEvent.ToastEvent(res.message))
+                        EventBus.send(Event.AppEvent.ToastTextEvent(res.message))
                     }
                 }
             }
         }
     }
 
-    fun smsLogin() {
-        val code = _mState.value.code
-        val validatedCode = code.isNotBlank() && code.isDigitsOnly()
+    fun onSmsLogin() {
+        val code = _uiState.value.code
+        val validatedCode = code.isNotBlank() && code.isDigitsOnly() && code.length == 6
         if (validatedCode) {
-            _mState.update { it.copy(isCodeError = false) }
+            _uiState.update { it.copy(isCodeError = false) }
         } else {
-            _mState.update { it.copy(isCodeError = true) }
+            _uiState.update { it.copy(isCodeError = true) }
             return
         }
         viewModelScope.launch {
-            val currentState = _mState.value
+            val currentState = _uiState.value
             val msg = biliLoginRepository.smsLogin(
-                cid = currentState.selectedCountryItem.countryId,
+                cid = currentState.selectedCountryId,
                 tel = currentState.phoneNumber,
                 code = currentState.code,
-                captchaKey = currentState.smsCodeModel!!.captchaKey,
+                captchaKey = currentState.smsCode!!.captchaKey,
                 headersCallback = { ctx, headers ->
                     val cookie = ctx.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
                     val cookieList = cookie?.split("; ")?.toMutableList() ?: mutableListOf()
@@ -148,9 +150,48 @@ class LoginViewModel(
                 }
             )
             msg?.run {
-                EventBus.send(Event.AppEvent.ToastEvent(this))
+                EventBus.send(Event.AppEvent.ToastTextEvent(this))
             }
         }
+    }
+
+    fun validatedPhoneNumber(): Boolean {
+        val phone = uiState.value.phoneNumber
+        val validated = phone.validatedPhoneNumber()
+        _uiState.update { it.copy(isPhoneNumberError = validated.not()) }
+        return validated
+    }
+
+    fun requestQrcode() {
+        _qrcodeLoginJob = viewModelScope.launch {
+            val qrcode = biliLoginRepository.requestQrcode()
+            _uiState.update { it.copy(qrCode = qrcode) }
+            biliLoginRepository.checkScanStatus(
+                qrcodeKey = qrcode.qrcodeKey,
+                headersCallback = { ctx, headers ->
+                    val cookie = headers.getAll(HttpHeaders.SetCookie)
+                        ?.fastJoinToString("; ") ?: ""
+                    ctx.dataStore.edit { settings ->
+                        settings[COOKIE_KEY] = cookie
+                    }
+                },
+                resultCallback = { ctx, status ->
+                    ctx.dataStore.edit { settings ->
+                        if (status.code == 0) {
+                            settings[REFRESH_TOKEN_KEY] = status.refreshToken
+                            settings[IS_LOGIN_KEY] = true
+                        } else {
+                            EventBus.send(Event.AppEvent.ToastTextEvent(status.message))
+                        }
+                    }
+                }
+            )
+        }
+    }
+
+    fun onQrcodeLoginCancel() {
+        _qrcodeLoginJob?.cancel()
+        _uiState.update { it.copy(qrCode = null) }
     }
 
 
