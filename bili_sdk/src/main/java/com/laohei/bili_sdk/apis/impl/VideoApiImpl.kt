@@ -8,7 +8,7 @@ import com.laohei.bili_sdk.exception.globalSDKExceptionHandle
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.dynamic.DynamicModel
 import com.laohei.bili_sdk.module_v2.hot.HotModel
-import com.laohei.bili_sdk.module_v2.recomment.RecommendModel
+import com.laohei.bili_sdk.module_v2.recommend.RecommendModel
 import com.laohei.bili_sdk.wbi.WbiParams
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get

@@ -1,6 +1,7 @@
 [versions]
 agp = "8.8.2"
 coilCompose = "3.1.0"
+constraintlayoutCompose = "1.1.1"
 core = "3.5.1"
 datastorePreferences = "1.1.4"
 ffmpegKitFull = "6.0-2.LTS"
@@ -29,9 +30,11 @@ ksp = "2.1.10-1.0.31"
 reorderable = "0.9.6"
 room = "2.6.1"
 sensebot = "4.4.2.1"
+material3Jvmstubs = "1.5.0-alpha02"
 
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityCompose" }
+androidx-constraintlayout-compose = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "constraintlayoutCompose" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "datastorePreferences" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }

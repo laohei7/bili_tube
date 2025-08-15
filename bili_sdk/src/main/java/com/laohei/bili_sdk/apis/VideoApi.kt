@@ -3,7 +3,7 @@ package com.laohei.bili_sdk.apis
 import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.dynamic.DynamicModel
 import com.laohei.bili_sdk.module_v2.hot.HotModel
-import com.laohei.bili_sdk.module_v2.recomment.RecommendModel
+import com.laohei.bili_sdk.module_v2.recommend.RecommendModel
 
 interface VideoApi {
     suspend fun getRecommends(

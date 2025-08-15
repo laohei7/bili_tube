@@ -21,9 +21,11 @@ import com.laohei.bili_sdk.wbi.WbiParams
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.core.IMG_URL_KEY
 import com.laohei.bili_tube.core.SUB_URL_KEY
-import com.laohei.bili_tube.core.util.SystemUtil
 import com.laohei.bili_tube.di.appModule
+import com.laohei.bili_tube.di.dataModule
+import com.laohei.bili_tube.di.viewModelModule
 import com.laohei.bili_tube.utill.HttpClientFactory
+import com.laohei.bili_tube.utill.SystemUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -44,7 +46,7 @@ class BiliTubeApp : Application(), SingletonImageLoader.Factory {
         SystemUtil.init(this)
         startKoin {
             androidContext(this@BiliTubeApp)
-            modules(appModule)
+            modules(appModule, dataModule, viewModelModule)
         }
         CoroutineScope(Dispatchers.IO).launch {
             if (WbiParams.wbi == null) {
@@ -78,7 +80,7 @@ class BiliTubeApp : Application(), SingletonImageLoader.Factory {
             .diskCache {
                 DiskCache.Builder()
                     .directory(this.cacheDir.resolve("image_cache"))
-                    .maxSizePercent(0.02)
+                    .maxSizePercent(0.15)
                     .build()
             }
             .components {

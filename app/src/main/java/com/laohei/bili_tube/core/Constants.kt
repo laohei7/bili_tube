@@ -21,6 +21,7 @@ internal const val MOBILE_NET_VIDEO_QUALITY = "mobile_net_video_quality"
 internal const val WLAN_VIDEO_QUALITY = "wlan_video_quality"
 internal const val MOBILE_NET_AUDIO_QUALITY = "mobile_net_audio_quality"
 internal const val WLAN_AUDIO_QUALITY = "wlan_audio_quality"
+const val EXPORT_SHARED_SOURCE = "export_shared_source"
 
 const val SHARED_FILE = "bili_tube_shared"
 
@@ -71,3 +72,5 @@ internal val AudioQualities = listOf(
     Pair(30232, "中质量"),
     Pair(30216, "低质量"),
 )
+
+internal const val ChainCountryId = "86"

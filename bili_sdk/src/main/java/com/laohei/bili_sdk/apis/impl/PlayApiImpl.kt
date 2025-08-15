@@ -1,5 +1,6 @@
 package com.laohei.bili_sdk.apis.impl
 
+import android.util.Log
 import com.laohei.bili_sdk.apis.BILIBILI
 import com.laohei.bili_sdk.apis.PlayApi
 import com.laohei.bili_sdk.apis.URL_BANGUMI_DETAIL
@@ -79,6 +80,7 @@ class PlayApiImpl(
                 cookie?.apply {
                     header(HttpHeaders.Cookie, this)
                 }
+                Log.d(TAG, "getVideoURL: $url")
             }
             Json.decodeFromString<BiliResponse<VideoURLModel>>(response.bodyAsText())
         }.fold(
@@ -495,6 +497,7 @@ class PlayApiImpl(
                     )
                 )
             }
+            Log.d(TAG, "postCoins: ${response.bodyAsText()}")
             Json.decodeFromString<BiliResponse<AddCoinModel>>(response.bodyAsText())
         }.fold(
             onSuccess = { it },

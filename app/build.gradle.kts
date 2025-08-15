@@ -97,11 +97,9 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
-    implementation("org.jellyfin.media3:media3-ffmpeg-decoder:1.6.1+1")
+    implementation("org.jellyfin.media3:media3-ffmpeg-decoder:1.8.0+1")
     implementation(libs.sensebot)
     implementation(libs.reorderable)
+    implementation(libs.androidx.constraintlayout.compose)
     implementation(project(":bili_sdk"))
-    implementation(project(":core"))
-    implementation(project(":common_ui"))
-
 }

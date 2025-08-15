@@ -1,7 +1,7 @@
 package com.laohei.bili_tube.component.video
 
 import com.laohei.bili_sdk.apis.UserRelationAction
-import com.laohei.bili_tube.app.PlayParam
+import com.laohei.bili_tube.PlayParam
 
 interface VideoAction {
     sealed class VideoMenuAction : VideoAction {

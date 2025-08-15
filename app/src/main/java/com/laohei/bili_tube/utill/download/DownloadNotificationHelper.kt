@@ -11,7 +11,7 @@ import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.NOTIFICATION_PERMISSION
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
-import com.laohei.bili_tube.core.util.checkedPermission
+import com.laohei.bili_tube.utill.checkedPermission
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

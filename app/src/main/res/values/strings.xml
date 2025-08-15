@@ -130,4 +130,20 @@
     <string name="str_export">导出</string>
     <string name="str_import">导入</string>
     <string name="str_phone_number_error">手机号错误</string>
+    <string name="str_folder_name_error">收藏夹名称不允许为空</string>
+    <string name="str_folder_created_success">收藏夹创建成功</string>
+    <string name="str_foler_created_failed">收藏夹创建失败</string>
+    <string name="str_add_to_vew_success">已添加到“稍后观看”</string>
+    <string name="str_add_to_view_failed">添加到”稍后观看“失败</string>
+    <string name="str_integrated">综合</string>
+    <string name="str_add_to_folder_success">添加成功</string>
+    <string name="str_add_to_folder_failed">添加失败</string>
+    <string name="str_add_coin_success">投币成功</string>
+    <string name="str_unsigin">账号未登录</string>
+    <string name="str_account_suspend">账号被封停</string>
+    <string name="str_not_enough_coins">硬币不足</string>
+    <string name="str_not_give_yourself_coin">不能给自己投币</string>
+    <string name="str_add_coin_faild">投币失败</string>
+    <string name="str_login_method">登录方式</string>
+    <string name="str_sms_code_error">验证码错误</string>
 </resources>

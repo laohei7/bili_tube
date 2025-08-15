@@ -11,10 +11,10 @@ import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.MERGE_SOURCE_KEY
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
-import com.laohei.bili_tube.core.util.PreferencesUtil
-import com.laohei.bili_tube.db.BiliTubeDB
-import com.laohei.bili_tube.model.DownloadStatus
-import com.laohei.bili_tube.model.DownloadTask
+import com.laohei.bili_tube.utill.PreferencesUtil
+import com.laohei.bili_tube.room.BiliTubeDB
+import com.laohei.bili_tube.room.entity.DownloadStatus
+import com.laohei.bili_tube.room.entity.DownloadTask
 import io.ktor.client.HttpClient
 import io.ktor.client.request.head
 import io.ktor.client.request.header
@@ -126,7 +126,7 @@ class DownloadManager(
                     context.getString(R.string.str_download_add)
                 }
                 EventBus.send(
-                    Event.PlayerEvent.SnackbarEvent(message)
+                    Event.VideoPlayerEvent.SnackbarEvent(message)
                 )
             }
             startNextDownload()
