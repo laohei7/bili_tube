@@ -18,6 +18,7 @@
 
 ## 预览
 
+![Home Cover](./assets/img/LoginPreview.png)
 ![Home Cover](./assets/img/HomeCover.png)
 ![Home Cover](./assets/img/Cover2.png)
 ![Home Cover](./assets/img/SearchCover.png)
@@ -28,25 +29,28 @@
 
 ## 技术栈
 
-- 🚀 核心框架：Android Compose、Material 3
-- 💾 数据存储：DataStore、SharedPreferences
-- 📄 分页加载：Paging 3
-- 🌐 网络通信：Ktor + Kotlin Serialization
-- 🖼️ 图片加载：Coil 3
-- 🧭 导航管理：Navigation
-- 🛠️ 依赖注入：Koin
-- 📹 多媒体支持：Media3（视频播放器）
-- 🔳 二维码处理：ZXing
-- 动画 lottie
+- 🚀 核心框架：Android Jetpack Compose + Material 3
+
+- 📐 UI 适配与动画：Adaptive Navigation、自适应布局、🎨 Lottie 动画、🖼️ 精灵图优化
+
+- 💾 数据存储：DataStore、SharedPreferences、🛡️ 本地缓存优化（OOM 预防）
+
+- 📄 分页与网络：Paging 3 分页加载、🌐 Ktor 网络通信
+
+- 🔄 数据序列化：Kotlin Serialization
+
+- 🖼️ 图片与多媒体：🖼️ Coil 3 图片加载、🎬 Media3 视频播放、🎞️ FFmpeg 多媒体处理
+
+- 🔳 功能组件：ZXing 二维码扫描与生成
+
+- 🧭 架构与依赖注入：🧭 Navigation 导航管理、⚙️ Koin 依赖注入
 
 ## 说明
 
 - 该项目以 UI 为主，数据来源请自行获取 **（请严格遵守网络安全）**
 - sdk 模块中 model 包下为 AI 生成的实体类（比较杂乱）；model_v2 为整理后的实体类（只保留展示的数据部分）。
 
-## 项目进度
-
-### V1.0
+## 功能
 
 - [x] 推荐页
 - [x] 热门页
