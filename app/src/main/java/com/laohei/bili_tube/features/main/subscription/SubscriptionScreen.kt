@@ -118,8 +118,7 @@ fun SubscriptionScreen(
             indicator = {
                 Indicator(
                     modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .statusBarsPadding(),
+                        .align(Alignment.TopCenter),
                     isRefreshing = isLoading,
                     state = refreshState,
                 )
@@ -128,19 +127,29 @@ fun SubscriptionScreen(
             LazyVerticalStaggeredGrid(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(
-                        color = MaterialTheme.colorScheme.background
-                    ),
+                    .background(color = MaterialTheme.colorScheme.background),
                 state = gridState,
                 columns = StaggeredGridCells.Fixed(fixedCount),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalItemSpacing = LargePadding
             ) {
-                item(span = StaggeredGridItemSpan.FullLine) {
-                    LogoTopAppBar(
-                        searchOnClick = { navigateToAppRoute.invoke(AppRoute.Search) }
-                    )
+                when (uiType) {
+                    DeviceConfiguration.MOBILE_PORTRAIT,
+                    DeviceConfiguration.TABLE_PORTRAIT -> {
+                        item(span = StaggeredGridItemSpan.FullLine) {
+                            LogoTopAppBar(
+                                onSearchClick = { navigateToAppRoute.invoke(AppRoute.Search) }
+                            )
+                        }
+                    }
+
+                    DeviceConfiguration.MOBILE_LANDSCAPE,
+                    DeviceConfiguration.TABLE_LANDSCAPE,
+                    DeviceConfiguration.DESKTOP -> {
+
+                    }
                 }
+
 
                 subscriptionList(
                     fixedCount = fixedCount,

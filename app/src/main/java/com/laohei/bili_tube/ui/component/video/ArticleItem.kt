@@ -66,9 +66,7 @@ fun ArticleItem(
 ) {
     val context = LocalContext.current
     Column(
-        modifier = Modifier.background(
-            MaterialTheme.colorScheme.background
-        )
+        modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) {
 
         ArticleUserBar(
