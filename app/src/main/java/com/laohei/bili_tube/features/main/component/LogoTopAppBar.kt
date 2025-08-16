@@ -10,7 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.Menu
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -24,11 +25,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.ui.theme.MediumPadding
+import com.laohei.bili_tube.ui.theme.NonePadding
 
 @Composable
 internal fun LogoTopAppBar(
     alpha: Float = 1f,
-    searchOnClick: () -> Unit = {}
+    isShowMenu: Boolean = false,
+    onSearchClick: () -> Unit,
+    onMenuClick: (() -> Unit)? = null
 ) {
     Row(
         modifier = Modifier
@@ -38,13 +43,30 @@ internal fun LogoTopAppBar(
             .background(
                 color = Color.Transparent
             )
-            .padding(horizontal = 12.dp)
+            .padding(
+                start = if (isShowMenu) NonePadding else MediumPadding,
+                end = MediumPadding
+            )
             .graphicsLayer {
                 this.alpha = alpha
             },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        if (isShowMenu) {
+            IconButton(
+                onClick = { onMenuClick?.invoke() },
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Menu,
+                    contentDescription = Icons.Rounded.Menu.name
+                )
+            }
+        }
+
         Image(
             painter = painterResource(
                 if (isSystemInDarkTheme()) R.drawable.logo_dark
@@ -55,37 +77,18 @@ internal fun LogoTopAppBar(
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End,
+            modifier = Modifier.weight(1f)
         ) {
-//            IconButton(
-//                onClick = {},
-//                colors = IconButtonDefaults.iconButtonColors(
-//                    contentColor = MaterialTheme.colorScheme.onBackground
-//                )
-//            ) {
-//                BadgedBox(
-//                    badge = {
-//                        Badge {
-//                            Text(text = "2")
-//                        }
-//                    }
-//                ) {
-//                    Icon(
-//                        imageVector = Icons.Default.Notifications,
-//                        contentDescription = Icons.Default.Notifications.name
-//                    )
-//                }
-//            }
-
-
             IconButton(
-                onClick = { searchOnClick.invoke() },
+                onClick = { onSearchClick.invoke() },
                 colors = IconButtonDefaults.iconButtonColors(
                     contentColor = MaterialTheme.colorScheme.onBackground
                 )
             ) {
                 Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = Icons.Default.Search.name
+                    imageVector = Icons.Rounded.Search,
+                    contentDescription = Icons.Rounded.Search.name
                 )
             }
         }
@@ -95,5 +98,11 @@ internal fun LogoTopAppBar(
 @Preview(showBackground = true)
 @Composable
 private fun LogoTopAppBarPreview() {
-    LogoTopAppBar()
+    LogoTopAppBar(onMenuClick = {}, onSearchClick = {})
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun LogoTopAppBarDesktopPreview() {
+    LogoTopAppBar(isShowMenu = true, onMenuClick = {}, onSearchClick = {})
 }

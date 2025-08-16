@@ -35,15 +35,14 @@ import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.module_v2.recommend.RecommendItem
 import com.laohei.bili_tube.PlayParam
 import com.laohei.bili_tube.SharedViewModel
-import com.laohei.bili_tube.ui.component.placeholder.NoMoreData
-import com.laohei.bili_tube.ui.component.placeholder.RecommendPlaceholder
 import com.laohei.bili_tube.features.main.home.HomeAction
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
+import com.laohei.bili_tube.ui.component.placeholder.NoMoreData
+import com.laohei.bili_tube.ui.component.placeholder.RecommendPlaceholder
 import com.laohei.bili_tube.ui.component.video.VerticalVideoItem
 import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.MediumPadding
 import com.laohei.bili_tube.ui.theme.NonePadding
 import com.laohei.bili_tube.ui.theme.SmallPadding
 import com.laohei.bili_tube.utill.formatTimeString
@@ -85,7 +84,7 @@ fun RecommendScreen(
             }
         }
         val isSingle = fixedCount == 1
-        val shape = when{
+        val shape = when {
             isSingle -> RoundedCornerShape(NonePadding)
             else -> RoundedCornerShape(SmallPadding)
         }
@@ -98,7 +97,7 @@ fun RecommendScreen(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .statusBarsPadding()
-                        .offset(y = 42.dp),
+                        .offset(y = 50.dp),
                     isRefreshing = isRefreshing,
                     state = refreshState,
                 )
@@ -115,12 +114,23 @@ fun RecommendScreen(
                 horizontalArrangement = Arrangement.spacedBy(if (isSingle) NonePadding else SmallPadding)
             ) {
                 item(span = { GridItemSpan(fixedCount) }, key = "Recommend-top-padding") {
-                    Spacer(
-                        modifier = Modifier
-                            .statusBarsPadding()
-                            .height(72.dp)
-                    )
+                    when (uiType) {
+                        DeviceConfiguration.MOBILE_PORTRAIT,
+                        DeviceConfiguration.TABLE_PORTRAIT -> {
+                            Spacer(Modifier
+                                .statusBarsPadding()
+                                .height(72.dp))
+                        }
+
+                        DeviceConfiguration.MOBILE_LANDSCAPE,
+                        DeviceConfiguration.TABLE_LANDSCAPE,
+                        DeviceConfiguration.DESKTOP -> {
+                            Spacer(Modifier
+                                .height(42.dp))
+                        }
+                    }
                 }
+
 
                 when {
                     recommends.itemCount == 0 -> {

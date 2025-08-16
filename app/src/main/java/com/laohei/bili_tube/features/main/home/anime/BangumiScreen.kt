@@ -36,6 +36,8 @@ import com.laohei.bili_tube.model.BangumiFilterModel
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
+import com.laohei.bili_tube.ui.theme.LargePadding
+import com.laohei.bili_tube.ui.theme.SmallPadding
 import org.koin.compose.koinInject
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -77,7 +79,7 @@ fun BangumiScreen(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .statusBarsPadding()
-                        .offset(y = 42.dp),
+                        .offset(y = 50.dp),
                     isRefreshing = isRefreshing,
                     state = refreshState,
                 )
@@ -89,9 +91,26 @@ fun BangumiScreen(
                     .fillMaxSize()
                     .statusBarsPadding(),
                 columns = GridCells.Fixed(fixedCount),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(LargePadding),
             ) {
-                item(span = { GridItemSpan(fixedCount) }) { Spacer(Modifier.height(72.dp)) }
+                item(span = { GridItemSpan(fixedCount) }, key = "Bangumis-top-padding") {
+                    when (uiType) {
+                        DeviceConfiguration.MOBILE_PORTRAIT,
+                        DeviceConfiguration.TABLE_PORTRAIT -> {
+                            Spacer(Modifier
+                                .statusBarsPadding()
+                                .height(72.dp))
+                        }
+
+                        DeviceConfiguration.MOBILE_LANDSCAPE,
+                        DeviceConfiguration.TABLE_LANDSCAPE,
+                        DeviceConfiguration.DESKTOP -> {
+                            Spacer(Modifier
+                                .height(SmallPadding))
+                        }
+                    }
+                }
+
                 item(span = { GridItemSpan(fixedCount) }) {
                     FilterWidget(
                         modifier = Modifier.padding(top = 8.dp, start = 8.dp),

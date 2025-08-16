@@ -1,13 +1,17 @@
 package com.laohei.bili_tube.features.main.component
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
@@ -22,9 +26,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
+import com.laohei.bili_tube.R
 
 @Stable
 internal data class BottomAppBarItem(
@@ -33,17 +41,14 @@ internal data class BottomAppBarItem(
 )
 
 @Composable
-internal fun SmallBottomAppBar(
+internal fun MainBottomAppBar(
     modifier: Modifier = Modifier,
     items: List<BottomAppBarItem>,
     selectedIndex: Int = 0,
     onClick: (Int) -> Unit = { _ -> }
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(IntrinsicSize.Min)
-            .then(modifier),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround
     ) {
@@ -56,7 +61,7 @@ internal fun SmallBottomAppBar(
                 color = Color.Transparent,
                 contentColor = when {
                     selectedIndex == index -> MaterialTheme.colorScheme.primary
-                    else -> Color.Gray
+                    else -> MaterialTheme.colorScheme.inversePrimary
                 }
             ) {
                 VerticalIconAndLabelItem(item)
@@ -70,23 +75,24 @@ private fun VerticalIconAndLabelItem(item: BottomAppBarItem) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(3.dp, Alignment.CenterVertically)
+        verticalArrangement = Arrangement.Center
     ) {
         Icon(
             imageVector = item.icon,
-            contentDescription = item.label ?: item.icon.name
+            contentDescription = item.label ?: item.icon.name,
+            modifier = Modifier.size(22.dp)
         )
         item.label?.let {
             Text(
                 text = it,
-                style = MaterialTheme.typography.labelSmall
+                fontSize = 10.sp
             )
         }
 
     }
 }
 
-@Preview
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun SmallBottomAppBarPreview() {
     val items = remember {
@@ -101,5 +107,23 @@ private fun SmallBottomAppBarPreview() {
             )
         )
     }
-    SmallBottomAppBar(items = items)
+    Box(
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        Image(
+            painter = painterResource(R.drawable.bg),
+            contentDescription = "bg",
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+        MainBottomAppBar(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(66.dp)
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.95f))
+                .navigationBarsPadding(),
+            items = items
+        )
+    }
+
 }

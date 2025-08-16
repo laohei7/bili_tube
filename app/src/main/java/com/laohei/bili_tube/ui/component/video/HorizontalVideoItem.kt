@@ -56,6 +56,7 @@ import com.laohei.bili_tube.component.video.ViewAndPubDateWidget
 import com.laohei.bili_tube.component.video.ViewAtWidget
 import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
 import com.laohei.bili_tube.ui.component.text.RichText
+import com.laohei.bili_tube.ui.theme.SmallPadding
 import com.laohei.bili_tube.utill.toViewString
 
 
@@ -91,7 +92,7 @@ fun HorizontalVideoItem(
             .clickable {
                 onClick.invoke()
             }
-            .padding(vertical = 8.dp)
+//            .padding(vertical = 8.dp)
             .padding(end = 8.dp)
             .padding(start = if (leadingIcon == null) 8.dp else 0.dp),
     ) {
@@ -103,7 +104,7 @@ fun HorizontalVideoItem(
             modifier = Modifier
                 .weight(1f)
                 .aspectRatio(16 / 9f)
-                .clip(RoundedCornerShape(12.dp))
+                .clip(RoundedCornerShape(SmallPadding))
         ) {
             Image(
                 painter = coverRequest,

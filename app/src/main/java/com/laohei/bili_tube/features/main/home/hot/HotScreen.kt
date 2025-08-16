@@ -32,6 +32,8 @@ import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
+import com.laohei.bili_tube.ui.theme.LargePadding
+import com.laohei.bili_tube.ui.theme.MediumPadding
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.toTimeAgoString
 import com.laohei.bili_tube.utill.toViewString
@@ -73,7 +75,7 @@ fun HotScreen(
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .statusBarsPadding()
-                        .offset(y = 42.dp),
+                        .offset(y = 50.dp),
                     isRefreshing = hotVideos.loadState.refresh is LoadState.Loading,
                     state = refreshState,
                 )
@@ -83,15 +85,27 @@ fun HotScreen(
                 state = gridState,
                 columns = GridCells.Fixed(fixedCount),
                 contentPadding = PaddingValues(horizontal = if (fixedCount == 1) 0.dp else 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(MediumPadding),
+                verticalArrangement = Arrangement.spacedBy(LargePadding),
             ) {
-                item(span = { GridItemSpan(fixedCount) }) {
-                    Spacer(
-                        modifier = Modifier
-                            .statusBarsPadding()
-                            .height(82.dp)
-                    )
+                item(span = { GridItemSpan(fixedCount) }, key = "Hots-top-padding") {
+                    when (uiType) {
+                        DeviceConfiguration.MOBILE_PORTRAIT,
+                        DeviceConfiguration.TABLE_PORTRAIT -> {
+                            Spacer(Modifier
+                                .statusBarsPadding()
+                                .height(72.dp))
+                        }
+
+                        DeviceConfiguration.MOBILE_LANDSCAPE,
+                        DeviceConfiguration.TABLE_LANDSCAPE,
+                        DeviceConfiguration.DESKTOP -> {
+                            Spacer(Modifier
+                                .height(42.dp))
+                        }
+                    }
                 }
+
                 items(hotVideos.itemCount) { index ->
                     hotVideos[index]?.let {
                         HorizontalVideoItem(

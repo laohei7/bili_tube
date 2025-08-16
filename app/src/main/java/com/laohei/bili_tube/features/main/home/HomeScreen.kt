@@ -1,24 +1,12 @@
 package com.laohei.bili_tube.features.main.home
 
-import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.PrimaryTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -30,29 +18,28 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
-import androidx.compose.ui.util.fastForEachIndexed
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
-import com.laohei.bili_tube.features.main.component.LogoTopAppBar
 import com.laohei.bili_tube.features.main.component.VideoMenuSheet
 import com.laohei.bili_tube.features.main.home.anime.AnimationScreen
 import com.laohei.bili_tube.features.main.home.anime.BangumiScreen
+import com.laohei.bili_tube.features.main.home.component.HomeTopBar
 import com.laohei.bili_tube.features.main.home.hot.HotScreen
 import com.laohei.bili_tube.features.main.home.recommend.RecommendScreen
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.dialog.CreatedFolderDialog
+import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
+import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.sheet.FolderSheet
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
@@ -71,7 +58,6 @@ fun HomeScreen(
 
     val homeState by homeViewModel.homeState.collectAsState()
     val scope = rememberCoroutineScope()
-    val tabLabelIds = homeState.tabLabelIds
     val pager = homeState.pager
 
     // top bar nested scroll calculate
@@ -94,7 +80,7 @@ fun HomeScreen(
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 if (source == NestedScrollSource.UserInput) {  // Judgment is a sliding event
-                    Log.d(TAG, "onPreScroll: ${available.x} ${available.y}")
+//                    Log.d(TAG, "onPreScroll: ${available.x} ${available.y}")
                     if (available.y < 0 && available.x == 0f) { // Swipe up
                         val dH =
                             minHeightPx - topHeightPx  // There is still a little bit of reaching the minimum height
@@ -106,7 +92,7 @@ fun HomeScreen(
                         } else {
                             dH
                         }
-                    } else if (available.y >= 0 && available.x == 0f){ // decline
+                    } else if (available.y >= 0 && available.x == 0f) { // decline
                         val dH =
                             maxHeightPx - topHeightPx  // It's still a little short of reaching the maximum height
                         rawAlpha = 1f - abs(dH) / (maxHeightPx - minHeightPx)
@@ -163,16 +149,15 @@ fun HomeScreen(
         }
     }
 
-    Box(
+    AdaptiveLayout(
         modifier = Modifier
             .nestedScroll(connection)
             .background(MaterialTheme.colorScheme.background)
-    ) {
+    ) { uiType, _, _ ->
         HorizontalPager(
             modifier = Modifier
                 .fillMaxSize(),
             state = pager,
-            beyondViewportPageCount = 2
         ) { index ->
             when (index) {
                 0 -> RecommendScreen(
@@ -207,47 +192,42 @@ fun HomeScreen(
             }
         }
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .offset {
-                    IntOffset(0, logoHeight)
-                }
-                .background(
-                    color = MaterialTheme.colorScheme.background.copy(alpha = 0.989f)
-                )
-        ) {
-            LogoTopAppBar(
-                alpha = alpha,
-                searchOnClick = { navigateToAppRoute.invoke(AppRoute.Search) })
+        HomeTopBar(
+            isOnlyTabs = when (uiType) {
+                DeviceConfiguration.MOBILE_PORTRAIT,
+                DeviceConfiguration.TABLE_PORTRAIT -> false
 
-            PrimaryTabRow(
-                modifier = Modifier
-                    .height(IntrinsicSize.Min),
-                selectedTabIndex = pager.currentPage,
-                containerColor = Color.Transparent,
-                divider = {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.surfaceContainer)
+                DeviceConfiguration.MOBILE_LANDSCAPE,
+                DeviceConfiguration.TABLE_LANDSCAPE,
+                DeviceConfiguration.DESKTOP -> true
+            },
+            tabs = Tabs,
+            offset = when (uiType) {
+                DeviceConfiguration.MOBILE_PORTRAIT,
+                DeviceConfiguration.TABLE_PORTRAIT -> IntOffset(0, logoHeight)
+
+                DeviceConfiguration.MOBILE_LANDSCAPE,
+                DeviceConfiguration.TABLE_LANDSCAPE,
+                DeviceConfiguration.DESKTOP -> IntOffset(0, 0)
+            },
+            alpha = when (uiType) {
+                DeviceConfiguration.MOBILE_PORTRAIT,
+                DeviceConfiguration.TABLE_PORTRAIT -> alpha
+
+                DeviceConfiguration.MOBILE_LANDSCAPE,
+                DeviceConfiguration.TABLE_LANDSCAPE,
+                DeviceConfiguration.DESKTOP -> 1f
+            },
+            selectedTabIndex = pager.currentPage,
+            onTabClick = {
+                scope.launch {
+                    pager.animateScrollToPage(Tabs.indexOf(it).coerceAtLeast(0))
                 }
-            ) {
-                tabLabelIds.fastForEachIndexed { index, tab ->
-                    Tab(
-                        selected = index == pager.currentPage,
-                        onClick = {
-                            scope.launch {
-                                pager.animateScrollToPage(index)
-                            }
-                        }
-                    ) {
-                        Text(
-                            text = stringResource(tab),
-                            modifier = Modifier
-                                .padding(top = 8.dp, bottom = 4.dp)
-                        )
-                    }
-                }
-            }
-        }
+            },
+            navigateToAppRoute = {}
+        )
+
+
 
         VideoMenuSheet(
             isShowSheet = homeState.showMenuSheet,

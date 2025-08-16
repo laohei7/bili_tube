@@ -15,4 +15,7 @@ sealed class MainRoute {
 
     @Serializable
     data object Subscription : MainRoute()
+
+    @Serializable
+    data object Settings : MainRoute()
 }
