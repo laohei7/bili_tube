@@ -64,7 +64,7 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = koinViewModel(),
     navigateToAppRoute: (AppRoute) -> Unit = {}
 ) {
-    val state by viewModel.profileState.collectAsStateWithLifecycle()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     AdaptiveLayout { uiType, width, height ->
         when (uiType) {
@@ -91,13 +91,13 @@ fun ProfileScreen(
         CreatedFolderDialog(
             isShowDialog = state.isShowAddFolder,
             value = state.folderName,
-            onValueChange = viewModel::onFolderNameChanged,
+            onValueChange = viewModel::onFolderNameChange,
             onSubmit = viewModel::addNewFolder,
-            checked = state.isPrivate,
-            onCheckedChange = viewModel::onPrivateChanged,
+            checked = state.isPrivateFolder,
+            onCheckedChange = viewModel::onPrivateChange,
             onDismiss = {
-                viewModel.onFolderNameChanged("")
-                viewModel.onProfileAction(ProfileAction.AddFolderUIAction(false))
+                viewModel.onFolderNameChange("")
+                viewModel.onProfileAction(ProfileAction.FolderCreatedUIAction(false))
             }
         )
     }
@@ -107,7 +107,7 @@ fun ProfileScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PortraitContent(
-    state: ProfileState,
+    state: ProfileUIState,
     navigateToAppRoute: (AppRoute) -> Unit,
     onProfileAction: (ProfileAction) -> Unit
 ) {
@@ -146,12 +146,12 @@ private fun PortraitContent(
                 )
                 Spacer(Modifier.height(12.dp))
                 FolderList(
-                    watchLaterList = state.watchLaterList,
+                    watchLaterList = state.watchlist,
                     watchLaterCount = state.watchLaterCount,
                     folderList = state.folderList,
                     navigateToAppRoute = navigateToAppRoute,
                     showCreatedFolder = {
-                        onProfileAction(ProfileAction.AddFolderUIAction(true))
+                        onProfileAction(ProfileAction.FolderCreatedUIAction(true))
                     }
                 )
                 Spacer(Modifier.height(12.dp))
@@ -222,16 +222,12 @@ private fun PortraitUserInfo(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LandscapeContent(
-    state: ProfileState,
+    state: ProfileUIState,
     navigateToAppRoute: (AppRoute) -> Unit,
     onProfileAction: (ProfileAction) -> Unit
 ) {
     val refreshState = rememberPullToRefreshState()
-    Scaffold(
-        topBar = {
-            ProfileTopBar(navigateToAppRoute = navigateToAppRoute)
-        }
-    ) { innerPadding ->
+    Scaffold{ innerPadding ->
         PullToRefreshBox(
             modifier = Modifier
                 .fillMaxSize()
@@ -261,12 +257,12 @@ private fun LandscapeContent(
                 )
                 Spacer(Modifier.height(12.dp))
                 FolderList(
-                    watchLaterList = state.watchLaterList,
+                    watchLaterList = state.watchlist,
                     watchLaterCount = state.watchLaterCount,
                     folderList = state.folderList,
                     navigateToAppRoute = navigateToAppRoute,
                     showCreatedFolder = {
-                        onProfileAction(ProfileAction.AddFolderUIAction(true))
+                        onProfileAction(ProfileAction.FolderCreatedUIAction(true))
                     }
                 )
                 Spacer(Modifier.height(12.dp))

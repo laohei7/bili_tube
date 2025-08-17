@@ -146,4 +146,5 @@
     <string name="str_add_coin_faild">投币失败</string>
     <string name="str_login_method">登录方式</string>
     <string name="str_sms_code_error">验证码错误</string>
+    <string name="str_folder_created_faild">收藏夹创建失败</string>
 </resources>

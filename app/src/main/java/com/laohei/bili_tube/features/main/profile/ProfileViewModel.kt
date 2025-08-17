@@ -3,139 +3,109 @@ package com.laohei.bili_tube.features.main.profile
 import androidx.compose.ui.util.fastFilter
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.features.main.profile.data.repository.BiliProfileRepository
 import com.laohei.bili_tube.features.playlist.data.repository.BiliPlaylistRepository
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import com.laohei.bili_tube.utill.withRefreshing
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class ProfileViewModel(
     private val biliMineRepository: BiliProfileRepository,
     private val biliPlaylistRepository: BiliPlaylistRepository
 ) : ViewModel() {
 
-    private val mProfileState = MutableStateFlow(ProfileState())
-    val profileState = mProfileState
+    private val _uiState = MutableStateFlow(ProfileUIState())
+    val uiState = _uiState
         .onStart {
             initData()
         }.stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
-            mProfileState.value
+            _uiState.value
         )
 
-    private suspend fun initData() = withContext(Dispatchers.IO) {
-        launch {
-            getUserStat()
-        }
-        launch {
-            getShortHistoryList()
-        }
-        launch {
-            getShortWatchLater()
-        }
-        launch {
-            getFolderList()
-        }
+    private suspend fun initData() = coroutineScope {
+        launch { getUserStat() }
+        launch { getShortHistoryList() }
+        launch { getShortWatchlist() }
+        launch { getFolderList() }
     }
 
     private suspend fun getUserStat() {
-        biliMineRepository.getUserStat().run {
-            mProfileState.update {
-                it.copy(
-                    following = this.following,
-                    follower = this.follower,
-                    dynamicCount = this.dynamicCount
-                )
-            }
+        val userStat = biliMineRepository.getUserStat()
+        _uiState.update {
+            it.copy(
+                following = userStat.following,
+                follower = userStat.follower,
+                dynamicCount = userStat.dynamicCount
+            )
         }
     }
 
     private suspend fun getShortHistoryList() {
-        biliMineRepository.getHistoryList().run {
-            mProfileState.update {
-                it.copy(
-                    historyList = this.list
-                )
-            }
-        }
+        val historyList = biliMineRepository.getHistoryList()
+        _uiState.update { it.copy(historyList = historyList.list) }
     }
 
-    private suspend fun getShortWatchLater() {
-        biliMineRepository.getWatchLaterList(ps = 3).run {
-            mProfileState.update {
-                it.copy(
-                    watchLaterList = this.list,
-                    watchLaterCount = this.count
-                )
-            }
+    private suspend fun getShortWatchlist() {
+        val watchlist = biliMineRepository.getWatchLaterList(ps = 3)
+        _uiState.update {
+            it.copy(watchlist = watchlist.list, watchLaterCount = watchlist.count)
         }
     }
 
     private suspend fun getFolderList() {
-        biliMineRepository.getFolderList().run {
-            val folders = this.fastFilter { item -> item.id == 1 }
-                .firstOrNull()?.mediaListResponse?.list
-            folders?.apply {
-                mProfileState.update {
-                    it.copy(folderList = this)
-                }
-            }
-        }
+        val folders = biliMineRepository.getFolderList()
+            .fastFilter { it.id == 1 }
+            .firstOrNull()
+            ?.mediaListResponse
+            ?.list
+        folders?.let { list -> _uiState.update { it.copy(folderList = list) } }
     }
 
     private fun refresh() {
-        mProfileState.update { it.copy(isRefreshing = true) }
         viewModelScope.launch {
-            initData()
-            delay(500)
-            mProfileState.update { it.copy(isRefreshing = false) }
+            _uiState.update { it.copy(isRefreshing = true) }
+            withRefreshing { initData() }
+            _uiState.update { it.copy(isRefreshing = false) }
         }
     }
 
     fun onProfileAction(action: ProfileAction) {
         when (action) {
-            is ProfileAction.AddFolderUIAction -> {
-                mProfileState.update { it.copy(isShowAddFolder = action.flag) }
-            }
+            is ProfileAction.FolderCreatedUIAction -> displayCreateFolder(action)
 
-            ProfileAction.RefreshAction -> {
-                refresh()
-            }
+            ProfileAction.RefreshAction -> refresh()
         }
     }
 
-    fun showCreatedFolder() {
-        mProfileState.update { it.copy(isShowAddFolder = true) }
+    private fun displayCreateFolder(action: ProfileAction.FolderCreatedUIAction) {
+        _uiState.update { it.copy(isShowAddFolder = action.flag) }
     }
 
-    fun hideCreatedFolder() {
-        mProfileState.update { it.copy(isShowAddFolder = false) }
+    fun onFolderNameChange(value: String) {
+        _uiState.update { it.copy(folderName = value) }
     }
 
-    fun onFolderNameChanged(value: String) {
-        mProfileState.update { it.copy(folderName = value) }
-    }
-
-    fun onPrivateChanged(value: Boolean) {
-        mProfileState.update { it.copy(isPrivate = value) }
+    fun onPrivateChange(value: Boolean) {
+        _uiState.update { it.copy(isPrivateFolder = value) }
     }
 
     fun addNewFolder() {
         viewModelScope.launch {
-            val folderName = mProfileState.value.folderName
-            val privacy = mProfileState.value.isPrivate
+            val folderName = _uiState.value.folderName
+            val privacy = _uiState.value.isPrivateFolder
             if (folderName.isBlank()) {
                 EventBus.send(
-                    Event.AppEvent.ToastTextEvent("收藏夹名称不允许为空")
+                    Event.AppEvent.ToastEvent(R.string.str_folder_name_error)
                 )
                 return@launch
             }
@@ -145,13 +115,13 @@ class ProfileViewModel(
             )
             if (success) {
                 refresh()
-                mProfileState.update { it.copy(isShowAddFolder = false) }
+                _uiState.update { it.copy(isShowAddFolder = false) }
                 EventBus.send(
-                    Event.AppEvent.ToastTextEvent("收藏夹创建成功")
+                    Event.AppEvent.ToastEvent(R.string.str_folder_created_success)
                 )
             } else {
                 EventBus.send(
-                    Event.AppEvent.ToastTextEvent("收藏夹创建失败")
+                    Event.AppEvent.ToastEvent(R.string.str_folder_created_faild)
                 )
             }
         }
