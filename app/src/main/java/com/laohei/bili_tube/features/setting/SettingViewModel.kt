@@ -20,17 +20,17 @@ class SettingViewModel(
     private val preferenceUtils: PreferencesUtil
 ) : ViewModel() {
 
-    private val _mState = MutableStateFlow(SettingState())
-    val state = _mState.onStart {
+    private val _uiState = MutableStateFlow(SettingUIState())
+    val uiState = _uiState.onStart {
         loadSettings()
     }.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        _mState.value
+        _uiState.value
     )
 
     private fun loadSettings() {
-        _mState.update {
+        _uiState.update {
             it.copy(
                 mobileNetVideoQuality = preferenceUtils.getValue(
                     MOBILE_NET_VIDEO_QUALITY,
@@ -55,51 +55,61 @@ class SettingViewModel(
         }
     }
 
-    fun handleSettingsAction(action: SettingAction) {
+    fun onSettingsAction(action: SettingAction) {
         when (action) {
-            is SettingAction.ChangeAudioQuality -> {
-                when (action.type) {
-                    NetworkType.Mobile -> {
-                        _mState.update { it.copy(mobileNetAudioQuality = action.quality) }
-                        preferenceUtils.setValue(MOBILE_NET_AUDIO_QUALITY, action.quality)
-                    }
+            is SettingAction.ChangeAudioQuality -> audioQualityChange(action)
 
-                    NetworkType.Wlan -> {
-                        _mState.update { it.copy(wlanAudioQuality = action.quality) }
-                        preferenceUtils.setValue(WLAN_AUDIO_QUALITY, action.quality)
-                    }
-                }
+            is SettingAction.ChangeVideoQuality -> videoQualityChange(action)
+
+            is SettingAction.AutoSkipAction -> autoSkipChange(action)
+
+            is SettingAction.MergeSourceAction -> mergeSourceChange(action)
+
+            is SettingAction.SharedSourceAction -> shareSourceChange(action)
+        }
+    }
+
+    private fun audioQualityChange(action: SettingAction.ChangeAudioQuality){
+        when (action.type) {
+            NetworkType.Mobile -> {
+                _uiState.update { it.copy(mobileNetAudioQuality = action.quality) }
+                preferenceUtils.setValue(MOBILE_NET_AUDIO_QUALITY, action.quality)
             }
 
-            is SettingAction.ChangeVideoQuality -> {
-                when (action.type) {
-                    NetworkType.Mobile -> {
-                        _mState.update { it.copy(mobileNetVideoQuality = action.quality) }
-                        preferenceUtils.setValue(MOBILE_NET_VIDEO_QUALITY, action.quality)
-                    }
-
-                    NetworkType.Wlan -> {
-                        _mState.update { it.copy(wlanVideoQuality = action.quality) }
-                        preferenceUtils.setValue(WLAN_VIDEO_QUALITY, action.quality)
-                    }
-                }
-            }
-
-            is SettingAction.AutoSkipAction -> {
-                _mState.update { it.copy(autoSkipOpEnd = action.skip) }
-                preferenceUtils.setValue(AUTO_SKIP_KEY, action.skip)
-            }
-
-            is SettingAction.MergeSourceAction -> {
-                _mState.update { it.copy(mergeSource = action.merge) }
-                preferenceUtils.setValue(MERGE_SOURCE_KEY, action.merge)
-            }
-
-            is SettingAction.SharedSourceAction -> {
-                _mState.update { it.copy(sharedSource = action.shared) }
-                preferenceUtils.setValue(EXPORT_SHARED_SOURCE, action.shared)
+            NetworkType.Wlan -> {
+                _uiState.update { it.copy(wlanAudioQuality = action.quality) }
+                preferenceUtils.setValue(WLAN_AUDIO_QUALITY, action.quality)
             }
         }
+    }
+
+    private fun videoQualityChange(action: SettingAction.ChangeVideoQuality){
+        when (action.type) {
+            NetworkType.Mobile -> {
+                _uiState.update { it.copy(mobileNetVideoQuality = action.quality) }
+                preferenceUtils.setValue(MOBILE_NET_VIDEO_QUALITY, action.quality)
+            }
+
+            NetworkType.Wlan -> {
+                _uiState.update { it.copy(wlanVideoQuality = action.quality) }
+                preferenceUtils.setValue(WLAN_VIDEO_QUALITY, action.quality)
+            }
+        }
+    }
+
+    private fun autoSkipChange(action: SettingAction.AutoSkipAction){
+        _uiState.update { it.copy(autoSkipOpEnd = action.skip) }
+        preferenceUtils.setValue(AUTO_SKIP_KEY, action.skip)
+    }
+
+    private fun mergeSourceChange(action: SettingAction.MergeSourceAction){
+        _uiState.update { it.copy(mergeSource = action.merge) }
+        preferenceUtils.setValue(MERGE_SOURCE_KEY, action.merge)
+    }
+
+    private fun shareSourceChange(action: SettingAction.SharedSourceAction){
+        _uiState.update { it.copy(sharedSource = action.shared) }
+        preferenceUtils.setValue(EXPORT_SHARED_SOURCE, action.shared)
     }
 
 }

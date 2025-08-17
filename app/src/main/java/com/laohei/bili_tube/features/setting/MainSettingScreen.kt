@@ -52,7 +52,7 @@ private val SharedSettings = listOf(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainSettingScreen(
-    state: SettingState,
+    state: SettingUIState,
     navigateToSettingRoute: (Route) -> Unit,
     onSettingsActionClick: (SettingAction) -> Unit
 ) {
