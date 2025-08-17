@@ -19,8 +19,10 @@
 ## 预览
 
 ![Home Cover](./assets/img/LoginPreview.png)
-![Home Cover](./assets/img/HomeCover.png)
-![Home Cover](./assets/img/Cover2.png)
+![Home Cover](./assets/img/MobileHome.png)
+![Home Cover](./assets/img/TabletHome.png)
+![Home Cover](./assets/img/SubscriptionAndProfile.png)
+![Home Cover](./assets/img/TabletSetting.png)
 ![Home Cover](./assets/img/SearchCover.png)
 ![Home Cover](./assets/img/SettingsCover.png)
 ![Home Cover](./assets/img/PlayerCover1.png)
