@@ -224,7 +224,7 @@ fun HomeScreen(
                     pager.animateScrollToPage(Tabs.indexOf(it).coerceAtLeast(0))
                 }
             },
-            navigateToAppRoute = {}
+            navigateToAppRoute = { navigateToAppRoute(AppRoute.Search) }
         )
 
 
