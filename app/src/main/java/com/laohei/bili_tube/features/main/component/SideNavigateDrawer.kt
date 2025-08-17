@@ -12,16 +12,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDestination.Companion.hasRoute
+import com.laohei.bili_tube.features.main.navigation.MainRoute
 import com.laohei.bili_tube.ui.theme.SmallPadding
 
 @Composable
 internal fun SideNavigateDrawer(
     items: List<BottomAppBarItem>,
-    selectedIndex: Int,
-    onClick: (Int) -> Unit = {}
+    currentDestination:  NavBackStackEntry?,
+    onClick: (MainRoute) -> Unit = {}
 ) {
     ModalDrawerSheet {
         items.fastForEachIndexed { index, item ->
+            val selected = currentDestination?.destination?.hasRoute(item.route::class) == true
             if (item.icon == Icons.Rounded.Settings) {
                 Spacer(Modifier.weight(1f))
             }
@@ -35,8 +39,8 @@ internal fun SideNavigateDrawer(
                         contentDescription = item.icon.name
                     )
                 },
-                selected = index == selectedIndex,
-                onClick = { onClick(index) }
+                selected = selected,
+                onClick = { onClick(item.route) }
             )
         }
     }

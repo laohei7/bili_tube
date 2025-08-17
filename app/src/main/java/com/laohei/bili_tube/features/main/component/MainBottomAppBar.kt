@@ -32,20 +32,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.features.main.navigation.MainRoute
 
 @Stable
 internal data class BottomAppBarItem(
     val icon: ImageVector,
-    val label: String? = null
+    val label: String? = null,
+    val route: MainRoute
 )
 
 @Composable
 internal fun MainBottomAppBar(
     modifier: Modifier = Modifier,
     items: List<BottomAppBarItem>,
-    selectedIndex: Int = 0,
-    onClick: (Int) -> Unit = { _ -> }
+    currentDestination:  NavBackStackEntry?,
+    onClick: (MainRoute) -> Unit = { _ -> }
 ) {
     Row(
         modifier = modifier,
@@ -53,14 +58,15 @@ internal fun MainBottomAppBar(
         horizontalArrangement = Arrangement.SpaceAround
     ) {
         items.fastForEachIndexed { index, item ->
+            val selected = currentDestination?.destination?.hasRoute(item.route::class) == true
             Surface(
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(1f),
-                onClick = { onClick.invoke(index) },
+                onClick = { onClick.invoke(item.route) },
                 color = Color.Transparent,
                 contentColor = when {
-                    selectedIndex == index -> MaterialTheme.colorScheme.primary
+                    selected -> MaterialTheme.colorScheme.primary
                     else -> MaterialTheme.colorScheme.inversePrimary
                 }
             ) {
@@ -99,11 +105,13 @@ private fun SmallBottomAppBarPreview() {
         listOf(
             BottomAppBarItem(
                 icon = Icons.Outlined.Home,
-                label = "首页"
+                label = "首页",
+                route = MainRoute.Home
             ),
             BottomAppBarItem(
                 icon = Icons.Outlined.Person,
-                label = "我的"
+                label = "我的",
+                route = MainRoute.Profile
             )
         )
     }
@@ -122,7 +130,8 @@ private fun SmallBottomAppBarPreview() {
                 .height(66.dp)
                 .background(MaterialTheme.colorScheme.background.copy(alpha = 0.95f))
                 .navigationBarsPadding(),
-            items = items
+            items = items,
+            currentDestination = null
         )
     }
 

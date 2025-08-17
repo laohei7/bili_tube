@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -67,15 +68,18 @@ fun MainNav(
         listOf(
             BottomAppBarItem(
                 icon = Icons.Rounded.Home,
-                label = context.getString(R.string.str_home)
+                label = context.getString(R.string.str_home),
+                route = MainRoute.Home
             ),
             BottomAppBarItem(
                 icon = Icons.Rounded.Subscriptions,
-                label = context.getString(R.string.str_subscription)
+                label = context.getString(R.string.str_subscription),
+                route = MainRoute.Subscription
             ),
             BottomAppBarItem(
                 icon = Icons.Rounded.Person,
-                label = context.getString(R.string.str_mine)
+                label = context.getString(R.string.str_mine),
+                route = MainRoute.Profile
             )
         )
     }
@@ -83,28 +87,22 @@ fun MainNav(
         listOf(
             BottomAppBarItem(
                 icon = Icons.Rounded.Settings,
-                label = context.getString(R.string.str_settings)
+                label = context.getString(R.string.str_settings),
+                route = MainRoute.Settings
             ),
         )
     }
     val mainNavController = rememberNavController()
     val currentDestination by mainNavController.currentBackStackEntryAsState()
 
-    fun handleMainNavigation(index: Int) {
-        val route = when (index) {
-            0 -> MainRoute.Home
-            1 -> MainRoute.Subscription
-            2 -> MainRoute.Profile
-            else -> MainRoute.Settings
-        }
-
+    fun handleMainNavigation(route: MainRoute) {
         val isHomeRoute =
-            index == 0 && currentDestination?.destination?.hasRoute<MainRoute.Home>() == true
-        val isDynamicRoute =
-            index == 1 && currentDestination?.destination?.hasRoute<MainRoute.Subscription>() == true
+            route is MainRoute.Home && currentDestination?.destination?.hasRoute<MainRoute.Home>() == true
+        val isSubscriptionRoute =
+            route is MainRoute.Subscription && currentDestination?.destination?.hasRoute<MainRoute.Subscription>() == true
 
         when {
-            isHomeRoute || isDynamicRoute -> {
+            isHomeRoute || isSubscriptionRoute -> {
                 scope.launch {
                     EventBus.send(Event.NotificationChildRefresh)
                 }
@@ -122,10 +120,6 @@ fun MainNav(
         }
     }
 
-    fun onBottomAppBarIndexChange(index: Int) {
-        bottomAppBarSelectedIndex = index
-        handleMainNavigation(index)
-    }
 
     AdaptiveLayout(
         modifier = Modifier.fillMaxSize()
@@ -138,9 +132,9 @@ fun MainNav(
                     animatedVisibilityScope = animatedVisibilityScope,
                     sharedTransitionScope = sharedTransitionScope,
                     items = bottomAppBarItems,
-                    bottomAppBarSelectedIndex = bottomAppBarSelectedIndex,
+                    currentDestination = currentDestination,
                     appNavigateToRoute = appNavigateToRoute,
-                    onBottomAppBarIndexChange = ::onBottomAppBarIndexChange
+                    onBottomBarNavigate = ::handleMainNavigation
                 )
             }
 
@@ -151,9 +145,9 @@ fun MainNav(
                     animatedVisibilityScope = animatedVisibilityScope,
                     sharedTransitionScope = sharedTransitionScope,
                     items = bottomAppBarItems + railItems,
-                    bottomAppBarSelectedIndex = bottomAppBarSelectedIndex,
+                    currentDestination = currentDestination,
                     appNavigateToRoute = appNavigateToRoute,
-                    onBottomAppBarIndexChange = ::onBottomAppBarIndexChange
+                    onBottomBarNavigate = ::handleMainNavigation
                 )
             }
 
@@ -163,9 +157,9 @@ fun MainNav(
                     animatedVisibilityScope = animatedVisibilityScope,
                     sharedTransitionScope = sharedTransitionScope,
                     items = bottomAppBarItems + railItems,
-                    bottomAppBarSelectedIndex = bottomAppBarSelectedIndex,
+                    currentDestination = currentDestination,
                     appNavigateToRoute = appNavigateToRoute,
-                    onBottomAppBarIndexChange = ::onBottomAppBarIndexChange
+                    onBottomBarNavigate = ::handleMainNavigation
                 )
             }
         }
@@ -179,9 +173,9 @@ private fun PortraitContent(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     items: List<BottomAppBarItem>,
-    bottomAppBarSelectedIndex: Int,
+    currentDestination: NavBackStackEntry?,
     appNavigateToRoute: (AppRoute) -> Unit,
-    onBottomAppBarIndexChange: (Int) -> Unit
+    onBottomBarNavigate: (MainRoute) -> Unit
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -202,9 +196,9 @@ private fun PortraitContent(
                 .background(MaterialTheme.colorScheme.background.copy(alpha = 0.95f))
                 .navigationBarsPadding(),
             items = items,
-            selectedIndex = bottomAppBarSelectedIndex
-        ) { index ->
-            onBottomAppBarIndexChange(index)
+            currentDestination = currentDestination
+        ) { route ->
+            onBottomBarNavigate(route)
         }
     }
 }
@@ -216,9 +210,9 @@ private fun LandscapeContent(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     items: List<BottomAppBarItem>,
-    bottomAppBarSelectedIndex: Int,
+    currentDestination: NavBackStackEntry?,
     appNavigateToRoute: (AppRoute) -> Unit,
-    onBottomAppBarIndexChange: (Int) -> Unit
+    onBottomBarNavigate: (MainRoute) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -229,8 +223,8 @@ private fun LandscapeContent(
         Row {
             SideNavigateRail(
                 items = items,
-                selectedIndex = bottomAppBarSelectedIndex,
-                onClick = onBottomAppBarIndexChange
+                currentDestination = currentDestination,
+                onClick = onBottomBarNavigate
             )
             MainNavHost(
                 mainNavController = mainNavController,
@@ -249,9 +243,9 @@ private fun DesktopContent(
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     items: List<BottomAppBarItem>,
-    bottomAppBarSelectedIndex: Int,
+    currentDestination: NavBackStackEntry?,
     appNavigateToRoute: (AppRoute) -> Unit,
-    onBottomAppBarIndexChange: (Int) -> Unit
+    onBottomBarNavigate: (MainRoute) -> Unit
 ) {
     var expanded by rememberSaveable { mutableStateOf(true) }
     Column(
@@ -267,16 +261,16 @@ private fun DesktopContent(
                 expanded -> {
                     SideNavigateDrawer(
                         items = items,
-                        selectedIndex = bottomAppBarSelectedIndex,
-                        onClick = onBottomAppBarIndexChange
+                        currentDestination = currentDestination,
+                        onClick = onBottomBarNavigate
                     )
                 }
 
                 else -> {
                     SideNavigateRail(
                         items = items,
-                        selectedIndex = bottomAppBarSelectedIndex,
-                        onClick = onBottomAppBarIndexChange
+                        currentDestination = currentDestination,
+                        onClick = onBottomBarNavigate
                     )
                 }
             }
@@ -328,7 +322,7 @@ private fun MainNavHost(
         }
         composable<MainRoute.Settings> {
             SettingNav(
-               navigateToUp = {}
+                navigateToUp = {}
             )
         }
     }

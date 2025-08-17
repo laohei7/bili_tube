@@ -10,21 +10,25 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDestination.Companion.hasRoute
+import com.laohei.bili_tube.features.main.navigation.MainRoute
 
 @Composable
 internal fun SideNavigateRail(
     items: List<BottomAppBarItem>,
-    selectedIndex: Int,
-    onClick: (Int) -> Unit = {}
+    currentDestination: NavBackStackEntry?,
+    onClick: (MainRoute) -> Unit = {}
 ) {
     NavigationRail {
         items.fastForEachIndexed { index, item ->
+            val selected = currentDestination?.destination?.hasRoute(item.route::class) == true
             if (item.icon == Icons.Rounded.Settings) {
                 Spacer(Modifier.weight(1f))
             }
             NavigationRailItem(
-                selected = selectedIndex == index,
-                onClick = { onClick.invoke(index) },
+                selected = selected,
+                onClick = { onClick.invoke(item.route) },
                 icon = {
                     Icon(
                         imageVector = item.icon,
