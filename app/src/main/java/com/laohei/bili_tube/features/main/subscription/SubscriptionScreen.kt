@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -59,6 +58,7 @@ import com.laohei.bili_tube.ui.theme.LargePadding
 import com.laohei.bili_tube.ui.theme.NonePadding
 import com.laohei.bili_tube.ui.theme.SmallPadding
 import com.laohei.bili_tube.utill.toTimeAgoString
+import com.laohei.bili_tube.utill.underDevelopment
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
@@ -78,7 +78,7 @@ fun SubscriptionScreen(
 ) {
     val scope = rememberCoroutineScope()
 
-    val subscriptionState by subscriptionViewModel.subscriptionState.collectAsStateWithLifecycle()
+    val subscriptionState by subscriptionViewModel.uiState.collectAsStateWithLifecycle()
     val gridState = subscriptionState.gridState
     val subscriptions = subscriptionViewModel.subscriptions.collectAsLazyPagingItems()
     val refreshState = rememberPullToRefreshState()
@@ -152,7 +152,8 @@ fun SubscriptionScreen(
 
 
                 subscriptionList(
-                    fixedCount = fixedCount,
+                    isInitial = subscriptions.itemCount == 0,
+                    isSingleLayout = fixedCount == 1,
                     subscriptions = subscriptions,
                     navigateToAppRoute = navigateToAppRoute,
                     onSubscriptionAction = subscriptionViewModel::onSubscriptionAction
@@ -213,12 +214,12 @@ fun SubscriptionScreen(
         CreatedFolderDialog(
             isShowDialog = subscriptionState.showAddFolder,
             value = subscriptionState.newFolderName,
-            onValueChange = subscriptionViewModel::onFolderNameChanged,
+            onValueChange = subscriptionViewModel::onFolderNameChange,
             onSubmit = subscriptionViewModel::addNewFolder,
             checked = subscriptionState.isPrivateFolder,
-            onCheckedChange = subscriptionViewModel::onPrivateChanged,
+            onCheckedChange = subscriptionViewModel::onPrivateChange,
             onDismiss = {
-                subscriptionViewModel.onFolderNameChanged("")
+                subscriptionViewModel.onFolderNameChange("")
                 subscriptionViewModel.onSubscriptionAction(
                     SubscriptionAction.FolderCreatedUIAction(
                         false
@@ -230,48 +231,36 @@ fun SubscriptionScreen(
 }
 
 private fun LazyStaggeredGridScope.subscriptionList(
-    fixedCount: Int,
+    isInitial: Boolean,
+    isSingleLayout: Boolean,
     subscriptions: LazyPagingItems<DynamicItem>,
     navigateToAppRoute: (AppRoute) -> Unit,
     onSubscriptionAction: (SubscriptionAction) -> Unit
 ) {
     when {
-        fixedCount == 0 -> {
+        isInitial -> {
             items(12) {
-                RecommendPlaceholder(isSingleLayout = fixedCount == 1)
+                RecommendPlaceholder(isSingleLayout = isSingleLayout)
             }
         }
 
         else -> {
             items(subscriptions.itemCount) { index ->
                 subscriptions[index]?.let {
-                    when {
-                        fixedCount == 1 -> {
-                            Column(
-                                modifier = Modifier.padding(vertical = 8.dp),
-                            ) {
-                                GetDynamicItem(
-                                    item = it,
-                                    isSingleLayout = true,
-                                    navigateToAppRoute = navigateToAppRoute,
-                                    onSubscriptionAction = onSubscriptionAction,
-                                )
+                    Column(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                    ) {
+                        GetDynamicItem(
+                            item = it,
+                            isSingleLayout = isSingleLayout,
+                            navigateToAppRoute = navigateToAppRoute,
+                            onSubscriptionAction = onSubscriptionAction,
+                        )
 
-                                HorizontalDivider(
-                                    color = MaterialTheme.colorScheme.surfaceContainer,
-                                    modifier = Modifier.padding(top = 8.dp)
-                                )
-                            }
-                        }
-
-                        else -> {
-                            GetDynamicItem(
-                                item = it,
-                                isSingleLayout = false,
-                                navigateToAppRoute = navigateToAppRoute,
-                                onSubscriptionAction = onSubscriptionAction,
-                            )
-                        }
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
                     }
                 }
             }
@@ -287,6 +276,7 @@ private fun GetDynamicItem(
     navigateToAppRoute: (AppRoute) -> Unit,
     onSubscriptionAction: (SubscriptionAction) -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     val sharedViewModel = koinInject<SharedViewModel>()
     val author = item.modules.moduleAuthor
     val shape = when {
@@ -342,7 +332,10 @@ private fun GetDynamicItem(
                 desc = desc,
                 images = draw.items.map { it.src },
                 shape = shape,
-                onTrailingClick = { onSubscriptionAction(SubscriptionAction.MenuUIAction(true)) }
+                onTrailingClick = {
+//                    onSubscriptionAction(SubscriptionAction.MenuUIAction(true))
+                    underDevelopment(scope)
+                }
             )
         }
 
@@ -356,11 +349,11 @@ private fun GetDynamicItem(
                 images = article.covers,
                 shape = shape,
                 onTrailingClick = {
-                    onSubscriptionAction(SubscriptionAction.MenuUIAction(true))
+//                    onSubscriptionAction(SubscriptionAction.MenuUIAction(true))
+                    underDevelopment(scope)
                 }
             )
         }
-
 
         else -> {
 

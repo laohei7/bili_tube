@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -35,6 +36,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -64,7 +66,6 @@ fun ArticleItem(
     @DrawableRes infoError: Int = R.drawable.icon_loading_1_1,
     onTrailingClick: () -> Unit
 ) {
-    val context = LocalContext.current
     Column(
         modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) {
@@ -89,8 +90,9 @@ fun ArticleItem(
 
 
         images?.let { list ->
-            val fixedCount = list.size.coerceIn(1, 3)
-            val excess = list.size % fixedCount
+            val shortList = list.take(9)
+            val fixedCount = shortList.size.coerceIn(1, 3)
+            val excess = shortList.size % fixedCount
             FlowRow(
                 modifier = Modifier.fillMaxWidth(),
                 maxItemsInEachRow = if (list.size >= 3) 3 else list.size.coerceAtLeast(1),
@@ -100,38 +102,27 @@ fun ArticleItem(
                 ),
                 verticalArrangement = Arrangement.spacedBy(SmallPadding)
             ) {
-                list.fastForEach {
-                    val imageRequest = rememberAsyncImagePainter(
-                        ImageRequest.Builder(context)
-                            .data(it)
-                            .crossfade(true)
-                            .size(
-                                if (list.size == 1) Size.ORIGINAL
-                                else Size(1280, 720)
+                shortList.forEachIndexed { index, it ->
+                    if (index == 8) {
+                        Box {
+                            PictureCard(
+                                url = it,
+                                fixedCount = fixedCount,
+                                shape = shape
                             )
-                            .placeholder(infoPlaceholder)
-                            .error(infoPlaceholder)
-                            .build()
-                    )
-                    Image(
-                        painter = imageRequest,
-                        contentDescription = it,
-                        modifier = Modifier
-                            .fillMaxWidth(1f / fixedCount - 0.05f)
-                            .then(
-                                if (list.size > 1) {
-                                    Modifier
-                                        .aspectRatio(1f)
-                                } else {
-                                    Modifier.wrapContentHeight()
-                                }
-                            )
-                            .clip(shape),
-                        contentScale = when {
-                            list.size == 1 -> ContentScale.FillWidth
-                            else -> ContentScale.Crop
-                        },
-                    )
+                            MoreImage(
+                                fixedCount = fixedCount,
+                                shape = shape,
+                                text = "+9"
+                            ) { }
+                        }
+                    } else {
+                        PictureCard(
+                            url = it,
+                            fixedCount = fixedCount,
+                            shape = shape
+                        )
+                    }
                 }
                 if (excess > 0) {
                     repeat(fixedCount - excess) {
@@ -152,6 +143,58 @@ fun ArticleItem(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun PictureCard(
+    context: Context = LocalContext.current,
+    url: String,
+    fixedCount: Int,
+    shape: Shape,
+) {
+    val imageRequest = rememberAsyncImagePainter(
+        ImageRequest.Builder(context)
+            .data(url)
+            .crossfade(true)
+            .size(Size(1280, 720))
+            .placeholder(R.drawable.icon_loading_1_1)
+            .error(R.drawable.icon_loading_1_1)
+            .build()
+    )
+    Image(
+        painter = imageRequest,
+        contentDescription = url,
+        modifier = Modifier
+            .fillMaxWidth(1f / fixedCount - if (fixedCount > 1) 0.05f else 0f)
+            .aspectRatio(1f)
+            .clip(shape),
+        contentScale = ContentScale.Crop,
+    )
+}
+
+@Composable
+private fun MoreImage(
+    fixedCount: Int,
+    shape: Shape,
+    text: String,
+    onClick: () -> Unit
+) {
+    Surface(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth(1f / fixedCount - if (fixedCount > 1) 0.05f else 0f)
+            .aspectRatio(1f)
+            .clip(shape),
+        color = Color.Black.copy(alpha = 0.5f),
+        contentColor = Color.White
+    ) {
+        Text(
+            text = text, style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.wrapContentSize(),
+            textAlign = TextAlign.Center
+        )
     }
 }
 
@@ -309,6 +352,25 @@ private fun DRAWItem5() {
                 date = "11 小时前",
                 desc = "Hello World!!!",
                 images = listOf("", "", "", "", "", "", "", "", ""),
+                infoError = R.drawable.bg
+            ) {}
+        }
+    }
+}
+
+
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Preview
+@Composable
+private fun DRAWItem6() {
+    SharedTransitionLayout {
+        AnimatedVisibility(visible = true) {
+            ArticleItem(
+                face = "",
+                ownerName = "动漫作业本",
+                date = "11 小时前",
+                desc = "Hello World!!!",
+                images = listOf("", "", "", "", "", "", "", "", "", ""),
                 infoError = R.drawable.bg
             ) {}
         }

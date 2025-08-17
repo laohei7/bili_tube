@@ -19,76 +19,70 @@ class SubscriptionViewModel(
     private val subscriptionRepository: BiliSubscriptionRepository,
     private val playlistRepository: BiliPlaylistRepository
 ) : ViewModel() {
-    private val mSubscriptionState = MutableStateFlow(SubscriptionState())
-    val subscriptionState = mSubscriptionState.stateIn(
+    private val _uiState = MutableStateFlow(SubscriptionUIState())
+    val uiState = _uiState.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
-        mSubscriptionState.value
+        _uiState.value
     )
 
     val subscriptions = subscriptionRepository.getDynamicList()
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 1)
         .cachedIn(viewModelScope)
 
-    private var selectedAid: Long? = null
-    private var selectedBvid: String? = null
+    private var _selectedAid: Long? = null
+    private var _selectedBvid: String? = null
 
 
     fun onSubscriptionAction(action: SubscriptionAction) {
         when (action) {
-            is SubscriptionAction.MenuUIAction -> {
-                selectedBvid = action.bvid
-                selectedAid = action.aid
-                mSubscriptionState.update { it.copy(showMenuSheet = action.flag) }
-            }
+            is SubscriptionAction.MenuUIAction -> displayMenu(action)
 
-            SubscriptionAction.AddToViewAction -> {
-                if (selectedAid == null && selectedBvid == null) {
-                    return
-                }
-                addToView(selectedAid!!, selectedBvid!!)
-            }
+            SubscriptionAction.AddToViewAction -> addToView()
 
-            is SubscriptionAction.FolderUIAction -> {
-                onSubscriptionAction(
-                    SubscriptionAction.MenuUIAction(
-                        false,
-                        if (action.flag) selectedAid else null,
-                        if (action.flag) selectedBvid else null
-                    )
-                )
-                if (action.flag.not()) {
-                    mSubscriptionState.update { it.copy(showFolderSheet = action.flag) }
-                    return
-                }
-                selectedAid?.let { getFolderSimpleList(it) } ?: run {
-                    onSubscriptionAction(SubscriptionAction.MenuUIAction(false))
-                }
-            }
+            is SubscriptionAction.FolderUIAction -> displayFolder(action)
 
             SubscriptionAction.NoneAction -> {}
 
-            is SubscriptionAction.FolderCreatedUIAction -> {
-                mSubscriptionState.update { it.copy(showAddFolder = action.flag) }
-            }
+            is SubscriptionAction.FolderCreatedUIAction -> displayCreateFolder(action)
 
-            is SubscriptionAction.AddToFoldersAction -> {
-                selectedAid?.let {
-                    videoFolderDeal(
-                        aid = it,
-                        addMediaIds = action.addAids,
-                        delMediaIds = action.delAids
-                    )
-                } ?: run {
-                    onSubscriptionAction(SubscriptionAction.FolderUIAction(false))
-                }
-            }
+            is SubscriptionAction.AddToFoldersAction -> addToFolder(action)
         }
     }
 
-    private fun addToView(aid: Long, bvid: String) {
+    private fun displayMenu(action: SubscriptionAction.MenuUIAction) {
+        _selectedBvid = action.bvid
+        _selectedAid = action.aid
+        _uiState.update { it.copy(showMenuSheet = action.flag) }
+    }
+
+    private fun displayFolder(action: SubscriptionAction.FolderUIAction) {
+        displayMenu(
+            SubscriptionAction.MenuUIAction(
+                false,
+                if (action.flag) _selectedAid else null,
+                if (action.flag) _selectedBvid else null
+            )
+        )
+        if (action.flag.not()) {
+            _uiState.update { it.copy(showFolderSheet = action.flag) }
+            return
+        }
+        _selectedAid?.let { getFolderSimpleList(it) } ?: run {
+            displayMenu(SubscriptionAction.MenuUIAction(false))
+        }
+    }
+
+    private fun displayCreateFolder(action: SubscriptionAction.FolderCreatedUIAction) {
+        _uiState.update { it.copy(showAddFolder = action.flag) }
+    }
+
+    private fun addToView() {
         viewModelScope.launch {
-            playlistRepository.addToView(aid, bvid).apply {
+            if (_selectedAid == null && _selectedBvid == null) {
+                return@launch
+            }
+            playlistRepository.addToView(_selectedAid!!, _selectedBvid!!).apply {
                 val messageId = when {
                     code == 0 -> R.string.str_add_to_vew_success
                     else -> R.string.str_add_to_view_failed
@@ -99,19 +93,31 @@ class SubscriptionViewModel(
         }
     }
 
-    fun onFolderNameChanged(value: String) {
-        mSubscriptionState.update { it.copy(newFolderName = value) }
+    private fun addToFolder(action: SubscriptionAction.AddToFoldersAction) {
+        _selectedAid?.let {
+            videoFolderDeal(
+                aid = it,
+                addMediaIds = action.addAids,
+                delMediaIds = action.delAids
+            )
+        } ?: run {
+            displayFolder(SubscriptionAction.FolderUIAction(false))
+        }
     }
 
-    fun onPrivateChanged(value: Boolean) {
-        mSubscriptionState.update { it.copy(isPrivateFolder = value) }
+    fun onFolderNameChange(value: String) {
+        _uiState.update { it.copy(newFolderName = value) }
+    }
+
+    fun onPrivateChange(value: Boolean) {
+        _uiState.update { it.copy(isPrivateFolder = value) }
     }
 
 
     fun addNewFolder() {
         viewModelScope.launch {
-            val folderName = subscriptionState.value.newFolderName
-            val privacy = subscriptionState.value.isPrivateFolder
+            val folderName = uiState.value.newFolderName
+            val privacy = uiState.value.isPrivateFolder
             if (folderName.isBlank()) {
                 EventBus.send(
                     Event.AppEvent.ToastEvent(R.string.str_folder_name_error)
@@ -123,7 +129,7 @@ class SubscriptionViewModel(
                 privacy = privacy
             )
             if (success) {
-                onSubscriptionAction(SubscriptionAction.FolderCreatedUIAction(false))
+                displayCreateFolder(SubscriptionAction.FolderCreatedUIAction(false))
                 EventBus.send(
                     Event.AppEvent.ToastEvent(R.string.str_folder_created_success)
                 )
@@ -138,7 +144,7 @@ class SubscriptionViewModel(
     private fun getFolderSimpleList(aid: Long) {
         viewModelScope.launch {
             playlistRepository.getFolderSimpleList(aid).let { data ->
-                mSubscriptionState.update {
+                _uiState.update {
                     it.copy(
                         folders = data.list,
                         showMenuSheet = false,
@@ -164,7 +170,7 @@ class SubscriptionViewModel(
                     if (code == 0) R.string.str_add_to_folder_success else R.string.str_add_to_folder_failed
                 EventBus.send(Event.AppEvent.ToastEvent(messageId = messageId))
             }
-            onSubscriptionAction(SubscriptionAction.FolderUIAction(false))
+            displayFolder(SubscriptionAction.FolderUIAction(false))
         }
     }
 }

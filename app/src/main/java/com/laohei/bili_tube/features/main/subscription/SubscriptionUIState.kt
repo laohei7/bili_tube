@@ -1,13 +1,9 @@
 package com.laohei.bili_tube.features.main.subscription
 
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
-import androidx.paging.PagingData
-import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
 import com.laohei.bili_sdk.module_v2.folder.SimpleFolderItem
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
 
-data class SubscriptionState(
+data class SubscriptionUIState(
     val gridState: LazyStaggeredGridState = LazyStaggeredGridState(),
 
     // ui control
