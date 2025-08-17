@@ -12,6 +12,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -47,22 +49,36 @@ fun AppNav(
             navController = appNavController,
             startDestination = AppRoute.Splash,
             enterTransition = {
-                slideInHorizontally { it }
+                when {
+                    isSplashOrLoginToMainNav(initialState, targetState) -> fadeIn()
+
+                    else -> slideInHorizontally { it }
+                }
             },
             popExitTransition = {
-                slideOutHorizontally { it }
+                when {
+                    isSplashOrLoginToMainNav(initialState, targetState) -> fadeOut()
+
+                    else -> slideOutHorizontally { it }
+                }
             },
             popEnterTransition = {
-                slideInHorizontally { -it }
+                when {
+                    isSplashOrLoginToMainNav(initialState, targetState) -> fadeIn()
+
+                    else -> slideInHorizontally { -it }
+                }
             },
             exitTransition = {
-                slideOutHorizontally { -it }
+                when {
+                    isSplashOrLoginToMainNav(initialState, targetState) -> fadeOut()
+
+                    else -> slideOutHorizontally { -it }
+                }
+
             }
         ) {
-            composable<AppRoute.Splash>(
-                enterTransition = { fadeIn() },
-                exitTransition = { fadeOut() }
-            ) {
+            composable<AppRoute.Splash> {
                 SplashScreen {
                     val nextRoute = when {
                         localIsLogin -> AppRoute.MainNav
@@ -136,4 +152,17 @@ fun AppNav(
             }
         }
     }
+}
+
+private fun isSplashOrLoginToMainNav(
+    initialState: NavBackStackEntry,
+    targetState: NavBackStackEntry,
+): Boolean {
+    val isSplashToMainNav =
+        initialState.destination.hasRoute(AppRoute.Splash::class) &&
+                targetState.destination.hasRoute(AppRoute.MainNav::class)
+    val isLoginNavToMainNav =
+        initialState.destination.hasRoute(AppRoute.LoginNav::class) &&
+                targetState.destination.hasRoute(AppRoute.MainNav::class)
+    return isLoginNavToMainNav || isSplashToMainNav
 }
