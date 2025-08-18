@@ -1,7 +1,7 @@
 package com.laohei.bili_sdk.wbi
 
-import android.util.Log
 import com.laohei.bili_sdk.apis.URL_USER_PROFILE
+import com.laohei.bili_sdk.exception.globalSDKExceptionHandle
 import com.laohei.bili_sdk.model.BiliResponse
 import com.laohei.bili_sdk.model.BiliWbi
 import io.ktor.client.HttpClient
@@ -15,6 +15,7 @@ import kotlinx.serialization.json.Json
 class GetWbi(private val client: HttpClient) {
 
     companion object {
+        private const val DBG = true
         private val TAG = GetWbi::class.simpleName
 
         private var wbi: GetWbi? = null
@@ -27,27 +28,27 @@ class GetWbi(private val client: HttpClient) {
         }
     }
 
-    suspend fun wbi(cookie: String? = null, setWbiBlock: (suspend (BiliWbi) -> Unit)? = null) =
-        withContext(Dispatchers.IO) {
-            val response = try {
-                client.get(URL_USER_PROFILE) {
-                    url {
-                        cookie?.apply {
-                            headers.append(HttpHeaders.Cookie, this)
-                        }
-                    }
+    suspend fun wbi(
+        cookie: String? = null,
+        setWbiBlock: (suspend (BiliWbi) -> Unit)? = null
+    ) = withContext(Dispatchers.IO) {
+        val biliWbi = runCatching {
+            val response = client.get(URL_USER_PROFILE) {
+                cookie?.apply {
+                    headers.append(HttpHeaders.Cookie, this)
                 }
-            } catch (e: Exception) {
-                null
             }
-            response?.run {
-                val biliWbi = Json.decodeFromString<BiliResponse<BiliWbi>>(bodyAsText()).data
-                if (WbiParams.wbi == null) {
-                    WbiParams.initWbi(biliWbi.wbiImg.imgUrl, biliWbi.wbiImg.subUrl)
-                }
-                Log.d(TAG, "videoUrl: ${WbiParams.wbi}")
-                setWbiBlock?.invoke(biliWbi)
+            Json.decodeFromString<BiliResponse<BiliWbi>>(response.bodyAsText()).data
+        }.getOrElse {
+            if (DBG) {
+                globalSDKExceptionHandle(TAG, it)
             }
+            null
         }
+
+        biliWbi?.let {
+            setWbiBlock?.invoke(it)
+        }
+    }
 
 }

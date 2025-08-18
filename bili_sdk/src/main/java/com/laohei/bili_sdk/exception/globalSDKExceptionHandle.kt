@@ -5,7 +5,7 @@ import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 
 internal fun globalSDKExceptionHandle(
-    tag: String,
+    tag: String?,
     exception: Throwable
 ) {
     when (exception) {

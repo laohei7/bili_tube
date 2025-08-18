@@ -48,23 +48,30 @@ class BiliTubeApp : Application(), SingletonImageLoader.Factory {
             androidContext(this@BiliTubeApp)
             modules(appModule, dataModule, viewModelModule)
         }
-        CoroutineScope(Dispatchers.IO).launch {
-            if (WbiParams.wbi == null) {
-                val imgKey = dataStore.data.firstOrNull()?.get(IMG_URL_KEY)
-                val subKey = dataStore.data.firstOrNull()?.get(SUB_URL_KEY)
-                if (imgKey != null && subKey != null) {
-                    WbiParams.initWbi(imgKey, subKey)
-                    Log.d(TAG, "onCreate: $imgKey $subKey")
-                } else {
-                    val cookie = dataStore.data.firstOrNull()?.get(COOKIE_KEY)
-                    GetWbi.getWbiRequest(HttpClientFactory.client)
-                        .wbi(cookie) { biliWbi ->
-                            dataStore.edit { settings ->
-                                settings[IMG_URL_KEY] = biliWbi.wbiImg.imgUrl
-                                settings[SUB_URL_KEY] = biliWbi.wbiImg.subUrl
-                            }
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            if (WbiParams.wbi != null) return@launch
+
+            val settings = dataStore.data.firstOrNull()
+            val imgKey = settings?.get(IMG_URL_KEY)
+            val subKey = settings?.get(SUB_URL_KEY)
+
+            if (imgKey != null && subKey != null) {
+                WbiParams.initWbi(imgKey, subKey)
+                Log.d(TAG, "onCreate: Wbi from cache $imgKey $subKey")
+            } else {
+                val cookie = settings?.get(COOKIE_KEY)
+                GetWbi.getWbiRequest(HttpClientFactory.client)
+                    .wbi(cookie) { biliWbi ->
+                        dataStore.edit { settings ->
+                            settings[IMG_URL_KEY] = biliWbi.wbiImg.imgUrl
+                            settings[SUB_URL_KEY] = biliWbi.wbiImg.subUrl
                         }
-                }
+                        WbiParams.initWbi(
+                            biliWbi.wbiImg.imgUrl,
+                            biliWbi.wbiImg.subUrl
+                        )
+                        Log.d(TAG, "onCreate: Wbi from network ${biliWbi.wbiImg}")
+                    }
             }
         }
     }
