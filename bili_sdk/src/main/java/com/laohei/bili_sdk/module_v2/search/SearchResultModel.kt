@@ -99,7 +99,7 @@ sealed class SearchResultItemType {
         val review: Long,
         @SerialName("pubdate") val pubDate: Long,
         @SerialName("senddate") val sendDate: Long,
-        @SerialName("rank_score") val rankScore: Long,
+        @SerialName("rank_score") val rankScore: Long = 0L,
         val like: Long,
         val upic: String,
         val danmaku: Long

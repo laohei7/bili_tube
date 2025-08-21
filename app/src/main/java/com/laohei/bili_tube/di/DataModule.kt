@@ -25,6 +25,7 @@ import com.laohei.bili_tube.features.main.subscription.data.repository.BiliSubsc
 import com.laohei.bili_tube.features.player.data.repository.BiliPlayRepository
 import com.laohei.bili_tube.features.playlist.data.repository.BiliPlaylistRepository
 import com.laohei.bili_tube.features.search.data.repository.BiliSearchRepository
+import com.laohei.bili_tube.features.search.data.repository.SearchHistoryRepository
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -49,4 +50,5 @@ val dataModule = module {
     singleOf(::BiliPlaylistRepository)
     singleOf(::BiliSearchRepository)
     singleOf(::BiliLoginRepository)
+    singleOf(::SearchHistoryRepository)
 }

@@ -23,11 +23,13 @@ import com.laohei.bili_tube.core.IMG_URL_KEY
 import com.laohei.bili_tube.core.SUB_URL_KEY
 import com.laohei.bili_tube.di.appModule
 import com.laohei.bili_tube.di.dataModule
+import com.laohei.bili_tube.di.roomModule
 import com.laohei.bili_tube.di.viewModelModule
 import com.laohei.bili_tube.utill.HttpClientFactory
 import com.laohei.bili_tube.utill.SystemUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.koin.android.ext.koin.androidContext
@@ -46,7 +48,7 @@ class BiliTubeApp : Application(), SingletonImageLoader.Factory {
         SystemUtil.init(this)
         startKoin {
             androidContext(this@BiliTubeApp)
-            modules(appModule, dataModule, viewModelModule)
+            modules(appModule, roomModule, dataModule, viewModelModule)
         }
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             if (WbiParams.wbi != null) return@launch

@@ -65,13 +65,16 @@ class SearchViewModel(
     }
 
     fun onSearch() {
-        val keyword = _uiState.value.keyword
-        if (_lastestKeyword == keyword) {
-            _uiState.update { it.copy(expanded = false) }
-            return
-        }
-        _lastestKeyword = keyword
         viewModelScope.launch {
+            val keyword = _uiState.value.keyword
+            if (_lastestKeyword == keyword) {
+                withRefreshing {
+                    _uiState.update { it.copy(isSearching = true, expanded = false) }
+                }
+                _uiState.update { it.copy(isSearching = false) }
+                return@launch
+            }
+            _lastestKeyword = keyword
             val historyItem = SearchHistory(keyword = keyword)
             searchHistoryRepository.addSearchHistoryItem(historyItem)
             _uiState.update { it.copy(isSearching = true, expanded = false) }
@@ -155,12 +158,19 @@ class SearchViewModel(
                     .insertSeparators { before, after ->
                         val beforeType = before?.item?.getType()
                         val afterType = after?.item?.getType()
-                        return@insertSeparators when {
-                            beforeType == null && afterType != null -> UIModel.Header(afterType)
-                            beforeType != afterType -> UIModel.Header(afterType)
+                        if (type == SearchRequest.Companion.SearchType.All) {
+                            return@insertSeparators when {
+                                beforeType == null
+                                        && afterType != null -> UIModel.Header(afterType)
 
-                            else -> null
+                                beforeType != afterType -> UIModel.Header(afterType)
+
+                                else -> null
+                            }
+                        } else {
+                            return@insertSeparators null
                         }
+
                     }
             }.cachedIn(viewModelScope)
     }

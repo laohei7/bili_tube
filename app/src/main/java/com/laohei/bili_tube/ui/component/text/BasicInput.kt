@@ -75,6 +75,7 @@ fun BasicInput(
         keyboardActions = keyboardActions,
         maxLines = maxLines,
         minLines = minLines,
+        singleLine = singleLine,
         visualTransformation = visualTransformation,
         onTextLayout = onTextLayout,
         interactionSource = interactionSource,

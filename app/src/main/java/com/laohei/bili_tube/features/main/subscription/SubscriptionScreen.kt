@@ -333,7 +333,6 @@ private fun GetDynamicItem(
                 images = draw.items.map { it.src },
                 shape = shape,
                 onTrailingClick = {
-//                    onSubscriptionAction(SubscriptionAction.MenuUIAction(true))
                     underDevelopment(scope)
                 }
             )
