@@ -323,14 +323,14 @@ private fun GetDynamicItem(
         }
 
         DynamicItem.DYNAMIC_TYPE_DRAW -> {
-            val draw = item.modules.moduleDynamic.major!!.draw!!
+            val draw = item.modules.moduleDynamic.major?.draw
             val desc = item.modules.moduleDynamic.desc?.text ?: ""
             ArticleItem(
                 face = author.face,
                 ownerName = author.name,
                 date = author.pubTs.toTimeAgoString(),
                 desc = desc,
-                images = draw.items.map { it.src },
+                images = draw?.items?.map { it.src },
                 shape = shape,
                 onTrailingClick = {
                     underDevelopment(scope)
