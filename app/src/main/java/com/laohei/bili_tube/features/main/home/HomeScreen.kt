@@ -201,7 +201,7 @@ fun HomeScreen(
                 DeviceConfiguration.TABLE_LANDSCAPE,
                 DeviceConfiguration.DESKTOP -> true
             },
-            tabs = Tabs,
+            tabs = HomeTabs,
             offset = when (uiType) {
                 DeviceConfiguration.MOBILE_PORTRAIT,
                 DeviceConfiguration.TABLE_PORTRAIT -> IntOffset(0, logoHeight)
@@ -221,7 +221,7 @@ fun HomeScreen(
             selectedTabIndex = pager.currentPage,
             onTabClick = {
                 scope.launch {
-                    pager.animateScrollToPage(Tabs.indexOf(it).coerceAtLeast(0))
+                    pager.animateScrollToPage(HomeTabs.indexOf(it).coerceAtLeast(0))
                 }
             },
             navigateToAppRoute = { navigateToAppRoute(AppRoute.Search) }

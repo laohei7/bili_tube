@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 data class HomeState(
-    val pager: PagerState = PagerState { Tabs.size },
-    val tabGridStates: List<LazyGridState> = List(Tabs.size) { LazyGridState() },
+    val pager: PagerState = PagerState { HomeTabs.size },
+    val tabGridStates: List<LazyGridState> = List(HomeTabs.size) { LazyGridState() },
 
     // video and anime net data by paging
     val recommends: Flow<PagingData<RecommendItem>> = flow { PagingData.empty<RecommendItem>() },
@@ -41,5 +41,5 @@ data class HomeState(
     val animeFilter: BangumiFilterModel = BangumiFilterModel(),
 )
 
-internal val Tabs =
+internal val HomeTabs =
     listOf(R.string.str_recommend, R.string.str_hots, R.string.str_bangumi, R.string.str_anime)
