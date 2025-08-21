@@ -9,6 +9,7 @@ import com.laohei.bili_sdk.module_v2.search.SearchResultModel
 import com.laohei.bili_sdk.module_v2.search.SearchResultModel2
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.Dispatchers
@@ -64,21 +65,19 @@ class SearchRequest(
         }
         val response = try {
             client.get(url) {
-                url {
-                    cookie?.apply {
-                        headers.append(HttpHeaders.Cookie, this)
-                    }
-                    parameters.append("keyword", keyword)
-                    when (type) {
-                        SearchType.All -> {}
-                        else -> {
-                            parameters.append("search_type", type.type)
-                            parameters.append("page", page.toString())
-                        }
+                cookie?.apply {
+                    headers.append(HttpHeaders.Cookie, this)
+                }
+                parameter("keyword", keyword)
+                when (type) {
+                    SearchType.All -> {}
+                    else -> {
+                        parameter("search_type", type.type)
+                        parameter("page", page.toString())
                     }
                 }
                 if (DBG) {
-                    Log.d(TAG, "search: $url")
+                    Log.d(TAG, "search: ${this.url}")
                 }
             }
         } catch (e: Exception) {

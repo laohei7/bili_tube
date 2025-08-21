@@ -94,9 +94,8 @@ dependencies {
 
     implementation(libs.ffmpeg.kit.full)
 
-    implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
+    implementation(libs.bundles.room)
     implementation("org.jellyfin.media3:media3-ffmpeg-decoder:1.8.0+1")
     implementation(libs.sensebot)
     implementation(libs.reorderable)
