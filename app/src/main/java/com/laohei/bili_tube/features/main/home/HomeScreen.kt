@@ -221,7 +221,7 @@ fun HomeScreen(
             selectedTabIndex = pager.currentPage,
             onTabClick = {
                 scope.launch {
-                    pager.animateScrollToPage(HomeTabs.indexOf(it).coerceAtLeast(0))
+                    pager.animateScrollToPage(it)
                 }
             },
             navigateToAppRoute = { navigateToAppRoute(AppRoute.Search) }

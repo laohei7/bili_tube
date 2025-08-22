@@ -62,7 +62,7 @@ private fun HomeTopBarPreview() {
         offset = IntOffset(0, 0),
         alpha = 1f,
         selectedTabIndex = selectedTabIndex,
-        onTabClick = { selectedTabIndex = HomeTabs.indexOf(it).coerceAtLeast(0) },
+        onTabClick = { selectedTabIndex = it },
         navigateToAppRoute = {}
     )
 }
