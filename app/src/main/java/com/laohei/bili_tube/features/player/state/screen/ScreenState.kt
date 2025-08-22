@@ -9,8 +9,8 @@ internal data class ScreenState(
     val screenWidth: Int,
     val screenHeight: Int,
     val isFullscreen: Boolean = false,
-    val maxLimitedHeight: Dp = 400.dp,
-    val minLimitedHeight: Dp = 200.dp,
+    val maximumHeight: Dp = 400.dp,
+    val minimumHeight: Dp = 200.dp,
     val videoHeight: Dp = 200.dp,
     val originalVideoHeight: Dp = videoHeight,
     val listState: LazyListState = LazyListState(),
@@ -47,4 +47,7 @@ internal data class ScreenState(
     val isShowOtherSettingUI: Boolean = false,
     val isShowVideoMenuUIAction: Boolean = false,
 
-    )
+    // adaption system rotation
+    val isAutoRotateEnabled: Boolean = false,
+    val isUserSwitch: Boolean = false
+)

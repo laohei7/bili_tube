@@ -23,11 +23,11 @@ import com.laohei.bili_tube.core.WLAN_VIDEO_QUALITY
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.features.player.data.repository.BiliPlayRepository
-import com.laohei.bili_tube.features.player.state.media.DefaultMediaManager
-import com.laohei.bili_tube.features.player.state.media.MediaManager
-import com.laohei.bili_tube.features.player.state.screen.DefaultScreenManager
+import com.laohei.bili_tube.features.player.state.media.DefaultMediaController
+import com.laohei.bili_tube.features.player.state.media.MediaController
+import com.laohei.bili_tube.features.player.state.screen.DefaultScreenController
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
-import com.laohei.bili_tube.features.player.state.screen.ScreenManager
+import com.laohei.bili_tube.features.player.state.screen.ScreenController
 import com.laohei.bili_tube.features.playlist.data.repository.BiliPlaylistRepository
 import com.laohei.bili_tube.utill.NetworkType
 import com.laohei.bili_tube.utill.NetworkUtil
@@ -50,24 +50,24 @@ import java.io.File
 import kotlin.math.ceil
 
 @UnstableApi
-internal class PlayerViewModel(
+internal class MediaViewModel(
     private val downloadManager: DownloadManager,
     private val biliPlayRepository: BiliPlayRepository,
     private val biliPlaylistRepository: BiliPlaylistRepository,
     private val preferenceUtil: PreferencesUtil,
     private val networkUtil: NetworkUtil,
     var playParam: PlayParam,
-    private val defaultMediaManager: DefaultMediaManager,
-    private val screenManager: DefaultScreenManager,
-) : ViewModel(), MediaManager by defaultMediaManager, ScreenManager by screenManager {
+    private val defaultMediaManager: DefaultMediaController,
+    private val screenManager: DefaultScreenController,
+) : ViewModel(), MediaController by defaultMediaManager, ScreenController by screenManager {
 
     companion object {
-        private val TAG = PlayerViewModel::class.simpleName
+        private val TAG = MediaViewModel::class.simpleName
         private const val DBG = true
     }
 
     private val _mPlayerState = MutableStateFlow(
-        PlayerState(
+        MediaPlayerUIState(
             autoSkip = preferenceUtil.getValue(AUTO_SKIP_KEY, false)
         )
     )
@@ -87,8 +87,8 @@ internal class PlayerViewModel(
     private var mSelectedBvid: String? = null
 
     init {
-        defaultMediaManager.playErrorCallback = { playErrorCallback() }
-        defaultMediaManager.playEndCallback = { playEndCallback() }
+        defaultMediaManager.playError = { playErrorCallback() }
+        defaultMediaManager.playEnd = { playEndCallback() }
     }
 
     private fun playErrorCallback() {
@@ -96,7 +96,7 @@ internal class PlayerViewModel(
     }
 
     private fun playEndCallback() {
-        uploadVideoHistory(exoPlayer().duration / 1000)
+        uploadVideoHistory(exoPlayer.duration / 1000)
         autoSwitchVideo()
     }
 
@@ -170,7 +170,7 @@ internal class PlayerViewModel(
         playParam = other
         viewModelScope.launch {
             withContext(Dispatchers.Main) {
-                toggleLoading()
+                setBuffering(true)
             }
             when (playParam) {
                 is PlayParam.Bangumi -> {
@@ -195,7 +195,7 @@ internal class PlayerViewModel(
                         val resources =
                             biliPlaylistRepository.getFolderResourcePager(mediaList.fid!!)
                         _mPlayerState.update {
-                            it.copy(folderResources = resources)
+                            it.copy(folderMediaFlow = resources)
                         }
                     }
                 }
@@ -225,8 +225,8 @@ internal class PlayerViewModel(
                 .sortedWith(compareBy { idIndexMap[it.aid] })
             _mPlayerState.update {
                 it.copy(
-                    toViewList = toViews,
-                    nextVideoTitle = if (mPlaylistIndex + 1 < it.toViewList.size - 1) {
+                    watchLaterList = toViews,
+                    nextVideoTitle = if (mPlaylistIndex + 1 < it.watchLaterList.size - 1) {
                         toViews[mPlaylistIndex + 1].title
                     } else {
                         "已最后一个视频"
@@ -242,9 +242,9 @@ internal class PlayerViewModel(
             it.copy(
                 playlistIndex = mPlaylistIndex,
                 nextVideoTitle = when {
-                    it.toViewList.isNotEmpty() -> {
-                        if (mPlaylistIndex + 1 < it.toViewList.size - 1) {
-                            it.toViewList[mPlaylistIndex + 1].title
+                    it.watchLaterList.isNotEmpty() -> {
+                        if (mPlaylistIndex + 1 < it.watchLaterList.size - 1) {
+                            it.watchLaterList[mPlaylistIndex + 1].title
                         } else {
                             "已最后一个视频"
                         }
@@ -269,7 +269,7 @@ internal class PlayerViewModel(
                     isVideo = false
                 )
             }
-            launch { getBangumiDetial(seasonId = bangumiParam.seasonId, epId = bangumiParam.epId) }
+            launch { getBangumiDetail(seasonId = bangumiParam.seasonId, epId = bangumiParam.epId) }
         }
     }
 
@@ -299,13 +299,13 @@ internal class PlayerViewModel(
     private fun getReplies(aid: Long) {
         val replies = biliPlayRepository.getVideoReplyPager(type = 1, oid = aid.toString())
         _mPlayerState.update {
-            it.copy(replies = replies)
+            it.copy(repliesFlow = replies)
         }
     }
 
     private fun getUserUploadedVideos(mid: Long) {
         val uploadedVideos = biliPlayRepository.userUploadedVideos(mid)
-        _mPlayerState.update { it.copy(uploadedVideos = uploadedVideos) }
+        _mPlayerState.update { it.copy(uploadedVideosFlow = uploadedVideos) }
     }
 
     private suspend fun hasLike() {
@@ -345,7 +345,7 @@ internal class PlayerViewModel(
                     }
                     _mPlayerState.update { it.copy(isDownloaded = true) }
                     withContext(Dispatchers.Main) {
-                        play(video = localUrl, null)
+                        play(localUrl, null)
                     }
                     return
                 }
@@ -355,7 +355,7 @@ internal class PlayerViewModel(
                 if (videoFile != null && audioFile != null) {
                     _mPlayerState.update { it.copy(isDownloaded = true) }
                     withContext(Dispatchers.Main) {
-                        play(video = videoFile, audioFile)
+                        play(videoFile, audioFile)
                     }
                     return
                 }
@@ -403,7 +403,7 @@ internal class PlayerViewModel(
             val defaultQuality =
                 quality.find { it.first == userDefaultQuality.first } ?: quality.first()
             updateMediaState(
-                state.value.copy(
+                mediaState.value.copy(
                     quality = quality,
                     videoQuality = defaultQuality,
                     audioQuality = userDefaultQuality.second
@@ -425,63 +425,62 @@ internal class PlayerViewModel(
         }
     }
 
-    private fun getBangumiDetial(seasonId: Long?, epId: Long?) {
+    private fun getBangumiDetail(seasonId: Long?, epId: Long?) {
         viewModelScope.launch {
             val response = biliPlayRepository.getBangumiDetail(seasonId = seasonId, epId = epId)
-            response.run {
-                _mPlayerState.update {
-                    it.copy(
-                        bangumiDetail = result,
-                        currentEpId = when {
-                            epId != null -> epId
-                            else -> result.episodes.first().epId
-                        },
-                        initialEpisodeIndex = result.episodes.indexOfFirst { ep -> ep.epId == epId }
-                            .coerceAtLeast(0),
-                        initialSeasonIndex = result.seasons.indexOfFirst { se -> se.seasonId == result.seasonId }
-                            .coerceAtLeast(0)
+            val result = response.result
+            _mPlayerState.update {
+                it.copy(
+                    bangumiDetail = result,
+                    currentEpId = when {
+                        epId != null -> epId
+                        else -> result.episodes.first().epId
+                    },
+                    initialEpisodeIndex = result.episodes.indexOfFirst { ep -> ep.epId == epId }
+                        .coerceAtLeast(0),
+                    initialSeasonIndex = result.seasons.indexOfFirst { se -> se.seasonId == result.seasonId }
+                        .coerceAtLeast(0)
+                )
+            }
+            val episode = when {
+                epId == null -> result.episodes.first()
+                else -> result.episodes.find { it.epId == epId }
+            }
+            episode?.let {
+                _mPlayerState.update { state ->
+                    state.copy(
+                        title = it.displayTitle()
                     )
                 }
-                val episode = when {
-                    epId == null -> result.episodes.first()
-                    else -> result.episodes.find { it.epId == epId }
+                playParam = (playParam as PlayParam.Bangumi).copy(
+                    mediaId = result.mediaId,
+                    epId = it.epId,
+                    aid = it.aid,
+                    bvid = it.bvid,
+                    cid = it.cid,
+                )
+                val skipModel = when {
+                    preferenceUtil.getValue(AUTO_SKIP_KEY, false) -> it.skip
+                    else -> null
                 }
-                episode?.let {
-                    _mPlayerState.update { state ->
-                        state.copy(
-                            title = it.displayTitle()
-                        )
-                    }
-                    playParam = (playParam as PlayParam.Bangumi).copy(
-                        mediaId = result.mediaId,
-                        epId = it.epId,
+                defaultMediaManager.setSkipModel(skipModel)
+                launch {
+                    getURL(
                         aid = it.aid,
                         bvid = it.bvid,
                         cid = it.cid,
+                        epId = it.epId,
+                        isVideo = false
                     )
-                    val skipModel = when {
-                        preferenceUtil.getValue(AUTO_SKIP_KEY, false) -> it.skip
-                        else -> null
-                    }
-                    defaultMediaManager.setSkipModel(skipModel)
-                    launch {
-                        getURL(
-                            aid = it.aid,
-                            bvid = it.bvid,
-                            cid = it.cid,
-                            epId = it.epId,
-                            isVideo = false
-                        )
-                    }
-                    launch { getRelatedBangumis(seasonId = seasonId) }
-                    launch {
-                        val replies = biliPlayRepository.getVideoReplyPager(
-                            type = 1,
-                            oid = it.aid.toString()
-                        )
-                        _mPlayerState.update {
-                            it.copy(replies = replies)
-                        }
+                }
+                launch { getRelatedBangumis(seasonId = seasonId) }
+                launch {
+                    val replies = biliPlayRepository.getVideoReplyPager(
+                        type = 1,
+                        oid = it.aid.toString()
+                    )
+                    _mPlayerState.update {
+                        it.copy(repliesFlow = replies)
                     }
                 }
             }
@@ -630,27 +629,27 @@ internal class PlayerViewModel(
 
     fun onVideoMenuAction(action: VideoMenuAction) {
         when (action) {
-            is VideoMenuAction.LikeAction -> {
+            is VideoMenuAction.Like -> {
                 videoLike(action.like)
             }
 
 
-            is VideoMenuAction.AddToFoldersAction -> {
+            is VideoMenuAction.AddToFolders -> {
                 mSelectedAid?.let {
                     videoFolderDeal(aid = it, action.addAids, action.delAids)
                 }
             }
 
 
-            is VideoMenuAction.ModifyUserRelationAction -> {
+            is VideoMenuAction.ModifyUserRelation -> {
                 userRelationModify(action.action)
             }
 
-            is VideoMenuAction.AddCoinAction -> {
+            is VideoMenuAction.AddCoin -> {
                 postCoin(action.coin)
             }
 
-            is VideoMenuAction.SwitchEpisodeAction -> {
+            is VideoMenuAction.SwitchEpisode -> {
                 updatePlayParam(
                     (playParam as PlayParam.Bangumi).copy(
                         epId = action.episodeId,
@@ -661,7 +660,7 @@ internal class PlayerViewModel(
                 )
             }
 
-            is VideoMenuAction.SwitchSeasonAction -> {
+            is VideoMenuAction.SwitchSeason -> {
                 updatePlayParam(
                     (playParam as PlayParam.Bangumi).copy(
                         seasonId = action.seasonId,
@@ -671,19 +670,19 @@ internal class PlayerViewModel(
                 )
             }
 
-            is VideoMenuAction.SwitchVideoAction -> {
-                updateMediaState(state.value.reset())
+            is VideoMenuAction.SwitchVideo -> {
+                updateMediaState(mediaState.value.reset())
                 updatePlayParam(action.playParam)
             }
 
-            VideoMenuAction.AddToViewAction -> {
+            VideoMenuAction.AddToView -> {
                 if (mSelectedAid == null && mSelectedBvid == null) {
                     return
                 }
                 addToView(mSelectedAid!!, mSelectedBvid!!)
             }
 
-            VideoMenuAction.GetSimpleFoldersAction -> {
+            VideoMenuAction.LoadSimpleFolders -> {
                 getFolderSimpleList()
             }
         }
@@ -697,7 +696,7 @@ internal class PlayerViewModel(
                     else -> R.string.str_add_to_view_failed
                 }
                 EventBus.send(Event.VideoPlayerEvent.SnackbarEventById(messageId = messageId))
-                onScreenAction(ScreenAction.VideoMenuUIAction(false), false)
+                onScreenAction(ScreenAction.SetVideoMenuVisible(false), false)
             }
         }
     }
@@ -731,7 +730,7 @@ internal class PlayerViewModel(
                 val hasLike = like == 1
                 _mPlayerState.update { it.copy(hasLike = hasLike) }
                 onScreenAction(
-                    ScreenAction.ShowLikeAnimationAction(hasLike),
+                    ScreenAction.SetLikeAnimationVisible(hasLike),
                     false
                 )
             }
@@ -755,7 +754,7 @@ internal class PlayerViewModel(
                     -102 -> R.string.str_account_suspend
                     -104 -> R.string.str_not_enough_coins
                     34002 -> R.string.str_not_give_yourself_coin
-                    else ->  R.string.str_add_coin_faild
+                    else -> R.string.str_add_coin_faild
                 }
                 EventBus.send(Event.VideoPlayerEvent.SnackbarEventById(messageId))
             }
@@ -883,7 +882,7 @@ internal class PlayerViewModel(
             )
             if (success) {
                 getFolderSimpleList()
-                onScreenAction(ScreenAction.CreatedFolderUIAction(false), true)
+                onScreenAction(ScreenAction.SetCreatedFolderVisible(false), true)
                 EventBus.send(
                     Event.AppEvent.ToastTextEvent("收藏夹创建成功")
                 )

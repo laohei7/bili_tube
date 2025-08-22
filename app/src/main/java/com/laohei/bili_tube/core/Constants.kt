@@ -47,6 +47,8 @@ internal val NOTIFICATION_PERMISSION = if (Build.VERSION.SDK_INT >= Build.VERSIO
     emptyList()
 }
 
+internal val NormalAudioQuality = listOf(30216, 30232, 30280)
+
 internal val VideoSuperQualities = listOf(
     Pair(127, "8K 超高清"),
     Pair(126, "杜比视界"),

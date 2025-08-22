@@ -104,7 +104,7 @@ internal fun AddCoinSheet(
                 }
 
                 FilledTonalButton(
-                    onClick = { onVideoMenuAction(VideoMenuAction.AddCoinAction(coin = selectCoin)) },
+                    onClick = { onVideoMenuAction(VideoMenuAction.AddCoin(coin = selectCoin)) },
                     modifier = Modifier.fillMaxWidth(0.6f)
                 ) {
                     Text(text = stringResource(R.string.str_coin_flip))

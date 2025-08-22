@@ -257,7 +257,7 @@ fun ArchiveSheet(
                         isCurrentPlaying = index == currentArchiveIndex,
                         onClick = {
                             onVideoMenuAction(
-                                VideoMenuAction.SwitchVideoAction(
+                                VideoMenuAction.SwitchVideo(
                                     PlayParam.Video(
                                         aid = item.aid,
                                         bvid = item.bvid,

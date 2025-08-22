@@ -50,7 +50,7 @@ object HttpClientFactory {
             .enableHttp2(true)
             .enableQuic(true)
             .enableBrotli(true)
-            .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 50 * 1024 * 1024)
+            .enableHttpCache(CronetEngine.Builder.HTTP_CACHE_IN_MEMORY, 100 * 1024 * 1024)
             .build()
     }
 

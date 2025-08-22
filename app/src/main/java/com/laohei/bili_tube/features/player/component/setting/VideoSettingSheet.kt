@@ -76,7 +76,7 @@ internal fun VideoSettingSheet(
             ) {
                 ListItem(
                     modifier = Modifier.clickable {
-                        onScreenAction.invoke(ScreenAction.SettingQualityUIAction(true))
+                        onScreenAction.invoke(ScreenAction.SetSettingQualityVisible(true))
                     },
                     leadingContent = {
                         Icon(
@@ -99,7 +99,7 @@ internal fun VideoSettingSheet(
                 )
                 ListItem(
                     modifier = Modifier.clickable {
-                        onScreenAction.invoke(ScreenAction.SettingSpeedUIAction(true))
+                        onScreenAction.invoke(ScreenAction.SetSettingSpeedVisible(true))
                     },
                     leadingContent = {
                         Icon(
@@ -122,7 +122,7 @@ internal fun VideoSettingSheet(
                 )
                 ListItem(
                     modifier = Modifier.clickable {
-                        onScreenAction.invoke(ScreenAction.LockScreenAction(true))
+                        onScreenAction.invoke(ScreenAction.SetLockScreen(true))
                     },
                     leadingContent = {
                         Icon(
@@ -160,7 +160,7 @@ internal fun VideoSettingSheet(
                 ListItem(
                     modifier = Modifier.clickable {
                         onScreenAction.invoke(
-                            ScreenAction.OtherSettingUIAction(true)
+                            ScreenAction.SetOtherSettingVisible(true)
                         )
                     },
                     leadingContent = {

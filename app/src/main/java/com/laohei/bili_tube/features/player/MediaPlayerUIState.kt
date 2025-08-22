@@ -16,35 +16,53 @@ import com.laohei.bili_sdk.module_v2.video.VideoView
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-data class PlayerState(
+data class MediaPlayerUIState(
     val title: String = "",
+    val isVideo: Boolean = true,
+
+    // video properties
     val videoDetail: VideoDetailModel? = null,
     val videoArchives: List<ArchiveItem>? = null,
     val videoArchiveMeta: ArchiveMeta? = null,
     val currentArchiveIndex: Int = 0,
+
+    // divide P adaptation
     val videoPageList: List<VideoPageListModel>? = null,
     val currentPageListIndex: Int = 0,
+
+    // user interaction status
     val hasLike: Boolean = false,
     val hasCoin: Boolean = false,
     val hasFavoured: Boolean = false,
-    val folders: List<SimpleFolderItem> = emptyList(),
+    val isPrivate: Boolean = false,
     val isDownloaded: Boolean = false,
-    val isVideo: Boolean = true,
+
+    // favorite folder
+    val folders: List<SimpleFolderItem> = emptyList(),
+    val folderName: String = "",
+    val folderMediaFlow: Flow<PagingData<FolderMediaItem>> = flow { PagingData.empty<FolderMediaItem>() },
+
+    // bangumi properties
     val bangumiDetail: BangumiDetailModel? = null,
     val currentEpId: Long = -1,
     val initialSeasonIndex: Int = 0,
     val initialEpisodeIndex: Int = 0,
-    val replies: Flow<PagingData<ReplyItem>> = flow { PagingData.empty<ReplyItem>() },
     val relatedBangumis: List<RelatedBangumiItem>? = null,
-    val autoSkip: Boolean = false,
+
+    // comment interaction
+    val repliesFlow: Flow<PagingData<ReplyItem>> = flow { PagingData.empty<ReplyItem>() },
+
+    // video author related info
+    val uploadedVideosFlow: Flow<PagingData<UploadedVideoItem>> = flow { PagingData.empty<UploadedVideoItem>() },
     val infoCardModel: InfoCardModel? = null,
-    val uploadedVideos: Flow<PagingData<UploadedVideoItem>> = flow { PagingData.empty<UploadedVideoItem>() },
-    val toViewList: List<VideoView> = emptyList(),
+
+    // watch later list or favorites
+    val watchLaterList: List<VideoView> = emptyList(),
     val playlistIndex: Int = 0,
     val playlistCount: Int = 0,
     val playlistTitle: String = "",
     val nextVideoTitle: String = "",
-    val folderResources: Flow<PagingData<FolderMediaItem>> = flow { PagingData.empty<FolderMediaItem>() },
-    val folderName: String = "",
-    val isPrivate: Boolean = false
+
+    // other
+    val autoSkip: Boolean = false,
 )

@@ -48,7 +48,7 @@ import com.laohei.bili_tube.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
 import com.laohei.bili_tube.component.video.VideoAction
-import com.laohei.bili_tube.features.player.PlayerState
+import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.features.player.component.archive.ArchiveMetaItem
 import com.laohei.bili_tube.features.player.component.archive.MediaSeriesList
@@ -57,6 +57,7 @@ import com.laohei.bili_tube.features.player.state.screen.ScreenState
 import com.laohei.bili_tube.ui.component.text.IconText
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
 import com.laohei.bili_tube.ui.component.video.VerticalVideoItem
+import com.laohei.bili_tube.ui.theme.MediumPadding
 import com.laohei.bili_tube.ui.theme.Pink
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.toTimeAgoString
@@ -66,7 +67,7 @@ import com.laohei.bili_tube.utill.toViewString
 @Composable
 internal fun GetContent(
     modifier: Modifier,
-    playerState: PlayerState,
+    playerState: MediaPlayerUIState,
     screenState: ScreenState,
     bottomPadding: Dp = 0.dp,
     onScreenAction: (ScreenAction) -> Unit,
@@ -159,7 +160,7 @@ private fun VideoContent(
     ) {
         LazyColumn(
             state = lazyListState,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(MediumPadding),
         ) {
             item {
                 VideoSimpleInfoBar(
@@ -171,7 +172,7 @@ private fun VideoContent(
                         else -> null
                     },
                     onClick = {
-                        onScreenAction(ScreenAction.VideoDetailUIAction(true))
+                        onScreenAction(ScreenAction.SetVideoDetailVisible(true))
                     }
                 )
             }
@@ -201,7 +202,7 @@ private fun VideoContent(
                     onScreenAction = onScreenAction,
                     onVideoMenuAction = onVideoMenuAction,
                     onAnimationEndCallback = {
-                        onScreenAction(ScreenAction.ShowLikeAnimationAction(false))
+                        onScreenAction(ScreenAction.SetLikeAnimationVisible(false))
                     }
                 )
             }
@@ -245,7 +246,7 @@ private fun VideoContent(
                     trailingIcon = Icons.Outlined.MoreVert,
                     onClick = {
                         onVideoMenuAction(
-                            VideoMenuAction.SwitchVideoAction(
+                            VideoMenuAction.SwitchVideo(
                                 PlayParam.Video(
                                     width = video.dimension.width,
                                     height = video.dimension.height,
@@ -259,7 +260,7 @@ private fun VideoContent(
                     onTrailingClick = {
                         onSelectedAidChange(video.aid)
                         onSelectedBvidChange(video.bvid)
-                        onScreenAction(ScreenAction.VideoMenuUIAction(true))
+                        onScreenAction(ScreenAction.SetVideoMenuVisible(true))
                     }
                 )
             }
@@ -298,6 +299,7 @@ private fun BangumiContent(
             .padding(horizontal = 16.dp)
         LazyColumn(
             state = lazyListState,
+            verticalArrangement = Arrangement.spacedBy(MediumPadding)
         ) {
             item {
                 Row(
@@ -404,7 +406,7 @@ private fun BangumiContent(
                     onScreenAction = onScreenAction,
                     onVideoMenuAction = onVideoMenuAction,
                     onAnimationEndCallback = {
-                        onScreenAction(ScreenAction.ShowLikeAnimationAction(false))
+                        onScreenAction(ScreenAction.SetLikeAnimationVisible(false))
                     },
                 )
                 Spacer(Modifier.height(16.dp))
@@ -440,7 +442,7 @@ private fun BangumiContent(
                     items(bangumiDetailModel.seasons) {
                         Surface(
                             onClick = {
-                                onVideoMenuAction(VideoMenuAction.SwitchSeasonAction(it.seasonId))
+                                onVideoMenuAction(VideoMenuAction.SwitchSeason(it.seasonId))
                             },
                             contentColor = when {
                                 bangumiDetailModel.seasonId == it.seasonId -> Pink
@@ -466,7 +468,7 @@ private fun BangumiContent(
                         Surface(
                             onClick = {
                                 onVideoMenuAction(
-                                    VideoMenuAction.SwitchEpisodeAction(
+                                    VideoMenuAction.SwitchEpisode(
                                         episodeId = it.epId,
                                         aid = it.aid,
                                         cid = it.cid,
@@ -539,7 +541,7 @@ private fun BangumiContent(
                 CommentCard(
                     comments = "",
                     onScreenAction = {
-                        onScreenAction(ScreenAction.ReplyUIAction(true))
+                        onScreenAction(ScreenAction.SetReplyVisible(true))
                     }
                 )
                 Spacer(Modifier.height(8.dp))
@@ -558,7 +560,7 @@ private fun BangumiContent(
                     leadingIcon = null,
                     onClick = {
                         onVideoMenuAction(
-                            VideoMenuAction.SwitchVideoAction(
+                            VideoMenuAction.SwitchVideo(
                                 PlayParam.Bangumi(
                                     seasonId = it.seasonId,
                                     bvid = "",

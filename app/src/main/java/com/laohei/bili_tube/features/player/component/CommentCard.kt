@@ -49,7 +49,7 @@ internal fun CommentCard(
             )
             .clip(CardDefaults.shape)
             .clickable {
-                onScreenAction(ScreenAction.ReplyUIAction(true))
+                onScreenAction(ScreenAction.SetReplyVisible(true))
             }
             .padding(12.dp),
         colors = CardDefaults.cardColors(

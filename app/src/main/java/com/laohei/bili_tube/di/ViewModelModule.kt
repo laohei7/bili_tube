@@ -8,7 +8,7 @@ import com.laohei.bili_tube.features.main.home.hot.HotViewModel
 import com.laohei.bili_tube.features.main.home.recommend.RecommendViewModel
 import com.laohei.bili_tube.features.main.profile.ProfileViewModel
 import com.laohei.bili_tube.features.main.subscription.SubscriptionViewModel
-import com.laohei.bili_tube.features.player.PlayerViewModel
+import com.laohei.bili_tube.features.player.MediaViewModel
 import com.laohei.bili_tube.features.playlist.PlaylistDetailViewModel
 import com.laohei.bili_tube.features.playlist.PlaylistViewModel
 import com.laohei.bili_tube.features.search.SearchViewModel
@@ -29,5 +29,5 @@ val viewModelModule = module {
     viewModelOf(::SettingViewModel)
     viewModelOf(::LoginViewModel)
     viewModelOf(::PlaylistDetailViewModel)
-    viewModelOf(::PlayerViewModel)
+    viewModelOf(::MediaViewModel)
 }

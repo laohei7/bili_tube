@@ -5,12 +5,12 @@ import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 
-internal interface ScreenManager {
+internal interface ScreenController {
     val screenState: StateFlow<ScreenState>
 
     val nestedScrollConnection: NestedScrollConnection
 
-    fun updateState(other: ScreenState)
+    fun updateState(state: ScreenState)
 
     fun onNewDelta(delta: Float): Float
 
@@ -20,14 +20,14 @@ internal interface ScreenManager {
         action: ScreenAction,
         isOrientationPortrait: Boolean,
         scope: CoroutineScope? = null,
-        lockScreenCallback:(()-> Unit)?=null
+        onLockScreenCallback:(()-> Unit)?=null
     )
 
     fun onMaskAlphaChange(offset: Float)
 
-    fun handleRelatedListDrag(offset: Float)
+    fun onRelatedListDrag(offset: Float)
 
-    fun adjustRelatedListOffset()
+    fun applyRelatedListOffset()
 
-    fun calculateScreenSize(vW: Int, vH: Int)
+    fun computeScreenSize(videoWidth: Int, videoHeight: Int)
 }

@@ -75,7 +75,7 @@ internal fun HorizontalVideoMenu(
                 label = great,
                 icon1Color = if (localHasLike) Color.Red else MaterialTheme.colorScheme.onBackground,
                 onIcon1Click = {
-                    onVideoMenuAction(VideoMenuAction.LikeAction(if (localHasLike) 2 else 1))
+                    onVideoMenuAction(VideoMenuAction.Like(if (localHasLike) 2 else 1))
                 },
                 onIcon2Click = {}
             )
@@ -98,7 +98,7 @@ internal fun HorizontalVideoMenu(
             color = if (localHasCoin) Color.Red else MaterialTheme.colorScheme.onBackground,
             onClick = {
                 if (localHasCoin.not()) {
-                    onScreenAction(ScreenAction.AddCoinUIAction(true))
+                    onScreenAction(ScreenAction.SetAddCoinVisible(true))
                 }
             }
         )
@@ -107,7 +107,7 @@ internal fun HorizontalVideoMenu(
             icon = Icons.Outlined.StarOutline,
             color = if (localHasFavoured) Color.Red else MaterialTheme.colorScheme.onBackground,
             label = star,
-            onClick = { onScreenAction(ScreenAction.ModifyFolderUIAction(true)) }
+            onClick = { onScreenAction(ScreenAction.SetModifyFolderVisible(true)) }
         )
         Spacer(modifier = Modifier)
         ExtendedIconButton(
@@ -123,7 +123,7 @@ internal fun HorizontalVideoMenu(
                 isDownloaded -> stringResource(R.string.str_downloaded)
                 else -> stringResource(R.string.str_download)
             },
-            onClick = { onScreenAction(ScreenAction.DownloadUIAction(true))}
+            onClick = { onScreenAction(ScreenAction.SetDownloadVisible(true))}
         )
         Spacer(modifier = Modifier)
     }

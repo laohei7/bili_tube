@@ -14,7 +14,7 @@ import androidx.compose.ui.zIndex
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import com.laohei.bili_tube.component.video.VideoAction
-import com.laohei.bili_tube.features.player.PlayerState
+import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.component.control.PlayerControl
 import com.laohei.bili_tube.features.player.state.media.MediaState
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
@@ -31,7 +31,7 @@ internal fun VideoArea(
     modifier: Modifier = Modifier,
     videoControlModifier: Modifier = Modifier,
     exoPlayer: ExoPlayer,
-    playerState: PlayerState,
+    playerState: MediaPlayerUIState,
     mediaState: MediaState,
     screenState: ScreenState,
     videoFrame: (Bitmap) -> Unit = {},
@@ -87,7 +87,7 @@ internal fun VideoArea(
         onControlUIChange = onShowUIChanged,
         onBackPress = backPressedClick,
         onSetting = {
-            screenActionClick.invoke(ScreenAction.SettingUIAction(true))
+            screenActionClick.invoke(ScreenAction.SetSettingVisible(true))
         },
         bottomControlContent = {
             FullscreenBottomControlContent(
@@ -110,7 +110,7 @@ internal fun VideoArea(
             )
         },
         unlockScreen = {
-            screenActionClick.invoke(ScreenAction.LockScreenAction(false))
+            screenActionClick.invoke(ScreenAction.SetLockScreen(false))
         },
         resetHideTimer = {}
     ) {

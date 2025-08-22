@@ -1,7 +1,9 @@
 package com.laohei.bili_tube.features.player
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.util.Log
 import android.view.TextureView
@@ -80,22 +82,22 @@ import com.laohei.bili_tube.features.player.component.setting.OtherSettingsSheet
 import com.laohei.bili_tube.features.player.component.setting.PlaySpeedSheet
 import com.laohei.bili_tube.features.player.component.setting.VideoQualitySheet
 import com.laohei.bili_tube.features.player.component.setting.VideoSettingSheet
-import com.laohei.bili_tube.features.player.state.media.DefaultMediaManager
+import com.laohei.bili_tube.features.player.state.media.DefaultMediaController
 import com.laohei.bili_tube.features.player.state.media.MediaState
-import com.laohei.bili_tube.features.player.state.screen.DefaultScreenManager
+import com.laohei.bili_tube.features.player.state.screen.DefaultScreenController
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 import com.laohei.bili_tube.features.player.state.screen.ScreenState
 import com.laohei.bili_tube.ui.component.dialog.CreatedFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.sheet.FolderSheet
+import com.laohei.bili_tube.utill.OnOrientationChanged
 import com.laohei.bili_tube.utill.SystemUtil
 import com.laohei.bili_tube.utill.checkedPermissions
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.hideSystemUI
 import com.laohei.bili_tube.utill.isOrientationPortrait
 import com.laohei.bili_tube.utill.showSystemUI
-import com.laohei.bili_tube.utill.toggleOrientation
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -107,33 +109,38 @@ import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import kotlin.math.roundToInt
 
+private const val TAG = "VideoScreen"
+
 @OptIn(UnstableApi::class)
 @Composable
 fun VideoScreen(
-    systemBarHeight: Dp = SystemUtil.getSystemBarHeightDp(),
-    context: Context = LocalContext.current,
-    density: Density = LocalDensity.current,
-    view: View = LocalView.current,
-    scope: CoroutineScope = rememberCoroutineScope(),
-    activity: Activity? = LocalActivity.current,
-    configuration: Configuration = LocalConfiguration.current,
     cronetEngine: CronetEngine = koinInject(),
     simpleCache: SimpleCache = koinInject(),
     playParam: PlayParam,
     upPress: () -> Unit
 ) {
+    val systemBarHeight: Dp = SystemUtil.getSystemBarHeightDp()
+    val context: Context = LocalContext.current
+    val density: Density = LocalDensity.current
+    val view: View = LocalView.current
+    val scope: CoroutineScope = rememberCoroutineScope()
+    val activity: Activity? = LocalActivity.current
+    val configuration: Configuration = LocalConfiguration.current
+
     // The Listen Control UI is automatically hidden
     var autoHideJob by remember { mutableStateOf<Job?>(null) }
     var lastTapTimestamp by remember { mutableLongStateOf(0) }
-    var tiggerAutoFullscreen by remember { mutableStateOf(true) }
 
     val isOrientationPortrait = isOrientationPortrait()
     val defaultMediaManager = remember {
-        DefaultMediaManager(context, cronetEngine, simpleCache, playParam.width, playParam.height)
+        DefaultMediaController(
+            context, cronetEngine, simpleCache,
+            playParam.width, playParam.height
+        )
     }
     val defaultScreenManager = remember {
-        DefaultScreenManager(
-            density,
+        DefaultScreenController(
+            density, context,
             when {
                 isOrientationPortrait -> configuration.screenHeightDp + systemBarHeight.value.roundToInt()
                 else -> configuration.screenWidthDp + systemBarHeight.value.roundToInt()
@@ -145,16 +152,16 @@ fun VideoScreen(
             playParam.width, playParam.height
         )
     }
-    val viewModel = koinViewModel<PlayerViewModel> {
+    val viewModel = koinViewModel<MediaViewModel> {
         parametersOf(playParam, defaultMediaManager, defaultScreenManager)
     }
 
     val playerState by viewModel.playerState.collectAsStateWithLifecycle()
-    val mediaState by viewModel.state.collectAsStateWithLifecycle()
+    val mediaState by viewModel.mediaState.collectAsStateWithLifecycle()
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
-    val replies = playerState.replies.collectAsLazyPagingItems()
-    val userVideos = playerState.uploadedVideos.collectAsLazyPagingItems()
+    val replies = playerState.repliesFlow.collectAsLazyPagingItems()
+    val userVideos = playerState.uploadedVideosFlow.collectAsLazyPagingItems()
 
 
     fun resetHideTimer() {
@@ -171,7 +178,7 @@ fun VideoScreen(
                 val currentTimestamp = Clock.System.now().toEpochMilliseconds()
                 val canHide = (currentTimestamp - lastTapTimestamp) > 5000
                 if (canHide) {
-                    viewModel.onScreenAction(ScreenAction.ShowControlUIAction(false), false)
+                    viewModel.onScreenAction(ScreenAction.SetControlVisible(false), false)
                 }
             }
         }
@@ -179,7 +186,7 @@ fun VideoScreen(
 
     // video size changed
     LaunchedEffect(mediaState.width, mediaState.height) {
-        viewModel.calculateScreenSize(mediaState.width, mediaState.height)
+        viewModel.computeScreenSize(mediaState.width, mediaState.height)
     }
 
     LaunchedEffect(screenState.isFullscreen) {
@@ -204,50 +211,59 @@ fun VideoScreen(
         onDispose { view.keepScreenOn = false }
     }
 
+
+
     LifecycleEffect(
         onResume = {
             if (!mediaState.isLoading && !mediaState.isPlaying) {
-                viewModel.exoPlayer().play()
+                viewModel.togglePlayPause()
             }
         },
         onPause = {
             if (mediaState.isPlaying) {
-                viewModel.exoPlayer().pause()
+                viewModel.togglePlayPause()
             }
         }
     )
 
-    fun onFullscreenChange(uiType: DeviceConfiguration, isFullscreen: Boolean) {
+    fun enterFullscreen() {
         val aspectRatio = mediaState.width.toFloat() / mediaState.height
-        val keepPortrait = when {
-            isFullscreen.not() -> isOrientationPortrait
-            isFullscreen -> (uiType == DeviceConfiguration.MOBILE_PORTRAIT
-                    || uiType == DeviceConfiguration.TABLE_PORTRAIT) && aspectRatio <= 1
-
-            else -> false
-        }
-        viewModel.onFullscreenChange(
-            isFullscreen,
-            when {
-                keepPortrait && isFullscreen -> screenState.screenHeight.dp
-                else -> screenState.originalVideoHeight
-            },
-            isOrientationPortrait
-        )
-        when {
-            keepPortrait.not() -> activity?.toggleOrientation()
+        val isAutoRotateEnabled = screenState.isAutoRotateEnabled
+        if (isOrientationPortrait && aspectRatio <= 1f) {
+            activity?.requestedOrientation = if (isAutoRotateEnabled) {
+                ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+            } else {
+                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            }
+            viewModel.onFullscreenChange(true, screenState.screenHeight.dp, true)
+        } else {
+            activity?.requestedOrientation = if (isAutoRotateEnabled) {
+                ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+            } else {
+                ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            }
+            viewModel.onFullscreenChange(true, screenState.originalVideoHeight, false)
         }
     }
 
-    fun backHandler() {
+    @SuppressLint("SourceLockedOrientationActivity")
+    fun exitFullscreen(uiType: DeviceConfiguration) {
+        val isAutoRotateEnabled = screenState.isAutoRotateEnabled
+        activity?.requestedOrientation = if (isAutoRotateEnabled) {
+            ActivityInfo.SCREEN_ORIENTATION_USER
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+        }
+        viewModel.onFullscreenChange(false, screenState.originalVideoHeight, isOrientationPortrait)
+    }
+
+    fun onBackHandler(uiType: DeviceConfiguration) {
         Log.d("TAG", "VideoScreen: ${screenState.isFullscreen}")
         when {
             screenState.isLockScreen -> {}
             screenState.isFullscreen -> {
-                onFullscreenChange(
-                    if (isOrientationPortrait) DeviceConfiguration.MOBILE_PORTRAIT else DeviceConfiguration.MOBILE_LANDSCAPE,
-                    false
-                )
+                viewModel.onScreenAction(ScreenAction.SetUserSwitch(true), isOrientationPortrait)
+                exitFullscreen(uiType)
             }
 
             else -> {
@@ -256,26 +272,56 @@ fun VideoScreen(
         }
     }
 
-    BackHandler(enabled = screenState.isFullscreen) {
-        backHandler()
-    }
+
 
     LaunchedEffect(mediaState.isPlaying) {
         while (mediaState.isPlaying) {
-            val history = viewModel.exoPlayer().currentPosition / 1000
+            val history = viewModel.exoPlayer.currentPosition / 1000
             viewModel.uploadVideoHistory(history)
             delay(15000)
         }
     }
 
     AdaptiveLayout { uiType, width, height ->
+        // listener orientation
+        BackHandler(enabled = screenState.isFullscreen) {
+            onBackHandler(uiType)
+        }
+        OnOrientationChanged { orientation ->
+            Log.d(TAG, "VideoScreen: orientation change: $orientation")
+            if (screenState.isAutoRotateEnabled.not()) {
+                return@OnOrientationChanged
+            }
+            val isFullscreen = screenState.isFullscreen
+            if (screenState.isUserSwitch.not()) {
+                when (orientation) {
+                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
+                        if (isFullscreen) {
+                            Log.d(TAG, "VideoScreen: orientation change: $orientation portrait")
+                            exitFullscreen(uiType)
+                        }
+                    }
+
+                    ActivityInfo.SCREEN_ORIENTATION_USER,
+                    ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE -> {
+                        if (isFullscreen.not()) {
+                            Log.d(TAG, "VideoScreen: orientation change: $orientation landscape")
+                            enterFullscreen()
+                        }
+                    }
+
+                    else -> {}
+                }
+            }
+            viewModel.onScreenAction(ScreenAction.SetUserSwitch(false), isOrientationPortrait)
+        }
         when (uiType) {
             DeviceConfiguration.MOBILE_PORTRAIT,
             DeviceConfiguration.TABLE_PORTRAIT -> {
                 PortraitVideoPage(
                     context = context,
                     nestedScrollConnection = viewModel.nestedScrollConnection,
-                    exoPlayer = viewModel.exoPlayer(),
+                    exoPlayer = viewModel.exoPlayer,
                     playParam = viewModel.playParam,
                     screenState = screenState,
                     mediaState = mediaState,
@@ -284,31 +330,35 @@ fun VideoScreen(
                     userVideos = userVideos,
                     onVideoFrameChange = {
                         viewModel.onScreenAction(
-                            ScreenAction.SetBackgroundAction(it), isOrientationPortrait
+                            ScreenAction.SetBackground(it), isOrientationPortrait
                         )
                     },
                     onPostHistory = {},
                     onControlUIChange = {
                         viewModel.onScreenAction(
-                            ScreenAction.ShowControlUIAction(it), isOrientationPortrait
+                            ScreenAction.SetControlVisible(it), isOrientationPortrait
                         )
                     },
-                    onBackPress = { backHandler() },
-                    onProgressChange = { viewModel.seekTo(it) },
+                    onBackPress = { onBackHandler(uiType) },
+                    onProgressChange = { viewModel.seekToFraction(it) },
                     onPlayChange = { viewModel.togglePlayPause() },
                     onFullscreenChange = { isFullscreen ->
-                        onFullscreenChange(uiType, isFullscreen)
+                        viewModel.onScreenAction(
+                            ScreenAction.SetUserSwitch(true),
+                            isOrientationPortrait
+                        )
+                        if (isFullscreen) {
+                            enterFullscreen()
+                        } else {
+                            exitFullscreen(uiType)
+                        }
                     },
                     onVideoMenuAction = viewModel::onVideoMenuAction,
                     onScreenAction = {
                         viewModel.onScreenAction(
-                            it, false,
-                            lockScreenCallback = when (it) {
-                                is ScreenAction.LockScreenAction -> {
-                                    {
-                                        onFullscreenChange(uiType, true)
-                                    }
-                                }
+                            action = it, isOrientationPortrait = false,
+                            onLockScreenCallback = when (it) {
+                                is ScreenAction.SetLockScreen -> ::enterFullscreen
 
                                 else -> null
                             }
@@ -321,7 +371,7 @@ fun VideoScreen(
                     onDownload = {
                         viewModel.download(it)
                         viewModel.onScreenAction(
-                            ScreenAction.DownloadUIAction(false),
+                            ScreenAction.SetDownloadVisible(false),
                             isOrientationPortrait
                         )
                     }
@@ -332,21 +382,29 @@ fun VideoScreen(
                 LandscapeFullscreenVideoPage(
                     context = context,
                     playParam = viewModel.playParam,
-                    exoPlayer = viewModel.exoPlayer(),
+                    exoPlayer = viewModel.exoPlayer,
                     screenState = screenState,
                     mediaState = mediaState,
                     playerState = playerState,
                     onVideoFrameChange = {
-                        viewModel.onScreenAction(ScreenAction.SetBackgroundAction(it), false)
+                        viewModel.onScreenAction(ScreenAction.SetBackground(it), false)
                     },
                     onControlUIChange = {
-                        viewModel.onScreenAction(ScreenAction.ShowControlUIAction(it), false)
+                        viewModel.onScreenAction(ScreenAction.SetControlVisible(it), false)
                     },
-                    onBackPress = { backHandler() },
-                    onProgressChange = { viewModel.seekTo(it) },
+                    onBackPress = { onBackHandler(uiType) },
+                    onProgressChange = { viewModel.seekToFraction(it) },
                     onPlayChange = { viewModel.togglePlayPause() },
                     onFullscreenChange = { isFullscreen ->
-                        onFullscreenChange(DeviceConfiguration.MOBILE_PORTRAIT, isFullscreen)
+                        viewModel.onScreenAction(
+                            ScreenAction.SetUserSwitch(true),
+                            isOrientationPortrait
+                        )
+                        if (isFullscreen) {
+                            enterFullscreen()
+                        } else {
+                            exitFullscreen(uiType)
+                        }
                     },
                     onVideoMenuAction = viewModel::onVideoMenuAction,
                     onScreenAction = {
@@ -363,21 +421,29 @@ fun VideoScreen(
                     LandscapeFullscreenVideoPage(
                         context = context,
                         playParam = viewModel.playParam,
-                        exoPlayer = viewModel.exoPlayer(),
+                        exoPlayer = viewModel.exoPlayer,
                         screenState = screenState,
                         mediaState = mediaState,
                         playerState = playerState,
                         onVideoFrameChange = {
-                            viewModel.onScreenAction(ScreenAction.SetBackgroundAction(it), false)
+                            viewModel.onScreenAction(ScreenAction.SetBackground(it), false)
                         },
                         onControlUIChange = {
-                            viewModel.onScreenAction(ScreenAction.ShowControlUIAction(it), false)
+                            viewModel.onScreenAction(ScreenAction.SetControlVisible(it), false)
                         },
-                        onBackPress = { backHandler() },
-                        onProgressChange = { viewModel.seekTo(it) },
+                        onBackPress = { onBackHandler(uiType) },
+                        onProgressChange = { viewModel.seekToFraction(it) },
                         onPlayChange = { viewModel.togglePlayPause() },
                         onFullscreenChange = { isFullscreen ->
-                            onFullscreenChange(uiType, isFullscreen)
+                            viewModel.onScreenAction(
+                                ScreenAction.SetUserSwitch(true),
+                                isOrientationPortrait
+                            )
+                            if (isFullscreen) {
+                                enterFullscreen()
+                            } else {
+                                exitFullscreen(uiType)
+                            }
                         },
                         onVideoMenuAction = viewModel::onVideoMenuAction,
                         onScreenAction = {
@@ -396,20 +462,26 @@ fun VideoScreen(
             speed = mediaState.speed,
             quality = mediaState.videoQuality.second,
             onDismiss = {
-                viewModel.onScreenAction(ScreenAction.SettingUIAction(false), isOrientationPortrait)
+                viewModel.onScreenAction(
+                    ScreenAction.SetSettingVisible(false),
+                    isOrientationPortrait
+                )
             },
             onScreenAction = { action ->
-                viewModel.onScreenAction(ScreenAction.SettingUIAction(false), isOrientationPortrait)
+                viewModel.onScreenAction(
+                    ScreenAction.SetSettingVisible(false),
+                    isOrientationPortrait
+                )
                 viewModel.onScreenAction(action, isOrientationPortrait)
             }
         )
         PlaySpeedSheet(
             isShowSheet = screenState.isShowSpeedUI,
             speed = mediaState.speed,
-            onSpeedChanged = { viewModel.setSpeed(it) },
+            onSpeedChanged = { viewModel.setPlaybackSpeed(it) },
             onDismiss = {
                 viewModel.onScreenAction(
-                    ScreenAction.SettingSpeedUIAction(false),
+                    ScreenAction.SetSettingSpeedVisible(false),
                     isOrientationPortrait
                 )
             }
@@ -420,16 +492,16 @@ fun VideoScreen(
             defaultQuality = mediaState.videoQuality,
             onDismiss = {
                 viewModel.onScreenAction(
-                    ScreenAction.SettingQualityUIAction(false),
+                    ScreenAction.SetSettingQualityVisible(false),
                     isOrientationPortrait
                 )
             },
             onQualityChanged = {
                 viewModel.onScreenAction(
-                    ScreenAction.SettingQualityUIAction(false),
+                    ScreenAction.SetSettingQualityVisible(false),
                     isOrientationPortrait
                 )
-                viewModel.switchQuality(it)
+                viewModel.changeQuality(it)
             }
         )
         OtherSettingsSheet(
@@ -437,7 +509,7 @@ fun VideoScreen(
             autoSkip = playerState.autoSkip,
             onDismiss = {
                 viewModel.onScreenAction(
-                    ScreenAction.OtherSettingUIAction(false),
+                    ScreenAction.SetOtherSettingVisible(false),
                     isOrientationPortrait
                 )
             },
@@ -450,25 +522,25 @@ fun VideoScreen(
             isShowSheet = screenState.isShowFolderSheet,
             onDismiss = {
                 viewModel.onScreenAction(
-                    ScreenAction.ModifyFolderUIAction(false),
+                    ScreenAction.SetModifyFolderVisible(false),
                     isOrientationPortrait
                 )
             },
             onCreateFolder = {
                 viewModel.onScreenAction(
-                    ScreenAction.CreatedFolderUIAction(true),
+                    ScreenAction.SetCreatedFolderVisible(true),
                     isOrientationPortrait
                 )
             },
             onAddToFolder = { addAids, delAids ->
                 viewModel.onVideoMenuAction(
-                    VideoMenuAction.AddToFoldersAction(
+                    VideoMenuAction.AddToFolders(
                         addAids = addAids,
                         delAids = delAids,
                     )
                 )
                 viewModel.onScreenAction(
-                    ScreenAction.ModifyFolderUIAction(false),
+                    ScreenAction.SetModifyFolderVisible(false),
                     isOrientationPortrait
                 )
             }
@@ -484,7 +556,7 @@ fun VideoScreen(
             onDismiss = {
                 viewModel.onFolderNameChanged("")
                 viewModel.onScreenAction(
-                    ScreenAction.CreatedFolderUIAction(false),
+                    ScreenAction.SetCreatedFolderVisible(false),
                     isOrientationPortrait
                 )
             }
@@ -506,7 +578,7 @@ private fun PortraitVideoPage(
     playParam: PlayParam,
     screenState: ScreenState,
     mediaState: MediaState,
-    playerState: PlayerState,
+    playerState: MediaPlayerUIState,
     replies: LazyPagingItems<ReplyItem>,
     userVideos: LazyPagingItems<UploadedVideoItem>,
     onVideoFrameChange: (Bitmap) -> Unit,
@@ -611,7 +683,7 @@ private fun PortraitVideoPage(
             onLongPressStart = { },
             onLongPressEnd = {},
             onControlUIChange = onControlUIChange,
-            onSetting = { onScreenAction(ScreenAction.SettingUIAction(true)) },
+            onSetting = { onScreenAction(ScreenAction.SetSettingVisible(true)) },
             onBackPress = onBackPress,
             hintContent = {},
             bottomControlContent = {
@@ -631,7 +703,7 @@ private fun PortraitVideoPage(
                     isFullscreen = screenState.isFullscreen,
                     showLabel = screenState.isFullscreen && !isOrientationPortrait(),
                     onScreenAction = {
-                        if (it is ScreenAction.ModifyFolderUIAction) {
+                        if (it is ScreenAction.SetModifyFolderVisible) {
                             onSelectedAidChange(playParam.aid)
                         }
                         onScreenAction(it)
@@ -672,11 +744,11 @@ private fun PortraitVideoPage(
             screenState = screenState,
             bottomPadding = screenState.videoHeight + 80.dp,
             onScreenAction = {
-                if (it is ScreenAction.ModifyFolderUIAction) {
+                if (it is ScreenAction.SetModifyFolderVisible) {
                     onSelectedAidChange(playParam.aid)
                 }
-                if (it is ScreenAction.ModifyFolderUIAction) {
-                    onVideoMenuAction(VideoMenuAction.GetSimpleFoldersAction)
+                if (it is ScreenAction.SetModifyFolderVisible) {
+                    onVideoMenuAction(VideoMenuAction.LoadSimpleFolders)
                 }
                 onScreenAction(it)
             },
@@ -696,7 +768,7 @@ private fun PortraitVideoPage(
             isShowReplyUI = screenState.isShowReplyUI,
             shouldHideSystemBar = !isOrientationPortrait() && screenState.isFullscreen,
             replies = replies,
-            onDismiss = { onScreenAction(ScreenAction.ReplyUIAction(false)) },
+            onDismiss = { onScreenAction(ScreenAction.SetReplyVisible(false)) },
             modifier = otherSheetModifier,
             onMaskAlphaChange = { onMaskAlphaChange(it) },
             bottomPadding = sheetBottomPadding
@@ -705,7 +777,7 @@ private fun PortraitVideoPage(
         VideoDetailSheet(
             videoDetail = playerState.videoDetail,
             isShowVideoDetailUI = screenState.isShowVideoDetailUI,
-            onDismiss = { onScreenAction(ScreenAction.VideoDetailUIAction(false)) },
+            onDismiss = { onScreenAction(ScreenAction.SetVideoDetailVisible(false)) },
             modifier = otherSheetModifier,
             onMaskAlphaChange = { onMaskAlphaChange(it) },
             bottomPadding = screenState.videoHeight + 80.dp
@@ -719,7 +791,7 @@ private fun PortraitVideoPage(
             archives = playerState.videoArchives,
             isShowArchiveUI = screenState.isShowArchiveUI,
             onMaskAlphaChange = { onMaskAlphaChange(it) },
-            onDismiss = { onScreenAction(ScreenAction.ArchiveUIAction(false)) },
+            onDismiss = { onScreenAction(ScreenAction.SetArchiveVisible(false)) },
             onVideoMenuAction = onVideoMenuAction,
             bottomPadding = screenState.videoHeight + 80.dp
         )
@@ -727,10 +799,10 @@ private fun PortraitVideoPage(
         AddCoinSheet(
             isShowAddCoinUI = screenState.isShowAddCoinUI,
             onDismiss = {
-                onScreenAction(ScreenAction.AddCoinUIAction(false))
+                onScreenAction(ScreenAction.SetAddCoinVisible(false))
             },
             onVideoMenuAction = {
-                onScreenAction(ScreenAction.AddCoinUIAction(false))
+                onScreenAction(ScreenAction.SetAddCoinVisible(false))
                 onVideoMenuAction(it)
             }
         )
@@ -751,13 +823,13 @@ private fun PortraitVideoPage(
             currentBvid = playParam.bvid,
             onSubscriptionChanged = {},
             onDismiss = {
-                onScreenAction(ScreenAction.UpInfoUIAction(false))
+                onScreenAction(ScreenAction.SetUpInfoVisible(false))
             },
             modifier = otherSheetModifier,
             onMaskAlphaChange = { onMaskAlphaChange(it) },
             onVideoChange = {
                 onVideoMenuAction(
-                    VideoMenuAction.SwitchVideoAction(it)
+                    VideoMenuAction.SwitchVideo(it)
                 )
             },
             bottomPadding = screenState.videoHeight + 80.dp
@@ -768,7 +840,7 @@ private fun PortraitVideoPage(
             quality = mediaState.quality,
             defaultQuality = mediaState.videoQuality,
             onDismiss = {
-                onScreenAction(ScreenAction.DownloadUIAction(false))
+                onScreenAction(ScreenAction.SetDownloadVisible(false))
             },
             onDownloadClick = {
                 scope.launch {
@@ -784,18 +856,18 @@ private fun PortraitVideoPage(
         VideoMenuSheet(
             isShowSheet = screenState.isShowVideoMenuUIAction,
             onDismiss = {
-                onScreenAction(ScreenAction.VideoMenuUIAction(false))
+                onScreenAction(ScreenAction.SetVideoMenuVisible(false))
             }
         ) {
             when (it) {
                 R.string.str_save_playlist -> {
-                    onScreenAction(ScreenAction.VideoMenuUIAction(false))
-                    onVideoMenuAction(VideoMenuAction.GetSimpleFoldersAction)
-                    onScreenAction(ScreenAction.ModifyFolderUIAction(true))
+                    onScreenAction(ScreenAction.SetVideoMenuVisible(false))
+                    onVideoMenuAction(VideoMenuAction.LoadSimpleFolders)
+                    onScreenAction(ScreenAction.SetModifyFolderVisible(true))
                 }
 
                 R.string.str_save_watch_later -> {
-                    onVideoMenuAction(VideoMenuAction.AddToViewAction)
+                    onVideoMenuAction(VideoMenuAction.AddToView)
                 }
 
                 else -> {}
@@ -811,9 +883,8 @@ private fun LandscapeFullscreenVideoPage(
     exoPlayer: ExoPlayer,
     screenState: ScreenState,
     mediaState: MediaState,
-    playerState: PlayerState,
+    playerState: MediaPlayerUIState,
     onVideoFrameChange: (Bitmap) -> Unit,
-    onPostHistory: ((Long) -> Unit)? = null,
     onControlUIChange: (Boolean) -> Unit,
     onBackPress: () -> Unit,
     onProgressChange: (Float) -> Unit,
@@ -872,7 +943,7 @@ private fun LandscapeFullscreenVideoPage(
             onLongPressStart = { },
             onLongPressEnd = {},
             onControlUIChange = onControlUIChange,
-            onSetting = { onScreenAction(ScreenAction.SettingUIAction(true)) },
+            onSetting = { onScreenAction(ScreenAction.SetSettingVisible(true)) },
             onBackPress = onBackPress,
             hintContent = {},
             bottomControlContent = {
@@ -892,7 +963,7 @@ private fun LandscapeFullscreenVideoPage(
                     isFullscreen = screenState.isFullscreen,
                     showLabel = screenState.isFullscreen && !isOrientationPortrait(),
                     onScreenAction = {
-                        if (it is ScreenAction.ModifyFolderUIAction) {
+                        if (it is ScreenAction.SetModifyFolderVisible) {
                             onSelectedAidChange(playParam.aid)
                         }
                         onScreenAction(it)

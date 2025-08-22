@@ -63,7 +63,7 @@ internal fun FullscreenBottomControlContent(
             IconButton(
                 onClick = {
                     onVideoMenuAction.invoke(
-                        VideoMenuAction.LikeAction(if (localHasLike) 2 else 1)
+                        VideoMenuAction.Like(if (localHasLike) 2 else 1)
                     )
                 },
                 colors = IconButtonDefaults.iconButtonColors(
@@ -87,7 +87,7 @@ internal fun FullscreenBottomControlContent(
                         iterateForever = false,
                         onAnimationEndCallback = {
                             onScreenAction.invoke(
-                                ScreenAction.ShowLikeAnimationAction(false)
+                                ScreenAction.SetLikeAnimationVisible(false)
                             )
                         }
                     )
@@ -98,7 +98,7 @@ internal fun FullscreenBottomControlContent(
         IconButton(
             onClick = {
                 onScreenAction.invoke(
-                    ScreenAction.ReplyUIAction(true)
+                    ScreenAction.SetReplyVisible(true)
                 )
             },
             colors = getIconButtonColor()
@@ -112,7 +112,7 @@ internal fun FullscreenBottomControlContent(
         IconButton(
             onClick = {
                 onScreenAction.invoke(
-                    ScreenAction.ModifyFolderUIAction(true)
+                    ScreenAction.SetModifyFolderVisible(true)
                 )
             },
             colors = IconButtonDefaults.iconButtonColors(
@@ -151,7 +151,7 @@ internal fun FullscreenBottomControlContent(
             }
             MoreVideoButton(
                 images = it,
-                onClick = { onScreenAction.invoke(ScreenAction.ShowRelatedAction) }
+                onClick = { onScreenAction.invoke(ScreenAction.ShowRelated) }
             )
         }
     }

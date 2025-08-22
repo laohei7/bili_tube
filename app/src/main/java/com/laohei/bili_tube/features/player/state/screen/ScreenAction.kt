@@ -4,30 +4,32 @@ import android.graphics.Bitmap
 
 sealed interface ScreenAction {
 
-    data object ToUserSpaceAction : ScreenAction
-    data object SubscribeAction : ScreenAction
-    data object ShowRelatedAction : ScreenAction
+    data object NavigateToUserSpace : ScreenAction
+    data object Subscribe : ScreenAction
+    data object ShowRelated : ScreenAction
 
 
-    data class LockScreenAction(val flag: Boolean) : ScreenAction
+    data class SetLockScreen(val flag: Boolean) : ScreenAction
 
 
-    data class ShowPlaylistSheetAction(val flag: Boolean) : ScreenAction
-    data class CreatedFolderUIAction(val flag: Boolean) : ScreenAction
-    data class ShowControlUIAction(val flag: Boolean) : ScreenAction
-    data class SetBackgroundAction(val bitmap: Bitmap?) : ScreenAction
-    data class ShowLikeAnimationAction(val flag: Boolean) : ScreenAction
-    data class ReplyUIAction(val flag: Boolean) : ScreenAction
-    data class AddCoinUIAction(val flag: Boolean) : ScreenAction
-    data class ModifyFolderUIAction(val flag: Boolean) : ScreenAction
-    data class DownloadUIAction(val flag: Boolean) : ScreenAction
-    data class VideoDetailUIAction(val flag: Boolean) : ScreenAction
-    data class UpInfoUIAction(val flag: Boolean) : ScreenAction
-    data class ArchiveUIAction(val flag: Boolean) : ScreenAction
-    data class SettingUIAction(val flag: Boolean) : ScreenAction
-    data class SettingSpeedUIAction(val flag: Boolean) : ScreenAction
-    data class SettingQualityUIAction(val flag: Boolean) : ScreenAction
-    data class OtherSettingUIAction(val flag: Boolean) : ScreenAction
-    data class VideoMenuUIAction(val flag: Boolean) : ScreenAction
+    data class SetPlaylistVisible(val flag: Boolean) : ScreenAction
+    data class SetCreatedFolderVisible(val flag: Boolean) : ScreenAction
+    data class SetControlVisible(val flag: Boolean) : ScreenAction
+    data class SetBackground(val bitmap: Bitmap?) : ScreenAction
+    data class SetLikeAnimationVisible(val flag: Boolean) : ScreenAction
+    data class SetReplyVisible(val flag: Boolean) : ScreenAction
+    data class SetAddCoinVisible(val flag: Boolean) : ScreenAction
+    data class SetModifyFolderVisible(val flag: Boolean) : ScreenAction
+    data class SetDownloadVisible(val flag: Boolean) : ScreenAction
+    data class SetVideoDetailVisible(val flag: Boolean) : ScreenAction
+    data class SetUpInfoVisible(val flag: Boolean) : ScreenAction
+    data class SetArchiveVisible(val flag: Boolean) : ScreenAction
+    data class SetSettingVisible(val flag: Boolean) : ScreenAction
+    data class SetSettingSpeedVisible(val flag: Boolean) : ScreenAction
+    data class SetSettingQualityVisible(val flag: Boolean) : ScreenAction
+    data class SetOtherSettingVisible(val flag: Boolean) : ScreenAction
+    data class SetVideoMenuVisible(val flag: Boolean) : ScreenAction
+
+    data class SetUserSwitch(val flag: Boolean) : ScreenAction
 
 }

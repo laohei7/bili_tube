@@ -58,7 +58,7 @@ internal fun UserSubscriptionBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onScreenAction.invoke(ScreenAction.UpInfoUIAction(true)) }
+            .clickable { onScreenAction.invoke(ScreenAction.SetUpInfoVisible(true)) }
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -96,7 +96,7 @@ internal fun UserSubscriptionBar(
             isSubscribed = localIsSubscribed,
             onClick = {
                 onVideoMenuAction(
-                    VideoMenuAction.ModifyUserRelationAction(
+                    VideoMenuAction.ModifyUserRelation(
                         action = when {
                             localIsSubscribed -> UserRelationAction.UNFOLLOW
                             else -> UserRelationAction.FOLLOW

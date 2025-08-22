@@ -3,16 +3,7 @@ package com.laohei.bili_tube.features.player.state.media
 import com.laohei.bili_tube.core.AudioQualities
 import com.laohei.bili_tube.core.VideoQualities
 
-internal val Quality = listOf(
-    Pair(80, "1080P 高清"),
-    Pair(74, "720P60 高帧率"),
-    Pair(64, "720P 高清"),
-    Pair(32, "480P 清晰"),
-    Pair(16, "360P 流畅"),
-)
 
-internal val DolbyAudioQuality = listOf(30250, 30251)
-internal val NormalAudioQuality = listOf(30216, 30232, 30280)
 
 internal data class MediaState(
     val isPlaying: Boolean = false,

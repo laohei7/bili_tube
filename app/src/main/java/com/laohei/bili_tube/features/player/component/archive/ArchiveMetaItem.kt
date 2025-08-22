@@ -41,7 +41,7 @@ internal fun ArchiveMetaItem(
                 shape = RoundedCornerShape(8.dp)
             )
             .clip(RoundedCornerShape(8.dp))
-            .clickable { onScreenAction(ScreenAction.ArchiveUIAction(true)) }
+            .clickable { onScreenAction(ScreenAction.SetArchiveVisible(true)) }
             .padding(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
