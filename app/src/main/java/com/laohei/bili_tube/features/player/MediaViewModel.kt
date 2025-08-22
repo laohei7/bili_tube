@@ -171,7 +171,7 @@ internal class MediaViewModel(
             _mediaPlayerUIState.update {
                 it.copy(
                     playParam = newPlayParam,
-                    isVideo = newPlayParam is PlayParam.BangumiParam
+                    isVideo = newPlayParam !is PlayParam.BangumiParam
                 )
             }
             withContext(Dispatchers.Main) { setBuffering(true) }
