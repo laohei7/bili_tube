@@ -147,4 +147,5 @@
     <string name="str_login_method">登录方式</string>
     <string name="str_sms_code_error">验证码错误</string>
     <string name="str_folder_created_faild">收藏夹创建失败</string>
+    <string name="str_download_hint">可下载资源正在加载中，请稍后...</string>
 </resources>

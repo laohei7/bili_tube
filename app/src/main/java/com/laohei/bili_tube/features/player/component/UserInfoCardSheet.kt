@@ -186,7 +186,7 @@ fun UserInfoCardSheet(
                                 isCurrentPlaying = it.bvid == currentBvid,
                                 onClick = {
                                     onVideoChange(
-                                        PlayParam.Video(
+                                        PlayParam.VideoParam(
                                             aid = item.aid.toLong(),
                                             bvid = item.bvid,
                                             cid = it.cid

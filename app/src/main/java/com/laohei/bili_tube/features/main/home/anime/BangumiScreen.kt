@@ -129,7 +129,7 @@ fun BangumiScreen(
                                 .padding(horizontal = 8.dp)
                                 .clickable {
                                     sharedViewModel.setPlayParam(
-                                        PlayParam.Bangumi(
+                                        PlayParam.BangumiParam(
                                             seasonId = it.seasonId,
                                             epId = it.firstEp.epId,
                                             mediaId = it.mediaId,

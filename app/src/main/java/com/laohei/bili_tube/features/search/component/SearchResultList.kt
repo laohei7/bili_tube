@@ -203,7 +203,7 @@ private fun GetSearchItem(
                 episodes = item.eps?.fastMap { it.title },
                 onClick = {
                     sharedViewModel.setPlayParam(
-                        PlayParam.Bangumi(
+                        PlayParam.BangumiParam(
                             mediaId = item.mediaId,
                             seasonId = item.seasonId,
                             epId = item.eps?.first()?.id,
@@ -227,7 +227,7 @@ private fun GetSearchItem(
                 episodes = item.eps?.fastMap { it.title },
                 onClick = {
                     sharedViewModel.setPlayParam(
-                        PlayParam.Bangumi(
+                        PlayParam.BangumiParam(
                             mediaId = item.mediaId,
                             seasonId = item.seasonId,
                             epId = item.eps?.first()?.id,
@@ -250,7 +250,7 @@ private fun GetSearchItem(
                 publishDate = item.pubDate.toTimeAgoString(),
                 onClick = {
                     sharedViewModel.setPlayParam(
-                        PlayParam.Video(
+                        PlayParam.VideoParam(
                             aid = item.aid,
                             bvid = item.bvid,
                             cid = -1L,

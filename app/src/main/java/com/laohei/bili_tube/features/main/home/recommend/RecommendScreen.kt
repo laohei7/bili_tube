@@ -161,7 +161,7 @@ fun RecommendScreen(
                                     trailingIcon = Icons.Outlined.MoreVert,
                                     onClick = {
                                         sharedViewModel.setPlayParam(
-                                            PlayParam.Video(
+                                            PlayParam.VideoParam(
                                                 aid = it.id,
                                                 bvid = it.bvid,
                                                 cid = it.cid,

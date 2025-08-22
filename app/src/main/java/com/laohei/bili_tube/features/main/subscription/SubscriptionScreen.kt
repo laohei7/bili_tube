@@ -302,7 +302,7 @@ private fun GetDynamicItem(
                 trailingIcon = Icons.Outlined.MoreVert,
                 onClick = {
                     sharedViewModel.setPlayParam(
-                        PlayParam.Video(
+                        PlayParam.VideoParam(
                             aid = archive.aid.toLong(),
                             bvid = archive.bvid,
                             cid = -1,

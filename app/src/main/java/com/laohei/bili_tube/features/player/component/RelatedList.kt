@@ -57,7 +57,7 @@ internal fun RelatedHorizontalList(
                 author = it.owner.name,
                 onClick = {
                     onClick.invoke(
-                        PlayParam.Video(
+                        PlayParam.VideoParam(
                             aid = it.aid,
                             bvid = it.bvid,
                             cid = it.cid,
@@ -92,7 +92,7 @@ internal fun RelatedBangumiHorizontalList(
                 author = it.newEp.indexShow,
                 onClick = {
                     onClick.invoke(
-                        PlayParam.Bangumi(
+                        PlayParam.BangumiParam(
                             seasonId = it.seasonId,
                             bvid = "", aid = -1, cid = -1
                         )

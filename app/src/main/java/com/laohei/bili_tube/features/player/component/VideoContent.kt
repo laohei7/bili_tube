@@ -247,7 +247,7 @@ private fun VideoContent(
                     onClick = {
                         onVideoMenuAction(
                             VideoMenuAction.SwitchVideo(
-                                PlayParam.Video(
+                                PlayParam.VideoParam(
                                     width = video.dimension.width,
                                     height = video.dimension.height,
                                     aid = video.aid,
@@ -561,7 +561,7 @@ private fun BangumiContent(
                     onClick = {
                         onVideoMenuAction(
                             VideoMenuAction.SwitchVideo(
-                                PlayParam.Bangumi(
+                                PlayParam.BangumiParam(
                                     seasonId = it.seasonId,
                                     bvid = "",
                                     aid = -1,

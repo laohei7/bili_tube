@@ -25,11 +25,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.core.action.VideoSettingAction
 import com.laohei.bili_tube.ui.component.icons.AutoSkip
 import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheetProperties
 import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
-import com.laohei.bili_tube.component.video.VideoAction
 import kotlinx.coroutines.launch
 
 
@@ -40,7 +40,7 @@ internal fun OtherSettingsSheet(
     isShowSheet: Boolean = true,
     autoSkip: Boolean = false,
     onDismiss: () -> Unit = {},
-    videoSettingActionClick: (VideoAction.VideoSettingAction) -> Unit = {}
+    videoSettingActionClick: (VideoSettingAction) -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true)
@@ -83,7 +83,7 @@ internal fun OtherSettingsSheet(
                             checked = localAutoSkip,
                             onCheckedChange = {
                                 videoSettingActionClick.invoke(
-                                    VideoAction.VideoSettingAction.AutoSkipAction(it)
+                                    VideoSettingAction.AutoSkip(it)
                                 )
                             }
                         )

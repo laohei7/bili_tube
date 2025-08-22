@@ -13,10 +13,12 @@ import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoPageListModel
 import com.laohei.bili_sdk.module_v2.video.VideoView
+import com.laohei.bili_tube.PlayParam
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 data class MediaPlayerUIState(
+    val playParam: PlayParam,
     val title: String = "",
     val isVideo: Boolean = true,
 

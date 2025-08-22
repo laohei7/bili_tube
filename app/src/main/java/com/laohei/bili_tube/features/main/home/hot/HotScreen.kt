@@ -118,7 +118,7 @@ fun HotScreen(
                             publishDate = it.pubdate.toTimeAgoString(),
                             onClick = {
                                 sharedViewModel.setPlayParam(
-                                    PlayParam.Video(
+                                    PlayParam.VideoParam(
                                         aid = it.aid,
                                         bvid = it.bvid,
                                         cid = it.cid,

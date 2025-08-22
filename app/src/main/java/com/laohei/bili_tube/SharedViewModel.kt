@@ -8,26 +8,26 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 
 sealed class PlayParam(
-    open val bvid: String,
-    open val aid: Long,
-    open val cid: Long,
+    open val bvid: String = "",
+    open val aid: Long = -1L,
+    open val cid: Long = -1L,
     open val width: Int = 1920,
     open val height: Int = 1080,
     open val isLocal: Boolean = false,
 ) {
-    data class Video(
+    data class VideoParam(
         override val bvid: String,
-        override val aid: Long,
-        override val cid: Long,
+        override val aid: Long = -1L,
+        override val cid: Long = -1L,
         override val width: Int = 1920,
         override val height: Int = 1080,
         override val isLocal: Boolean = false,
     ) : PlayParam(bvid, aid, cid, width, height, isLocal)
 
-    data class Bangumi(
+    data class BangumiParam(
         override val bvid: String,
-        override val aid: Long,
-        override val cid: Long,
+        override val aid: Long = -1L,
+        override val cid: Long = -1L,
         val mediaId: Long? = null,
         val seasonId: Long? = null,
         val epId: Long? = null,
@@ -47,7 +47,7 @@ sealed class PlayParam(
         val count: Int
     ) : PlayParam(bvid, aid, cid, 1920, 1080, false)
 
-    data object NONE : PlayParam("", -1, -1, 1920, 1080, false)
+    object NONE : PlayParam()
 }
 
 data class DRAWItemParam(

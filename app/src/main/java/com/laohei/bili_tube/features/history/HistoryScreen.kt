@@ -176,7 +176,7 @@ private fun GetHistoryItem(
                 },
                 onClick = {
                     sharedViewModel.setPlayParam(
-                        PlayParam.Video(
+                        PlayParam.VideoParam(
                             aid = it.history.oid,
                             bvid = it.history.bvid,
                             cid = it.history.cid

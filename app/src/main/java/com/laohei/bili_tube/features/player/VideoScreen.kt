@@ -156,7 +156,7 @@ fun VideoScreen(
         parametersOf(playParam, defaultMediaManager, defaultScreenManager)
     }
 
-    val playerState by viewModel.playerState.collectAsStateWithLifecycle()
+    val playerState by viewModel.mediaPlayerUIState.collectAsStateWithLifecycle()
     val mediaState by viewModel.mediaState.collectAsStateWithLifecycle()
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
@@ -277,7 +277,7 @@ fun VideoScreen(
     LaunchedEffect(mediaState.isPlaying) {
         while (mediaState.isPlaying) {
             val history = viewModel.exoPlayer.currentPosition / 1000
-            viewModel.uploadVideoHistory(history)
+            viewModel.reportPlaybackProgress(history)
             delay(15000)
         }
     }
@@ -322,7 +322,7 @@ fun VideoScreen(
                     context = context,
                     nestedScrollConnection = viewModel.nestedScrollConnection,
                     exoPlayer = viewModel.exoPlayer,
-                    playParam = viewModel.playParam,
+                    playParam = playerState.playParam,
                     screenState = screenState,
                     mediaState = mediaState,
                     playerState = playerState,
@@ -381,7 +381,7 @@ fun VideoScreen(
             DeviceConfiguration.MOBILE_LANDSCAPE -> {
                 LandscapeFullscreenVideoPage(
                     context = context,
-                    playParam = viewModel.playParam,
+                    playParam =playerState.playParam,
                     exoPlayer = viewModel.exoPlayer,
                     screenState = screenState,
                     mediaState = mediaState,
@@ -420,7 +420,7 @@ fun VideoScreen(
                 if (screenState.isFullscreen) {
                     LandscapeFullscreenVideoPage(
                         context = context,
-                        playParam = viewModel.playParam,
+                        playParam = playerState.playParam,
                         exoPlayer = viewModel.exoPlayer,
                         screenState = screenState,
                         mediaState = mediaState,
@@ -513,7 +513,7 @@ fun VideoScreen(
                     isOrientationPortrait
                 )
             },
-            videoSettingActionClick = viewModel::handleVideoSettingAction
+            videoSettingActionClick = viewModel::onVideoSettingAction
         )
 
         // folder
@@ -549,12 +549,12 @@ fun VideoScreen(
         CreatedFolderDialog(
             isShowDialog = screenState.isShowAddFolder,
             value = playerState.folderName,
-            onValueChange = viewModel::onFolderNameChanged,
-            onSubmit = viewModel::addNewFolder,
+            onValueChange = viewModel::onFolderNameChange,
+            onSubmit = viewModel::createFolder,
             checked = playerState.isPrivate,
             onCheckedChange = viewModel::onPrivateChanged,
             onDismiss = {
-                viewModel.onFolderNameChanged("")
+                viewModel.onFolderNameChange("")
                 viewModel.onScreenAction(
                     ScreenAction.SetCreatedFolderVisible(false),
                     isOrientationPortrait

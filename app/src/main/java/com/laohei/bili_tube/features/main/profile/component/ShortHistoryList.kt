@@ -93,7 +93,7 @@ fun ShortHistoryList(
                 progress = progress,
                 onClick = {
                     sharedViewModel.setPlayParam(
-                        PlayParam.Video(
+                        PlayParam.VideoParam(
                             aid = it.history.oid,
                             bvid = it.history.bvid,
                             cid = it.history.cid

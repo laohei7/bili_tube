@@ -184,7 +184,7 @@ private fun DownloadItem(task: DownloadTask, onClick: (DownloadAction) -> Unit) 
 
                     DownloadStatus.COMPLETED -> {
                         sharedViewModel.setPlayParam(
-                            PlayParam.Video(
+                            PlayParam.VideoParam(
                                 aid = task.aid,
                                 bvid = task.id,
                                 cid = task.cid,
