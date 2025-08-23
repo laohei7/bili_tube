@@ -40,16 +40,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiItem
 import com.laohei.bili_sdk.module_v2.user.InfoCardModel
-import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
 import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
-import com.laohei.bili_sdk.module_v2.video.VideoPageListModel
+import com.laohei.bili_sdk.module_v2.video.VideoPageModel
 import com.laohei.bili_tube.PlayParam
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.component.video.VideoAction
 import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.features.player.component.archive.MediaSeriesList
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 import com.laohei.bili_tube.features.player.state.screen.ScreenState
 import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
@@ -71,8 +68,8 @@ internal fun GetContent(
     bottomPadding: Dp = 0.dp,
     onScreenAction: (ScreenAction) -> Unit,
     onVideoMenuAction: (VideoMenuAction) -> Unit,
-    onSelectedAidChange:(Long)-> Unit,
-    onSelectedBvidChange:(String)-> Unit,
+    onSelectedAidChange: (Long) -> Unit,
+    onSelectedBvidChange: (String) -> Unit,
 ) {
     when {
         playerState.isVideo -> {
@@ -88,13 +85,10 @@ internal fun GetContent(
                     isFullscreen = screenState.isFullscreen,
                     videoDetail = it,
                     infoCardModel = playerState.infoCardModel,
-                    videoArchiveMeta = playerState.videoArchiveMeta,
-                    currentArchiveIndex = playerState.currentArchiveIndex + 1,
                     videoPageList = playerState.videoPageList,
                     currentPageListIndex = playerState.currentPageListIndex,
                     onScreenAction = onScreenAction,
                     onVideoMenuAction = onVideoMenuAction,
-                    videoPlayClick = {},
                     onSelectedAidChange = onSelectedAidChange,
                     onSelectedBvidChange = onSelectedBvidChange
                 )
@@ -137,8 +131,7 @@ private fun VideoContent(
     lazyListState: LazyListState,
     videoDetail: VideoDetailModel,
     infoCardModel: InfoCardModel?,
-    videoArchiveMeta: ArchiveMeta?,
-    videoPageList: List<VideoPageListModel>?,
+    videoPageList: List<VideoPageModel>?,
     hasLike: Boolean,
     hasCoin: Boolean,
     hasFavoured: Boolean,
@@ -146,10 +139,8 @@ private fun VideoContent(
     isShowLikeAnimation: Boolean,
     isFullscreen: Boolean,
     currentPageListIndex: Int,
-    currentArchiveIndex: Int,
     onScreenAction: (ScreenAction) -> Unit,
     onVideoMenuAction: (VideoMenuAction) -> Unit,
-    videoPlayClick: (VideoAction.VideoPlayAction) -> Unit,
     onSelectedAidChange: (Long) -> Unit,
     onSelectedBvidChange: (String) -> Unit,
 ) {
@@ -207,10 +198,10 @@ private fun VideoContent(
             }
             videoPageList?.let {
                 item {
-                    MediaSeriesList(
+                    VideoPageList(
                         pageList = it,
                         currentPageListIndex = currentPageListIndex,
-                        onClick = videoPlayClick
+                        onVideoMenuAction = onVideoMenuAction
                     )
                 }
             }

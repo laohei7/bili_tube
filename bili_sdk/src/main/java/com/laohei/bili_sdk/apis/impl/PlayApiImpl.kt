@@ -30,7 +30,7 @@ import com.laohei.bili_sdk.module_v2.video.VideoCardContent
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoDimension
 import com.laohei.bili_sdk.module_v2.video.VideoOwner
-import com.laohei.bili_sdk.module_v2.video.VideoPageListModel
+import com.laohei.bili_sdk.module_v2.video.VideoPageModel
 import com.laohei.bili_sdk.module_v2.video.VideoStat
 import com.laohei.bili_sdk.module_v2.video.VideoURLModel
 import com.laohei.bili_sdk.module_v2.video.VideoView
@@ -449,7 +449,7 @@ class PlayApiImpl(
     override suspend fun getMediaSeries(
         bvid: String,
         cookie: String?
-    ): BiliResponse<List<VideoPageListModel>> = withContext(Dispatchers.IO) {
+    ): BiliResponse<List<VideoPageModel>> = withContext(Dispatchers.IO) {
         runCatching {
             val response = client.get(URL_VIDEO_MEDIA_SERIES) {
                 cookie?.apply {
@@ -457,7 +457,7 @@ class PlayApiImpl(
                 }
                 parameter("bvid", bvid)
             }
-            Json.decodeFromString<BiliResponse<List<VideoPageListModel>>>(response.bodyAsText())
+            Json.decodeFromString<BiliResponse<List<VideoPageModel>>>(response.bodyAsText())
         }.fold(
             onSuccess = { it },
             onFailure = {

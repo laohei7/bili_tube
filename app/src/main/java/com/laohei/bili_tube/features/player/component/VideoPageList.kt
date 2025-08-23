@@ -1,4 +1,4 @@
-package com.laohei.bili_tube.features.player.component.archive
+package com.laohei.bili_tube.features.player.component
 
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
@@ -22,33 +22,34 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_sdk.module_v2.common.Dimension
-import com.laohei.bili_sdk.module_v2.video.VideoPageListModel
+import com.laohei.bili_sdk.module_v2.video.VideoPageModel
+import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
-import com.laohei.bili_tube.component.video.VideoAction
+import com.laohei.bili_tube.ui.theme.SmallPadding
 
 @Composable
-internal fun MediaSeriesList(
-    pageList: List<VideoPageListModel>,
+internal fun VideoPageList(
+    pageList: List<VideoPageModel>,
     currentPageListIndex: Int,
-    onClick: (VideoAction.VideoPlayAction) -> Unit
+    onVideoMenuAction: (VideoMenuAction) -> Unit
 ) {
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 8.dp),
+            .padding(top = SmallPadding),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(SmallPadding)
     ) {
         item { Spacer(modifier = Modifier) }
         itemsIndexed(pageList) { index, it ->
-            MediaSeriesItem(
+            VideoPageItem(
                 modifier = Modifier
                     .padding(end = 8.dp),
                 item = it,
                 isSelected = index == currentPageListIndex,
-                onClick = { cid ->
-                    onClick.invoke(VideoAction.VideoPlayAction.SwitchMediaSeriesAction(cid = cid))
-                }
+               onClick = {
+                   onVideoMenuAction(VideoMenuAction.SwitchVideoPage(it.cid))
+               }
             )
         }
         item { Spacer(modifier = Modifier) }
@@ -56,15 +57,15 @@ internal fun MediaSeriesList(
 }
 
 @Composable
-private fun MediaSeriesItem(
+private fun VideoPageItem(
     modifier: Modifier = Modifier,
-    item: VideoPageListModel,
+    item: VideoPageModel,
     isSelected: Boolean,
-    onClick: (cid: Long) -> Unit
+    onClick: () -> Unit
 ) {
     Surface(
         modifier = modifier,
-        onClick = { onClick.invoke(item.cid) },
+        onClick = { onClick() },
         color = MaterialTheme.colorScheme.surfaceContainer,
         contentColor = when {
             isSelected -> MaterialTheme.colorScheme.primary
@@ -105,7 +106,7 @@ private fun MediaSeriesItem(
 @Composable
 private fun MediaSeriesItemPreview() {
     val item = remember {
-        VideoPageListModel(
+        VideoPageModel(
             cid = -1L,
             page = 1,
             from = "",
@@ -118,7 +119,7 @@ private fun MediaSeriesItemPreview() {
             dimension = Dimension(0, 0, 0)
         )
     }
-    MediaSeriesItem(
+    VideoPageItem(
         item = item,
         isSelected = true,
         onClick = {}

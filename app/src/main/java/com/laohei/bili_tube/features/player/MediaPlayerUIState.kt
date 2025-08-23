@@ -11,7 +11,7 @@ import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
 import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
-import com.laohei.bili_sdk.module_v2.video.VideoPageListModel
+import com.laohei.bili_sdk.module_v2.video.VideoPageModel
 import com.laohei.bili_sdk.module_v2.video.VideoView
 import com.laohei.bili_tube.PlayParam
 import kotlinx.coroutines.flow.Flow
@@ -29,7 +29,7 @@ data class MediaPlayerUIState(
     val currentArchiveIndex: Int = 0,
 
     // divide P adaptation
-    val videoPageList: List<VideoPageListModel>? = null,
+    val videoPageList: List<VideoPageModel>? = null,
     val currentPageListIndex: Int = 0,
 
     // user interaction status

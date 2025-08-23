@@ -11,19 +11,21 @@ sealed class VideoMenuAction {
 
     data class AddCoin(val coin: Int) : VideoMenuAction()
 
-    data class SwitchVideo(val playParam: PlayParam): VideoMenuAction()
+    data class SwitchVideo(val playParam: PlayParam) : VideoMenuAction()
+
+    data class SwitchVideoPage(val cid: Long) : VideoMenuAction()
 
     data class SwitchEpisode(
         val episodeId: Long,
         val aid: Long,
         val cid: Long,
         val bvid: String
-    ): VideoMenuAction()
+    ) : VideoMenuAction()
 
-    data class SwitchSeason(val seasonId: Long): VideoMenuAction()
+    data class SwitchSeason(val seasonId: Long) : VideoMenuAction()
 
-    data object AddToView: VideoMenuAction()
+    data object AddToView : VideoMenuAction()
 
-    data object LoadSimpleFolders: VideoMenuAction()
+    data object LoadSimpleFolders : VideoMenuAction()
 
 }

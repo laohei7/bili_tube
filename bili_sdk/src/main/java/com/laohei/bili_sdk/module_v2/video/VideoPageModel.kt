@@ -9,7 +9,7 @@ import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class VideoPageListModel(
+data class VideoPageModel(
     val cid: Long,
     val page: Int,
     val from: String,

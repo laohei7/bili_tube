@@ -643,6 +643,14 @@ internal class MediaViewModel(
 
             is VideoMenuAction.AddCoin -> addVideoCoin(action.coin)
 
+            is VideoMenuAction.SwitchVideoPage -> {
+                val playParam = _mediaPlayerUIState.value.playParam
+                if (playParam !is PlayParam.VideoParam) {
+                    return
+                }
+                setPlayParam(playParam.copy(cid = action.cid))
+            }
+
             is VideoMenuAction.SwitchEpisode -> {
                 val playParam = _mediaPlayerUIState.value.playParam
                 if (playParam !is PlayParam.BangumiParam) {

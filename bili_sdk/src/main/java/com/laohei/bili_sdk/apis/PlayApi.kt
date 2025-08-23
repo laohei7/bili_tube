@@ -10,7 +10,7 @@ import com.laohei.bili_sdk.module_v2.video.CoinModel
 import com.laohei.bili_sdk.module_v2.video.FavouredModel
 import com.laohei.bili_sdk.module_v2.video.VideoArchiveModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
-import com.laohei.bili_sdk.module_v2.video.VideoPageListModel
+import com.laohei.bili_sdk.module_v2.video.VideoPageModel
 import com.laohei.bili_sdk.module_v2.video.VideoURLModel
 
 interface PlayApi {
@@ -87,7 +87,7 @@ interface PlayApi {
     suspend fun getMediaSeries(
         bvid: String,
         cookie: String? = null
-    ): BiliResponse<List<VideoPageListModel>>
+    ): BiliResponse<List<VideoPageModel>>
 
     suspend fun postCoins(
         aid: Long,
