@@ -121,7 +121,7 @@ class ProfileViewModel(
                 )
             } else {
                 EventBus.send(
-                    Event.AppEvent.ToastEvent(R.string.str_folder_created_faild)
+                    Event.AppEvent.ToastEvent(R.string.str_folder_created_failed)
                 )
             }
         }

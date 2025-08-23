@@ -3,10 +3,7 @@ package com.laohei.bili_tube.features.player.component
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,9 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.PlaylistPlay
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,7 +25,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -47,9 +41,9 @@ import com.laohei.bili_sdk.module_v2.video.VideoDimension
 import com.laohei.bili_sdk.module_v2.video.VideoOwner
 import com.laohei.bili_sdk.module_v2.video.VideoStat
 import com.laohei.bili_sdk.module_v2.video.VideoView
+import com.laohei.bili_tube.component.video.VideoAction
 import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
-import com.laohei.bili_tube.component.video.VideoAction
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem2
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.toTimeAgoString
@@ -57,69 +51,9 @@ import com.laohei.bili_tube.utill.toViewString
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 
-@Composable
-fun PlaylistBar(
-    modifier: Modifier = Modifier,
-    nextTitle: String,
-    folderTitle: String,
-    onClick: () -> Unit = {},
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .clickable {
-                onClick.invoke()
-            }
-            .background(
-                MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.9f)
-            )
-            .padding(horizontal = 12.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Outlined.PlaylistPlay,
-            contentDescription = Icons.AutoMirrored.Outlined.PlaylistPlay.name,
-            tint = MaterialTheme.colorScheme.onBackground,
-        )
-
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 12.dp, end = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text = nextTitle,
-                style = MaterialTheme.typography.labelMedium,
-                maxLines = 1,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .basicMarquee()
-            )
-            Text(
-                text = folderTitle,
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.Gray,
-                maxLines = 1,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .basicMarquee()
-            )
-        }
-
-        Icon(
-            imageVector = Icons.Outlined.KeyboardArrowUp,
-            contentDescription = Icons.Outlined.KeyboardArrowUp.name,
-            tint = MaterialTheme.colorScheme.onBackground,
-        )
-    }
-}
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun PlaylistSheet(
+internal fun PlaylistSheet(
     modifier: Modifier = Modifier,
     bottomPadding: Dp = 0.dp,
     folderTitle: String,
@@ -261,14 +195,6 @@ private fun FolderInfoBar(
 
 }
 
-@Preview(showBackground = true)
-@Composable
-fun PlaylistBarPreview() {
-    PlaylistBar(
-        nextTitle = "下一个: Recomposition - Jetpack Compose",
-        folderTitle = "Jetpack Compose · 1/10"
-    )
-}
 
 @Preview(showBackground = true)
 @OptIn(ExperimentalMaterial3Api::class)

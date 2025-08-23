@@ -880,7 +880,7 @@ internal class MediaViewModel(
                 onScreenAction(ScreenAction.SetCreatedFolderVisible(false), true)
                 EventBus.send(Event.AppEvent.ToastEvent(R.string.str_folder_created_success))
             } else {
-                EventBus.send(Event.AppEvent.ToastEvent(R.string.str_folder_created_faild))
+                EventBus.send(Event.AppEvent.ToastEvent(R.string.str_folder_created_failed))
             }
         }
     }
@@ -905,7 +905,7 @@ private fun mapCodeToMessage(code: Int): Int = when (code) {
     -102 -> R.string.str_account_suspend
     -104 -> R.string.str_not_enough_coins
     34002 -> R.string.str_not_give_yourself_coin
-    else -> R.string.str_add_coin_faild
+    else -> R.string.str_add_coin_failed
 }
 
 private fun mapFolderResponseToMessage(code: Int): Int = when (code) {

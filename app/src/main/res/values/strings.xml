@@ -143,9 +143,12 @@
     <string name="str_account_suspend">账号被封停</string>
     <string name="str_not_enough_coins">硬币不足</string>
     <string name="str_not_give_yourself_coin">不能给自己投币</string>
-    <string name="str_add_coin_faild">投币失败</string>
+    <string name="str_add_coin_failed">投币失败</string>
     <string name="str_login_method">登录方式</string>
     <string name="str_sms_code_error">验证码错误</string>
-    <string name="str_folder_created_faild">收藏夹创建失败</string>
-    <string name="str_download_hint">可下载资源正在加载中，请稍后...</string>
+    <string name="str_folder_created_failed">收藏夹创建失败</string>
+    <string name="str_download_hint">可下载资源正在加载中，请稍后…</string>
+    <string name="str_archive_item_template">合集 · %1s · %2d/%3d</string>
+    <string name="str_last_archive_item">已是最后一个视频</string>
+    <string name="str_next_archive_item_template">下一个: %s</string>
 </resources>

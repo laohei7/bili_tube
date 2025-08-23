@@ -24,10 +24,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +47,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -71,6 +75,7 @@ import com.laohei.bili_tube.features.player.component.AddCoinSheet
 import com.laohei.bili_tube.features.player.component.BlurBackground
 import com.laohei.bili_tube.features.player.component.FullscreenBottomControlContent
 import com.laohei.bili_tube.features.player.component.GetContent
+import com.laohei.bili_tube.features.player.component.GroupInfoBar
 import com.laohei.bili_tube.features.player.component.PlayerSnackHost
 import com.laohei.bili_tube.features.player.component.UserInfoCardSheet
 import com.laohei.bili_tube.features.player.component.VideoDetailSheet
@@ -90,7 +95,9 @@ import com.laohei.bili_tube.features.player.state.screen.ScreenState
 import com.laohei.bili_tube.ui.component.dialog.CreatedFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
+import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
 import com.laohei.bili_tube.ui.component.sheet.FolderSheet
+import com.laohei.bili_tube.ui.theme.LargePadding
 import com.laohei.bili_tube.utill.OnOrientationChanged
 import com.laohei.bili_tube.utill.SystemUtil
 import com.laohei.bili_tube.utill.checkedPermissions
@@ -381,7 +388,7 @@ fun VideoScreen(
             DeviceConfiguration.MOBILE_LANDSCAPE -> {
                 LandscapeFullscreenVideoPage(
                     context = context,
-                    playParam =playerState.playParam,
+                    playParam = playerState.playParam,
                     exoPlayer = viewModel.exoPlayer,
                     screenState = screenState,
                     mediaState = mediaState,
@@ -756,6 +763,39 @@ private fun PortraitVideoPage(
             onSelectedAidChange = onSelectedAidChange,
             onSelectedBvidChange = onSelectedBvidChange
         )
+
+        playerState.videoArchiveMeta?.let { archive ->
+            if(screenState.isFullscreen){
+                return@let
+            }
+            val currentArchiveIndex by remember { derivedStateOf { playerState.currentArchiveIndex } }
+
+            val nextArchiveItem by remember {
+                derivedStateOf {
+                    playerState.videoArchives?.getOrNull(currentArchiveIndex + 1)
+                }
+            }
+            GroupInfoBar(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = LargePadding * 2)
+                    .padding(horizontal = LargePadding)
+                    .fillMaxWidth(),
+                title = nextArchiveItem?.let {
+                    stringResource(R.string.str_next_archive_item_template, it.title)
+                } ?: stringResource(R.string.str_last_archive_item),
+                subtitle = stringResource(
+                    R.string.str_archive_item_template,
+                    archive.name, currentArchiveIndex + 1, archive.total
+                ),
+                subcontent = {
+                    LottieIconPlaying(Modifier.size(12.dp))
+                },
+                onClick = {
+                    onScreenAction(ScreenAction.SetArchiveVisible(true))
+                }
+            )
+        }
 
         // Sheet Shadow Gradient Layer
         Box(

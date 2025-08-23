@@ -46,14 +46,13 @@ import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoPageListModel
 import com.laohei.bili_tube.PlayParam
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
 import com.laohei.bili_tube.component.video.VideoAction
 import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.features.player.component.archive.ArchiveMetaItem
 import com.laohei.bili_tube.features.player.component.archive.MediaSeriesList
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 import com.laohei.bili_tube.features.player.state.screen.ScreenState
+import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
 import com.laohei.bili_tube.ui.component.text.IconText
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
 import com.laohei.bili_tube.ui.component.video.VerticalVideoItem
@@ -212,15 +211,6 @@ private fun VideoContent(
                         pageList = it,
                         currentPageListIndex = currentPageListIndex,
                         onClick = videoPlayClick
-                    )
-                }
-            }
-            videoArchiveMeta?.let {
-                item {
-                    ArchiveMetaItem(
-                        archiveMeta = it,
-                        currentArchiveIndex = currentArchiveIndex,
-                        onScreenAction = onScreenAction
                     )
                 }
             }

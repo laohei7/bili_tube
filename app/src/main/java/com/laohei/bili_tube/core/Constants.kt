@@ -78,3 +78,5 @@ internal val AudioQualities = listOf(
 internal const val ChainCountryId = "86"
 
 internal val KeywordPattern = "<em class=\"keyword\">(.*?)</em>".toRegex()
+
+internal const val AlphaFraction = 0.98f
