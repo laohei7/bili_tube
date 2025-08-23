@@ -148,7 +148,7 @@
     <string name="str_sms_code_error">验证码错误</string>
     <string name="str_folder_created_failed">收藏夹创建失败</string>
     <string name="str_download_hint">可下载资源正在加载中，请稍后…</string>
-    <string name="str_archive_item_template">合集 · %1s · %2d/%3d</string>
+    <string name="str_archive_item_template">%1s · %2d/%3d</string>
     <string name="str_last_archive_item">已是最后一个视频</string>
     <string name="str_next_archive_item_template">下一个: %s</string>
 </resources>
