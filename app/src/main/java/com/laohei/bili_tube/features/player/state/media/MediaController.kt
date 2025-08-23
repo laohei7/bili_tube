@@ -15,7 +15,7 @@ internal interface MediaController {
     fun seekToFraction(fraction: Float)
     fun togglePlayPause()
     fun release()
-    fun setPlaybackSpeed(speed: Float)
+    fun setPlaybackSpeed(speed: Float,isUser: Boolean = true)
     fun setBuffering(enabled: Boolean)
     fun updateMediaState(state: MediaState)
     fun changeQuality(quality: Pair<Int, String>)

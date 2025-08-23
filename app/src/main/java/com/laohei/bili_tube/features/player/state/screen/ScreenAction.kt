@@ -31,5 +31,6 @@ sealed interface ScreenAction {
     data class SetVideoMenuVisible(val flag: Boolean) : ScreenAction
 
     data class SetUserSwitch(val flag: Boolean) : ScreenAction
+    data class SetHintVisible(val flag: Boolean) : ScreenAction
 
 }

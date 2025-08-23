@@ -21,11 +21,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.VolumeOff
 import androidx.compose.material.icons.filled.Cast
@@ -48,7 +46,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -59,7 +56,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
@@ -67,7 +63,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.component.lottie.LottieIconLoading
-import com.laohei.bili_tube.ui.component.lottie.LottieIconSpeed
 import com.laohei.bili_tube.utill.SystemUtil
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
@@ -190,14 +185,12 @@ fun PlayerControl(
         AnimatedVisibility(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .statusBarsPadding()
-                .padding(top = 8.dp),
+                .padding(top = SystemUtil.getSystemBarHeightDp()),
             visible = isLongPress,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
             hintContent?.invoke()
-                ?: DefaultLongPressHint()
         }
 
         // Mask
@@ -594,32 +587,6 @@ private fun BoxScope.BottomBar(
         ) {
             actionContent?.invoke()
                 ?: DefaultBottomBarAction()
-        }
-    }
-}
-
-@Composable
-private fun DefaultLongPressHint() {
-    Surface(
-        color = Color.Black.copy(alpha = 0.5f),
-        contentColor = Color.White,
-        shape = RoundedCornerShape(4.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)
-        ) {
-            Text(
-                text = stringResource(R.string.str_double_speed_hint),
-                style = MaterialTheme.typography.labelMedium
-            )
-
-            LottieIconSpeed(
-                modifier = Modifier
-                    .size(20.dp)
-                    .rotate(180f)
-            )
         }
     }
 }

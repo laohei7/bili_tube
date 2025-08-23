@@ -46,6 +46,7 @@ internal data class ScreenState(
     val isShowQualityUI: Boolean = false,
     val isShowOtherSettingUI: Boolean = false,
     val isShowVideoMenuUIAction: Boolean = false,
+    val isHintVisible: Boolean = false,
 
     // adaption system rotation
     val isAutoRotateEnabled: Boolean = false,

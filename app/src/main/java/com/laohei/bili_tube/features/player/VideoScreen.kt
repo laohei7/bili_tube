@@ -77,6 +77,7 @@ import com.laohei.bili_tube.features.player.component.FullscreenBottomControlCon
 import com.laohei.bili_tube.features.player.component.GetContent
 import com.laohei.bili_tube.features.player.component.GroupInfoBar
 import com.laohei.bili_tube.features.player.component.PlayerSnackHost
+import com.laohei.bili_tube.features.player.component.SpeedHint
 import com.laohei.bili_tube.features.player.component.UserInfoCardSheet
 import com.laohei.bili_tube.features.player.component.VideoDetailSheet
 import com.laohei.bili_tube.features.player.component.archive.ArchiveSheet
@@ -381,6 +382,14 @@ fun VideoScreen(
                             ScreenAction.SetDownloadVisible(false),
                             isOrientationPortrait
                         )
+                    },
+                    onDoubleSpeedChange = { enabled ->
+                        viewModel.onScreenAction(
+                            ScreenAction.SetHintVisible(enabled),
+                            isOrientationPortrait
+                        )
+                        val targetSpeed = if (enabled) 2.0f else mediaState.userSelectedSpeed
+                        viewModel.setPlaybackSpeed(targetSpeed, false)
                     }
                 )
             }
@@ -418,7 +427,15 @@ fun VideoScreen(
                         viewModel.onScreenAction(it, false)
                     },
                     resetHideTimer = ::resetHideTimer,
-                    onSelectedAidChange = viewModel::setSelectedAid
+                    onSelectedAidChange = viewModel::setSelectedAid,
+                    onDoubleSpeedChange = { enabled ->
+                        viewModel.onScreenAction(
+                            ScreenAction.SetHintVisible(enabled),
+                            isOrientationPortrait
+                        )
+                        val targetSpeed = if (enabled) 2.0f else mediaState.userSelectedSpeed
+                        viewModel.setPlaybackSpeed(targetSpeed, false)
+                    }
                 )
             }
 
@@ -457,7 +474,15 @@ fun VideoScreen(
                             viewModel.onScreenAction(it, false)
                         },
                         resetHideTimer = ::resetHideTimer,
-                        onSelectedAidChange = viewModel::setSelectedAid
+                        onSelectedAidChange = viewModel::setSelectedAid,
+                        onDoubleSpeedChange = { enabled ->
+                            viewModel.onScreenAction(
+                                ScreenAction.SetHintVisible(enabled),
+                                isOrientationPortrait
+                            )
+                            val targetSpeed = if (enabled) 2.0f else mediaState.userSelectedSpeed
+                            viewModel.setPlaybackSpeed(targetSpeed, false)
+                        }
                     )
                 }
             }
@@ -485,7 +510,9 @@ fun VideoScreen(
         PlaySpeedSheet(
             isShowSheet = screenState.isShowSpeedUI,
             speed = mediaState.speed,
-            onSpeedChanged = { viewModel.setPlaybackSpeed(it) },
+            onSpeedChange = {
+                viewModel.setPlaybackSpeed(it)
+            },
             onDismiss = {
                 viewModel.onScreenAction(
                     ScreenAction.SetSettingSpeedVisible(false),
@@ -602,6 +629,7 @@ private fun PortraitVideoPage(
     onDownload: (Pair<Int, String>) -> Unit,
     onSelectedAidChange: (Long) -> Unit,
     onSelectedBvidChange: (String) -> Unit,
+    onDoubleSpeedChange: (Boolean) -> Unit
 ) {
     val animatedVideoHeight by animateDpAsState(
         targetValue = screenState.videoHeight
@@ -687,12 +715,14 @@ private fun PortraitVideoPage(
             currentDuration = mediaState.currentDuration.formatTimeString(),
             onPlayChange = onPlayChange,
             onProgressChange = onProgressChange,
-            onLongPressStart = { },
-            onLongPressEnd = {},
+            onLongPressStart = { onDoubleSpeedChange(true) },
+            onLongPressEnd = { onDoubleSpeedChange(false) },
             onControlUIChange = onControlUIChange,
             onSetting = { onScreenAction(ScreenAction.SetSettingVisible(true)) },
             onBackPress = onBackPress,
-            hintContent = {},
+            hintContent = {
+                SpeedHint(speed = mediaState.speed)
+            },
             bottomControlContent = {
                 FullscreenBottomControlContent(
                     images = when {
@@ -765,7 +795,7 @@ private fun PortraitVideoPage(
         )
 
         playerState.videoArchiveMeta?.let { archive ->
-            if(screenState.isFullscreen){
+            if (screenState.isFullscreen) {
                 return@let
             }
             val currentArchiveIndex by remember { derivedStateOf { playerState.currentArchiveIndex } }
@@ -934,6 +964,7 @@ private fun LandscapeFullscreenVideoPage(
     onScreenAction: (ScreenAction) -> Unit,
     resetHideTimer: () -> Unit,
     onSelectedAidChange: (Long) -> Unit,
+    onDoubleSpeedChange: (Boolean) -> Unit
 ) {
     val aspectRatio = (mediaState.width.toFloat() / mediaState.height)
     val videoModifier = Modifier
@@ -980,12 +1011,14 @@ private fun LandscapeFullscreenVideoPage(
             currentDuration = mediaState.currentDuration.formatTimeString(),
             onPlayChange = onPlayChange,
             onProgressChange = onProgressChange,
-            onLongPressStart = { },
-            onLongPressEnd = {},
+            onLongPressStart = { onDoubleSpeedChange(true) },
+            onLongPressEnd = { onDoubleSpeedChange(false) },
             onControlUIChange = onControlUIChange,
             onSetting = { onScreenAction(ScreenAction.SetSettingVisible(true)) },
             onBackPress = onBackPress,
-            hintContent = {},
+            hintContent = {
+                SpeedHint(speed = mediaState.speed)
+            },
             bottomControlContent = {
                 FullscreenBottomControlContent(
                     images = when {

@@ -196,8 +196,13 @@ internal class DefaultMediaController(
         exoPlayer.release()
     }
 
-    override fun setPlaybackSpeed(speed: Float) {
-        _mediaState.update { it.copy(speed = speed) }
+    override fun setPlaybackSpeed(speed: Float, isUser: Boolean) {
+        _mediaState.update {
+            it.copy(
+                speed = speed,
+                userSelectedSpeed = if (isUser) speed else it.userSelectedSpeed
+            )
+        }
         exoPlayer.setPlaybackSpeed(speed)
     }
 

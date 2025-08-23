@@ -227,7 +227,13 @@ internal class DefaultScreenController(
             is ScreenAction.SetVideoMenuVisible -> setVideoMenuVisible(action)
 
             is ScreenAction.SetUserSwitch -> setUserSwitch(action)
+
+            is ScreenAction.SetHintVisible -> setHintVisible(action)
         }
+    }
+
+    private fun setHintVisible(action: ScreenAction.SetHintVisible) {
+        _screenState.update { it.copy(isHintVisible = action.flag) }
     }
 
     private fun setUserSwitch(action: ScreenAction.SetUserSwitch) {

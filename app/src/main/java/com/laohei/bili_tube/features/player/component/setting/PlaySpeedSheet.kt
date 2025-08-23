@@ -25,12 +25,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -58,16 +55,15 @@ fun PlaySpeedSheet(
     isShowSheet: Boolean = true,
     speed: Float = 1.0f,
     onDismiss: () -> Unit = {},
-    onSpeedChanged: (Float) -> Unit = {}
+    onSpeedChange: (Float) -> Unit = {}
 ) {
-    var localSpeed by remember { mutableFloatStateOf(speed) }
+    val localSpeed by rememberUpdatedState(speed)
 
     fun adjustSpeed(newValue: Float) {
-        localSpeed = ((newValue * 20).roundToInt() / 20.0f).coerceIn(0.25f, 2.0f)
-        onSpeedChanged.invoke(localSpeed)
+        val step = 0.05f
+        val newSpeed = (newValue / step).roundToInt() * step
+        onSpeedChange(newSpeed.coerceIn(0.25f, 2.0f))
     }
-
-    LaunchedEffect(speed) { localSpeed = speed }
 
     val scope = rememberCoroutineScope()
     val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true)

@@ -4,7 +4,6 @@ import com.laohei.bili_tube.core.AudioQualities
 import com.laohei.bili_tube.core.VideoQualities
 
 
-
 internal data class MediaState(
     val isPlaying: Boolean = false,
     val isLoading: Boolean = true,
@@ -17,10 +16,11 @@ internal data class MediaState(
     val width: Int = 1920,
     val height: Int = 1080,
     val speed: Float = 1.0f,
+    val userSelectedSpeed: Float = speed,
     val quality: List<Pair<Int, String>> = VideoQualities,
     val videoQuality: Pair<Int, String> = VideoQualities.first(),
     val audioQuality: Int = AudioQualities.first().first,
-    val isUserSelectedQuality: Boolean = false
+    val isUserSelectedQuality: Boolean = false,
 ) {
     fun reset(): MediaState {
         return this.copy(

@@ -16,7 +16,7 @@
     <string name="str_report">举报</string>
     <string name="str_more_video">更多视频</string>
     <string name="str_more_video_hint">点按或向上滑动以查看全部</string>
-    <string name="str_double_speed_hint">x2</string>
+    <string name="str_speed_hint_template">x%.2f</string>
     <string name="str_watch_later">稍后观看</string>
     <string name="str_private">私享</string>
     <string name="str_public">公开</string>
