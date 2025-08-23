@@ -19,7 +19,8 @@ internal data class MediaState(
     val speed: Float = 1.0f,
     val quality: List<Pair<Int, String>> = VideoQualities,
     val videoQuality: Pair<Int, String> = VideoQualities.first(),
-    val audioQuality: Int = AudioQualities.first().first
+    val audioQuality: Int = AudioQualities.first().first,
+    val isUserSelectedQuality: Boolean = false
 ) {
     fun reset(): MediaState {
         return this.copy(
@@ -32,7 +33,7 @@ internal data class MediaState(
             progress = 0f,
             bufferProgress = 0f,
             width = 1920,
-            height = 1080
+            height = 1080,
         )
     }
 }

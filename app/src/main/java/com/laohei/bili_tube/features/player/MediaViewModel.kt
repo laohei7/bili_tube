@@ -395,6 +395,10 @@ internal class MediaViewModel(
     }.getOrNull()
 
     private fun updateMediaStateWithQuality(data: VideoURLModel) {
+        // keep the current quality when user select
+        if(mediaState.value.isUserSelectedQuality){
+            return
+        }
         val qualityList = data.supportFormats.map { it.quality to it.newDescription }
         val (videoDefault, audioDefault) = when (networkUtil.getNetworkType()) {
             NetworkType.NETWORK_TYPE_WIFI ->

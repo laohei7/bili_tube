@@ -76,7 +76,7 @@ internal class DefaultMediaController(
     }
 
     private val _defaultLocalControl = DefaultLoadControl.Builder()
-        .setBufferDurationsMs(5_000, 120_000, 1_000, 5_000 )
+        .setBufferDurationsMs(5_000, 120_000, 1_000, 5_000)
 //        .setBufferDurationsMs(100_000, 200_000, 3_000, 6_000)
         .setAllocator(DefaultAllocator(true, C.DEFAULT_BUFFER_SEGMENT_SIZE * 10))
         .setPrioritizeTimeOverSizeThresholds(false)
@@ -376,7 +376,7 @@ internal class DefaultMediaController(
         if (quality.first == _mediaState.value.videoQuality.first) {
             return
         }
-        _mediaState.update { it.copy(videoQuality = quality) }
+        _mediaState.update { it.copy(videoQuality = quality, isUserSelectedQuality = true) }
         _currentSelectedIndex = 0
         play(_mediaState.value.currentDuration)
     }
