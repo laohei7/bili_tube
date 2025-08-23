@@ -388,15 +388,17 @@ internal class MediaViewModel(
             }
 
             else -> {
-                epId ?: return null
-                biliPlayRepository.getMediaPlayURL(epId).result
+                val response = epId?.let {
+                    biliPlayRepository.getMediaPlayURL(aid, bvid, cid, it)
+                } ?: return null
+                response.takeIf { it.code != 400 }?.result
             }
         }
     }.getOrNull()
 
     private fun updateMediaStateWithQuality(data: VideoURLModel) {
         // keep the current quality when user select
-        if(mediaState.value.isUserSelectedQuality){
+        if (mediaState.value.isUserSelectedQuality) {
             return
         }
         val qualityList = data.supportFormats.map { it.quality to it.newDescription }
