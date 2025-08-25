@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.TextureView
 import androidx.annotation.OptIn
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,18 +13,20 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.FlowRowOverflow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -44,12 +45,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
@@ -126,7 +126,8 @@ internal fun LandscapeVideoPage(
             onFullscreenChange = onFullscreenChange,
             onScreenAction = onScreenAction,
             onDoubleSpeedChange = onDoubleSpeedChange,
-            resetHideTimer = resetHideTimer
+            resetHideTimer = resetHideTimer,
+            onVideoMenuAction = onVideoMenuAction
         )
         OtherListArea(
             playerUIState = playerUIState,
@@ -153,6 +154,7 @@ private fun RowScope.LandscapeMainArea(
     onScreenAction: (ScreenAction) -> Unit,
     onDoubleSpeedChange: (Boolean) -> Unit,
     resetHideTimer: () -> Unit,
+    onVideoMenuAction: (VideoMenuAction) -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -185,6 +187,8 @@ private fun RowScope.LandscapeMainArea(
             isDownloaded = playerUIState.isDownloaded,
             isShowLikeAnimation = screenState.isShowLikeAnimation,
             isFullscreen = screenState.isFullscreen,
+            onScreenAction = onScreenAction,
+            onVideoMenuAction = onVideoMenuAction
         )
     }
 }
@@ -293,7 +297,6 @@ private fun ColumnScope.LandscapeVideoArea(
 @kotlin.OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ColumnScope.LandscapeInfoArea(
-    context: Context = LocalContext.current,
     videoDetail: VideoDetailModel?,
     bangumiDetail: BangumiDetailModel?,
     infoCard: InfoCardModel?,
@@ -303,6 +306,8 @@ private fun ColumnScope.LandscapeInfoArea(
     isDownloaded: Boolean,
     isShowLikeAnimation: Boolean,
     isFullscreen: Boolean,
+    onScreenAction: (ScreenAction) -> Unit,
+    onVideoMenuAction: (VideoMenuAction) -> Unit,
 ) {
     val title by rememberUpdatedState(videoDetail?.view?.title ?: bangumiDetail?.title ?: "")
     Column(
@@ -314,13 +319,20 @@ private fun ColumnScope.LandscapeInfoArea(
             .padding(SmallPadding),
         verticalArrangement = Arrangement.spacedBy(SmallPadding)
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            maxLines = 1,
-            modifier = Modifier.fillMaxWidth()
-        )
+        bangumiDetail?.let { detail ->
+            BangumiTitleWidget(
+                title = title
+            )
+        } ?: run {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
         videoDetail?.let { detail ->
             UserSubscriptionBar(
                 face = detail.view.owner.face,
@@ -329,6 +341,14 @@ private fun ColumnScope.LandscapeInfoArea(
                 isSubscribed = infoCard?.following == true,
                 onScreenAction = {},
                 onVideoMenuAction = { }
+            )
+        }
+
+        bangumiDetail?.let { detail ->
+            BangumiInfoBar(
+                views = detail.stat.views,
+                favorites = detail.stat.favorites,
+                score = detail.rating?.score
             )
         }
 
@@ -349,6 +369,25 @@ private fun ColumnScope.LandscapeInfoArea(
                 onAnimationEndCallback = {
 
                 }
+            )
+        } ?: bangumiDetail?.let { detail ->
+            Spacer(Modifier.height(MediumPadding))
+            HorizontalVideoMenu(
+                great = detail.stat.likes.toViewString(),
+                coin = detail.stat.coins.toViewString(),
+                star = detail.stat.favorites.toViewString(),
+                share = detail.stat.share.toViewString(),
+                hasLike = hasLike,
+                hasCoin = hasCoin,
+                hasFavoured = hasFavoured,
+                isDownloaded = isDownloaded,
+                showLikeAnimation = isShowLikeAnimation,
+                isFullscreen = isFullscreen,
+                onScreenAction = onScreenAction,
+                onVideoMenuAction = onVideoMenuAction,
+                onAnimationEndCallback = {
+                    onScreenAction(ScreenAction.SetLikeAnimationVisible(false))
+                },
             )
         }
 
@@ -390,10 +429,13 @@ private fun RowScope.OtherListArea(
         derivedStateOf {
             buildList {
                 playerUIState.videoPageList?.let { add(R.string.str_video_page_list) }
+                    ?: playerUIState.bangumiDetail?.episodes?.let { add(R.string.str_video_page_list) }
                 playerUIState.videoArchives?.let { add(R.string.str_video_archive) }
                 playerUIState.videoDetail?.related?.let { add(R.string.str_related_video) }
                 add(R.string.str_reply)
-                add(R.string.str_user_works)
+                if (playerUIState.isVideo) {
+                    add(R.string.str_user_works)
+                }
                 playerUIState.relatedBangumis?.let { add(R.string.str_related_bangumi) }
             }
         }
@@ -421,11 +463,23 @@ private fun RowScope.OtherListArea(
         ) { index ->
             when (menus[index]) {
                 R.string.str_video_page_list -> {
-                    GridVideoPageList(
-                        pageList = playerUIState.videoPageList ?: emptyList(),
-                        currentPageListIndex = playerUIState.currentPageListIndex,
-                        onVideoMenuAction = onVideoMenuAction
-                    )
+                    if (playerUIState.isVideo) {
+                        GridVideoPageList(
+                            pageList = playerUIState.videoPageList ?: emptyList(),
+                            currentPageListIndex = playerUIState.currentPageListIndex,
+                            onVideoMenuAction = onVideoMenuAction
+                        )
+                    } else {
+                        playerUIState.bangumiDetail?.let { detail ->
+                            BangumiSeasonAndEpisodeWidget(
+                                bangumiDetail = detail,
+                                currentEpId = playerUIState.currentEpId,
+                                initialEpisodeIndex = playerUIState.initialEpisodeIndex,
+                                initialSeasonIndex = playerUIState.initialSeasonIndex,
+                                onVideoMenuAction = onVideoMenuAction
+                            )
+                        }
+                    }
                 }
 
                 R.string.str_user_works -> {
@@ -486,7 +540,10 @@ private fun RowScope.OtherListArea(
                 }
 
                 R.string.str_related_bangumi -> {
-
+                    RelatedBangumiList(
+                        relatedList = playerUIState.relatedBangumis ?: emptyList(),
+                        onVideoMenuAction = onVideoMenuAction
+                    )
                 }
             }
         }
@@ -494,30 +551,37 @@ private fun RowScope.OtherListArea(
 }
 
 @Composable
-private fun VideoMenuList(
-    menus: List<Int>,
-    currentIndex: Int,
-    onClick: (Int) -> Unit
+private fun BangumiSeasonAndEpisodeWidget(
+    bangumiDetail: BangumiDetailModel,
+    initialSeasonIndex: Int,
+    initialEpisodeIndex: Int,
+    currentEpId: Long,
+    onVideoMenuAction: (VideoMenuAction) -> Unit,
 ) {
-    Row(
+    val seasonState = rememberLazyListState(initialFirstVisibleItemIndex = initialSeasonIndex)
+    val episodeState = rememberLazyGridState(initialFirstVisibleItemIndex = initialEpisodeIndex)
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .horizontalScroll(rememberScrollState()),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SmallPadding)
+            .padding(top = SmallPadding),
+        verticalArrangement = Arrangement.spacedBy(MediumPadding)
     ) {
-        menus.fastForEachIndexed { index, it ->
-            AssistChip(
-                onClick = { onClick(index) },
-                label = {
-                    Text(
-                        text = stringResource(it),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                }
-            )
-        }
-
+        BangumiEpisodeTitleBar(
+            size = bangumiDetail.episodes.size
+        )
+        BangumiSeasonList(
+            listState = seasonState,
+            currentSeasonId = bangumiDetail.seasonId,
+            seasonList = bangumiDetail.seasons,
+            onVideoMenuAction = onVideoMenuAction
+        )
+        GridBangumiEpisodeList(
+            modifier = Modifier.padding(vertical = 4.dp),
+            listState = episodeState,
+            currentEpId = currentEpId,
+            episodeList = bangumiDetail.episodes,
+            onVideoMenuAction = onVideoMenuAction
+        )
     }
 }
 
