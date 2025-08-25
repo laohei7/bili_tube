@@ -233,22 +233,22 @@ internal fun PortraitVideoPage(
             unlockScreen = {},
             resetHideTimer = resetHideTimer
         ) {
-            if (mediaState.showCover && cover != null) {
-                AsyncImage(
-                    modifier = videoModifier
-                        .aspectRatio(aspectRatio),
-                    model = cover,
-                    contentDescription = "cover"
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .padding(top = topPadding)
-                        .background(color = videoContainerColor),
-                    contentAlignment = Alignment.Center
-                ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(top = topPadding)
+                    .background(color = videoContainerColor),
+                contentAlignment = Alignment.Center
+            ) {
+                if (mediaState.showCover && cover != null) {
+                    AsyncImage(
+                        modifier = videoModifier
+                            .aspectRatio(aspectRatio),
+                        model = cover,
+                        contentDescription = "cover"
+                    )
+                } else {
                     AndroidView(
                         modifier = videoModifier
                             .aspectRatio(aspectRatio),
@@ -261,6 +261,7 @@ internal fun PortraitVideoPage(
                     )
                 }
             }
+
         }
 
         GetContent(
