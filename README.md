@@ -23,11 +23,8 @@
 ![Home Cover](./assets/img/TabletHome.png)
 ![Home Cover](./assets/img/SubscriptionAndProfile.png)
 ![Home Cover](./assets/img/TabletSetting.png)
-![Home Cover](./assets/img/SearchCover.png)
-![Home Cover](./assets/img/SettingsCover.png)
-![Home Cover](./assets/img/PlayerCover1.png)
-![Home Cover](./assets/img/PlayerCover2.png)
-![Home Cover](./assets/img/PlayerCover3.png)
+![Home Cover](./assets/img/SearchPage.png)
+![Home Cover](./assets/img/PlayerPage.png)
 
 ## 技术栈
 
@@ -51,22 +48,6 @@
 
 - 该项目以 UI 为主，数据来源请自行获取 **（请严格遵守网络安全）**
 - sdk 模块中 model 包下为 AI 生成的实体类（比较杂乱）；model_v2 为整理后的实体类（只保留展示的数据部分）。
-
-## 功能
-
-- [x] 推荐页
-- [x] 热门页
-- [x] 视频播放（横屏、竖屏）
-- [x] 视频相关推荐
-- [x] 视频评论
-- [x] 视频信息
-- [x] 扫码登陆
-- [x] 动态
-- [x] 个人页面（播放列表、历史记录、关注、粉丝、动态数据）
-- [x] 搜索视频、番剧
-- [x] 视频、番剧下载
-- [x] 番剧、番剧相关推荐
-- [x] 设置
 
 ## 💦交流
 
