@@ -96,7 +96,7 @@
     <string name="str_using_wifi_video_quality">使用 WLAN 时的视频画质</string>
     <string name="str_using_mobile_net_audio_quality">使用移动网络时的音频画质</string>
     <string name="str_using_wifi_audio_quality">使用 WLAN 时的音频画质</string>
-    <string name="str_download_settings">下载偏好设置</string>
+    <string name="str_download_settings">下载偏好设置（下载功能迁移至BiliTools，开发中...）</string>
     <string name="str_download_folder">下载位置</string>
     <string name="str_merge_source">是否合并音视频输出为MP4</string>
     <string name="str_merge_source_hint">（仅数据源音视频分离有效）</string>
@@ -124,7 +124,7 @@
     <string name="str_folder_title">%1s · %2d/%3d</string>
     <string name="str_folder_title_count">%1s · %2d/%3d</string>
     <string name="str_shared_super_quality_source">是否共享超高画质、音质</string>
-    <string name="str_shared_setting">共享设置</string>
+    <string name="str_shared_setting">共享设置（开发中...）</string>
     <string name="str_export_shared_source">导出共享数据</string>
     <string name="str_input_shared_source">导入共享数据</string>
     <string name="str_export">导出</string>
@@ -157,4 +157,5 @@
     <string name="str_related_video">相关视频</string>
     <string name="str_related_bangumi">相关番剧</string>
     <string name="str_user_works">TA 的视频</string>
+    <string name="str_download_develop_hint">下载功能将迁移至BiliTools项目，开发中...</string>
 </resources>

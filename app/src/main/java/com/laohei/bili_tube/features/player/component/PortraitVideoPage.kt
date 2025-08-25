@@ -390,11 +390,12 @@ internal fun PortraitVideoPage(
             },
             onDownloadClick = {
                 scope.launch {
-                    if (!context.checkedPermissions(WRITE_STORAGE_PERMISSION)) {
-                        EventBus.send(Event.AppEvent.PermissionRequestEvent(WRITE_STORAGE_PERMISSION))
-                    } else {
-                        onDownload(it)
-                    }
+//                    if (!context.checkedPermissions(WRITE_STORAGE_PERMISSION)) {
+//                        EventBus.send(Event.AppEvent.PermissionRequestEvent(WRITE_STORAGE_PERMISSION))
+//                    } else {
+//                        onDownload(it)
+//                    }
+                    EventBus.send(Event.AppEvent.ToastEvent(R.string.str_download_develop_hint))
                 }
             }
         )
