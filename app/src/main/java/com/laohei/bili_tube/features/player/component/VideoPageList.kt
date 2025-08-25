@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +31,35 @@ import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
 import com.laohei.bili_tube.ui.theme.SmallPadding
 
 @Composable
-internal fun VideoPageList(
+internal fun GridVideoPageList(
+    pageList: List<VideoPageModel>,
+    currentPageListIndex: Int,
+    onVideoMenuAction: (VideoMenuAction) -> Unit
+) {
+    LazyVerticalGrid(
+        modifier = Modifier
+            .fillMaxWidth(),
+        columns = GridCells.Fixed(4),
+        verticalArrangement = Arrangement.spacedBy(SmallPadding),
+        horizontalArrangement = Arrangement.spacedBy(SmallPadding)
+    ) {
+
+        itemsIndexed(pageList) { index, it ->
+            VideoPageItem(
+                modifier = Modifier
+                    .padding(end = 8.dp),
+                item = it,
+                isSelected = index == currentPageListIndex,
+                onClick = {
+                    onVideoMenuAction(VideoMenuAction.SwitchVideoPage(it.cid))
+                }
+            )
+        }
+    }
+}
+
+@Composable
+internal fun HorizontalVideoPageList(
     pageList: List<VideoPageModel>,
     currentPageListIndex: Int,
     onVideoMenuAction: (VideoMenuAction) -> Unit
@@ -47,9 +78,9 @@ internal fun VideoPageList(
                     .padding(end = 8.dp),
                 item = it,
                 isSelected = index == currentPageListIndex,
-               onClick = {
-                   onVideoMenuAction(VideoMenuAction.SwitchVideoPage(it.cid))
-               }
+                onClick = {
+                    onVideoMenuAction(VideoMenuAction.SwitchVideoPage(it.cid))
+                }
             )
         }
         item { Spacer(modifier = Modifier) }

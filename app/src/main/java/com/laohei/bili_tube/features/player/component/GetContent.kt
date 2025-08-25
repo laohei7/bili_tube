@@ -198,7 +198,7 @@ private fun VideoContent(
             }
             videoPageList?.let {
                 item {
-                    VideoPageList(
+                    HorizontalVideoPageList(
                         pageList = it,
                         currentPageListIndex = currentPageListIndex,
                         onVideoMenuAction = onVideoMenuAction

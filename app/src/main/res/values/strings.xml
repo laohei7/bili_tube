@@ -151,4 +151,10 @@
     <string name="str_archive_item_template">%1s · %2d/%3d</string>
     <string name="str_last_archive_item">已是最后一个视频</string>
     <string name="str_next_archive_item_template">下一个: %s</string>
+    <string name="str_no_title">暂无标题</string>
+    <string name="str_video_page_list">选集</string>
+    <string name="str_video_archive">合集</string>
+    <string name="str_related_video">相关视频</string>
+    <string name="str_related_bangumi">相关番剧</string>
+    <string name="str_user_works">TA 的视频</string>
 </resources>

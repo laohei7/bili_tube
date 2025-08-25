@@ -8,16 +8,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -55,15 +51,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
-import com.laohei.bili_tube.PlayParam
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.features.player.VideoMenuAction
+import com.laohei.bili_tube.features.player.component.ArchiveList
 import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
-import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem2
-import com.laohei.bili_tube.utill.formatTimeString
-import com.laohei.bili_tube.utill.toTimeAgoString
-import com.laohei.bili_tube.utill.toViewString
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 
@@ -226,50 +218,18 @@ fun ArchiveSheet(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            LazyColumn(
-                state = lazyListState,
+            ArchiveList(
                 modifier = Modifier
                     .fillMaxWidth()
                     .offset {
                         IntOffset(0, descriptionHeight)
-                    }
-            ) {
-                stickyHeader {
-                    Text(
-                        text = stringResource(R.string.str_select_episode),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.background)
-                            .padding(horizontal = 16.dp)
-                            .padding(vertical = 8.dp)
-                    )
-                }
-                itemsIndexed(archives!!) { index, item ->
-                    HorizontalVideoItem2(
-                        cover = item.pic,
-                        title = item.title,
-                        view = item.stat.view.toViewString(),
-                        duration = item.duration.formatTimeString(false),
-                        progress = item.playbackPosition.toFloat() / item.duration,
-                        pubdate = item.pubdate.toTimeAgoString(),
-                        isCurrentPlaying = index == currentArchiveIndex,
-                        onClick = {
-                            onVideoMenuAction(
-                                VideoMenuAction.SwitchVideo(
-                                    PlayParam.VideoParam(
-                                        aid = item.aid,
-                                        bvid = item.bvid,
-                                        cid = -1
-                                    )
-                                )
-                            )
-                        }
-                    )
-                }
-                item { Spacer(Modifier.height(bottomPadding)) }
-            }
+                    },
+                listState = lazyListState,
+                bottomPadding = bottomPadding,
+                currentArchiveIndex = currentArchiveIndex,
+                archiveList = archives ?: emptyList(),
+                onVideoMenuAction = onVideoMenuAction
+            )
         }
     }
 }

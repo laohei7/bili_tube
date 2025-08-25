@@ -4,7 +4,7 @@ import com.laohei.bili_tube.core.AudioQualities
 import com.laohei.bili_tube.core.VideoQualities
 
 
-internal data class MediaState(
+data class MediaState(
     val isPlaying: Boolean = false,
     val isLoading: Boolean = true,
     val isError: Boolean = false,

@@ -5,7 +5,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-internal data class ScreenState(
+data class ScreenState(
     val screenWidth: Int,
     val screenHeight: Int,
     val isFullscreen: Boolean = false,

@@ -53,10 +53,7 @@ internal fun BlurBackground(
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()
-                    .blur(
-                        80.dp,
-                        edgeTreatment = BlurredEdgeTreatment.Unbounded
-                    ),
+                    .blur(60.dp),
                 contentScale = ContentScale.FillBounds,
             )
         }

@@ -1,7 +1,6 @@
 package com.laohei.bili_tube.features.player.component.control
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -19,10 +18,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.VolumeOff
@@ -52,14 +51,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.component.lottie.LottieIconLoading
@@ -68,6 +71,7 @@ import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
 import com.laohei.bili_tube.utill.rememberHasDisplayCutout
 import kotlinx.coroutines.delay
+import kotlin.math.roundToInt
 
 private const val TAG = "PlayerControl"
 
@@ -100,20 +104,16 @@ fun PlayerControl(
     content: @Composable BoxScope.() -> Unit
 ) {
 
-    var localIsFullscreen by remember { mutableStateOf(isFullscreen) }
+    val localIsFullscreen by rememberUpdatedState(isFullscreen)
     var localIsPlaying by remember { mutableStateOf(isPlaying) }
     var localIsShowUI by remember { mutableStateOf(isShowUI) }
     var localIsLockScreen by remember { mutableStateOf(isLockScreen) }
     var isLongPress by remember { mutableStateOf(false) }
     var isShowUnlockHint by remember { mutableStateOf(false) }
 
-    val videoContainerColor by animateColorAsState(
-        targetValue = if (localIsFullscreen) Color.Transparent else Color.Black
-    )
-
     LaunchedEffect(isFullscreen, isPlaying, isShowUI, isLockScreen) {
         localIsPlaying = isPlaying
-        localIsFullscreen = isFullscreen
+//        localIsFullscreen = isFullscreen
         localIsShowUI = isShowUI
         localIsLockScreen = isLockScreen
     }
@@ -171,16 +171,7 @@ fun PlayerControl(
                 .background(Color.Transparent)
         )
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(top = if (isFullscreen) 0.dp else SystemUtil.getStatusBarHeightDp())
-                .background(color = videoContainerColor),
-            contentAlignment = Alignment.Center
-        ) {
-            content()
-        }
+        content()
 
         AnimatedVisibility(
             modifier = Modifier
@@ -502,6 +493,7 @@ private fun BoxScope.CenterButtons(
 
 @Composable
 private fun BoxScope.BottomBar(
+    density: Density = LocalDensity.current,
     isShowUI: Boolean,
     isFullscreen: Boolean,
     isShowRelatedList: Boolean,
@@ -563,9 +555,18 @@ private fun BoxScope.BottomBar(
             }
         }
 
+        val isPortrait = isOrientationPortrait()
+
+        val shouldShowProgress = remember(isPortrait, isFullscreen, isShowUI, isShowRelatedList) {
+            ((isPortrait && !isFullscreen) || (isFullscreen && isShowUI) || (!isPortrait && !isFullscreen)) && !isShowRelatedList
+        }
+
+        val isLandscapeNormal = !isPortrait && !isFullscreen
+        val shouldAlignmentCenter = isFullscreen || isLandscapeNormal
+
         // progress indicator
         AnimatedVisibility(
-            visible = ((isOrientationPortrait() && isFullscreen.not()) || (isFullscreen && isShowUI)) && !isShowRelatedList,
+            visible = shouldShowProgress,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
@@ -573,7 +574,11 @@ private fun BoxScope.BottomBar(
                 isShowThumb = isShowUI,
                 progress = progress,
                 bufferProgress = bufferProgress,
-                alignment = if (isFullscreen) Alignment.CenterVertically else Alignment.Bottom,
+                modifier = Modifier.offset {
+                    with(density) {
+                        IntOffset(0, if (shouldAlignmentCenter) 0 else 7.dp.toPx().roundToInt())
+                    }
+                },
                 onProgressChanged = {
                     progressChanged.invoke(it)
                 }

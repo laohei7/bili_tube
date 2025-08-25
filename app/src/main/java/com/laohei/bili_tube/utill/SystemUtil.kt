@@ -8,10 +8,10 @@ import androidx.compose.ui.unit.Dp
 import kotlin.properties.Delegates
 
 object SystemUtil {
-    var statusBarHeight by Delegates.notNull<Int>()
+    var statusBarHeight = 0
         private set
 
-    var navigateBarHeight by Delegates.notNull<Int>()
+    var navigateBarHeight = 0
         private set
 
     const val MAX_ASPECT_RATIO: Float = 16 / 9f
