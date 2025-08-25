@@ -66,7 +66,7 @@ internal fun SearchResultList(
             DeviceConfiguration.DESKTOP -> {
                 when {
                     maxWidth >= 500.dp && maxWidth < 1280.dp -> 2
-                    else -> 4
+                    else -> 3
                 }
             }
         }
