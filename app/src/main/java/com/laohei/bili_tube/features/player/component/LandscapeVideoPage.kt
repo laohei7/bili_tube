@@ -449,7 +449,8 @@ private fun RowScope.OtherListArea(
 
                 R.string.str_related_video -> {
                     RelatedVideoList(
-                        relatedList = playerUIState.videoDetail?.related ?: emptyList()
+                        relatedList = playerUIState.videoDetail?.related ?: emptyList(),
+                        onVideoMenuAction = onVideoMenuAction
                     )
                 }
 
