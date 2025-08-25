@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.laohei.bili_tube.ui.theme.LargePadding
@@ -24,7 +23,7 @@ import com.laohei.bili_tube.ui.theme.SmallPadding
 
 @Composable
 fun ScrollTabRow(
-    tabs: List<Int>,
+    tabs: List<String>,
     selectedTabIndex: Int,
     onTabClick: (Int) -> Unit,
 ) {
@@ -57,7 +56,7 @@ fun ScrollTabRow(
                 },
                 border = BorderStroke(0.dp, Color.Transparent),
                 label = {
-                    Text(text = stringResource(tab))
+                    Text(text = tab)
                 }
             )
         }

@@ -1,14 +1,16 @@
 package com.laohei.bili_tube.features.player
 
 import android.util.Log
-import androidx.compose.ui.util.fastMap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.media3.common.util.UnstableApi
+import androidx.paging.AsyncPagingDataDiffer
+import androidx.paging.cachedIn
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListUpdateCallback
 import com.laohei.bili_sdk.apis.UserRelationAction
-import com.laohei.bili_sdk.module_v2.common.BiliResponse
 import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
-import com.laohei.bili_sdk.module_v2.history.ToViewModel
+import com.laohei.bili_sdk.module_v2.folder.FolderMediaItem
 import com.laohei.bili_sdk.module_v2.video.VideoURLModel
 import com.laohei.bili_tube.PlayParam
 import com.laohei.bili_tube.R
@@ -34,14 +36,15 @@ import com.laohei.bili_tube.utill.NetworkUtil
 import com.laohei.bili_tube.utill.PreferencesUtil
 import com.laohei.bili_tube.utill.displayTitle
 import com.laohei.bili_tube.utill.download.DownloadManager
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -49,6 +52,24 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.math.ceil
+
+private object MediaDiffCallback : DiffUtil.ItemCallback<FolderMediaItem>() {
+    override fun areItemsTheSame(oldItem: FolderMediaItem, newItem: FolderMediaItem): Boolean {
+        return oldItem.bvid == newItem.bvid
+    }
+
+    override fun areContentsTheSame(oldItem: FolderMediaItem, newItem: FolderMediaItem): Boolean {
+        return oldItem == newItem
+    }
+}
+
+private class NoopListCallback : ListUpdateCallback {
+    override fun onInserted(position: Int, count: Int) {}
+    override fun onRemoved(position: Int, count: Int) {}
+    override fun onMoved(fromPosition: Int, toPosition: Int) {}
+    override fun onChanged(position: Int, count: Int, payload: Any?) {}
+}
+
 
 @UnstableApi
 internal class MediaViewModel(
@@ -82,11 +103,18 @@ internal class MediaViewModel(
         _mediaPlayerUIState.value
     )
 
-    private var mPlaylist: List<Triple<Long, String, Long>> = emptyList()// aid,bvid,cid
-    private var mPlaylistIndex = 0
-
     private var mSelectedAid: Long? = null
     private var mSelectedBvid: String? = null
+    private var _needRefreshPlaylist = true
+
+    private val _differ = AsyncPagingDataDiffer(
+        diffCallback = MediaDiffCallback,
+        updateCallback = NoopListCallback(),
+        mainDispatcher = Dispatchers.Main,
+        workerDispatcher = Dispatchers.IO
+    )
+
+    private var _folderMediaFlowJob: Job? = null
 
     init {
         defaultMediaManager.playError = { playErrorCallback() }
@@ -106,21 +134,44 @@ internal class MediaViewModel(
         val playerUIState = _mediaPlayerUIState.value
         val currentPlayParam = playerUIState.playParam
         var newPlayParam: PlayParam? = null
-//        if (mPlaylist.isNotEmpty()) {
-//            if (mPlaylistIndex >= mPlaylist.size) {
-//                return
-//            }
-//            val item = mPlaylist[mPlaylistIndex + 1]
-//            newPlayParam =
-//                (playParam as PlayParam.MediaList).copy(
-//                    bvid = item.second,
-//                    aid = item.first,
-//                    cid = item.third
-//                )
-//        } else {
-//
-//        }
         when (currentPlayParam) {
+            is PlayParam.MediaList -> {
+                _needRefreshPlaylist = false
+                // next playlist
+                playerUIState.videoPageList?.let {
+                    val next = playerUIState.currentPageListIndex + 1
+                    if (next < it.size) {
+                        // only cid difference
+                        newPlayParam = currentPlayParam.copy(cid = it[next].cid)
+                    }
+                }
+                if (currentPlayParam.isToView && newPlayParam == null) {
+                    val current =
+                        currentPlayParam.medias.indexOfFirst { it.bvid == currentPlayParam.bvid }
+                    val next = current + 1
+                    if (current != -1 && next < currentPlayParam.medias.size) {
+                        val nextItem = currentPlayParam.medias[next]
+                        newPlayParam = currentPlayParam.copy(
+                            bvid = nextItem.bvid,
+                            aid = nextItem.aid,
+                            cid = nextItem.cid
+                        )
+                    }
+                } else if (!currentPlayParam.isToView && newPlayParam == null) {
+                    val current =
+                        _differ.snapshot().items.indexOfFirst { it.bvid == currentPlayParam.bvid }
+                    val next = current + 1
+                    if (current != -1 && next < _differ.snapshot().items.size) {
+                        val nextItem = _differ.snapshot().items[next]
+                        newPlayParam = currentPlayParam.copy(
+                            bvid = nextItem.bvid,
+                            aid = nextItem.id,
+                            cid = -1L
+                        )
+                    }
+                }
+            }
+
             is PlayParam.VideoParam -> {
                 // next playlist
                 playerUIState.videoPageList?.let {
@@ -182,79 +233,55 @@ internal class MediaViewModel(
 
                 is PlayParam.VideoParam -> loadVideo(currentPlayParam)
 
-                is PlayParam.MediaList -> {
-//                    val mediaList = playParam as PlayParam.MediaList
-//                    _mediaPlayerUIState.update {
-//                        it.copy(
-//                            isVideo = true,
-//                            playlistCount = mediaList.count,
-//                            playlistTitle = mediaList.title
-//                        )
-//                    }
-//                    mPlaylist = mediaList.mediaKeys
-//                    launch { loadPlaylist(mediaList.bvid) }
-//                    if ((playParam as PlayParam.MediaList).isToView) {
-//                        getToViews()
-//                    } else {
-//                        val resources =
-//                            biliPlaylistRepository.getFolderResourcePager(mediaList.fid!!)
-//                        _mediaPlayerUIState.update {
-//                            it.copy(folderMediaFlow = resources)
-//                        }
-//                    }
-                }
+                is PlayParam.MediaList -> loadMediaList(currentPlayParam)
 
                 PlayParam.NONE -> {}
             }
         }
     }
 
-    private fun getToViews() {
-        viewModelScope.launch {
-            val deferredList = mutableListOf<Deferred<BiliResponse<ToViewModel>>>()
-            for (pn in 1..5) {
-                val deferred = async {
-                    biliPlaylistRepository.getToViewList(pn = pn)
-                }
-                deferredList.add(deferred)
-            }
-            val results = deferredList.awaitAll()
-            val idIndexMap = mPlaylist.withIndex().associate { it.value.first to it.index }
-            val toViews = results.fastMap { it.data.list }.flatten()
-                .sortedWith(compareBy { idIndexMap[it.aid] })
-            _mediaPlayerUIState.update {
-                it.copy(
-                    watchLaterList = toViews,
-                    nextVideoTitle = if (mPlaylistIndex + 1 < it.watchLaterList.size - 1) {
-                        toViews[mPlaylistIndex + 1].title
-                    } else {
-                        "已最后一个视频"
-                    }
-                )
-            }
+    private suspend fun loadMediaList(playParam: PlayParam.MediaList) {
+        if (playParam.isToView) {
+            loadWatchLaterList(playParam)
+        } else {
+            loadFolderMediaList(playParam)
         }
     }
 
-    private suspend fun loadPlaylist(bvid: String) = withContext(Dispatchers.IO) {
-        mPlaylistIndex = mPlaylist.indexOfFirst { it.second == bvid }.coerceAtLeast(0)
-        _mediaPlayerUIState.update {
-            it.copy(
-                playlistIndex = mPlaylistIndex,
-                nextVideoTitle = when {
-                    it.watchLaterList.isNotEmpty() -> {
-                        if (mPlaylistIndex + 1 < it.watchLaterList.size - 1) {
-                            it.watchLaterList[mPlaylistIndex + 1].title
-                        } else {
-                            "已最后一个视频"
-                        }
-                    }
+    private suspend fun loadWatchLaterList(playParam: PlayParam.MediaList) {
+        coroutineScope {
+            val videoJob = launch { loadVideo(playParam) }
 
-                    else -> ""
-                }
-            )
+            if (_needRefreshPlaylist) {
+                val responses = (1..5).map { pn ->
+                    async { biliPlaylistRepository.getWatchLaterList(pn) }
+                }.awaitAll()
+
+                val watchLaterItems = responses.flatMap { it.data.list }
+
+                _mediaPlayerUIState.update { it.copy(watchLaterList = watchLaterItems) }
+            }
+
+            videoJob.join()
         }
-        val item = mPlaylist[mPlaylistIndex]
-        loadVideo(PlayParam.VideoParam(bvid = item.second, aid = item.first, cid = item.third))
+    }
+
+    private suspend fun loadFolderMediaList(playParam: PlayParam.MediaList) {
+        coroutineScope {
+            val videoJob = launch { loadVideo(playParam) }
+            if (_needRefreshPlaylist) {
+                val folderFlow =
+                    biliPlaylistRepository.folderMediaPagingFlow(mlid = playParam.fid!!)
+                        .cachedIn(viewModelScope)
+                _mediaPlayerUIState.update { it.copy(folderMediaFlow = folderFlow) }
+                _folderMediaFlowJob = viewModelScope.launch {
+                    _mediaPlayerUIState.value.folderMediaFlow.collectLatest { pagingData ->
+                        _differ.submitData(pagingData)
+                    }
+                }
+            }
+            videoJob.join()
+        }
     }
 
     private suspend fun loadBangumi(bangumiParam: PlayParam.BangumiParam) {
@@ -269,20 +296,20 @@ internal class MediaViewModel(
         }
     }
 
-    private suspend fun loadVideo(videoParam: PlayParam.VideoParam) {
-        withContext(Dispatchers.IO) {
+    private suspend fun loadVideo(playParam: PlayParam) {
+        coroutineScope {
             launch {
                 getURL(
-                    bvid = videoParam.bvid,
-                    aid = videoParam.aid,
-                    cid = videoParam.cid,
+                    bvid = playParam.bvid,
+                    aid = playParam.aid,
+                    cid = playParam.cid,
                     epId = Long.MIN_VALUE,
                     isVideo = true
                 )
             }
             launch {
-                getVideoDetail(aid = videoParam.aid, bvid = videoParam.bvid, cid = videoParam.cid)
-                getReplies(aid = videoParam.aid)
+                getVideoDetail(aid = playParam.aid, bvid = playParam.bvid, cid = playParam.cid)
+                getReplies(aid = playParam.aid)
             }
             launch {
                 refreshLikeStatus()
@@ -516,9 +543,9 @@ internal class MediaViewModel(
                 data.view.seasonId?.let { seasonId ->
                     launch { getArchives(mid = data.view.owner.mid, seasonId = seasonId) }
                 } ?: _mediaPlayerUIState.update { it.copy(videoArchiveMeta = null) }
-
-                launch { getPageList(bvid = bvid, cid = playParam.cid) }
             }
+
+            launch { getPageList(bvid = bvid, cid = playParam.cid) }
 
             launch {
                 getUserInfoCard(data.view.owner.mid)
@@ -645,10 +672,21 @@ internal class MediaViewModel(
 
             is VideoMenuAction.SwitchVideoPage -> {
                 val playParam = _mediaPlayerUIState.value.playParam
-                if (playParam !is PlayParam.VideoParam) {
-                    return
+                when (playParam) {
+                    is PlayParam.VideoParam -> {
+                        setPlayParam(playParam.copy(cid = action.cid))
+                    }
+
+                    is PlayParam.MediaList -> {
+                        _needRefreshPlaylist = false
+                        setPlayParam(playParam.copy(cid = action.cid))
+                    }
+
+                    is PlayParam.BangumiParam,
+                    PlayParam.NONE -> {
+                    }
                 }
-                setPlayParam(playParam.copy(cid = action.cid))
+
             }
 
             is VideoMenuAction.SwitchEpisode -> {

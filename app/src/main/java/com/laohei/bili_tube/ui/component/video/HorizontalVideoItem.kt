@@ -67,6 +67,7 @@ fun HorizontalVideoItem(
     title: String,
     ownerName: String,
     progress: Float? = null,
+    isCurrentPlaying: Boolean = false,
     duration: String? = null,
     viewAt: String? = null,
     rcmdReason: String? = null,
@@ -132,7 +133,9 @@ fun HorizontalVideoItem(
                         .padding(bottom = 8.dp, end = 8.dp)
                 )
             }
-
+            if (isCurrentPlaying) {
+                LottieIconPlaying(Modifier.align(Alignment.Center))
+            }
         }
         Spacer(Modifier.width(8.dp))
         Box(

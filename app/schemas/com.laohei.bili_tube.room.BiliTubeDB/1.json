@@ -2,8 +2,40 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "7deead4324c26a5fb04da58b34298841",
+    "identityHash": "5f024d277adc8b038938479da6e1669c",
     "entities": [
+      {
+        "tableName": "search_history",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `keyword` TEXT NOT NULL, `timestamp` INTEGER NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "keyword",
+            "columnName": "keyword",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "timestamp",
+            "columnName": "timestamp",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
       {
         "tableName": "tb_downloads",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `aid` INTEGER NOT NULL, `cid` INTEGER NOT NULL, `name` TEXT NOT NULL, `cover` TEXT NOT NULL, `quality` TEXT NOT NULL, `videoUrls` TEXT NOT NULL, `audioUrls` TEXT, `videoFile` TEXT, `audioFile` TEXT, `mergedFile` TEXT, `archive` TEXT, `status` INTEGER NOT NULL, `progress` INTEGER NOT NULL, PRIMARY KEY(`id`))",
@@ -196,7 +228,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '7deead4324c26a5fb04da58b34298841')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5f024d277adc8b038938479da6e1669c')"
     ]
   }
 }

@@ -212,6 +212,10 @@ internal class DefaultScreenController(
 
             is ScreenAction.SetArchiveVisible -> setArchiveVisible(action)
 
+            is ScreenAction.SetWatchLaterVisible -> setWatchLaterVisible(action)
+
+            is ScreenAction.SetFolderMediaVisible -> setFolderMediaVisible(action)
+
             is ScreenAction.SetVideoDetailVisible -> setVideoDetailVisible(action)
 
             is ScreenAction.SetReplyVisible -> setReplyVisible(action)
@@ -273,6 +277,24 @@ internal class DefaultScreenController(
         _screenState.update {
             it.copy(
                 isShowArchiveUI = action.flag,
+                videoHeight = it.minimumHeight
+            )
+        }
+    }
+
+    private fun setWatchLaterVisible(action: ScreenAction.SetWatchLaterVisible) {
+        _screenState.update {
+            it.copy(
+                isWatchLaterVisible = action.flag,
+                videoHeight = it.minimumHeight
+            )
+        }
+    }
+
+    private fun setFolderMediaVisible(action: ScreenAction.SetFolderMediaVisible) {
+        _screenState.update {
+            it.copy(
+                isFolderMediaVisible = action.flag,
                 videoHeight = it.minimumHeight
             )
         }
@@ -464,7 +486,9 @@ internal class DefaultScreenController(
             state.isShowReplyUI,
             state.isShowArchiveUI,
             state.isShowUpInfoSheet,
-            state.isShowPlaylistSheet
+            state.isShowPlaylistSheet,
+            state.isWatchLaterVisible,
+            state.isFolderMediaVisible
         ).any { it }
     }
 }

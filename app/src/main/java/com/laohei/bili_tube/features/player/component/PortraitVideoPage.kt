@@ -1,6 +1,7 @@
 package com.laohei.bili_tube.features.player.component
 
 import android.content.Context
+import android.util.Log
 import android.view.TextureView
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -24,9 +25,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,13 +44,13 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.Bitmap
 import coil3.compose.AsyncImage
 import com.laohei.bili_sdk.module_v2.reply.ReplyItem
 import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
 import com.laohei.bili_tube.PlayParam
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.core.WRITE_STORAGE_PERMISSION
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.features.main.component.VideoMenuSheet
@@ -64,7 +68,6 @@ import com.laohei.bili_tube.model.toUserProfile
 import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
 import com.laohei.bili_tube.ui.theme.LargePadding
 import com.laohei.bili_tube.utill.SystemUtil
-import com.laohei.bili_tube.utill.checkedPermissions
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.isOrientationPortrait
 import kotlinx.coroutines.CoroutineScope
@@ -283,38 +286,6 @@ internal fun PortraitVideoPage(
             onSelectedBvidChange = onSelectedBvidChange
         )
 
-        playerState.videoArchiveMeta?.let { archive ->
-            if (screenState.isFullscreen) {
-                return@let
-            }
-            val currentArchiveIndex by remember { derivedStateOf { playerState.currentArchiveIndex } }
-
-            val nextArchiveItem by remember {
-                derivedStateOf {
-                    playerState.videoArchives?.getOrNull(currentArchiveIndex + 1)
-                }
-            }
-            GroupInfoBar(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = LargePadding * 2)
-                    .padding(horizontal = LargePadding)
-                    .fillMaxWidth(),
-                title = nextArchiveItem?.let {
-                    stringResource(R.string.str_next_archive_item_template, it.title)
-                } ?: stringResource(R.string.str_last_archive_item),
-                subtitle = stringResource(
-                    R.string.str_archive_item_template,
-                    archive.name, currentArchiveIndex + 1, archive.total
-                ),
-                subcontent = {
-                    LottieIconPlaying(Modifier.size(12.dp))
-                },
-                onClick = {
-                    onScreenAction(ScreenAction.SetArchiveVisible(true))
-                }
-            )
-        }
 
         // Sheet Shadow Gradient Layer
         Box(
@@ -342,18 +313,145 @@ internal fun PortraitVideoPage(
             bottomPadding = screenState.videoHeight + 80.dp
         )
 
-        ArchiveSheet(
-            lazyListState = screenState.archiveListState,
-            modifier = otherSheetModifier,
-            currentArchiveIndex = playerState.currentArchiveIndex,
-            archiveMeta = playerState.videoArchiveMeta,
-            archives = playerState.videoArchives,
-            isShowArchiveUI = screenState.isShowArchiveUI,
-            onMaskAlphaChange = { onMaskAlphaChange(it) },
-            onDismiss = { onScreenAction(ScreenAction.SetArchiveVisible(false)) },
-            onVideoMenuAction = onVideoMenuAction,
-            bottomPadding = screenState.videoHeight + 80.dp
-        )
+        if (playerState.videoArchiveMeta != null && !screenState.isFullscreen) {
+            val archive = playerState.videoArchiveMeta
+
+            val currentArchiveIndex by rememberUpdatedState(playerState.currentArchiveIndex)
+
+            val nextArchiveItem by rememberUpdatedState(
+                playerState.videoArchives?.getOrNull(currentArchiveIndex + 1)
+            )
+            GroupInfoBar(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = LargePadding * 2)
+                    .padding(horizontal = LargePadding)
+                    .fillMaxWidth(),
+                title = nextArchiveItem?.let {
+                    stringResource(R.string.str_next_archive_item_template, it.title)
+                } ?: stringResource(R.string.str_last_archive_item),
+                subtitle = stringResource(
+                    R.string.str_archive_item_template,
+                    archive.name, currentArchiveIndex + 1, archive.total
+                ),
+                subcontent = {
+                    LottieIconPlaying(Modifier.size(12.dp))
+                },
+                onClick = {
+                    onScreenAction(ScreenAction.SetArchiveVisible(true))
+                }
+            )
+            ArchiveSheet(
+                lazyListState = screenState.archiveListState,
+                modifier = otherSheetModifier,
+                currentArchiveIndex = playerState.currentArchiveIndex,
+                archiveMeta = playerState.videoArchiveMeta,
+                archives = playerState.videoArchives,
+                isShowArchiveUI = screenState.isShowArchiveUI,
+                onMaskAlphaChange = { onMaskAlphaChange(it) },
+                onDismiss = { onScreenAction(ScreenAction.SetArchiveVisible(false)) },
+                onVideoMenuAction = onVideoMenuAction,
+                bottomPadding = screenState.videoHeight + 80.dp
+            )
+        }
+
+        if (playerState.playParam is PlayParam.MediaList && playerState.playParam.isToView
+            && !screenState.isFullscreen
+        ) {
+            val playParam = playerState.playParam
+            val currentIndex by remember(playParam.bvid) {
+                derivedStateOf {
+                    playParam.medias.indexOfFirst { it.bvid == playParam.bvid }
+                }
+            }
+            val nextItem by rememberUpdatedState(playerState.watchLaterList.getOrNull(currentIndex + 1))
+            GroupInfoBar(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = LargePadding * 2)
+                    .padding(horizontal = LargePadding)
+                    .fillMaxWidth(),
+                title = nextItem?.let {
+                    stringResource(R.string.str_next_archive_item_template, it.title)
+                } ?: stringResource(R.string.str_last_archive_item),
+                subtitle = stringResource(
+                    R.string.str_archive_item_template,
+                    playParam.title, currentIndex + 1, playParam.count
+                ),
+                subcontent = {
+                    LottieIconPlaying(Modifier.size(12.dp))
+                },
+                onClick = {
+                    onScreenAction(ScreenAction.SetWatchLaterVisible(true))
+                }
+            )
+            WatchLaterSheet(
+                lazyListState = screenState.watchLaterListState,
+                playParam = playerState.playParam,
+                modifier = otherSheetModifier,
+                isWatchLaterVisible = screenState.isWatchLaterVisible,
+                watchLaterList = playerState.watchLaterList,
+                currentWatchLaterIndex = currentIndex,
+                onMaskAlphaChange = { onMaskAlphaChange(it) },
+                onDismiss = { onScreenAction(ScreenAction.SetWatchLaterVisible(false)) },
+                onVideoMenuAction = onVideoMenuAction,
+                bottomPadding = screenState.videoHeight + 80.dp
+            )
+        }
+
+        if (playerState.playParam is PlayParam.MediaList && !playerState.playParam.isToView
+            && !screenState.isFullscreen
+        ) {
+            val playParam = playerState.playParam
+            val folderMediaList = playerState.folderMediaFlow.collectAsLazyPagingItems()
+            var lastValidIndex by remember { mutableIntStateOf(-1) }
+            val currentIndex by remember(playParam.bvid,folderMediaList.itemCount) {
+                derivedStateOf {
+                    val idx = folderMediaList.itemSnapshotList
+                        .indexOfFirst { it?.bvid == playParam.bvid }
+                    if (idx != -1) {
+                        lastValidIndex = idx
+                    }
+                    lastValidIndex
+                }
+            }
+            Log.d("TAG", "PortraitVideoPage: $currentIndex")
+            val nextItem by rememberUpdatedState(
+                folderMediaList.itemSnapshotList.getOrNull(currentIndex + 1)
+            )
+            GroupInfoBar(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = LargePadding * 2)
+                    .padding(horizontal = LargePadding)
+                    .fillMaxWidth(),
+                title = nextItem?.let {
+                    stringResource(R.string.str_next_archive_item_template, it.title)
+                } ?: stringResource(R.string.str_last_archive_item),
+                subtitle = stringResource(
+                    R.string.str_archive_item_template,
+                    playParam.title, currentIndex + 1, playParam.count
+                ),
+                subcontent = {
+                    LottieIconPlaying(Modifier.size(12.dp))
+                },
+                onClick = {
+                    onScreenAction(ScreenAction.SetFolderMediaVisible(true))
+                }
+            )
+            FolderMediaSheet(
+                lazyListState = screenState.folderMediaListState,
+                playParam = playerState.playParam,
+                modifier = otherSheetModifier,
+                isFolderMediaVisible = screenState.isFolderMediaVisible,
+                folderMediaList = folderMediaList,
+                currentFolderMediaIndex = currentIndex,
+                onMaskAlphaChange = { onMaskAlphaChange(it) },
+                onDismiss = { onScreenAction(ScreenAction.SetFolderMediaVisible(false)) },
+                onVideoMenuAction = onVideoMenuAction,
+                bottomPadding = screenState.videoHeight + 80.dp
+            )
+        }
 
         AddCoinSheet(
             isShowAddCoinUI = screenState.isShowAddCoinUI,

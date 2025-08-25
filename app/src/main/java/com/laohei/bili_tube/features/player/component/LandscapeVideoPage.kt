@@ -45,6 +45,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -64,6 +65,7 @@ import com.laohei.bili_sdk.module_v2.user.InfoCardModel
 import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
 import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
+import com.laohei.bili_tube.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.VideoMenuAction
@@ -419,24 +421,36 @@ private fun RowScope.OtherListArea(
     works: LazyPagingItems<UploadedVideoItem>,
     onVideoMenuAction: (VideoMenuAction) -> Unit,
 ) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val menus by remember(
         playerUIState.videoPageList,
         playerUIState.videoArchives,
         playerUIState.videoDetail,
-        playerUIState.relatedBangumis
+        playerUIState.relatedBangumis,
+        playerUIState.playParam is PlayParam.MediaList
     ) {
         derivedStateOf {
+            val playParam = playerUIState.playParam
             buildList {
-                playerUIState.videoPageList?.let { add(R.string.str_video_page_list) }
-                    ?: playerUIState.bangumiDetail?.episodes?.let { add(R.string.str_video_page_list) }
-                playerUIState.videoArchives?.let { add(R.string.str_video_archive) }
-                playerUIState.videoDetail?.related?.let { add(R.string.str_related_video) }
-                add(R.string.str_reply)
-                if (playerUIState.isVideo) {
-                    add(R.string.str_user_works)
+                playerUIState.videoPageList?.let { add(context.getString(R.string.str_video_page_list)) }
+                    ?: playerUIState.bangumiDetail?.episodes?.let {
+                        add(context.getString(R.string.str_video_page_list))
+                    }
+                when (playParam) {
+                    is PlayParam.MediaList -> {
+                        add(playParam.title)
+                    }
+
+                    else -> {}
                 }
-                playerUIState.relatedBangumis?.let { add(R.string.str_related_bangumi) }
+                playerUIState.videoArchives?.let { add(context.getString(R.string.str_video_archive)) }
+                playerUIState.videoDetail?.related?.let { add(context.getString(R.string.str_related_video)) }
+                add(context.getString(R.string.str_reply))
+                if (playerUIState.isVideo) {
+                    add(context.getString(R.string.str_user_works))
+                }
+                playerUIState.relatedBangumis?.let { add(context.getString(R.string.str_related_bangumi)) }
             }
         }
     }
@@ -462,7 +476,7 @@ private fun RowScope.OtherListArea(
             state = pager
         ) { index ->
             when (menus[index]) {
-                R.string.str_video_page_list -> {
+                stringResource(R.string.str_video_page_list) -> {
                     if (playerUIState.isVideo) {
                         GridVideoPageList(
                             pageList = playerUIState.videoPageList ?: emptyList(),
@@ -482,7 +496,7 @@ private fun RowScope.OtherListArea(
                     }
                 }
 
-                R.string.str_user_works -> {
+                stringResource(R.string.str_user_works) -> {
                     if (playerUIState.infoCardModel == null) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -501,14 +515,14 @@ private fun RowScope.OtherListArea(
                     }
                 }
 
-                R.string.str_related_video -> {
+                stringResource(R.string.str_related_video) -> {
                     RelatedVideoList(
                         relatedList = playerUIState.videoDetail?.related ?: emptyList(),
                         onVideoMenuAction = onVideoMenuAction
                     )
                 }
 
-                R.string.str_video_archive -> {
+                stringResource(R.string.str_video_archive) -> {
                     ArchiveList(
                         modifier = Modifier
                             .fillMaxWidth(),
@@ -520,7 +534,7 @@ private fun RowScope.OtherListArea(
                     )
                 }
 
-                R.string.str_reply -> {
+                stringResource(R.string.str_reply) -> {
                     ReplyList(
                         replyItems = replies,
                         isCloseButtonVisible = false,
@@ -539,9 +553,44 @@ private fun RowScope.OtherListArea(
                     )
                 }
 
-                R.string.str_related_bangumi -> {
+                stringResource(R.string.str_related_bangumi) -> {
                     RelatedBangumiList(
                         relatedList = playerUIState.relatedBangumis ?: emptyList(),
+                        onVideoMenuAction = onVideoMenuAction
+                    )
+                }
+
+                stringResource(R.string.str_watch_later) -> {
+                    val playParam = playerUIState.playParam as PlayParam.MediaList
+                    val currentIndex by remember(playParam.bvid) {
+                        derivedStateOf {
+                            playParam.medias.indexOfFirst { it.bvid == playParam.bvid }
+                        }
+                    }
+                    WatchLaterList(
+                        listState = screenState.watchLaterListState,
+                        playParam = playParam,
+                        watchLaterList = playerUIState.watchLaterList,
+                        bottomPadding = NonePadding,
+                        currentWatchLaterIndex = currentIndex,
+                        onVideoMenuAction = onVideoMenuAction
+                    )
+                }
+
+                else -> {
+                    val playParam = playerUIState.playParam as PlayParam.MediaList
+                    val folderMediaList = playerUIState.folderMediaFlow.collectAsLazyPagingItems()
+                    val currentIndex by remember(playParam.bvid, folderMediaList.itemCount) {
+                        derivedStateOf {
+                            folderMediaList.itemSnapshotList.indexOfFirst { it?.bvid == playParam.bvid }
+                        }
+                    }
+                    FolderMediaList(
+                        listState = screenState.folderMediaListState,
+                        playParam = playParam,
+                        folderMediaList = folderMediaList,
+                        bottomPadding = NonePadding,
+                        currentFolderMediaIndex = currentIndex,
                         onVideoMenuAction = onVideoMenuAction
                     )
                 }

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,8 +27,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.PlaylistPlay
-import androidx.compose.material.icons.outlined.ArrowBack
-import androidx.compose.material.icons.outlined.ArrowBackIosNew
 import androidx.compose.material.icons.outlined.Cast
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Search
@@ -79,6 +76,8 @@ import com.laohei.bili_sdk.module_v2.folder.FolderModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
+import com.laohei.bili_tube.ui.theme.LargePadding
+import com.laohei.bili_tube.ui.theme.MediumPadding
 import com.laohei.bili_tube.utill.toNonHardwareBitmap
 import com.laohei.bili_tube.utill.toViewString
 import kotlinx.coroutines.launch
@@ -136,11 +135,8 @@ fun PlaylistScreen(
                         color = MaterialTheme.colorScheme.background
                     ),
                     columns = GridCells.Fixed(fixedCount),
-                    contentPadding = PaddingValues(horizontal = if (fixedCount == 1) 0.dp else 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(9.dp),
-                    verticalArrangement = Arrangement.spacedBy(
-                        if (isEmpty) 16.dp else 0.dp
-                    )
+                    horizontalArrangement = Arrangement.spacedBy(MediumPadding),
+                    verticalArrangement = Arrangement.spacedBy(LargePadding)
                 ) {
                     getPlaylistWidget(
                         folderList = state.folderList,
@@ -169,7 +165,7 @@ private fun LazyGridScope.getPlaylistWidget(
                         label = stringResource(R.string.str_private),
                         onClick = {
                             navigateToAppRoute(
-                                AppRoute.PlaylistDetail(
+                                AppRoute.PlaylistContent(
                                     cover = watchLaterCover,
                                     title = folder.name,
                                     count = folder.mediaListResponse.count,
@@ -223,7 +219,7 @@ private fun LazyGridScope.getPlaylistWidget(
                             },
                             onClick = {
                                 navigateToAppRoute(
-                                    AppRoute.PlaylistDetail(
+                                    AppRoute.PlaylistContent(
                                         cover = item.cover,
                                         title = item.title,
                                         count = item.mediaCount,

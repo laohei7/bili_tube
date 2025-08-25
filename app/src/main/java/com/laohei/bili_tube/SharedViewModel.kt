@@ -2,6 +2,7 @@ package com.laohei.bili_tube
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.laohei.bili_tube.model.FolderMedia
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -40,7 +41,7 @@ sealed class PlayParam(
         override val bvid: String,
         override val aid: Long,
         override val cid: Long,
-        val mediaKeys: List<Triple<Long, String, Long>>,
+        val medias: List<FolderMedia>,
         val isToView: Boolean = true,
         val fid: Long? = null,
         val title: String,

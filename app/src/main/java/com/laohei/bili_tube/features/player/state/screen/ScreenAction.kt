@@ -24,6 +24,8 @@ sealed interface ScreenAction {
     data class SetVideoDetailVisible(val flag: Boolean) : ScreenAction
     data class SetUpInfoVisible(val flag: Boolean) : ScreenAction
     data class SetArchiveVisible(val flag: Boolean) : ScreenAction
+    data class SetWatchLaterVisible(val flag: Boolean) : ScreenAction
+    data class SetFolderMediaVisible(val flag: Boolean) : ScreenAction
     data class SetSettingVisible(val flag: Boolean) : ScreenAction
     data class SetSettingSpeedVisible(val flag: Boolean) : ScreenAction
     data class SetSettingQualityVisible(val flag: Boolean) : ScreenAction

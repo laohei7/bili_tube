@@ -40,7 +40,7 @@ class BiliPlaylistRepository(
         return folderApi.getSimpleFolders(cookie, aid, context.getValue(UP_MID_KEY.name, 0L)).data
     }
 
-    suspend fun getToViewList(
+    suspend fun getWatchLaterList(
         pn: Int = 1,
         ps: Int = 20
     ): BiliResponse<ToViewModel> {
@@ -53,7 +53,7 @@ class BiliPlaylistRepository(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    fun getFolderResourcePager(
+    fun folderMediaPagingFlow(
         mlid: Long
     ): Flow<PagingData<FolderMediaItem>> {
         return flow {

@@ -47,6 +47,10 @@ data class ScreenState(
     val isShowOtherSettingUI: Boolean = false,
     val isShowVideoMenuUIAction: Boolean = false,
     val isHintVisible: Boolean = false,
+    val isWatchLaterVisible: Boolean = false,
+    val isFolderMediaVisible: Boolean = false,
+    val watchLaterListState: LazyListState = LazyListState(),
+    val folderMediaListState: LazyListState = LazyListState(),
 
     // adaption system rotation
     val isAutoRotateEnabled: Boolean = false,

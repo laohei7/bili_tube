@@ -164,7 +164,7 @@ internal fun SearchTopBar(
         )
 
         ScrollTabRow(
-            tabs = tabs,
+            tabs = tabs.map { stringResource(it) },
             selectedTabIndex = selectedTabIndex,
             onTabClick = onTabClick
         )

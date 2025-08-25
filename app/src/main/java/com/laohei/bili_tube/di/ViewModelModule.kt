@@ -9,7 +9,7 @@ import com.laohei.bili_tube.features.main.home.recommend.RecommendViewModel
 import com.laohei.bili_tube.features.main.profile.ProfileViewModel
 import com.laohei.bili_tube.features.main.subscription.SubscriptionViewModel
 import com.laohei.bili_tube.features.player.MediaViewModel
-import com.laohei.bili_tube.features.playlist.PlaylistDetailViewModel
+import com.laohei.bili_tube.features.playlist.PlaylistContentViewModel
 import com.laohei.bili_tube.features.playlist.PlaylistViewModel
 import com.laohei.bili_tube.features.search.SearchViewModel
 import com.laohei.bili_tube.features.setting.SettingViewModel
@@ -28,6 +28,6 @@ val viewModelModule = module {
     viewModelOf(::SearchViewModel)
     viewModelOf(::SettingViewModel)
     viewModelOf(::LoginViewModel)
-    viewModelOf(::PlaylistDetailViewModel)
+    viewModelOf(::PlaylistContentViewModel)
     viewModelOf(::MediaViewModel)
 }

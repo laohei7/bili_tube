@@ -119,7 +119,7 @@ fun FolderList(
                     label = stringResource(R.string.str_private),
                     onClick = {
                         navigateToAppRoute(
-                            AppRoute.PlaylistDetail(
+                            AppRoute.PlaylistContent(
                                 cover = watchLaterList.firstOrNull()?.pic.orEmpty(),
                                 title = context.getString(R.string.str_watch_later),
                                 count = watchLaterCount,
@@ -170,7 +170,7 @@ fun FolderList(
                     },
                     onClick = {
                         navigateToAppRoute(
-                            AppRoute.PlaylistDetail(
+                            AppRoute.PlaylistContent(
                                 cover = it.cover,
                                 title = it.title,
                                 count = it.mediaCount,

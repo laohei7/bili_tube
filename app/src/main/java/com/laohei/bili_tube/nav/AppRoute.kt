@@ -35,7 +35,7 @@ sealed class AppRoute {
     data object Search : AppRoute()
 
     @Serializable
-    data class PlaylistDetail(
+    data class PlaylistContent(
         val cover: String,
         val title: String,
         val count: Int,

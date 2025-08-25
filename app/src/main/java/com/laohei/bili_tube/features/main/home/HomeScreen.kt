@@ -22,6 +22,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
@@ -201,7 +202,7 @@ fun HomeScreen(
                 DeviceConfiguration.TABLE_LANDSCAPE,
                 DeviceConfiguration.DESKTOP -> true
             },
-            tabs = HomeTabs,
+            tabs = HomeTabs.map { stringResource(it) },
             offset = when (uiType) {
                 DeviceConfiguration.MOBILE_PORTRAIT,
                 DeviceConfiguration.TABLE_PORTRAIT -> IntOffset(0, logoHeight)

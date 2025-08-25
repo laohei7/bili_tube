@@ -42,7 +42,6 @@ data class MediaPlayerUIState(
     // favorite folder
     val folders: List<SimpleFolderItem> = emptyList(),
     val folderName: String = "",
-    val folderMediaFlow: Flow<PagingData<FolderMediaItem>> = flow { PagingData.empty<FolderMediaItem>() },
 
     // bangumi properties
     val bangumiDetail: BangumiDetailModel? = null,
@@ -60,6 +59,7 @@ data class MediaPlayerUIState(
 
     // watch later list or favorites
     val watchLaterList: List<VideoView> = emptyList(),
+    val folderMediaFlow: Flow<PagingData<FolderMediaItem>> = flow { PagingData.empty<FolderMediaItem>() },
     val playlistIndex: Int = 0,
     val playlistCount: Int = 0,
     val playlistTitle: String = "",

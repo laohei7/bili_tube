@@ -45,6 +45,8 @@ import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.placeholder.NoMoreData
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
+import com.laohei.bili_tube.ui.theme.LargePadding
+import com.laohei.bili_tube.ui.theme.MediumPadding
 import com.laohei.bili_tube.utill.formatDateTimeToString
 import com.laohei.bili_tube.utill.formatTimeString
 import com.laohei.bili_tube.utill.toTimeAgoString2
@@ -101,10 +103,8 @@ fun HistoryScreen(
                         ),
                     columns = GridCells.Fixed(fixedCount),
                     contentPadding = PaddingValues(horizontal = if (fixedCount == 1) 0.dp else 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(9.dp),
-                    verticalArrangement = Arrangement.spacedBy(
-                        if (isEmpty) 16.dp else 0.dp
-                    )
+                    horizontalArrangement = Arrangement.spacedBy(MediumPadding),
+                    verticalArrangement = Arrangement.spacedBy(LargePadding)
                 ) {
                     items(
                         histories.itemCount,

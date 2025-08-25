@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import com.laohei.bili_tube.features.main.component.LogoTopAppBar
@@ -21,7 +22,7 @@ import com.laohei.bili_tube.ui.component.ScrollTabRow
 @Composable
 internal fun HomeTopBar(
     isOnlyTabs: Boolean = false,
-    tabs: List<Int>,
+    tabs: List<String>,
     offset: IntOffset,
     alpha: Float,
     selectedTabIndex: Int,
@@ -58,7 +59,7 @@ internal fun HomeTopBar(
 private fun HomeTopBarPreview() {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     HomeTopBar(
-        tabs = HomeTabs,
+        tabs = HomeTabs.map { stringResource(it) },
         offset = IntOffset(0, 0),
         alpha = 1f,
         selectedTabIndex = selectedTabIndex,

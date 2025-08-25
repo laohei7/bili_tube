@@ -44,7 +44,7 @@ class PlaylistViewModel(
     }
 
     private suspend fun getWatchLaterCover() {
-        playlistRepository.getToViewList(ps = 3).apply {
+        playlistRepository.getWatchLaterList(ps = 3).apply {
             if (this.data.list.isEmpty()) {
                 return@apply
             }

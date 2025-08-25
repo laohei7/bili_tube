@@ -244,7 +244,6 @@ fun VideoScreen(
             onBackHandler(uiType)
         }
         OnOrientationChanged { orientation ->
-            Log.d(TAG, "VideoScreen: orientation change: $orientation")
             if (!screenState.isAutoRotateEnabled) return@OnOrientationChanged
             val isFullscreen = screenState.isFullscreen
             if (!screenState.isUserSwitch) {

@@ -25,7 +25,7 @@ import com.laohei.bili_tube.features.history.HistoryScreen
 import com.laohei.bili_tube.features.login.LoginNav
 import com.laohei.bili_tube.features.main.MainNav
 import com.laohei.bili_tube.features.player.VideoScreen
-import com.laohei.bili_tube.features.playlist.PlaylistDetailScreen
+import com.laohei.bili_tube.features.playlist.PlaylistContentScreen
 import com.laohei.bili_tube.features.playlist.PlaylistScreen
 import com.laohei.bili_tube.features.search.SearchScreen
 import com.laohei.bili_tube.features.setting.SettingNav
@@ -143,8 +143,8 @@ fun AppNav(
                     upPress = { appNavController.navigateUp() }
                 )
             }
-            composable<AppRoute.PlaylistDetail> {
-                PlaylistDetailScreen(
+            composable<AppRoute.PlaylistContent> {
+                PlaylistContentScreen(
                     param = it.toRoute(),
                     upPress = { appNavController.navigateUp() },
                     navigateToAppRoute = { route -> appNavController.navigate(route) }

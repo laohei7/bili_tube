@@ -1,0 +1,60 @@
+package com.laohei.bili_tube.features.player.component
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.paging.compose.LazyPagingItems
+import com.laohei.bili_sdk.module_v2.folder.FolderMediaItem
+import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.features.player.VideoMenuAction
+import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
+import com.laohei.bili_tube.ui.theme.MediumPadding
+import com.laohei.bili_tube.utill.formatTimeString
+import com.laohei.bili_tube.utill.toTimeAgoString
+import com.laohei.bili_tube.utill.toViewString
+
+@Composable
+internal fun FolderMediaList(
+    folderMediaList: LazyPagingItems<FolderMediaItem>,
+    playParam: PlayParam.MediaList,
+    listState: LazyListState,
+    currentFolderMediaIndex: Int,
+    bottomPadding: Dp,
+    onVideoMenuAction: (VideoMenuAction) -> Unit,
+) {
+    LazyColumn(
+        state = listState,
+        verticalArrangement = Arrangement.spacedBy(MediumPadding)
+    ) {
+        items(folderMediaList.itemCount) { index ->
+            val item = folderMediaList[index] ?: return@items
+            HorizontalVideoItem(
+                cover = item.cover,
+                title = item.title,
+                ownerName = item.upper.name,
+                duration = item.duration.formatTimeString(false),
+                view = item.cntInfo.play.toViewString(),
+                publishDate = item.pubtime.toTimeAgoString(),
+                isCurrentPlaying = currentFolderMediaIndex == index,
+                leadingIcon = null,
+                onClick = {
+                    onVideoMenuAction(
+                        VideoMenuAction.SwitchVideo(
+                            playParam.copy(
+                                bvid = item.bvid,
+                                cid = -1L,
+                                aid = item.id
+                            )
+                        )
+                    )
+                }
+            )
+        }
+        item { Spacer(Modifier.height(bottomPadding)) }
+    }
+}
