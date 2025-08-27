@@ -38,7 +38,7 @@ import com.laohei.bili_tube.features.main.home.component.HomeTopBar
 import com.laohei.bili_tube.features.main.home.hot.HotScreen
 import com.laohei.bili_tube.features.main.home.recommend.RecommendScreen
 import com.laohei.bili_tube.nav.AppRoute
-import com.laohei.bili_tube.ui.component.dialog.CreatedFolderDialog
+import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.sheet.FolderSheet
@@ -277,8 +277,8 @@ fun HomeScreen(
             }
         )
 
-        CreatedFolderDialog(
-            isShowDialog = homeState.showAddFolder,
+        CreateFolderDialog(
+            isVisible = homeState.showAddFolder,
             value = homeState.newFolderName,
             onValueChange = homeViewModel::onFolderNameChanged,
             onSubmit = homeViewModel::addNewFolder,

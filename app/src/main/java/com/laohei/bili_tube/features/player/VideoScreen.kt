@@ -45,7 +45,7 @@ import com.laohei.bili_tube.features.player.component.setting.VideoSettingSheet
 import com.laohei.bili_tube.features.player.state.media.DefaultMediaController
 import com.laohei.bili_tube.features.player.state.screen.DefaultScreenController
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
-import com.laohei.bili_tube.ui.component.dialog.CreatedFolderDialog
+import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.sheet.FolderSheet
@@ -571,8 +571,8 @@ fun VideoScreen(
             }
         )
 
-        CreatedFolderDialog(
-            isShowDialog = screenState.isShowAddFolder,
+        CreateFolderDialog(
+            isVisible = screenState.isShowAddFolder,
             value = playerState.folderName,
             onValueChange = viewModel::onFolderNameChange,
             onSubmit = viewModel::createFolder,

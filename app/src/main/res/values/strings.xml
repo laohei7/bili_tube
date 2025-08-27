@@ -160,4 +160,8 @@
     <string name="str_download_develop_hint">下载功能将迁移至BiliTools项目，开发中...</string>
     <string name="str_export_crash_doc">是否导出异常日志</string>
     <string name="str_log_setting">日志设置</string>
+    <string name="str_create_folder">创建收藏夹</string>
+    <string name="str_input_folder_name">输入收藏夹名称</string>
+    <string name="str_is_pravite">是否为私有？</string>
+    <string name="str_submit">提交</string>
 </resources>

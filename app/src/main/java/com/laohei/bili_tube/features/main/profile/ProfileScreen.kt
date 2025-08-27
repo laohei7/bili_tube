@@ -50,7 +50,7 @@ import com.laohei.bili_tube.features.main.profile.component.ShortHistoryList
 import com.laohei.bili_tube.features.main.profile.component.UserAssistWidget
 import com.laohei.bili_tube.features.main.profile.component.VIPWidget
 import com.laohei.bili_tube.nav.AppRoute
-import com.laohei.bili_tube.ui.component.dialog.CreatedFolderDialog
+import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.text.VerticalDataText
@@ -88,8 +88,8 @@ fun ProfileScreen(
             }
         }
 
-        CreatedFolderDialog(
-            isShowDialog = state.isShowAddFolder,
+        CreateFolderDialog(
+            isVisible = state.isShowAddFolder,
             value = state.folderName,
             onValueChange = viewModel::onFolderNameChange,
             onSubmit = viewModel::addNewFolder,
