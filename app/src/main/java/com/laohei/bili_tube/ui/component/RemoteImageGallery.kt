@@ -198,10 +198,10 @@ fun Modifier.doubleTapZoom(
                             animatedScale.animateTo(minScale, animationSpec)
                         }
                         launch {
-                            animatedOffsetX.animateTo(0f,animationSpec)
+                            animatedOffsetX.animateTo(0f, animationSpec)
                         }
                         launch {
-                            animatedOffsetY.animateTo(0f,animationSpec)
+                            animatedOffsetY.animateTo(0f, animationSpec)
                         }
                     } else {
                         scale.value = zoomFactor
@@ -216,10 +216,10 @@ fun Modifier.doubleTapZoom(
                             animatedScale.animateTo(zoomFactor, animationSpec)
                         }
                         launch {
-                            animatedOffsetX.animateTo(centerX,animationSpec)
+                            animatedOffsetX.animateTo(centerX, animationSpec)
                         }
                         launch {
-                            animatedOffsetY.animateTo(centerY,animationSpec)
+                            animatedOffsetY.animateTo(centerY, animationSpec)
                         }
                     }
                 }
@@ -282,8 +282,8 @@ private fun Modifier.pinchAndDrag(
                     offsetX.value = 0f
                     offsetY.value = 0f
                     coroutineScope.launch {
-                        animatedOffsetX.animateTo(0f, animationSpec)
-                        animatedOffsetY.animateTo(0f, animationSpec)
+                        animatedOffsetX.snapTo(0f)
+                        animatedOffsetY.snapTo(0f)
                     }
                 }
             } while (event.changes.any { it.pressed })
