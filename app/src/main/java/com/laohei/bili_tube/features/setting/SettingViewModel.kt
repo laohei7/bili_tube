@@ -7,6 +7,7 @@ import com.laohei.bili_tube.core.EXPORT_SHARED_SOURCE
 import com.laohei.bili_tube.core.MERGE_SOURCE_KEY
 import com.laohei.bili_tube.core.MOBILE_NET_AUDIO_QUALITY
 import com.laohei.bili_tube.core.MOBILE_NET_VIDEO_QUALITY
+import com.laohei.bili_tube.core.SAVE_CRASH_DOCS_KEY
 import com.laohei.bili_tube.core.WLAN_AUDIO_QUALITY
 import com.laohei.bili_tube.core.WLAN_VIDEO_QUALITY
 import com.laohei.bili_tube.utill.PreferencesUtil
@@ -66,10 +67,12 @@ class SettingViewModel(
             is SettingAction.MergeSourceAction -> mergeSourceChange(action)
 
             is SettingAction.SharedSourceAction -> shareSourceChange(action)
+
+            is SettingAction.ExportCrashDoc -> exportCrashDoc(action)
         }
     }
 
-    private fun audioQualityChange(action: SettingAction.ChangeAudioQuality){
+    private fun audioQualityChange(action: SettingAction.ChangeAudioQuality) {
         when (action.type) {
             NetworkType.Mobile -> {
                 _uiState.update { it.copy(mobileNetAudioQuality = action.quality) }
@@ -83,7 +86,7 @@ class SettingViewModel(
         }
     }
 
-    private fun videoQualityChange(action: SettingAction.ChangeVideoQuality){
+    private fun videoQualityChange(action: SettingAction.ChangeVideoQuality) {
         when (action.type) {
             NetworkType.Mobile -> {
                 _uiState.update { it.copy(mobileNetVideoQuality = action.quality) }
@@ -97,19 +100,24 @@ class SettingViewModel(
         }
     }
 
-    private fun autoSkipChange(action: SettingAction.AutoSkipAction){
+    private fun autoSkipChange(action: SettingAction.AutoSkipAction) {
         _uiState.update { it.copy(autoSkipOpEnd = action.skip) }
         preferenceUtils.setValue(AUTO_SKIP_KEY, action.skip)
     }
 
-    private fun mergeSourceChange(action: SettingAction.MergeSourceAction){
+    private fun mergeSourceChange(action: SettingAction.MergeSourceAction) {
         _uiState.update { it.copy(mergeSource = action.merge) }
         preferenceUtils.setValue(MERGE_SOURCE_KEY, action.merge)
     }
 
-    private fun shareSourceChange(action: SettingAction.SharedSourceAction){
+    private fun shareSourceChange(action: SettingAction.SharedSourceAction) {
         _uiState.update { it.copy(sharedSource = action.shared) }
         preferenceUtils.setValue(EXPORT_SHARED_SOURCE, action.shared)
+    }
+
+    private fun exportCrashDoc(action: SettingAction.ExportCrashDoc) {
+        _uiState.update { it.copy(exportCrashDoc = action.exported) }
+        preferenceUtils.setValue(SAVE_CRASH_DOCS_KEY, action.exported)
     }
 
 }

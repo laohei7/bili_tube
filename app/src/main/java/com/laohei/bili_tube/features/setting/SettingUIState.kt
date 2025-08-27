@@ -7,5 +7,6 @@ data class SettingUIState(
     val wlanAudioQuality:Int = 30251,
     val autoSkipOpEnd:Boolean = false,
     val mergeSource:Boolean = false,
-    val sharedSource: Boolean = false
+    val sharedSource: Boolean = false,
+    val exportCrashDoc: Boolean = false,
 )

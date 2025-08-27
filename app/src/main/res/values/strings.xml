@@ -158,4 +158,6 @@
     <string name="str_related_bangumi">相关番剧</string>
     <string name="str_user_works">TA 的视频</string>
     <string name="str_download_develop_hint">下载功能将迁移至BiliTools项目，开发中...</string>
+    <string name="str_export_crash_doc">是否导出异常日志</string>
+    <string name="str_log_setting">日志设置</string>
 </resources>

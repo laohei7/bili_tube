@@ -10,4 +10,5 @@ sealed interface SettingAction {
     data class AutoSkipAction(val skip: Boolean) : SettingAction
     data class MergeSourceAction(val merge: Boolean) : SettingAction
     data class SharedSourceAction(val shared: Boolean) : SettingAction
+    data class ExportCrashDoc(val exported: Boolean) : SettingAction
 }

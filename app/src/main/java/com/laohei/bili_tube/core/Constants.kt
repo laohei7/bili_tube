@@ -23,6 +23,8 @@ internal const val MOBILE_NET_AUDIO_QUALITY = "mobile_net_audio_quality"
 internal const val WLAN_AUDIO_QUALITY = "wlan_audio_quality"
 const val EXPORT_SHARED_SOURCE = "export_shared_source"
 
+internal const val SAVE_CRASH_DOCS_KEY = "save_crash_docs_key"
+
 const val SHARED_FILE = "bili_tube_shared"
 
 internal val READ_STORAGE_PERMISSION = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
