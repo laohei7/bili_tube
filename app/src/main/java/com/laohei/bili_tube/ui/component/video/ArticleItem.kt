@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -48,6 +48,7 @@ import coil3.size.Size
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.component.NineGridLayout
 import com.laohei.bili_tube.ui.component.text.RichText
+import com.laohei.bili_tube.ui.theme.ExtremeSmallPadding
 import com.laohei.bili_tube.ui.theme.NonePadding
 import com.laohei.bili_tube.ui.theme.SmallPadding
 
@@ -218,7 +219,7 @@ private fun ArticleUserBar(
             painter = facePainter,
             contentDescription = username,
             modifier = Modifier
-                .padding(top = 4.dp, end = 18.dp)
+                .padding(end = 18.dp)
                 .size(42.dp)
                 .clip(CircleShape),
             contentScale = ContentScale.Crop,
@@ -249,9 +250,11 @@ private fun ArticleUserBar(
             onClick = { onTrailingClick.invoke() }
         ) {
             Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = Icons.Default.MoreVert.name,
-                modifier = Modifier.padding(4.dp)
+                imageVector = Icons.Rounded.MoreVert,
+                contentDescription = Icons.Rounded.MoreVert.name,
+                modifier = Modifier
+                    .size(24.dp)
+                    .padding(ExtremeSmallPadding)
             )
         }
     }
