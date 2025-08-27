@@ -1,6 +1,7 @@
 package com.laohei.bili_tube.nav
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 
 @Serializable
 sealed class AppRoute {
@@ -43,4 +44,13 @@ sealed class AppRoute {
         val isToView: Boolean = true,
         val fid: Long? = null
     ) : AppRoute()
+
+    @Serializable
+    data class Gallery(
+        val initialIndex: Int = 0,
+        val imagesJson: String,
+    ) : AppRoute() {
+        val images: List<Pair<String, String>>
+            get() = Json.decodeFromString(imagesJson)
+    }
 }

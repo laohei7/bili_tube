@@ -2,22 +2,21 @@ package com.laohei.bili_tube.ui.component.video
 
 import android.content.Context
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,9 +37,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -48,6 +46,7 @@ import coil3.request.error
 import coil3.request.placeholder
 import coil3.size.Size
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.ui.component.NineGridLayout
 import com.laohei.bili_tube.ui.component.text.RichText
 import com.laohei.bili_tube.ui.theme.NonePadding
 import com.laohei.bili_tube.ui.theme.SmallPadding
@@ -56,20 +55,21 @@ import com.laohei.bili_tube.ui.theme.SmallPadding
 @OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun ArticleItem(
+    articleKey: String,
     face: String,
     ownerName: String,
     date: String,
     desc: String,
     images: List<String>?,
     shape: Shape = RoundedCornerShape(NonePadding),
-    @DrawableRes infoPlaceholder: Int = R.drawable.icon_loading_1_1,
-    @DrawableRes infoError: Int = R.drawable.icon_loading_1_1,
-    onTrailingClick: () -> Unit
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onTrailingClick: () -> Unit,
+    onImageClick: ((Int, List<Pair<String, String>>) -> Unit)? = null
 ) {
     Column(
         modifier = Modifier.background(MaterialTheme.colorScheme.background)
     ) {
-
         ArticleUserBar(
             face = face,
             username = ownerName,
@@ -77,82 +77,80 @@ fun ArticleItem(
             onTrailingClick = { onTrailingClick.invoke() }
         )
 
-        RichText(
-            modifier = Modifier
-                .padding(horizontal = 12.dp)
-                .padding(top = 18.dp)
-                .padding(bottom = 12.dp),
-            text = desc, style = MaterialTheme.typography.bodyMedium,
-            emote = emptyMap(),
-            color = MaterialTheme.colorScheme.onBackground
-        )
-
-
+        if (desc.isNotBlank()) {
+            RichText(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .padding(top = 18.dp)
+                    .padding(bottom = 12.dp),
+                text = desc, style = MaterialTheme.typography.bodyMedium,
+                emote = emptyMap(),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+        }
 
         images?.let { list ->
-            val shortList = list.take(9)
-            val fixedCount = shortList.size.coerceIn(1, 3)
-            val excess = shortList.size % fixedCount
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                maxItemsInEachRow = if (list.size >= 3) 3 else list.size.coerceAtLeast(1),
-                horizontalArrangement = Arrangement.spacedBy(
-                    SmallPadding,
-                    Alignment.CenterHorizontally
-                ),
-                verticalArrangement = Arrangement.spacedBy(SmallPadding)
+            fun onImageClick(index: Int) {
+                onImageClick?.invoke(
+                    index,
+                    list.mapIndexed { itemIndex, url -> "img-$articleKey-$itemIndex" to url })
+            }
+
+            NineGridLayout(
+                rowSpacing = SmallPadding,
+                columnSpacing = SmallPadding
             ) {
-                shortList.forEachIndexed { index, it ->
-                    if (index == 8) {
-                        Box {
-                            PictureCard(
-                                url = it,
-                                fixedCount = fixedCount,
-                                shape = shape
-                            )
-                            MoreImage(
-                                fixedCount = fixedCount,
-                                shape = shape,
-                                text = "+9"
-                            ) { }
-                        }
-                    } else {
-                        PictureCard(
-                            url = it,
-                            fixedCount = fixedCount,
-                            shape = shape
-                        )
-                    }
-                }
-                if (excess > 0) {
-                    repeat(fixedCount - excess) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth(1f / fixedCount - 0.05f)
-                                .then(
-                                    if (list.size > 1) {
-                                        Modifier
-                                            .aspectRatio(1f)
-                                    } else {
-                                        Modifier.wrapContentHeight()
-                                    }
+                with(sharedTransitionScope) {
+                    list.fastForEachIndexed { index, url ->
+                        if (index == 8 && list.size > 9) {
+                            Box(
+                                modifier = Modifier
+                                    .aspectRatio(1f)
+                            ) {
+                                ImageItem(
+                                    url = url,
+                                    modifier = Modifier
+                                        .sharedElement(
+                                            state = rememberSharedContentState("img-$articleKey-$index"),
+                                            animatedVisibilityScope = animatedVisibilityScope
+                                        )
+                                        .fillMaxSize()
                                 )
-                                .clip(shape),
-                        )
+                                BadgeMore(
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    onImageClick(index)
+                                }
+                            }
+                        } else {
+                            ImageItem(
+                                url = url,
+                                modifier = Modifier
+                                    .sharedElement(
+                                        state = rememberSharedContentState("img-$articleKey-$index"),
+                                        animatedVisibilityScope = animatedVisibilityScope
+                                    )
+                                    .aspectRatio(1f)
+                                    .clickable { onImageClick(index) }
+                            )
+                        }
                     }
                 }
             }
+
+
         }
+
     }
 }
 
+
 @Composable
-private fun PictureCard(
-    context: Context = LocalContext.current,
+private fun ImageItem(
+    modifier: Modifier = Modifier,
     url: String,
-    fixedCount: Int,
-    shape: Shape,
 ) {
+    val context = LocalContext.current
     val imageRequest = rememberAsyncImagePainter(
         ImageRequest.Builder(context)
             .data(url)
@@ -165,32 +163,24 @@ private fun PictureCard(
     Image(
         painter = imageRequest,
         contentDescription = url,
-        modifier = Modifier
-            .fillMaxWidth(1f / fixedCount - if (fixedCount > 1) 0.05f else 0f)
-            .aspectRatio(1f)
-            .clip(shape),
+        modifier = modifier,
         contentScale = ContentScale.Crop,
     )
 }
 
 @Composable
-private fun MoreImage(
-    fixedCount: Int,
-    shape: Shape,
-    text: String,
+private fun BadgeMore(
+    modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Surface(
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth(1f / fixedCount - if (fixedCount > 1) 0.05f else 0f)
-            .aspectRatio(1f)
-            .clip(shape),
+        modifier = modifier,
         color = Color.Black.copy(alpha = 0.5f),
         contentColor = Color.White
     ) {
         Text(
-            text = text, style = MaterialTheme.typography.bodyLarge,
+            text = "9+", style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.wrapContentSize(),
             textAlign = TextAlign.Center
@@ -263,116 +253,6 @@ private fun ArticleUserBar(
                 contentDescription = Icons.Default.MoreVert.name,
                 modifier = Modifier.padding(4.dp)
             )
-        }
-    }
-}
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Preview
-@Composable
-private fun DRAWItem1() {
-    SharedTransitionLayout {
-        AnimatedVisibility(visible = true) {
-            ArticleItem(
-                face = "",
-                ownerName = "动漫作业本",
-                date = "11 小时前",
-                desc = "Hello World!!!",
-                images = null,
-                infoError = R.drawable.bg
-            ) {}
-        }
-    }
-}
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Preview
-@Composable
-private fun DRAWItem2() {
-    SharedTransitionLayout {
-        AnimatedVisibility(visible = true) {
-            ArticleItem(
-                face = "",
-                ownerName = "动漫作业本",
-                date = "11 小时前",
-                desc = "Hello World!!!",
-                images = listOf(""),
-                infoError = R.drawable.bg
-            ) {}
-        }
-    }
-}
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Preview
-@Composable
-private fun DRAWItem3() {
-    SharedTransitionLayout {
-        AnimatedVisibility(visible = true) {
-            ArticleItem(
-                face = "",
-                ownerName = "动漫作业本",
-                date = "11 小时前",
-                desc = "Hello World!!!",
-                images = listOf("", "", ""),
-                infoError = R.drawable.bg,
-            ) {}
-        }
-    }
-}
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Preview
-@Composable
-private fun DRAWItem4() {
-    SharedTransitionLayout {
-        AnimatedVisibility(visible = true) {
-            ArticleItem(
-                face = "",
-                ownerName = "动漫作业本",
-                date = "11 小时前",
-                desc = "Hello World!!!",
-                images = listOf("", ""),
-                infoError = R.drawable.bg
-            ) {}
-        }
-    }
-
-}
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Preview
-@Composable
-private fun DRAWItem5() {
-    SharedTransitionLayout {
-        AnimatedVisibility(visible = true) {
-            ArticleItem(
-                face = "",
-                ownerName = "动漫作业本",
-                date = "11 小时前",
-                desc = "Hello World!!!",
-                images = listOf("", "", "", "", "", "", "", "", ""),
-                infoError = R.drawable.bg
-            ) {}
-        }
-    }
-}
-
-
-@OptIn(ExperimentalSharedTransitionApi::class)
-@Preview
-@Composable
-private fun DRAWItem6() {
-    SharedTransitionLayout {
-        AnimatedVisibility(visible = true) {
-            ArticleItem(
-                face = "",
-                ownerName = "动漫作业本",
-                date = "11 小时前",
-                desc = "Hello World!!!",
-                images = listOf("", "", "", "", "", "", "", "", "", ""),
-                infoError = R.drawable.bg
-            ) {}
         }
     }
 }

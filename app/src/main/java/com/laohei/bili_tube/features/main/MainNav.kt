@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
@@ -190,9 +191,7 @@ private fun PortraitContent(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .height(
-                    IntrinsicSize.Min
-                )
+                .height(IntrinsicSize.Min)
                 .background(MaterialTheme.colorScheme.background.copy(alpha = 0.95f))
                 .navigationBarsPadding(),
             items = items,

@@ -1,17 +1,19 @@
 package com.laohei.bili_tube.nav
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionScope
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
@@ -22,6 +24,7 @@ import com.laohei.bili_tube.AppState
 import com.laohei.bili_tube.SharedViewModel
 import com.laohei.bili_tube.features.download.DownloadScreen
 import com.laohei.bili_tube.features.history.HistoryScreen
+import com.laohei.bili_tube.features.image.RemoteImageGalleryScreen
 import com.laohei.bili_tube.features.login.LoginNav
 import com.laohei.bili_tube.features.main.MainNav
 import com.laohei.bili_tube.features.player.VideoScreen
@@ -44,34 +47,38 @@ fun AppNav(
         localIsLogin = appState.isLogin
     }
 
-    SharedTransitionScope {
+    SharedTransitionLayout(modifier = Modifier.fillMaxSize()) {
         NavHost(
             navController = appNavController,
             startDestination = AppRoute.Splash,
             enterTransition = {
                 when {
-                    isSplashOrLoginToMainNav(initialState, targetState) -> fadeIn()
+                    isMainNavToGallery(initialState, targetState) ||
+                            isSplashOrLoginToMainNav(initialState, targetState) -> fadeIn()
 
                     else -> slideInHorizontally { it }
                 }
             },
             popExitTransition = {
                 when {
-                    isSplashOrLoginToMainNav(initialState, targetState) -> fadeOut()
+                    isMainNavToGallery(initialState, targetState) ||
+                            isSplashOrLoginToMainNav(initialState, targetState) -> fadeOut()
 
                     else -> slideOutHorizontally { it }
                 }
             },
             popEnterTransition = {
                 when {
-                    isSplashOrLoginToMainNav(initialState, targetState) -> fadeIn()
+                    isMainNavToGallery(initialState, targetState) ||
+                            isSplashOrLoginToMainNav(initialState, targetState) -> fadeIn()
 
                     else -> slideInHorizontally { -it }
                 }
             },
             exitTransition = {
                 when {
-                    isSplashOrLoginToMainNav(initialState, targetState) -> fadeOut()
+                    isMainNavToGallery(initialState, targetState) ||
+                            isSplashOrLoginToMainNav(initialState, targetState) -> fadeOut()
 
                     else -> slideOutHorizontally { -it }
                 }
@@ -95,7 +102,7 @@ fun AppNav(
 
             composable<AppRoute.MainNav> {
                 MainNav(
-                    sharedTransitionScope = this@SharedTransitionScope,
+                    sharedTransitionScope = this@SharedTransitionLayout,
                     animatedVisibilityScope = this
                 ) {
                     appNavController.navigate(it)
@@ -150,6 +157,13 @@ fun AppNav(
                     navigateToAppRoute = { route -> appNavController.navigate(route) }
                 )
             }
+            composable<AppRoute.Gallery> {
+                RemoteImageGalleryScreen(
+                    galleryParam = it.toRoute(),
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedVisibilityScope = this
+                )
+            }
         }
     }
 }
@@ -165,4 +179,17 @@ private fun isSplashOrLoginToMainNav(
         initialState.destination.hasRoute(AppRoute.LoginNav::class) &&
                 targetState.destination.hasRoute(AppRoute.MainNav::class)
     return isLoginNavToMainNav || isSplashToMainNav
+}
+
+private fun isMainNavToGallery(
+    initialState: NavBackStackEntry,
+    targetState: NavBackStackEntry,
+): Boolean {
+    val isMainNavToGallery =
+        initialState.destination.hasRoute(AppRoute.MainNav::class) &&
+                targetState.destination.hasRoute(AppRoute.Gallery::class)
+    val isGalleryToMainNav =
+        initialState.destination.hasRoute(AppRoute.Gallery::class) &&
+                targetState.destination.hasRoute(AppRoute.MainNav::class)
+    return isMainNavToGallery || isGalleryToMainNav
 }

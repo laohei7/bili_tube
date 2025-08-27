@@ -1,6 +1,7 @@
 package com.laohei.bili_tube.features.main.subscription
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridScope
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
@@ -28,7 +30,11 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,6 +66,7 @@ import com.laohei.bili_tube.ui.theme.SmallPadding
 import com.laohei.bili_tube.utill.toTimeAgoString
 import com.laohei.bili_tube.utill.underDevelopment
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -81,8 +88,9 @@ fun SubscriptionScreen(
     val subscriptionState by subscriptionViewModel.uiState.collectAsStateWithLifecycle()
     val gridState = subscriptionState.gridState
     val subscriptions = subscriptionViewModel.subscriptions.collectAsLazyPagingItems()
-    val refreshState = rememberPullToRefreshState()
-    val isLoading = subscriptions.loadState.refresh is LoadState.Loading
+
+    var selectPreviewImageList by remember { mutableStateOf<List<Pair<String, String>>?>(null) }
+    var initialImageIndex by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(Unit) {
         EventBus.events.collect { event ->
@@ -97,6 +105,39 @@ fun SubscriptionScreen(
         }
     }
 
+    with(sharedTransitionScope) {
+        SubscriptionContent(
+            gridState = gridState,
+            subscriptionState = subscriptionState,
+            subscriptionViewModel = subscriptionViewModel,
+            subscriptions = subscriptions,
+            navigateToAppRoute = navigateToAppRoute,
+            animatedVisibilityScope = animatedVisibilityScope,
+            onImageClick = { index, images ->
+                navigateToAppRoute(
+                    AppRoute.Gallery(
+                        initialIndex = index,
+                        imagesJson = Json.encodeToString(images)
+                    )
+                )
+            }
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@Composable
+private fun SharedTransitionScope.SubscriptionContent(
+    gridState: LazyStaggeredGridState,
+    subscriptionState: SubscriptionUIState,
+    subscriptionViewModel: SubscriptionViewModel,
+    subscriptions: LazyPagingItems<DynamicItem>,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    navigateToAppRoute: (AppRoute) -> Unit,
+    onImageClick: ((Int, List<Pair<String, String>>) -> Unit)? = null
+) {
+    val refreshState = rememberPullToRefreshState()
+    val isLoading = subscriptions.loadState.refresh is LoadState.Loading
     AdaptiveLayout { uiType, width, height ->
         val fixedCount = when (uiType) {
             DeviceConfiguration.MOBILE_PORTRAIT -> 1
@@ -126,6 +167,10 @@ fun SubscriptionScreen(
         ) {
             LazyVerticalStaggeredGrid(
                 modifier = Modifier
+                    .sharedBounds(
+                        sharedContentState = rememberSharedContentState("gallery-bg"),
+                        animatedVisibilityScope = animatedVisibilityScope
+                    )
                     .fillMaxSize()
                     .background(color = MaterialTheme.colorScheme.background),
                 state = gridState,
@@ -155,8 +200,11 @@ fun SubscriptionScreen(
                     isInitial = subscriptions.itemCount == 0,
                     isSingleLayout = fixedCount == 1,
                     subscriptions = subscriptions,
+                    sharedTransitionScope = this@SubscriptionContent,
+                    animatedVisibilityScope = animatedVisibilityScope,
                     navigateToAppRoute = navigateToAppRoute,
-                    onSubscriptionAction = subscriptionViewModel::onSubscriptionAction
+                    onSubscriptionAction = subscriptionViewModel::onSubscriptionAction,
+                    onImageClick = onImageClick
                 )
 
                 item(span = StaggeredGridItemSpan.FullLine) {
@@ -230,12 +278,16 @@ fun SubscriptionScreen(
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 private fun LazyStaggeredGridScope.subscriptionList(
     isInitial: Boolean,
     isSingleLayout: Boolean,
     subscriptions: LazyPagingItems<DynamicItem>,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     navigateToAppRoute: (AppRoute) -> Unit,
-    onSubscriptionAction: (SubscriptionAction) -> Unit
+    onSubscriptionAction: (SubscriptionAction) -> Unit,
+    onImageClick: ((Int, List<Pair<String, String>>) -> Unit)? = null
 ) {
     when {
         isInitial -> {
@@ -255,6 +307,9 @@ private fun LazyStaggeredGridScope.subscriptionList(
                             isSingleLayout = isSingleLayout,
                             navigateToAppRoute = navigateToAppRoute,
                             onSubscriptionAction = onSubscriptionAction,
+                            sharedTransitionScope = sharedTransitionScope,
+                            animatedVisibilityScope = animatedVisibilityScope,
+                            onImageClick = onImageClick
                         )
 
                         HorizontalDivider(
@@ -273,8 +328,11 @@ private fun LazyStaggeredGridScope.subscriptionList(
 private fun GetDynamicItem(
     isSingleLayout: Boolean = true,
     item: DynamicItem,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
     navigateToAppRoute: (AppRoute) -> Unit,
-    onSubscriptionAction: (SubscriptionAction) -> Unit
+    onSubscriptionAction: (SubscriptionAction) -> Unit,
+    onImageClick: ((Int, List<Pair<String, String>>) -> Unit)? = null
 ) {
     val scope = rememberCoroutineScope()
     val sharedViewModel = koinInject<SharedViewModel>()
@@ -326,12 +384,16 @@ private fun GetDynamicItem(
             val draw = item.modules.moduleDynamic.major?.draw
             val desc = item.modules.moduleDynamic.desc?.text ?: ""
             ArticleItem(
+                articleKey = draw?.id.toString(),
                 face = author.face,
                 ownerName = author.name,
                 date = author.pubTs.toTimeAgoString(),
                 desc = desc,
                 images = draw?.items?.map { it.src },
                 shape = shape,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
+                onImageClick = onImageClick,
                 onTrailingClick = {
                     underDevelopment(scope)
                 }
@@ -339,19 +401,23 @@ private fun GetDynamicItem(
         }
 
         DynamicItem.DYNAMIC_TYPE_ARTICLE -> {
-            val article = item.modules.moduleDynamic.major!!.article!!
-            ArticleItem(
-                face = author.face,
-                ownerName = author.name,
-                date = author.pubTs.toTimeAgoString(),
-                desc = article.desc,
-                images = article.covers,
-                shape = shape,
-                onTrailingClick = {
+            item.modules.moduleDynamic.major?.article?.let { article ->
+                ArticleItem(
+                    articleKey = article.id.toString(),
+                    face = author.face,
+                    ownerName = author.name,
+                    date = author.pubTs.toTimeAgoString(),
+                    desc = article.desc,
+                    images = article.covers,
+                    sharedTransitionScope = sharedTransitionScope,
+                    animatedVisibilityScope = animatedVisibilityScope,
+                    onImageClick = onImageClick,
+                    onTrailingClick = {
 //                    onSubscriptionAction(SubscriptionAction.MenuUIAction(true))
-                    underDevelopment(scope)
-                }
-            )
+                        underDevelopment(scope)
+                    }
+                )
+            }
         }
 
         else -> {
