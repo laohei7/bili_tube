@@ -13,3 +13,11 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val MidnightIndigo = Color(0xFF162238)
+
+val ColorLevel0 = Color(0xFFBFBFBF)
+val ColorLevel1 = Color(0xFFBFBFBF)
+val ColorLevel2 = Color(0xFF95DDB2)
+val ColorLevel3 = Color(0xFF92D1E5)
+val ColorLevel4 = Color(0xFFFFB37C)
+val ColorLevel5 = Color(0xFFFF6C00)
+val ColorLevel6 = Color(0xFFFF0000)
