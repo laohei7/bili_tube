@@ -48,17 +48,12 @@ fun RemoteImageGallery(
 ) {
     val context = LocalContext.current
     val pager = rememberPagerState(initialPage = initialIndex) { images.size }
-//    val currentPage by remember { derivedStateOf { pager.currentPage } }
     val imageIndexLabel by remember {
         derivedStateOf { "${pager.currentPage + 1}/${images.size}" }
     }
     with(sharedTransitionScope) {
         Box(
             modifier = Modifier
-                .sharedBounds(
-                    sharedContentState = rememberSharedContentState("gallery-bg"),
-                    animatedVisibilityScope = animatedVisibilityScope
-                )
                 .fillMaxSize()
                 .background(Color.Black),
             contentAlignment = Alignment.Center

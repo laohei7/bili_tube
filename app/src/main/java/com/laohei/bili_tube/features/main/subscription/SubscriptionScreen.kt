@@ -1,7 +1,6 @@
 package com.laohei.bili_tube.features.main.subscription
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -30,11 +29,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -89,9 +84,6 @@ fun SubscriptionScreen(
     val gridState = subscriptionState.gridState
     val subscriptions = subscriptionViewModel.subscriptions.collectAsLazyPagingItems()
 
-    var selectPreviewImageList by remember { mutableStateOf<List<Pair<String, String>>?>(null) }
-    var initialImageIndex by remember { mutableIntStateOf(0) }
-
     LaunchedEffect(Unit) {
         EventBus.events.collect { event ->
             when (event) {
@@ -105,33 +97,33 @@ fun SubscriptionScreen(
         }
     }
 
-    with(sharedTransitionScope) {
-        SubscriptionContent(
-            gridState = gridState,
-            subscriptionState = subscriptionState,
-            subscriptionViewModel = subscriptionViewModel,
-            subscriptions = subscriptions,
-            navigateToAppRoute = navigateToAppRoute,
-            animatedVisibilityScope = animatedVisibilityScope,
-            onImageClick = { index, images ->
-                navigateToAppRoute(
-                    AppRoute.Gallery(
-                        initialIndex = index,
-                        imagesJson = Json.encodeToString(images)
-                    )
+    SubscriptionContent(
+        gridState = gridState,
+        subscriptionState = subscriptionState,
+        subscriptionViewModel = subscriptionViewModel,
+        subscriptions = subscriptions,
+        navigateToAppRoute = navigateToAppRoute,
+        sharedTransitionScope = sharedTransitionScope,
+        animatedVisibilityScope = animatedVisibilityScope,
+        onImageClick = { index, images ->
+            navigateToAppRoute(
+                AppRoute.Gallery(
+                    initialIndex = index,
+                    imagesJson = Json.encodeToString(images)
                 )
-            }
-        )
-    }
+            )
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
 @Composable
-private fun SharedTransitionScope.SubscriptionContent(
+private fun SubscriptionContent(
     gridState: LazyStaggeredGridState,
     subscriptionState: SubscriptionUIState,
     subscriptionViewModel: SubscriptionViewModel,
     subscriptions: LazyPagingItems<DynamicItem>,
+    sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     navigateToAppRoute: (AppRoute) -> Unit,
     onImageClick: ((Int, List<Pair<String, String>>) -> Unit)? = null
@@ -167,10 +159,6 @@ private fun SharedTransitionScope.SubscriptionContent(
         ) {
             LazyVerticalStaggeredGrid(
                 modifier = Modifier
-                    .sharedBounds(
-                        sharedContentState = rememberSharedContentState("gallery-bg"),
-                        animatedVisibilityScope = animatedVisibilityScope
-                    )
                     .fillMaxSize()
                     .background(color = MaterialTheme.colorScheme.background),
                 state = gridState,
@@ -200,7 +188,7 @@ private fun SharedTransitionScope.SubscriptionContent(
                     isInitial = subscriptions.itemCount == 0,
                     isSingleLayout = fixedCount == 1,
                     subscriptions = subscriptions,
-                    sharedTransitionScope = this@SubscriptionContent,
+                    sharedTransitionScope = sharedTransitionScope,
                     animatedVisibilityScope = animatedVisibilityScope,
                     navigateToAppRoute = navigateToAppRoute,
                     onSubscriptionAction = subscriptionViewModel::onSubscriptionAction,
