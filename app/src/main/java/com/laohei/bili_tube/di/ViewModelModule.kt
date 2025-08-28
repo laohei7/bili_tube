@@ -1,5 +1,6 @@
 package com.laohei.bili_tube.di
 
+import android.annotation.SuppressLint
 import com.laohei.bili_tube.features.download.DownloadViewModel
 import com.laohei.bili_tube.features.history.HistoryViewModel
 import com.laohei.bili_tube.features.login.LoginViewModel
@@ -16,6 +17,7 @@ import com.laohei.bili_tube.features.setting.SettingViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
+@SuppressLint("UnsafeOptInUsageError")
 val viewModelModule = module {
     viewModelOf(::HomeViewModel)
     viewModelOf(::RecommendViewModel)

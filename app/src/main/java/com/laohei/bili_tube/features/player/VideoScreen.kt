@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
-import androidx.media3.datasource.cache.SimpleCache
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.laohei.bili_tube.PlayParam
 import com.laohei.bili_tube.core.runtime.LifecycleEffect
@@ -47,8 +46,8 @@ import com.laohei.bili_tube.features.player.state.screen.DefaultScreenController
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.sheet.FolderSheet
+import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.utill.OnOrientationChanged
 import com.laohei.bili_tube.utill.SystemUtil
 import com.laohei.bili_tube.utill.hideSystemUI
@@ -59,9 +58,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import org.chromium.net.CronetEngine
 import org.koin.androidx.compose.koinViewModel
-import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 import kotlin.math.roundToInt
 
@@ -70,8 +67,6 @@ private const val TAG = "VideoScreen"
 @OptIn(UnstableApi::class)
 @Composable
 fun VideoScreen(
-    cronetEngine: CronetEngine = koinInject(),
-    simpleCache: SimpleCache = koinInject(),
     playParam: PlayParam,
     upPress: () -> Unit
 ) {
@@ -89,10 +84,7 @@ fun VideoScreen(
 
     val isOrientationPortrait = isOrientationPortrait()
     val defaultMediaManager = remember {
-        DefaultMediaController(
-            context, cronetEngine, simpleCache,
-            playParam.width, playParam.height
-        )
+        DefaultMediaController(context, playParam.width, playParam.height)
     }
     val defaultScreenManager = remember {
         DefaultScreenController(

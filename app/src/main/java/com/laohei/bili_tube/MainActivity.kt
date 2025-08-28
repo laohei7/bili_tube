@@ -47,7 +47,7 @@ import com.laohei.bili_tube.core.runtime.LifecycleEffect
 import com.laohei.bili_tube.nav.AppNav
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.theme.Bili_tubeTheme
-import com.laohei.bili_tube.utill.HttpClientFactory
+import com.laohei.bili_tube.network.HttpClientFactory
 import com.laohei.bili_tube.utill.setValue
 import com.laohei.bili_tube.utill.useLightSystemBarIcon
 import kotlinx.coroutines.CoroutineScope

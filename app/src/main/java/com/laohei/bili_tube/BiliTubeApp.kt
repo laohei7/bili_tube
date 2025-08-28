@@ -2,6 +2,7 @@ package com.laohei.bili_tube
 
 import android.app.Application
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.datastore.core.DataStore
@@ -26,15 +27,17 @@ import com.laohei.bili_tube.di.appModule
 import com.laohei.bili_tube.di.dataModule
 import com.laohei.bili_tube.di.roomModule
 import com.laohei.bili_tube.di.viewModelModule
-import com.laohei.bili_tube.utill.HttpClientFactory
+import com.laohei.bili_tube.network.HttpClientFactory
 import com.laohei.bili_tube.utill.SystemUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import org.conscrypt.Conscrypt
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
+import java.security.Security
 
 val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "bili_tube")
 
@@ -46,6 +49,9 @@ class BiliTubeApp : Application(), SingletonImageLoader.Factory {
     @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            Security.insertProviderAt(Conscrypt.newProvider(), 1)
+        }
         SystemUtil.init(this)
         CrashHandler.instance.init(this)
         startKoin {

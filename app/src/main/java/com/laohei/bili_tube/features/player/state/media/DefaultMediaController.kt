@@ -14,10 +14,6 @@ import androidx.media3.common.VideoSize
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DataSource
 import androidx.media3.datasource.DefaultDataSource
-import androidx.media3.datasource.cache.CacheDataSink
-import androidx.media3.datasource.cache.CacheDataSource
-import androidx.media3.datasource.cache.SimpleCache
-import androidx.media3.datasource.cronet.CronetDataSource
 import androidx.media3.exoplayer.DefaultLoadControl
 import androidx.media3.exoplayer.DefaultRenderersFactory
 import androidx.media3.exoplayer.ExoPlayer
@@ -31,7 +27,7 @@ import com.laohei.bili_sdk.module_v2.video.DashItem
 import com.laohei.bili_sdk.module_v2.video.SkipModel
 import com.laohei.bili_sdk.module_v2.video.VideoURLModel
 import com.laohei.bili_tube.core.NormalAudioQuality
-import com.laohei.bili_tube.utill.HttpClientFactory
+import com.laohei.bili_tube.data.PlayerDataSourceFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -40,16 +36,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import org.chromium.net.CronetEngine
 import java.io.File
-import java.util.concurrent.Executors
 import kotlin.math.abs
 
 @UnstableApi
 internal class DefaultMediaController(
     context: Context,
-    cronetEngine: CronetEngine,
-    simpleCache: SimpleCache,
     originalWidth: Int,
     originalHeight: Int
 ) : MediaController, AnalyticsListener, Player.Listener {
@@ -90,31 +82,13 @@ internal class DefaultMediaController(
 
     private var _media: VideoURLModel? = null
 
-    //    private var mBackVideoSources: List<VideoSource>? = null
     private var _currentSelectedIndex = 0
     private var _currentWidth: Int? = null
     private var _currentHeight: Int? = null
 
-    private val _cronetDataSource =
-        CronetDataSource.Factory(cronetEngine, Executors.newFixedThreadPool(5)).apply {
-            setDefaultRequestProperties(
-                mapOf(
-                    "referer" to HttpClientFactory.REFERER,
-                    "User-Agent" to HttpClientFactory.USER_AGENT
-                )
-            )
-        }
-
     private val _defaultLocalDataSourceFactory = DefaultDataSource.Factory(context)
 
-    private val _defaultDataSourceFactory = CacheDataSource.Factory()
-        .setCache(simpleCache)
-        .setUpstreamDataSourceFactory(_cronetDataSource)
-        .setCacheWriteDataSinkFactory(
-            CacheDataSink.Factory()
-                .setCache(simpleCache)
-                .setFragmentSize(50 * 1024 * 1024)
-        )
+    private val _defaultDataSourceFactory = PlayerDataSourceFactory.build(context)
 
     private var _otherDataSourceFactory: DataSource.Factory? = null
 

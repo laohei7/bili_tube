@@ -2,7 +2,7 @@ package com.laohei.bili_tube.di
 
 import android.annotation.SuppressLint
 import com.laohei.bili_tube.SharedViewModel
-import com.laohei.bili_tube.utill.HttpClientFactory
+import com.laohei.bili_tube.network.HttpClientFactory
 import com.laohei.bili_tube.utill.NetworkUtil
 import com.laohei.bili_tube.utill.PreferencesUtil
 import com.laohei.bili_tube.utill.download.DownloadManager
@@ -15,7 +15,5 @@ val appModule = module {
     singleOf(::NetworkUtil)
     singleOf(::SharedViewModel)
     single { HttpClientFactory.client }
-    single { HttpClientFactory.getCronetEngine(get()) }
-    single { HttpClientFactory.getSimpleCache(get()) }
     singleOf(::DownloadManager)
 }
