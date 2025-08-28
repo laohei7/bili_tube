@@ -49,7 +49,7 @@ fun StateChip(
         modifier = modifier.clickable(enabled) { onClick() },
         content = {
             Surface(
-                modifier = Modifier.size(26.dp),
+                modifier = Modifier.size(24.dp),
                 color = Color.Transparent,
                 contentColor = iconColor
             ) {
@@ -78,7 +78,7 @@ fun StateChip(
                     thickness = 1.5.dp
                 )
                 Surface(
-                    modifier = Modifier.size(26.dp),
+                    modifier = Modifier.size(24.dp),
                     shape = CircleShape,
                     onClick = { onTrailingClick?.invoke() },
                     color = Color.Transparent,

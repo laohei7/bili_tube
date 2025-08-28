@@ -102,7 +102,7 @@ internal fun VideoActionBar(
                 }
             }
         }
-//        Spacer(modifier = Modifier)
+        Spacer(modifier = Modifier)
         StateChip(
             modifier = chipModifier,
             icon = Icons.Rounded.Paid,
@@ -114,7 +114,7 @@ internal fun VideoActionBar(
                 }
             },
         )
-//        Spacer(modifier = Modifier)
+        Spacer(modifier = Modifier)
         StateChip(
             modifier = chipModifier,
             icon = if (localHasFavoured) Icons.Rounded.Star else Icons.Rounded.StarOutline,
@@ -124,7 +124,7 @@ internal fun VideoActionBar(
                 onScreenAction(ScreenAction.SetModifyFolderVisible(true))
             },
         )
-//        Spacer(modifier = Modifier)
+        Spacer(modifier = Modifier)
         StateChip(
             modifier = chipModifier,
             icon = Icons.Rounded.Share,
@@ -132,7 +132,7 @@ internal fun VideoActionBar(
             onClick = {
             },
         )
-//        Spacer(modifier = Modifier)
+        Spacer(modifier = Modifier)
         StateChip(
             modifier = chipModifier,
             enabled = isDownloaded.not(),
