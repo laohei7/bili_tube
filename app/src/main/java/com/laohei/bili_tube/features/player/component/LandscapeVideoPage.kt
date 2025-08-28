@@ -355,7 +355,7 @@ private fun ColumnScope.LandscapeInfoArea(
         }
 
         videoDetail?.let { detail ->
-            HorizontalVideoMenu(
+            VideoActionBar(
                 great = videoDetail.view.stat.like.toViewString(),
                 coin = videoDetail.view.stat.coin.toViewString(),
                 star = videoDetail.view.stat.favorite.toViewString(),
@@ -374,7 +374,7 @@ private fun ColumnScope.LandscapeInfoArea(
             )
         } ?: bangumiDetail?.let { detail ->
             Spacer(Modifier.height(MediumPadding))
-            HorizontalVideoMenu(
+            VideoActionBar(
                 great = detail.stat.likes.toViewString(),
                 coin = detail.stat.coins.toViewString(),
                 star = detail.stat.favorites.toViewString(),

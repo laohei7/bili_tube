@@ -157,7 +157,7 @@ private fun VideoContent(
             }
             item {
                 Spacer(modifier = Modifier.height(8.dp))
-                HorizontalVideoMenu(
+                VideoActionBar(
                     great = videoDetail.view.stat.like.toViewString(),
                     coin = videoDetail.view.stat.coin.toViewString(),
                     star = videoDetail.view.stat.favorite.toViewString(),
@@ -277,7 +277,7 @@ private fun BangumiContent(
             }
             item {
                 Spacer(Modifier.height(32.dp))
-                HorizontalVideoMenu(
+                VideoActionBar(
                     great = bangumiDetailModel.stat.likes.toViewString(),
                     coin = bangumiDetailModel.stat.coins.toViewString(),
                     star = bangumiDetailModel.stat.favorites.toViewString(),
