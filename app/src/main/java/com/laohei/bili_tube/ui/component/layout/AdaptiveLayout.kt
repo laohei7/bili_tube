@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.UiComposable
 import androidx.compose.ui.unit.Dp
+import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable

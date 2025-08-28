@@ -47,7 +47,7 @@ import com.laohei.bili_tube.features.player.state.screen.DefaultScreenController
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
+import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.sheet.FolderSheet
 import com.laohei.bili_tube.utill.OnOrientationChanged
 import com.laohei.bili_tube.utill.SystemUtil

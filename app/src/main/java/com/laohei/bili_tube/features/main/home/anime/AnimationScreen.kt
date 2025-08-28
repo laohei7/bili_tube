@@ -34,7 +34,7 @@ import com.laohei.bili_tube.features.main.home.anime.component.FilterWidget
 import com.laohei.bili_tube.model.BangumiFilterModel
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
+import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.placeholder.NoMoreData
 import com.laohei.bili_tube.ui.theme.LargePadding
 import com.laohei.bili_tube.ui.theme.SmallPadding

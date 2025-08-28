@@ -52,7 +52,7 @@ import com.laohei.bili_tube.features.main.profile.component.VIPWidget
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
+import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.text.VerticalDataText
 import com.laohei.bili_tube.utill.getValue
 import org.koin.androidx.compose.koinViewModel

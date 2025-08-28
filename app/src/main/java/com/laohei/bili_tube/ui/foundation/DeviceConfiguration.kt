@@ -1,4 +1,4 @@
-package com.laohei.bili_tube.ui.component.layout
+package com.laohei.bili_tube.ui.foundation
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp

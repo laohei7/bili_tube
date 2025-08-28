@@ -29,7 +29,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
@@ -52,7 +51,7 @@ import com.laohei.bili_tube.features.main.subscription.SubscriptionScreen
 import com.laohei.bili_tube.features.setting.SettingNav
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
+import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalSharedTransitionApi::class)

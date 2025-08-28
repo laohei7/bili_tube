@@ -49,7 +49,7 @@ import com.laohei.bili_tube.features.main.component.VideoMenuSheet
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
+import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.placeholder.NoMoreData
 import com.laohei.bili_tube.ui.component.placeholder.RecommendPlaceholder
 import com.laohei.bili_tube.ui.component.sheet.FolderSheet

@@ -27,7 +27,7 @@ import com.laohei.bili_tube.features.login.component.LoginTitle
 import com.laohei.bili_tube.features.login.component.Qrcode
 import com.laohei.bili_tube.features.login.component.SmsBackground
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
+import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.theme.LargePadding
 
 @Composable

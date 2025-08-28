@@ -1,4 +1,4 @@
-package com.laohei.bili_tube.ui.component
+package com.laohei.bili_tube.ui.component.layout
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

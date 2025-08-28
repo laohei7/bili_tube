@@ -40,7 +40,7 @@ import com.laohei.bili_tube.features.main.home.recommend.RecommendScreen
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
+import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.sheet.FolderSheet
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel

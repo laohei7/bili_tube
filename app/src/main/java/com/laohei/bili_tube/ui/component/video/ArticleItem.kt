@@ -46,7 +46,7 @@ import coil3.request.error
 import coil3.request.placeholder
 import coil3.size.Size
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.component.NineGridLayout
+import com.laohei.bili_tube.ui.component.layout.NineGridLayout
 import com.laohei.bili_tube.ui.component.text.RichText
 import com.laohei.bili_tube.ui.theme.ExtremeSmallPadding
 import com.laohei.bili_tube.ui.theme.NonePadding

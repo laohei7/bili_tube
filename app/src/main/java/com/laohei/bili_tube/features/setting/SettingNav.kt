@@ -22,7 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.component.layout.DeviceConfiguration
+import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
