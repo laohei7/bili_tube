@@ -62,7 +62,7 @@ import coil3.request.crossfade
 import com.laohei.bili_sdk.module_v2.reply.ReplyItem
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.component.reply.VideoReplyAction
-import com.laohei.bili_tube.ui.component.animation.slideFadeRightToLeftCanReversed
+import com.laohei.bili_tube.ui.component.animation.slideFadeHorizontal
 import com.laohei.bili_tube.ui.component.placeholder.NoMoreData
 import com.laohei.bili_tube.ui.component.text.RichText
 import com.laohei.bili_tube.utill.toTimeAgoString
@@ -87,7 +87,7 @@ internal fun ReplyList(
         AnimatedContent(
             targetState = isInMainReplyList,
             transitionSpec = {
-                slideFadeRightToLeftCanReversed(isInMainReplyList.not())
+                slideFadeHorizontal(isInMainReplyList.not())
             },
         ) { target ->
             when {
@@ -145,7 +145,7 @@ private fun ReplyTopBar(
         AnimatedContent(
             modifier = Modifier.weight(1f),
             transitionSpec = {
-                slideFadeRightToLeftCanReversed(isMainReplyList.not())
+                slideFadeHorizontal(isMainReplyList.not())
             },
             targetState = isMainReplyList,
             contentAlignment = Alignment.CenterStart

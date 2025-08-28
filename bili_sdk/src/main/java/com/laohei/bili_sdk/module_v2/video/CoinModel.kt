@@ -15,5 +15,5 @@ data class CoinModel(
 @Serializable
 @JsonIgnoreUnknownKeys
 data class AddCoinModel(
-    val like: Boolean
+    val like: Boolean = false
 )

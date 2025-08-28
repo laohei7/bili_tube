@@ -7,7 +7,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 
-fun slideFadeRightToLeftCanReversed(isReversed: Boolean): ContentTransform {
+fun slideFadeHorizontal(isReversed: Boolean): ContentTransform {
     return when {
         isReversed -> {
             slideInHorizontally { it } + fadeIn() togetherWith fadeOut()

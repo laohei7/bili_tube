@@ -36,11 +36,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.features.player.VideoMenuAction
+import com.laohei.bili_tube.ui.component.animation.SpriteAnimation
 import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheetProperties
 import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
-import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.ui.component.animation.SpriteWidget
 import kotlinx.coroutines.launch
 
 
@@ -84,8 +84,6 @@ internal fun AddCoinSheet(
                         coin = 1,
                         isSelected = selectCoin == 1,
                         frameCount = 24,
-                        frameWidth = 187f,
-                        frameHeight = 300f,
                         animationDuration = 1500
                     ) {
                         selectCoin = 1
@@ -95,8 +93,6 @@ internal fun AddCoinSheet(
                         coin = 2,
                         isSelected = selectCoin == 2,
                         frameCount = 24,
-                        frameWidth = 187f,
-                        frameHeight = 300f,
                         animationDuration = 1500
                     ) {
                         selectCoin = 2
@@ -123,8 +119,8 @@ private fun CoinItem(
     coin: Int = 1,
     isSelected: Boolean,
     frameCount: Int = 24,
-    frameWidth: Float = 187f,
-    frameHeight: Float = 300f,
+    frameWidth: Int = 187,
+    frameHeight: Int = 300,
     animationDuration: Int = 1500,
     onClick: () -> Unit
 ) {
@@ -166,12 +162,12 @@ private fun CoinItem(
             color = borderColor
         )
         Spacer(Modifier.height(8.dp))
-        SpriteWidget(
-            id = id,
+        SpriteAnimation(
+            spriteResId = id,
             frameCount = frameCount,
-            frameWidth = frameWidth,
-            frameHeight = frameHeight,
-            animationDuration = animationDuration
+            frameWidthPx = frameWidth,
+            frameHeightPx = frameHeight,
+            durationMillis = animationDuration
         )
     }
 }

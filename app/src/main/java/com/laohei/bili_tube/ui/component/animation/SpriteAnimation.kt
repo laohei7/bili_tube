@@ -19,40 +19,41 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 
 @Composable
-fun SpriteWidget(
-    @DrawableRes id: Int,
+fun SpriteAnimation(
+    @DrawableRes spriteResId: Int,
     frameCount: Int = 24, // Total frames (how many frames your sprite has)
-    frameWidth: Float = 187f,  // Single frame width (adjusts to the size of your image)
-    frameHeight: Float = 300f, // Single frame height
-    animationDuration: Int = 1500 // Play the full animation in 1.5 seconds
+    frameWidthPx: Int = 187,  // Single frame width (adjusts to the size of your image)
+    frameHeightPx: Int = 300, // Single frame height
+    durationMillis: Int = 1500 // Play the full animation in 1.5 seconds
 ) {
     val density = LocalDensity.current
-    val infiniteTransition = rememberInfiniteTransition()
+    val infiniteTransition = rememberInfiniteTransition(label = "sprite")
 
     // Calculates the current animation frame
     val frame by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = frameCount.toFloat(),
         animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = animationDuration, easing = LinearEasing),
+            animation = tween(durationMillis = durationMillis, easing = LinearEasing),
             repeatMode = RepeatMode.Restart
-        )
+        ),
+        label = "frame"
     )
-    val apngImage = ImageBitmap.imageResource(id = id)
+    val spriteSheet = ImageBitmap.imageResource(id = spriteResId)
     Canvas(
         modifier = Modifier
             .size(
-                width = with(density) { frameWidth.toDp() },
-                height = with(density) { frameHeight.toDp() }
+                width = with(density) { frameWidthPx.toDp() },
+                height = with(density) { frameHeightPx.toDp() }
             ) // Only one frame size is displayed
     ) {
         val currentFrame = frame.toInt() % frameCount
-        val offsetX = currentFrame * frameWidth
+        val offsetX = currentFrame * frameWidthPx
 
         drawImage(
-            image = apngImage,
-            srcOffset = IntOffset(offsetX.toInt(), 0),
-            srcSize = IntSize(frameWidth.toInt(), frameHeight.toInt())
+            image = spriteSheet,
+            srcOffset = IntOffset(offsetX, 0),
+            srcSize = IntSize(frameWidthPx, frameHeightPx)
         )
     }
 }
