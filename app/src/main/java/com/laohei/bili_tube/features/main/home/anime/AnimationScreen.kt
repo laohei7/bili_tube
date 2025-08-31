@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.module_v2.bangumi.BangumiItem
-import com.laohei.bili_tube.PlayParam
-import com.laohei.bili_tube.SharedViewModel
+import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.features.main.home.HomeAction
 import com.laohei.bili_tube.features.main.home.anime.component.BangumiWidget
 import com.laohei.bili_tube.features.main.home.anime.component.FilterWidget
@@ -35,9 +35,9 @@ import com.laohei.bili_tube.model.BangumiFilterModel
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
-import com.laohei.bili_tube.ui.component.placeholder.NoMoreData
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingSm
 import org.koin.compose.koinInject
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
@@ -91,7 +91,7 @@ fun AnimationScreen(
                     .fillMaxSize()
                     .statusBarsPadding(),
                 columns = GridCells.Fixed(fixedCount),
-                verticalArrangement = Arrangement.spacedBy(LargePadding)
+                verticalArrangement = Arrangement.spacedBy(PaddingLg)
             ) {
                 item(span = { GridItemSpan(fixedCount) }, key = "Anime-top-padding") {
                     when (uiType) {
@@ -106,7 +106,7 @@ fun AnimationScreen(
                         DeviceConfiguration.TABLE_LANDSCAPE,
                         DeviceConfiguration.DESKTOP -> {
                             Spacer(Modifier
-                                .height(SmallPadding))
+                                .height(PaddingSm))
                         }
                     }
                 }
@@ -147,7 +147,7 @@ fun AnimationScreen(
                     }
                 }
                 item(span = { GridItemSpan(fixedCount) }) {
-                    NoMoreData(animations.loadState.append)
+                    LoadingStatePlaceholder(animations.loadState.append)
                 }
                 item(span = { GridItemSpan(fixedCount) }) {
                     Spacer(

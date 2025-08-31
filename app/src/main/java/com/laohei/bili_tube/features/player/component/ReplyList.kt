@@ -63,10 +63,10 @@ import com.laohei.bili_sdk.module_v2.reply.ReplyItem
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.component.reply.VideoReplyAction
 import com.laohei.bili_tube.ui.component.animation.slideFadeHorizontal
-import com.laohei.bili_tube.ui.component.placeholder.NoMoreData
+import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
 import com.laohei.bili_tube.ui.component.text.RichText
-import com.laohei.bili_tube.utill.toTimeAgoString
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.util.toTimeAgoString
+import com.laohei.bili_tube.util.toViewString
 
 @Composable
 internal fun ReplyList(
@@ -240,7 +240,7 @@ private fun MainReplyList(
                 }
             }
             item {
-                NoMoreData(replies.loadState.append)
+                LoadingStatePlaceholder(replies.loadState.append)
             }
             item { Spacer(Modifier.height(bottomPadding)) }
         }

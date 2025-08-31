@@ -35,7 +35,7 @@ import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.component.button.SubscribeButton
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.util.toViewString
 
 @Composable
 internal fun UserSubscriptionBar(

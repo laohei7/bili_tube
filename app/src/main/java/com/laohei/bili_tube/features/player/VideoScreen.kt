@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.core.runtime.LifecycleEffect
 import com.laohei.bili_tube.features.player.component.LandscapeFullscreenVideoPage
 import com.laohei.bili_tube.features.player.component.LandscapeVideoPage
@@ -48,11 +48,11 @@ import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.sheet.FolderSheet
 import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
-import com.laohei.bili_tube.utill.OnOrientationChanged
-import com.laohei.bili_tube.utill.SystemUtil
-import com.laohei.bili_tube.utill.hideSystemUI
-import com.laohei.bili_tube.utill.isOrientationPortrait
-import com.laohei.bili_tube.utill.showSystemUI
+import com.laohei.bili_tube.ui.util.OnOrientationChanged
+import com.laohei.bili_tube.ui.util.SystemUtil
+import com.laohei.bili_tube.core.extension.hideSystemUI
+import com.laohei.bili_tube.ui.util.isOrientationPortrait
+import com.laohei.bili_tube.core.extension.showSystemUI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

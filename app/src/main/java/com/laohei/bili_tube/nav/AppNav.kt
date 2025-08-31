@@ -21,7 +21,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.laohei.bili_tube.AppState
-import com.laohei.bili_tube.SharedViewModel
+import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.features.download.DownloadScreen
 import com.laohei.bili_tube.features.history.HistoryScreen
 import com.laohei.bili_tube.features.image.RemoteImageGalleryScreen

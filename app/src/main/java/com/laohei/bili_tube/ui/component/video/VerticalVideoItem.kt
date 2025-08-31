@@ -40,10 +40,10 @@ import coil3.request.crossfade
 import coil3.request.error
 import coil3.request.placeholder
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.theme.ExtremeSmallPadding
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.MediumPadding
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.theme.PaddingXs
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingMd
+import com.laohei.bili_tube.ui.theme.PaddingSm
 
 @Composable
 fun VerticalVideoItem(
@@ -91,8 +91,8 @@ fun VerticalVideoItem(
             Surface(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(bottom = SmallPadding)
-                    .padding(end = SmallPadding),
+                    .padding(bottom = PaddingSm)
+                    .padding(end = PaddingSm),
                 color = Color.Black.copy(alpha = 0.5f),
                 contentColor = Color.White,
                 shape = MaterialTheme.shapes.extraSmall
@@ -109,9 +109,9 @@ fun VerticalVideoItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = SmallPadding)
-                .padding(start = LargePadding)
-                .padding(end = MediumPadding),
+                .padding(top = PaddingSm)
+                .padding(start = PaddingLg)
+                .padding(end = PaddingMd),
         ) {
             val facePainter = rememberAsyncImagePainter(
                 ImageRequest.Builder(context)
@@ -133,7 +133,7 @@ fun VerticalVideoItem(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(start = SmallPadding)
+                    .padding(start = PaddingSm)
             ) {
                 Text(
                     text = title,
@@ -158,7 +158,7 @@ fun VerticalVideoItem(
                         .clip(CircleShape)
                         .clickable { onTrailingClick() }
                         .background(MaterialTheme.colorScheme.background)
-                        .padding(ExtremeSmallPadding),
+                        .padding(PaddingXs),
                     imageVector = it,
                     contentDescription = it.name,
                     tint = MaterialTheme.colorScheme.onBackground

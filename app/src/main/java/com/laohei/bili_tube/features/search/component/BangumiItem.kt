@@ -42,8 +42,8 @@ import coil3.request.placeholder
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.component.text.RichText
 import com.laohei.bili_tube.ui.theme.Pink
-import com.laohei.bili_tube.utill.formatDateToYearString
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.util.toYearString
+import com.laohei.bili_tube.util.toViewString
 
 
 @Composable
@@ -222,7 +222,7 @@ private fun BangumiItemPreview() {
         title = "Fate/Zero 第一季Fate/Zero 第一季Fate/Zero 第一季Fate/Zero 第一季",
         cover = "",
         areas = "日本",
-        date = (1317398400).formatDateToYearString(isMill = false),
+        date = (1317398400).toYearString(isMill = false),
         styles = "时泪/奇幻/战斗/热血",
         score = 9.6f,
         userCount = (27386).toViewString(),

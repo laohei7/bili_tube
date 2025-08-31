@@ -26,7 +26,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -49,7 +48,7 @@ import coil3.Bitmap
 import coil3.compose.AsyncImage
 import com.laohei.bili_sdk.module_v2.reply.ReplyItem
 import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
@@ -65,11 +64,11 @@ import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 import com.laohei.bili_tube.features.player.state.screen.ScreenState
 import com.laohei.bili_tube.model.UserProfile
 import com.laohei.bili_tube.model.toUserProfile
-import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.utill.SystemUtil
-import com.laohei.bili_tube.utill.formatTimeString
-import com.laohei.bili_tube.utill.isOrientationPortrait
+import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedPlayingIcon
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.util.SystemUtil
+import com.laohei.bili_tube.util.toTimeString
+import com.laohei.bili_tube.ui.util.isOrientationPortrait
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -196,8 +195,8 @@ internal fun PortraitVideoPage(
             onFullscreenChange = onFullscreenChange,
             isPlaying = mediaState.isPlaying,
             isLoading = mediaState.isLoading,
-            totalDuration = mediaState.totalDuration.formatTimeString(),
-            currentDuration = mediaState.currentDuration.formatTimeString(),
+            totalDuration = mediaState.totalDuration.toTimeString(),
+            currentDuration = mediaState.currentDuration.toTimeString(),
             onPlayChange = onPlayChange,
             onProgressChange = onProgressChange,
             onLongPressStart = { onDoubleSpeedChange(true) },
@@ -324,8 +323,8 @@ internal fun PortraitVideoPage(
             GroupInfoBar(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = LargePadding * 2)
-                    .padding(horizontal = LargePadding)
+                    .padding(bottom = PaddingLg * 2)
+                    .padding(horizontal = PaddingLg)
                     .fillMaxWidth(),
                 title = nextArchiveItem?.let {
                     stringResource(R.string.str_next_archive_item_template, it.title)
@@ -335,7 +334,7 @@ internal fun PortraitVideoPage(
                     archive.name, currentArchiveIndex + 1, archive.total
                 ),
                 subcontent = {
-                    LottieIconPlaying(Modifier.size(12.dp))
+                    AnimatedPlayingIcon(Modifier.size(12.dp))
                 },
                 onClick = {
                     onScreenAction(ScreenAction.SetArchiveVisible(true))
@@ -368,8 +367,8 @@ internal fun PortraitVideoPage(
             GroupInfoBar(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = LargePadding * 2)
-                    .padding(horizontal = LargePadding)
+                    .padding(bottom = PaddingLg * 2)
+                    .padding(horizontal = PaddingLg)
                     .fillMaxWidth(),
                 title = nextItem?.let {
                     stringResource(R.string.str_next_archive_item_template, it.title)
@@ -379,7 +378,7 @@ internal fun PortraitVideoPage(
                     playParam.title, currentIndex + 1, playParam.count
                 ),
                 subcontent = {
-                    LottieIconPlaying(Modifier.size(12.dp))
+                    AnimatedPlayingIcon(Modifier.size(12.dp))
                 },
                 onClick = {
                     onScreenAction(ScreenAction.SetWatchLaterVisible(true))
@@ -422,8 +421,8 @@ internal fun PortraitVideoPage(
             GroupInfoBar(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(bottom = LargePadding * 2)
-                    .padding(horizontal = LargePadding)
+                    .padding(bottom = PaddingLg * 2)
+                    .padding(horizontal = PaddingLg)
                     .fillMaxWidth(),
                 title = nextItem?.let {
                     stringResource(R.string.str_next_archive_item_template, it.title)
@@ -433,7 +432,7 @@ internal fun PortraitVideoPage(
                     playParam.title, currentIndex + 1, playParam.count
                 ),
                 subcontent = {
-                    LottieIconPlaying(Modifier.size(12.dp))
+                    AnimatedPlayingIcon(Modifier.size(12.dp))
                 },
                 onClick = {
                     onScreenAction(ScreenAction.SetFolderMediaVisible(true))

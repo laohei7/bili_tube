@@ -20,7 +20,7 @@ import com.laohei.bili_sdk.module_v2.video.VideoOwner
 import com.laohei.bili_sdk.module_v2.video.VideoStat
 import com.laohei.bili_sdk.module_v2.video.VideoTagItem
 import com.laohei.bili_sdk.module_v2.video.VideoView
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.state.media.MediaState
 import com.laohei.bili_tube.features.player.state.screen.ScreenState

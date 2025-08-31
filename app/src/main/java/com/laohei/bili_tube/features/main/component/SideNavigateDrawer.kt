@@ -15,7 +15,7 @@ import androidx.compose.ui.util.fastForEachIndexed
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import com.laohei.bili_tube.features.main.navigation.MainRoute
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.theme.PaddingSm
 
 @Composable
 internal fun SideNavigateDrawer(
@@ -30,8 +30,8 @@ internal fun SideNavigateDrawer(
                 Spacer(Modifier.weight(1f))
             }
             NavigationDrawerItem(
-                modifier = Modifier.padding(horizontal = SmallPadding),
-                shape = RoundedCornerShape(SmallPadding),
+                modifier = Modifier.padding(horizontal = PaddingSm),
+                shape = RoundedCornerShape(PaddingSm),
                 label = { Text(text = item.label ?: "") },
                 icon = {
                     Icon(

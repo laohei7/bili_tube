@@ -65,11 +65,11 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.component.lottie.LottieIconLoading
-import com.laohei.bili_tube.utill.SystemUtil
-import com.laohei.bili_tube.utill.formatTimeString
-import com.laohei.bili_tube.utill.isOrientationPortrait
-import com.laohei.bili_tube.utill.rememberHasDisplayCutout
+import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedLoadingIcon
+import com.laohei.bili_tube.ui.util.SystemUtil
+import com.laohei.bili_tube.util.toTimeString
+import com.laohei.bili_tube.ui.util.isOrientationPortrait
+import com.laohei.bili_tube.ui.util.rememberHasDisplayCutout
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -86,8 +86,8 @@ fun PlayerControl(
     isLockScreen: Boolean = false,
     progress: Float = 0f,
     bufferProgress: Float = 0f,
-    totalDuration: String = 0.formatTimeString(),
-    currentDuration: String = 0.formatTimeString(),
+    totalDuration: String = 0.toTimeString(),
+    currentDuration: String = 0.toTimeString(),
     isFullscreen: Boolean,
     onFullscreenChange: (Boolean) -> Unit = {},
     onPlayChange: (Boolean) -> Unit = {},
@@ -223,7 +223,7 @@ fun PlayerControl(
             enter = fadeIn(),
             exit = fadeOut()
         ) {
-            LottieIconLoading(
+            AnimatedLoadingIcon(
                 modifier = Modifier.size(88.dp)
             )
         }

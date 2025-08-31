@@ -63,8 +63,8 @@ import com.laohei.bili_sdk.module_v2.folder.FolderItem
 import com.laohei.bili_sdk.module_v2.video.VideoView
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.nav.AppRoute
-import com.laohei.bili_tube.utill.toNonHardwareBitmap
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.ui.util.toNonHardwareBitmap
+import com.laohei.bili_tube.util.toViewString
 import kotlinx.coroutines.launch
 
 

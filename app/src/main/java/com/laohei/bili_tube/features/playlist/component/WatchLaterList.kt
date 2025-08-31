@@ -11,19 +11,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.fastMap
 import com.laohei.bili_sdk.module_v2.video.VideoView
-import com.laohei.bili_tube.PlayParam
-import com.laohei.bili_tube.SharedViewModel
+import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.model.FolderMedia
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.MediumPadding
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingMd
 import com.laohei.bili_tube.ui.util.HorizontalItemRules
 import com.laohei.bili_tube.ui.util.rememberGridColumnCount
-import com.laohei.bili_tube.utill.formatTimeString
-import com.laohei.bili_tube.utill.toTimeAgoString
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.util.toTimeString
+import com.laohei.bili_tube.util.toTimeAgoString
+import com.laohei.bili_tube.util.toViewString
 import org.koin.compose.koinInject
 
 
@@ -45,8 +45,8 @@ internal fun WatchLaterList(
             modifier = modifier,
             columns = GridCells.Fixed(fixedCount),
             state = gridState,
-            horizontalArrangement = Arrangement.spacedBy(MediumPadding),
-            verticalArrangement = Arrangement.spacedBy(LargePadding)
+            horizontalArrangement = Arrangement.spacedBy(PaddingMd),
+            verticalArrangement = Arrangement.spacedBy(PaddingLg)
         ) {
             item(key = "header_info", span = { GridItemSpan(fixedCount) }) {
                 PlaylistInfoCard(param = param)
@@ -56,7 +56,7 @@ internal fun WatchLaterList(
                     cover = item.pic,
                     title = item.title,
                     ownerName = item.owner.name,
-                    duration = item.duration.formatTimeString(false),
+                    duration = item.duration.toTimeString(false),
                     view = item.stat.view.toViewString(),
                     publishDate = item.pubdate.toTimeAgoString(),
                     leadingIcon = null,

@@ -40,7 +40,7 @@ import coil3.request.error
 import coil3.request.placeholder
 import com.laohei.bili_sdk.apis.UserRelationAction
 import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.model.UserProfile
@@ -52,9 +52,9 @@ import com.laohei.bili_tube.ui.component.icons.Level3
 import com.laohei.bili_tube.ui.component.icons.Level4
 import com.laohei.bili_tube.ui.component.icons.Level5
 import com.laohei.bili_tube.ui.component.icons.Level6
-import com.laohei.bili_tube.ui.component.text.VerticalDataText
+import com.laohei.bili_tube.ui.component.widget.LabeledData
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem2
-import com.laohei.bili_tube.utill.formatTimeString
+import com.laohei.bili_tube.util.toTimeString
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -143,7 +143,7 @@ internal fun UserWorkList(
                             )
                         )
                     },
-                    duration = it.duration.formatTimeString(false)
+                    duration = it.duration.toTimeString(false)
                 )
             }
         }
@@ -222,15 +222,15 @@ private fun UserDataWidget(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround
     ) {
-        VerticalDataText(
+        LabeledData(
             data = follower,
             label = stringResource(R.string.str_follower)
         )
-        VerticalDataText(
+        LabeledData(
             data = attention,
             label = stringResource(R.string.str_attention)
         )
-        VerticalDataText(
+        LabeledData(
             data = likeNum,
             label = stringResource(R.string.str_get_like)
         )

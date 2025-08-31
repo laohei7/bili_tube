@@ -1,14 +1,10 @@
 package com.laohei.bili_tube
 
 import android.app.Application
-import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.annotation.OptIn
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.media3.common.util.UnstableApi
 import coil3.ImageLoader
 import coil3.PlatformContext
@@ -23,12 +19,13 @@ import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.core.IMG_URL_KEY
 import com.laohei.bili_tube.core.SUB_URL_KEY
 import com.laohei.bili_tube.core.crash.CrashHandler
+import com.laohei.bili_tube.data.local.datastore.dataStore
 import com.laohei.bili_tube.di.appModule
 import com.laohei.bili_tube.di.dataModule
 import com.laohei.bili_tube.di.roomModule
 import com.laohei.bili_tube.di.viewModelModule
 import com.laohei.bili_tube.network.HttpClientFactory
-import com.laohei.bili_tube.utill.SystemUtil
+import com.laohei.bili_tube.ui.util.SystemUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,8 +35,6 @@ import org.conscrypt.Conscrypt
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import java.security.Security
-
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "bili_tube")
 
 class BiliTubeApp : Application(), SingletonImageLoader.Factory {
     companion object {

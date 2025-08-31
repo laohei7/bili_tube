@@ -22,9 +22,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.core.AlphaFraction
-import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
-import com.laohei.bili_tube.ui.theme.MediumPadding
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedPlayingIcon
+import com.laohei.bili_tube.ui.theme.PaddingMd
+import com.laohei.bili_tube.ui.theme.PaddingSm
 
 @Composable
 internal fun GroupInfoBar(
@@ -38,13 +38,13 @@ internal fun GroupInfoBar(
         modifier = modifier,
         onClick = onClick,
         color = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = AlphaFraction),
-        shape = RoundedCornerShape(MediumPadding),
+        shape = RoundedCornerShape(PaddingMd),
         shadowElevation = 6.dp
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = MediumPadding, vertical = SmallPadding),
+                .padding(horizontal = PaddingMd, vertical = PaddingSm),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
@@ -71,7 +71,7 @@ internal fun GroupInfoBar(
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(MediumPadding)
+                    horizontalArrangement = Arrangement.spacedBy(PaddingMd)
                 ) {
                     Text(
                         text = subtitle,
@@ -116,7 +116,7 @@ private fun GroupInfoBarPreview2() {
         title = "下一个: Recomposition - Jetpack Compose",
         subtitle = "合集 · 我要被这群人吓死 · 1/16",
         subcontent = {
-            LottieIconPlaying(Modifier.size(12.dp))
+            AnimatedPlayingIcon(Modifier.size(12.dp))
         },
         onClick = {
 

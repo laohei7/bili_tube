@@ -30,7 +30,7 @@ import coil3.request.crossfade
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.FACE_URL_KEY
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
-import com.laohei.bili_tube.utill.getValue
+import com.laohei.bili_tube.core.extension.getValue
 
 
 @Composable

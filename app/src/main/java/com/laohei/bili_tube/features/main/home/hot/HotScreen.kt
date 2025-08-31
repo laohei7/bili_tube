@@ -24,19 +24,19 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.module_v2.hot.HotItem
-import com.laohei.bili_tube.PlayParam
-import com.laohei.bili_tube.SharedViewModel
-import com.laohei.bili_tube.ui.component.placeholder.NoMoreData
+import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
+import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
 import com.laohei.bili_tube.features.main.home.HomeAction
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.MediumPadding
-import com.laohei.bili_tube.utill.formatTimeString
-import com.laohei.bili_tube.utill.toTimeAgoString
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingMd
+import com.laohei.bili_tube.util.toTimeString
+import com.laohei.bili_tube.util.toTimeAgoString
+import com.laohei.bili_tube.util.toViewString
 import org.koin.compose.koinInject
 
 private const val TAG = "HotScreen"
@@ -85,8 +85,8 @@ fun HotScreen(
                 state = gridState,
                 columns = GridCells.Fixed(fixedCount),
                 contentPadding = PaddingValues(horizontal = if (fixedCount == 1) 0.dp else 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(MediumPadding),
-                verticalArrangement = Arrangement.spacedBy(LargePadding),
+                horizontalArrangement = Arrangement.spacedBy(PaddingMd),
+                verticalArrangement = Arrangement.spacedBy(PaddingLg),
             ) {
                 item(span = { GridItemSpan(fixedCount) }, key = "Hots-top-padding") {
                     when (uiType) {
@@ -113,7 +113,7 @@ fun HotScreen(
                             title = it.title,
                             ownerName = it.owner.name,
                             rcmdReason = it.rcmdReason.content ?: "",
-                            duration = it.duration.formatTimeString(false),
+                            duration = it.duration.toTimeString(false),
                             view = it.stat.view.toViewString(),
                             publishDate = it.pubdate.toTimeAgoString(),
                             onClick = {
@@ -136,7 +136,7 @@ fun HotScreen(
                     }
                 }
                 item(span = { GridItemSpan(fixedCount) }) {
-                    NoMoreData(hotVideos.loadState.append)
+                    LoadingStatePlaceholder(hotVideos.loadState.append)
                 }
                 item(span = { GridItemSpan(fixedCount) }) {
                     Spacer(

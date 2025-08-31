@@ -27,8 +27,8 @@ import androidx.compose.ui.unit.dp
 import com.laohei.bili_sdk.module_v2.common.Dimension
 import com.laohei.bili_sdk.module_v2.video.VideoPageModel
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedPlayingIcon
+import com.laohei.bili_tube.ui.theme.PaddingSm
 
 @Composable
 internal fun GridVideoPageList(
@@ -40,8 +40,8 @@ internal fun GridVideoPageList(
         modifier = Modifier
             .fillMaxWidth(),
         columns = GridCells.Fixed(4),
-        verticalArrangement = Arrangement.spacedBy(SmallPadding),
-        horizontalArrangement = Arrangement.spacedBy(SmallPadding)
+        verticalArrangement = Arrangement.spacedBy(PaddingSm),
+        horizontalArrangement = Arrangement.spacedBy(PaddingSm)
     ) {
 
         itemsIndexed(pageList) { index, it ->
@@ -67,9 +67,9 @@ internal fun HorizontalVideoPageList(
     LazyRow(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = SmallPadding),
+            .padding(top = PaddingSm),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SmallPadding)
+        horizontalArrangement = Arrangement.spacedBy(PaddingSm)
     ) {
         item { Spacer(modifier = Modifier) }
         itemsIndexed(pageList) { index, it ->
@@ -112,7 +112,7 @@ private fun VideoPageItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (isSelected) {
-                LottieIconPlaying(
+                AnimatedPlayingIcon(
                     Modifier
                         .padding(end = 4.dp)
                         .size(16.dp)

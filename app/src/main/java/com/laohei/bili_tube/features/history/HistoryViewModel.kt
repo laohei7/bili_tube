@@ -7,8 +7,8 @@ import androidx.paging.cachedIn
 import androidx.paging.insertSeparators
 import androidx.paging.map
 import com.laohei.bili_tube.model.UIModel
-import com.laohei.bili_tube.features.history.data.repository.BiliHistoryRepository
-import com.laohei.bili_tube.utill.toTimeAgoString2
+import com.laohei.bili_tube.data.repository.BiliHistoryRepository
+import com.laohei.bili_tube.util.toFriendlyDateString
 import kotlinx.coroutines.flow.map
 
 class HistoryViewModel(
@@ -25,8 +25,8 @@ class HistoryViewModel(
             pagingData.map { UIModel.Item(it) }
                 .insertSeparators { before, after ->
 
-                    val beforeDate = before?.item?.viewAt?.toTimeAgoString2(false)
-                    val afterDate = after?.item?.viewAt?.toTimeAgoString2(false)
+                    val beforeDate = before?.item?.viewAt?.toFriendlyDateString(false)
+                    val afterDate = after?.item?.viewAt?.toFriendlyDateString(false)
 
                     if (DBG) {
                         Log.d(TAG, "before: $before")

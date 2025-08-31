@@ -39,9 +39,9 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.SharedViewModel
+import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.features.main.component.LogoTopAppBar
@@ -50,16 +50,16 @@ import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
-import com.laohei.bili_tube.ui.component.placeholder.NoMoreData
-import com.laohei.bili_tube.ui.component.placeholder.RecommendPlaceholder
+import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
+import com.laohei.bili_tube.ui.component.state.RecommendationPlaceholder
 import com.laohei.bili_tube.ui.component.sheet.FolderSheet
 import com.laohei.bili_tube.ui.component.video.ArticleItem
 import com.laohei.bili_tube.ui.component.video.VerticalVideoItem
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.NonePadding
-import com.laohei.bili_tube.ui.theme.SmallPadding
-import com.laohei.bili_tube.utill.toTimeAgoString
-import com.laohei.bili_tube.utill.underDevelopment
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingNone
+import com.laohei.bili_tube.ui.theme.PaddingSm
+import com.laohei.bili_tube.util.toTimeAgoString
+import com.laohei.bili_tube.ui.util.underDevelopment
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
@@ -164,7 +164,7 @@ private fun SubscriptionContent(
                 state = gridState,
                 columns = StaggeredGridCells.Fixed(fixedCount),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalItemSpacing = LargePadding
+                verticalItemSpacing = PaddingLg
             ) {
                 when (uiType) {
                     DeviceConfiguration.MOBILE_PORTRAIT,
@@ -196,7 +196,7 @@ private fun SubscriptionContent(
                 )
 
                 item(span = StaggeredGridItemSpan.FullLine) {
-                    NoMoreData(subscriptions.loadState.append)
+                    LoadingStatePlaceholder(subscriptions.loadState.append)
                 }
                 item(span = StaggeredGridItemSpan.FullLine) {
                     Spacer(
@@ -280,7 +280,7 @@ private fun LazyStaggeredGridScope.subscriptionList(
     when {
         isInitial -> {
             items(12) {
-                RecommendPlaceholder(isSingleLayout = isSingleLayout)
+                RecommendationPlaceholder(isSingleLayout = isSingleLayout)
             }
         }
 
@@ -326,8 +326,8 @@ private fun GetDynamicItem(
     val sharedViewModel = koinInject<SharedViewModel>()
     val author = item.modules.moduleAuthor
     val shape = when {
-        isSingleLayout -> RoundedCornerShape(NonePadding)
-        else -> RoundedCornerShape(SmallPadding)
+        isSingleLayout -> RoundedCornerShape(PaddingNone)
+        else -> RoundedCornerShape(PaddingSm)
     }
     when (item.type) {
         DynamicItem.DYNAMIC_TYPE_AV -> {

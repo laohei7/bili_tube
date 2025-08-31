@@ -41,7 +41,7 @@ import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheetProperties
 import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
 import com.laohei.bili_tube.core.VIP_STATUS_KEY
-import com.laohei.bili_tube.utill.getValue
+import com.laohei.bili_tube.core.extension.getValue
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)

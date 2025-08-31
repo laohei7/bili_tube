@@ -36,9 +36,9 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.search.SearchTabs
-import com.laohei.bili_tube.room.entity.SearchHistory
+import com.laohei.bili_tube.data.local.room.entity.SearchHistory
 import com.laohei.bili_tube.ui.component.ScrollTabRow
-import com.laohei.bili_tube.ui.component.text.BasicInput
+import com.laohei.bili_tube.ui.component.text.CustomTextField
 import kotlinx.coroutines.flow.flowOf
 
 
@@ -59,11 +59,11 @@ private fun SearchTopBar(
         onExpandedChange = onExpandedChange,
         inputField = {
             val textStyle = MaterialTheme.typography.bodySmall
-            BasicInput(
+            CustomTextField(
                 value = value,
                 onValueChanged = onValueChange,
                 borderStroke = BorderStroke(1.dp, Color.LightGray),
-                inputIconColor = MaterialTheme.colorScheme.primary,
+                inputLeadingIconColor = MaterialTheme.colorScheme.primary,
                 textStyle = textStyle.copy(color = MaterialTheme.colorScheme.onBackground),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
                 singleLine = true,

@@ -34,8 +34,8 @@ import coil3.request.crossfade
 import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiItem
 import com.laohei.bili_sdk.module_v2.video.VideoView
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.PlayParam
-import com.laohei.bili_tube.utill.formatTimeString
+import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.util.toTimeString
 
 @Composable
 internal fun RelatedHorizontalList(
@@ -53,7 +53,7 @@ internal fun RelatedHorizontalList(
             HorizontalRelatedItem(
                 cover = it.pic,
                 title = it.title,
-                duration = it.duration.formatTimeString(false),
+                duration = it.duration.toTimeString(false),
                 author = it.owner.name,
                 onClick = {
                     onClick.invoke(

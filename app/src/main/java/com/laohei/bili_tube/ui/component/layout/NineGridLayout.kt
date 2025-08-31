@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.laohei.bili_tube.ui.preview.FakeNineGridLayoutData
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.theme.PaddingSm
 
 @Composable
 fun NineGridLayout(
@@ -76,8 +76,8 @@ private fun NineGridLayoutPreview(
     @PreviewParameter(FakeNineGridLayoutData::class) colors: List<Color>
 ) {
     NineGridLayout(
-        columnSpacing = SmallPadding,
-        rowSpacing = SmallPadding
+        columnSpacing = PaddingSm,
+        rowSpacing = PaddingSm
     ) {
         colors.fastForEachIndexed { index, it ->
             if (index == 8 && colors.size > 9) {

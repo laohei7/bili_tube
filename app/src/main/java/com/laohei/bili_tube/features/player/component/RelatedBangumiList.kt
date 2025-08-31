@@ -6,12 +6,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiItem
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
-import com.laohei.bili_tube.ui.theme.MediumPadding
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.ui.theme.PaddingMd
+import com.laohei.bili_tube.util.toViewString
 
 @Composable
 internal fun RelatedBangumiList(
@@ -19,7 +19,7 @@ internal fun RelatedBangumiList(
     onVideoMenuAction: (VideoMenuAction) -> Unit,
 ) {
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(MediumPadding)
+        verticalArrangement = Arrangement.spacedBy(PaddingMd)
     ) {
         items(relatedList) {
             HorizontalVideoItem(

@@ -21,7 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
-import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
+import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedPlayingIcon
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 
 
@@ -55,7 +55,7 @@ internal fun ArchiveMetaItem(
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
-            LottieIconPlaying(
+            AnimatedPlayingIcon(
                 Modifier
                     .padding(end = 4.dp)
                     .size(16.dp)

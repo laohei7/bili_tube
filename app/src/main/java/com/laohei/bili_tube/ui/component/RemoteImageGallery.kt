@@ -48,9 +48,9 @@ import coil3.request.error
 import coil3.request.placeholder
 import coil3.size.Size
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.theme.ExtremeSmallPadding
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.theme.PaddingXs
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingSm
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -148,14 +148,14 @@ fun RemoteImageGallery(
                     .statusBarsPadding(),
                 contentColor = Color.White,
                 color = Color.Gray.copy(alpha = 0.5f),
-                shape = RoundedCornerShape(ExtremeSmallPadding)
+                shape = RoundedCornerShape(PaddingXs)
             ) {
                 Text(
                     text = imageIndexLabel,
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier
                         .wrapContentSize()
-                        .padding(vertical = SmallPadding, horizontal = LargePadding),
+                        .padding(vertical = PaddingSm, horizontal = PaddingLg),
                     textAlign = TextAlign.Center
                 )
             }

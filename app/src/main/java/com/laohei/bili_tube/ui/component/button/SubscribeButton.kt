@@ -23,8 +23,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.preview.FakeSubscriptionData
-import com.laohei.bili_tube.ui.theme.ExtremeSmallPadding
-import com.laohei.bili_tube.ui.theme.LargePadding
+import com.laohei.bili_tube.ui.theme.PaddingXs
+import com.laohei.bili_tube.ui.theme.PaddingLg
 
 @Composable
 fun SubscribeButton(
@@ -40,10 +40,10 @@ fun SubscribeButton(
         Row(
             modifier = Modifier
                 .wrapContentSize()
-                .padding(horizontal = LargePadding, vertical = 6.dp)
+                .padding(horizontal = PaddingLg, vertical = 6.dp)
                 .animateContentSize(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(ExtremeSmallPadding)
+            horizontalArrangement = Arrangement.spacedBy(PaddingXs)
         ) {
             Icon(
                 imageVector = when {

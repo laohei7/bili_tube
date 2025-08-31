@@ -25,8 +25,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.theme.MediumPadding
-import com.laohei.bili_tube.ui.theme.NonePadding
+import com.laohei.bili_tube.ui.theme.PaddingMd
+import com.laohei.bili_tube.ui.theme.PaddingNone
 
 @Composable
 internal fun LogoTopAppBar(
@@ -44,8 +44,8 @@ internal fun LogoTopAppBar(
                 color = Color.Transparent
             )
             .padding(
-                start = if (isShowMenu) NonePadding else MediumPadding,
-                end = MediumPadding
+                start = if (isShowMenu) PaddingNone else PaddingMd,
+                end = PaddingMd
             )
             .graphicsLayer {
                 this.alpha = alpha

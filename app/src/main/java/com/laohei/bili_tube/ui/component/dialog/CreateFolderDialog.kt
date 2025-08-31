@@ -29,8 +29,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingSm
 
 @Composable
 fun CreateFolderDialog(
@@ -78,7 +78,7 @@ fun CreateFolderDialog(
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = LargePadding),
+                    .padding(horizontal = PaddingLg),
                 value = value,
                 onValueChange = onValueChange,
                 textStyle = MaterialTheme.typography.bodyMedium,
@@ -95,10 +95,10 @@ fun CreateFolderDialog(
 
             Row(
                 modifier = Modifier
-                    .padding(horizontal = LargePadding)
-                    .padding(top = SmallPadding),
+                    .padding(horizontal = PaddingLg)
+                    .padding(top = PaddingSm),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(SmallPadding)
+                horizontalArrangement = Arrangement.spacedBy(PaddingSm)
             ) {
                 Switch(
                     checked = checked,
@@ -114,8 +114,8 @@ fun CreateFolderDialog(
                 onClick = onSubmit,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = LargePadding)
-                    .padding(top = LargePadding * 2, bottom = LargePadding)
+                    .padding(horizontal = PaddingLg)
+                    .padding(top = PaddingLg * 2, bottom = PaddingLg)
             ) {
                 Text(text = stringResource(R.string.str_submit))
             }

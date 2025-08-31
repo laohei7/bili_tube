@@ -44,11 +44,11 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.laohei.bili_sdk.module_v2.history.HistoryItem
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.SharedViewModel
+import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.nav.AppRoute
-import com.laohei.bili_tube.utill.formatTimeString
+import com.laohei.bili_tube.util.toTimeString
 import org.koin.compose.koinInject
 
 
@@ -89,7 +89,7 @@ fun ShortHistoryList(
                 cover = it.cover,
                 title = it.title,
                 ownerName = it.authorName,
-                duration = it.duration.formatTimeString(false),
+                duration = it.duration.toTimeString(false),
                 progress = progress,
                 onClick = {
                     sharedViewModel.setPlayParam(

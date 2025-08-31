@@ -28,8 +28,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.layoutId
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingSm
 import kotlinx.coroutines.delay
 
 
@@ -44,7 +44,7 @@ internal fun CodeInput(
 ) {
     var enabledSendBtn by remember { mutableStateOf(true) }
     var countDownTimer by remember { mutableIntStateOf(60) }
-    val shape = RoundedCornerShape(SmallPadding)
+    val shape = RoundedCornerShape(PaddingSm)
 
     LaunchedEffect(isCodeSend) {
         if (isCodeSend.not()) {
@@ -71,7 +71,7 @@ internal fun CodeInput(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
-                .padding(horizontal = LargePadding * 2)
+                .padding(horizontal = PaddingLg * 2)
                 .shadow(5.dp, shape),
             leadingIcon = {
                 Icon(
@@ -96,7 +96,7 @@ internal fun CodeInput(
                         style = MaterialTheme.typography.labelMedium,
                         modifier = Modifier
                             .wrapContentSize()
-                            .padding(SmallPadding),
+                            .padding(PaddingSm),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -125,8 +125,8 @@ internal fun CodeInput(
         if (isCodeError) {
             Text(
                 modifier = Modifier
-                    .padding(horizontal = LargePadding * 2)
-                    .padding(top = SmallPadding),
+                    .padding(horizontal = PaddingLg * 2)
+                    .padding(top = PaddingSm),
                 text = stringResource(R.string.str_sms_code_error),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.error

@@ -18,13 +18,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_sdk.module_v2.video.ArchiveItem
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem2
-import com.laohei.bili_tube.utill.formatTimeString
-import com.laohei.bili_tube.utill.toTimeAgoString
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.util.toTimeString
+import com.laohei.bili_tube.util.toTimeAgoString
+import com.laohei.bili_tube.util.toViewString
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -57,7 +57,7 @@ internal fun ArchiveList(
                 cover = item.pic,
                 title = item.title,
                 view = item.stat.view.toViewString(),
-                duration = item.duration.formatTimeString(false),
+                duration = item.duration.toTimeString(false),
                 progress = item.playbackPosition.toFloat() / item.duration,
                 pubdate = item.pubdate.toTimeAgoString(),
                 isCurrentPlaying = index == currentArchiveIndex,

@@ -10,7 +10,7 @@ import com.laohei.bili_tube.core.MOBILE_NET_VIDEO_QUALITY
 import com.laohei.bili_tube.core.SAVE_CRASH_DOCS_KEY
 import com.laohei.bili_tube.core.WLAN_AUDIO_QUALITY
 import com.laohei.bili_tube.core.WLAN_VIDEO_QUALITY
-import com.laohei.bili_tube.utill.PreferencesUtil
+import com.laohei.bili_tube.data.local.prefs.PreferencesUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart

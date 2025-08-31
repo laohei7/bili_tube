@@ -8,15 +8,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Dp
-import com.laohei.bili_tube.ui.theme.SmallPadding
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.ui.theme.PaddingSm
+import com.laohei.bili_tube.util.toViewString
 
 
 data class FakeStateChip(
     val icon: ImageVector,
     val label: String,
     val trailingIcon: ImageVector? = null,
-    val contentPadding: Dp = SmallPadding,
+    val contentPadding: Dp = PaddingSm,
     val iconColor: Color = Color.Unspecified,
     val labelColor: Color = Color.Unspecified,
     val trailingIconColor: Color = Color.Unspecified,

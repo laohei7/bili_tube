@@ -48,9 +48,9 @@ import coil3.size.Size
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.component.layout.NineGridLayout
 import com.laohei.bili_tube.ui.component.text.RichText
-import com.laohei.bili_tube.ui.theme.ExtremeSmallPadding
-import com.laohei.bili_tube.ui.theme.NonePadding
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.theme.PaddingXs
+import com.laohei.bili_tube.ui.theme.PaddingNone
+import com.laohei.bili_tube.ui.theme.PaddingSm
 
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
@@ -62,7 +62,7 @@ fun ArticleItem(
     date: String,
     desc: String,
     images: List<String>?,
-    shape: Shape = RoundedCornerShape(NonePadding),
+    shape: Shape = RoundedCornerShape(PaddingNone),
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
     onTrailingClick: () -> Unit,
@@ -98,8 +98,8 @@ fun ArticleItem(
             }
 
             NineGridLayout(
-                rowSpacing = SmallPadding,
-                columnSpacing = SmallPadding
+                rowSpacing = PaddingSm,
+                columnSpacing = PaddingSm
             ) {
                 with(sharedTransitionScope) {
                     list.fastForEachIndexed { index, url ->
@@ -254,7 +254,7 @@ private fun ArticleUserBar(
                 contentDescription = Icons.Rounded.MoreVert.name,
                 modifier = Modifier
                     .size(24.dp)
-                    .padding(ExtremeSmallPadding)
+                    .padding(PaddingXs)
             )
         }
     }

@@ -65,7 +65,7 @@ import com.laohei.bili_sdk.module_v2.user.InfoCardModel
 import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
 import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.VideoMenuAction
@@ -77,12 +77,12 @@ import com.laohei.bili_tube.model.toUserProfile
 import com.laohei.bili_tube.ui.component.ScrollTabRow
 import com.laohei.bili_tube.ui.component.TagItem
 import com.laohei.bili_tube.ui.preview.FakePlayerState
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.MediumPadding
-import com.laohei.bili_tube.ui.theme.NonePadding
-import com.laohei.bili_tube.ui.theme.SmallPadding
-import com.laohei.bili_tube.utill.formatTimeString
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingMd
+import com.laohei.bili_tube.ui.theme.PaddingNone
+import com.laohei.bili_tube.ui.theme.PaddingSm
+import com.laohei.bili_tube.util.toTimeString
+import com.laohei.bili_tube.util.toViewString
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -112,8 +112,8 @@ internal fun LandscapeVideoPage(
             .background(MaterialTheme.colorScheme.background)
             .navigationBarsPadding()
             .statusBarsPadding()
-            .padding(horizontal = SmallPadding),
-        horizontalArrangement = Arrangement.spacedBy(SmallPadding)
+            .padding(horizontal = PaddingSm),
+        horizontalArrangement = Arrangement.spacedBy(PaddingSm)
     ) {
         LandscapeMainArea(
             exoPlayer = exoPlayer,
@@ -162,7 +162,7 @@ private fun RowScope.LandscapeMainArea(
         modifier = Modifier
             .weight(2f)
             .fillMaxHeight(),
-        verticalArrangement = Arrangement.spacedBy(SmallPadding)
+        verticalArrangement = Arrangement.spacedBy(PaddingSm)
     ) {
         LandscapeVideoArea(
             exoPlayer = exoPlayer,
@@ -234,7 +234,7 @@ private fun ColumnScope.LandscapeVideoArea(
         Modifier
             .fillMaxWidth()
             .weight(2f)
-            .clip(RoundedCornerShape(LargePadding))
+            .clip(RoundedCornerShape(PaddingLg))
             .background(Color.Black)
     ) {
         BlurBackground(
@@ -256,8 +256,8 @@ private fun ColumnScope.LandscapeVideoArea(
             isLockScreen = screenState.isLockScreen,
             isPlaying = mediaState.isPlaying,
             isLoading = mediaState.isLoading,
-            totalDuration = mediaState.totalDuration.formatTimeString(),
-            currentDuration = mediaState.currentDuration.formatTimeString(),
+            totalDuration = mediaState.totalDuration.toTimeString(),
+            currentDuration = mediaState.currentDuration.toTimeString(),
             onFullscreenChange = onFullscreenChange,
             onPlayChange = onPlayChange,
             onProgressChange = onProgressChange,
@@ -316,10 +316,10 @@ private fun ColumnScope.LandscapeInfoArea(
         Modifier
             .fillMaxWidth()
             .weight(1f)
-            .clip(RoundedCornerShape(LargePadding))
+            .clip(RoundedCornerShape(PaddingLg))
             .background(MaterialTheme.colorScheme.background)
-            .padding(SmallPadding),
-        verticalArrangement = Arrangement.spacedBy(SmallPadding)
+            .padding(PaddingSm),
+        verticalArrangement = Arrangement.spacedBy(PaddingSm)
     ) {
         bangumiDetail?.let { detail ->
             BangumiTitleWidget(
@@ -373,7 +373,7 @@ private fun ColumnScope.LandscapeInfoArea(
                 }
             )
         } ?: bangumiDetail?.let { detail ->
-            Spacer(Modifier.height(MediumPadding))
+            Spacer(Modifier.height(PaddingMd))
             VideoActionBar(
                 great = detail.stat.likes.toViewString(),
                 coin = detail.stat.coins.toViewString(),
@@ -398,9 +398,9 @@ private fun ColumnScope.LandscapeInfoArea(
             FlowRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = SmallPadding),
-                verticalArrangement = Arrangement.spacedBy(MediumPadding),
-                horizontalArrangement = Arrangement.spacedBy(LargePadding),
+                    .padding(top = PaddingSm),
+                verticalArrangement = Arrangement.spacedBy(PaddingMd),
+                horizontalArrangement = Arrangement.spacedBy(PaddingLg),
                 maxLines = 2,
                 overflow = FlowRowOverflow.Clip
             ) {
@@ -460,7 +460,7 @@ private fun RowScope.OtherListArea(
         modifier = Modifier
             .weight(1f)
             .fillMaxHeight()
-            .clip(RoundedCornerShape(SmallPadding))
+            .clip(RoundedCornerShape(PaddingSm))
             .background(MaterialTheme.colorScheme.background)
     ) {
         ScrollTabRow(
@@ -509,7 +509,7 @@ private fun RowScope.OtherListArea(
                             works = works,
                             userProfile = playerUIState.infoCardModel.toUserProfile(),
                             currentBvid = playerUIState.playParam.bvid,
-                            bottomPadding = NonePadding,
+                            bottomPadding = PaddingNone,
                             onVideoMenuAction = onVideoMenuAction
                         )
                     }
@@ -527,7 +527,7 @@ private fun RowScope.OtherListArea(
                         modifier = Modifier
                             .fillMaxWidth(),
                         listState = screenState.archiveListState,
-                        bottomPadding = NonePadding,
+                        bottomPadding = PaddingNone,
                         currentArchiveIndex = playerUIState.currentArchiveIndex,
                         archiveList = playerUIState.videoArchives ?: emptyList(),
                         onVideoMenuAction = onVideoMenuAction
@@ -539,7 +539,7 @@ private fun RowScope.OtherListArea(
                         replyItems = replies,
                         isCloseButtonVisible = false,
                         isInMainReplyList = isInMainReplyList,
-                        bottomPadding = NonePadding,
+                        bottomPadding = PaddingNone,
                         onMainReplyListChange = { isInMainReplyList = it },
                         onBackClick = {
                             when {
@@ -571,7 +571,7 @@ private fun RowScope.OtherListArea(
                         listState = screenState.watchLaterListState,
                         playParam = playParam,
                         watchLaterList = playerUIState.watchLaterList,
-                        bottomPadding = NonePadding,
+                        bottomPadding = PaddingNone,
                         currentWatchLaterIndex = currentIndex,
                         onVideoMenuAction = onVideoMenuAction
                     )
@@ -589,7 +589,7 @@ private fun RowScope.OtherListArea(
                         listState = screenState.folderMediaListState,
                         playParam = playParam,
                         folderMediaList = folderMediaList,
-                        bottomPadding = NonePadding,
+                        bottomPadding = PaddingNone,
                         currentFolderMediaIndex = currentIndex,
                         onVideoMenuAction = onVideoMenuAction
                     )
@@ -612,8 +612,8 @@ private fun BangumiSeasonAndEpisodeWidget(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = SmallPadding),
-        verticalArrangement = Arrangement.spacedBy(MediumPadding)
+            .padding(top = PaddingSm),
+        verticalArrangement = Arrangement.spacedBy(PaddingMd)
     ) {
         BangumiEpisodeTitleBar(
             size = bangumiDetail.episodes.size

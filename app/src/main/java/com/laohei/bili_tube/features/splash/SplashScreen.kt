@@ -32,8 +32,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.utill.hideSystemUI
-import com.laohei.bili_tube.utill.showSystemUI
+import com.laohei.bili_tube.core.extension.hideSystemUI
+import com.laohei.bili_tube.core.extension.showSystemUI
 import kotlinx.coroutines.delay
 
 private sealed interface SplashStep {

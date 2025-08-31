@@ -16,15 +16,15 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.media3.exoplayer.ExoPlayer
 import coil3.Bitmap
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.features.player.component.control.PlayerControl
 import com.laohei.bili_tube.features.player.state.media.MediaState
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 import com.laohei.bili_tube.features.player.state.screen.ScreenState
-import com.laohei.bili_tube.utill.formatTimeString
-import com.laohei.bili_tube.utill.isOrientationPortrait
+import com.laohei.bili_tube.util.toTimeString
+import com.laohei.bili_tube.ui.util.isOrientationPortrait
 import kotlinx.coroutines.delay
 
 
@@ -89,8 +89,8 @@ internal fun LandscapeFullscreenVideoPage(
             onFullscreenChange = onFullscreenChange,
             isPlaying = mediaState.isPlaying,
             isLoading = mediaState.isLoading,
-            totalDuration = mediaState.totalDuration.formatTimeString(),
-            currentDuration = mediaState.currentDuration.formatTimeString(),
+            totalDuration = mediaState.totalDuration.toTimeString(),
+            currentDuration = mediaState.currentDuration.toTimeString(),
             onPlayChange = onPlayChange,
             onProgressChange = onProgressChange,
             onLongPressStart = { onDoubleSpeedChange(true) },

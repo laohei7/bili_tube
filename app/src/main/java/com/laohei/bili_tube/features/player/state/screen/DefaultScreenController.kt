@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import com.laohei.bili_tube.utill.areFloatsEqualCompareTo
+import com.laohei.bili_tube.util.isNearlyEqual
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -433,7 +433,7 @@ internal class DefaultScreenController(
 
     override fun computeScreenSize(videoWidth: Int, videoHeight: Int) {
         val newAspectRatio = videoWidth.toFloat() / videoHeight.toFloat()
-        if (newAspectRatio.areFloatsEqualCompareTo(_currentAspect)) {
+        if (newAspectRatio.isNearlyEqual(_currentAspect)) {
             return
         }
         _currentAspect = newAspectRatio

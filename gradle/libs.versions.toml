@@ -1,10 +1,11 @@
 [versions]
 agp = "8.8.2"
 coilCompose = "3.1.0"
+conscryptAndroid = "2.5.3"
 constraintlayoutCompose = "1.1.1"
 core = "3.5.1"
 datastorePreferences = "1.1.4"
-ffmpegKitFull = "6.0-2.LTS"
+#ffmpegKitFull = "6.0-2.LTS"
 koin = "4.1.0-Beta5"
 kotlin = "2.1.10"
 coreKtx = "1.15.0"
@@ -31,6 +32,7 @@ reorderable = "0.9.6"
 room = "2.6.1"
 sensebot = "4.4.2.1"
 material3Jvmstubs = "1.5.0-alpha02"
+media3FfmepgDecoder = "1.8.0+1"
 
 [libraries]
 androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityCompose" }
@@ -57,8 +59,10 @@ androidx-room-paging = { module = "androidx.room:room-paging", version.ref = "ro
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilCompose" }
 coil-network-ktor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coilCompose" }
+conscrypt-android = { module = "org.conscrypt:conscrypt-android", version.ref = "conscryptAndroid" }
 core = { module = "com.google.zxing:core", version.ref = "core" }
-ffmpeg-kit-full = { module = "com.arthenica:ffmpeg-kit-full", version.ref = "ffmpegKitFull" }
+#ffmpeg-kit-full = { module = "com.arthenica:ffmpeg-kit-full", version.ref = "ffmpegKitFull" }
+media3-ffmpeg-decoder = { module = "org.jellyfin.media3:media3-ffmpeg-decoder", version.ref = "media3FfmepgDecoder" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -108,7 +112,8 @@ media3 = [
     "androidx-media3-ui",
     "androidx-media3-datasource-okhttp",
     "androidx-media3-datasource-cronet",
-    "androidx-media3-decoder"
+    "androidx-media3-decoder",
+    "media3-ffmpeg-decoder"
 ]
 lifecycle = [
     "androidx-lifecycle-runtime-ktx",

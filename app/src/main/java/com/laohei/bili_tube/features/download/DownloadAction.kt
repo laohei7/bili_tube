@@ -1,6 +1,6 @@
 package com.laohei.bili_tube.features.download
 
-import com.laohei.bili_tube.room.entity.DownloadTask
+import com.laohei.bili_tube.data.local.room.entity.DownloadTask
 import com.laohei.bili_tube.nav.AppRoute
 
 internal sealed interface DownloadAction {

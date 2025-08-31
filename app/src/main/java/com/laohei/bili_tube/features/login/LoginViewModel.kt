@@ -14,9 +14,9 @@ import com.laohei.bili_tube.core.IS_LOGIN_KEY
 import com.laohei.bili_tube.core.REFRESH_TOKEN_KEY
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
-import com.laohei.bili_tube.dataStore
-import com.laohei.bili_tube.features.login.data.repository.BiliLoginRepository
-import com.laohei.bili_tube.utill.validatedPhoneNumber
+import com.laohei.bili_tube.data.local.datastore.dataStore
+import com.laohei.bili_tube.data.repository.BiliLoginRepository
+import com.laohei.bili_tube.util.isValidChinesePhoneNumber
 import io.ktor.http.HttpHeaders
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -84,7 +84,7 @@ class LoginViewModel(
 
     fun getSMSCode() {
         val phoneNumber = _uiState.value.phoneNumber
-        val validatedPhoneNumber = phoneNumber.validatedPhoneNumber()
+        val validatedPhoneNumber = phoneNumber.isValidChinesePhoneNumber()
         if (validatedPhoneNumber) {
             _uiState.update { it.copy(isPhoneNumberError = false) }
         } else {
@@ -157,7 +157,7 @@ class LoginViewModel(
 
     fun validatedPhoneNumber(): Boolean {
         val phone = uiState.value.phoneNumber
-        val validated = phone.validatedPhoneNumber()
+        val validated = phone.isValidChinesePhoneNumber()
         _uiState.update { it.copy(isPhoneNumberError = validated.not()) }
         return validated
     }

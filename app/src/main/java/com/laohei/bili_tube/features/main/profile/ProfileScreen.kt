@@ -53,8 +53,8 @@ import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
-import com.laohei.bili_tube.ui.component.text.VerticalDataText
-import com.laohei.bili_tube.utill.getValue
+import com.laohei.bili_tube.ui.component.widget.LabeledData
+import com.laohei.bili_tube.core.extension.getValue
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -211,9 +211,9 @@ private fun PortraitUserInfo(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                VerticalDataText(dynamicCount.toLong(), stringResource(R.string.str_dynamic))
-                VerticalDataText(following.toLong(), stringResource(R.string.str_following))
-                VerticalDataText(follower.toLong(), stringResource(R.string.str_follower))
+                LabeledData(dynamicCount.toLong(), stringResource(R.string.str_dynamic))
+                LabeledData(following.toLong(), stringResource(R.string.str_following))
+                LabeledData(follower.toLong(), stringResource(R.string.str_follower))
             }
         },
     )
@@ -326,9 +326,9 @@ private fun LandscapeUserInfo(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
-                    VerticalDataText(dynamicCount.toLong(), stringResource(R.string.str_dynamic))
-                    VerticalDataText(following.toLong(), stringResource(R.string.str_following))
-                    VerticalDataText(follower.toLong(), stringResource(R.string.str_follower))
+                    LabeledData(dynamicCount.toLong(), stringResource(R.string.str_dynamic))
+                    LabeledData(following.toLong(), stringResource(R.string.str_following))
+                    LabeledData(follower.toLong(), stringResource(R.string.str_follower))
                 }
             },
         )

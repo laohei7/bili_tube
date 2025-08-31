@@ -48,16 +48,15 @@ import coil3.request.crossfade
 import coil3.request.error
 import coil3.request.placeholder
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.component.video.RcmdWidget
-import com.laohei.bili_tube.component.video.UpWidget
-import com.laohei.bili_tube.component.video.VideoDurationWidget
-import com.laohei.bili_tube.component.video.VideoItemDefaults
-import com.laohei.bili_tube.component.video.ViewAndPubDateWidget
-import com.laohei.bili_tube.component.video.ViewAtWidget
-import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
+import com.laohei.bili_tube.ui.component.chip.RecommendationTag
+import com.laohei.bili_tube.ui.component.chip.UpTag
+import com.laohei.bili_tube.ui.component.chip.VideoDurationTag
+import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedPlayingIcon
 import com.laohei.bili_tube.ui.component.text.RichText
-import com.laohei.bili_tube.ui.theme.SmallPadding
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.ui.component.widget.ViewAndDateLabel
+import com.laohei.bili_tube.ui.component.widget.ViewAtLabel
+import com.laohei.bili_tube.ui.theme.PaddingSm
+import com.laohei.bili_tube.util.toViewString
 
 
 @Composable
@@ -75,7 +74,7 @@ fun HorizontalVideoItem(
     publishDate: String? = null,
     onClick: () -> Unit = {},
     trailingOnClick: () -> Unit = {},
-    leadingIcon: (@Composable () -> Unit)? = { VideoItemDefaults.DefaultLeadingIcon() }
+    leadingIcon: (@Composable () -> Unit)? = null
 ) {
     val coverRequest = rememberAsyncImagePainter(
         ImageRequest.Builder(LocalContext.current)
@@ -105,7 +104,7 @@ fun HorizontalVideoItem(
             modifier = Modifier
                 .weight(1f)
                 .aspectRatio(16 / 9f)
-                .clip(RoundedCornerShape(SmallPadding))
+                .clip(RoundedCornerShape(PaddingSm))
         ) {
             Image(
                 painter = coverRequest,
@@ -126,7 +125,7 @@ fun HorizontalVideoItem(
                 )
             }
             duration?.let {
-                VideoDurationWidget(
+                VideoDurationTag(
                     duration = duration,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -134,7 +133,7 @@ fun HorizontalVideoItem(
                 )
             }
             if (isCurrentPlaying) {
-                LottieIconPlaying(Modifier.align(Alignment.Center))
+                AnimatedPlayingIcon(Modifier.align(Alignment.Center))
             }
         }
         Spacer(Modifier.width(8.dp))
@@ -158,13 +157,13 @@ fun HorizontalVideoItem(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                rcmdReason?.let { RcmdWidget(it) }
+                rcmdReason?.let { RecommendationTag(it) }
                 if (ownerName.isNotBlank()) {
-                    UpWidget(ownerName)
+                    UpTag(ownerName)
                 }
-                viewAt?.let { ViewAtWidget(it) }
+                viewAt?.let { ViewAtLabel(it) }
                 if (view != null && publishDate != null) {
-                    ViewAndPubDateWidget(view, publishDate)
+                    ViewAndDateLabel(view = view, publishDate = publishDate)
                 }
             }
 
@@ -266,7 +265,7 @@ fun HorizontalVideoItem2(
             }
 
             if (isCurrentPlaying) {
-                LottieIconPlaying(Modifier.align(Alignment.Center))
+                AnimatedPlayingIcon(Modifier.align(Alignment.Center))
             }
         }
         Column(

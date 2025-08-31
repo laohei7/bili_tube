@@ -12,7 +12,7 @@ import com.laohei.bili_sdk.apis.UserRelationAction
 import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
 import com.laohei.bili_sdk.module_v2.folder.FolderMediaItem
 import com.laohei.bili_sdk.module_v2.video.VideoURLModel
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.AUTO_SKIP_KEY
 import com.laohei.bili_tube.core.EXPORT_SHARED_SOURCE
@@ -24,18 +24,17 @@ import com.laohei.bili_tube.core.WLAN_VIDEO_QUALITY
 import com.laohei.bili_tube.core.action.VideoSettingAction
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
-import com.laohei.bili_tube.features.player.data.repository.BiliPlayRepository
+import com.laohei.bili_tube.data.local.prefs.PreferencesUtil
+import com.laohei.bili_tube.data.repository.BiliPlayRepository
+import com.laohei.bili_tube.data.repository.BiliPlaylistRepository
 import com.laohei.bili_tube.features.player.state.media.DefaultMediaController
 import com.laohei.bili_tube.features.player.state.media.MediaController
 import com.laohei.bili_tube.features.player.state.screen.DefaultScreenController
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 import com.laohei.bili_tube.features.player.state.screen.ScreenController
-import com.laohei.bili_tube.features.playlist.data.repository.BiliPlaylistRepository
-import com.laohei.bili_tube.utill.NetworkType
-import com.laohei.bili_tube.utill.NetworkUtil
-import com.laohei.bili_tube.utill.PreferencesUtil
-import com.laohei.bili_tube.utill.displayTitle
-import com.laohei.bili_tube.utill.download.DownloadManager
+import com.laohei.bili_tube.model.extension.displayTitle
+import com.laohei.bili_tube.network.NetworkType
+import com.laohei.bili_tube.network.NetworkUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -73,7 +72,6 @@ private class NoopListCallback : ListUpdateCallback {
 
 @UnstableApi
 internal class MediaViewModel(
-    private val downloadManager: DownloadManager,
     private val biliPlayRepository: BiliPlayRepository,
     private val biliPlaylistRepository: BiliPlaylistRepository,
     private val preferenceUtil: PreferencesUtil,
@@ -857,33 +855,7 @@ internal class MediaViewModel(
     }
 
     fun download(quality: Pair<Int, String>) {
-        val playerUIState = _mediaPlayerUIState.value
-        val playParam = playerUIState.playParam
-        val isLoading = playerUIState.run { videoDetail == null && bangumiDetail == null }
-        if (isLoading) {
-            viewModelScope.launch {
-                EventBus.send(
-                    Event.VideoPlayerEvent.SnackbarEventById(R.string.str_download_hint)
-                )
-            }
-            return
-        }
 
-        val (videoUrls, audioUrls) = defaultMediaManager.getVideoSourceByQuality(quality.first)
-        val (name, cover) = getMediaNameAndCover(playParam)
-        val archive = getArchiveName(playParam)
-
-        downloadManager.addTask(
-            id = playParam.bvid,
-            aid = playParam.aid,
-            cid = playParam.cid,
-            name = name,
-            cover = cover ?: "",
-            quality = quality.second,
-            videoUrls = videoUrls,
-            audioUrls = audioUrls,
-            archive = archive
-        )
     }
 
     private fun getArchiveName(playParam: PlayParam): String? {

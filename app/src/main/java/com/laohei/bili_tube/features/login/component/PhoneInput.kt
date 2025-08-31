@@ -42,9 +42,9 @@ import androidx.compose.ui.window.Popup
 import androidx.constraintlayout.compose.layoutId
 import com.laohei.bili_sdk.module_v2.location.CountryItem
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.theme.ExtremeSmallPadding
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.theme.PaddingXs
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingSm
 
 
 @Composable
@@ -59,7 +59,7 @@ internal fun PhoneInput(
 ) {
     Log.d("TAG", "PhoneInput: $isPhoneError")
     val density = LocalDensity.current
-    val shape = RoundedCornerShape(SmallPadding)
+    val shape = RoundedCornerShape(PaddingSm)
     var expanded by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
@@ -72,7 +72,7 @@ internal fun PhoneInput(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp)
-                .padding(horizontal = LargePadding * 2)
+                .padding(horizontal = PaddingLg * 2)
                 .shadow(5.dp, shape),
             leadingIcon = {
                 Icon(
@@ -95,7 +95,7 @@ internal fun PhoneInput(
                             .clip(shape)
                             .clickable { expanded = true }
                             .background(MaterialTheme.colorScheme.background)
-                            .padding(horizontal = SmallPadding, vertical = ExtremeSmallPadding)
+                            .padding(horizontal = PaddingSm, vertical = PaddingXs)
                     ) {
                         Text(text = "+${selectedCountryId}")
                         Icon(
@@ -112,7 +112,7 @@ internal fun PhoneInput(
                         ) {
                             Surface(
                                 modifier = Modifier
-                                    .padding(end = LargePadding)
+                                    .padding(end = PaddingLg)
                                     .heightIn(max = 400.dp)
                                     .widthIn(max = 200.dp),
                                 shape = shape,
@@ -159,8 +159,8 @@ internal fun PhoneInput(
         if (isPhoneError) {
             Text(
                 modifier = Modifier
-                    .padding(horizontal = LargePadding * 2)
-                    .padding(top = SmallPadding),
+                    .padding(horizontal = PaddingLg * 2)
+                    .padding(top = PaddingSm),
                 text = stringResource(R.string.str_phone_number_error),
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.error

@@ -6,8 +6,8 @@ import androidx.paging.cachedIn
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
-import com.laohei.bili_tube.features.main.home.data.repository.BiliHomeRepository
-import com.laohei.bili_tube.features.playlist.data.repository.BiliPlaylistRepository
+import com.laohei.bili_tube.data.repository.BiliHomeRepository
+import com.laohei.bili_tube.data.repository.BiliPlaylistRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.shareIn

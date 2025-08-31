@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import com.laohei.bili_tube.ui.preview.FakeStateChip
 import com.laohei.bili_tube.ui.preview.FakeStateChipData
-import com.laohei.bili_tube.ui.theme.ExtremeSmallPadding
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.MediumPadding
+import com.laohei.bili_tube.ui.theme.PaddingXs
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingMd
 
 
 @Composable
@@ -36,8 +36,8 @@ fun StateChip(
     icon: ImageVector,
     label: String,
     trailingIcon: ImageVector? = null,
-    horizontalPadding: Dp = MediumPadding,
-    verticalPadding: Dp = ExtremeSmallPadding,
+    horizontalPadding: Dp = PaddingMd,
+    verticalPadding: Dp = PaddingXs,
     iconColor: Color = Color.Unspecified,
     labelColor: Color = Color.Unspecified,
     trailingIconColor: Color = Color.Unspecified,
@@ -54,7 +54,7 @@ fun StateChip(
                 contentColor = iconColor
             ) {
                 Icon(
-                    modifier = Modifier.padding(ExtremeSmallPadding / 2),
+                    modifier = Modifier.padding(PaddingXs / 2),
                     imageVector = icon,
                     contentDescription = icon.name,
                     tint = iconColor
@@ -65,13 +65,13 @@ fun StateChip(
                 style = MaterialTheme.typography.labelMedium,
                 color = labelColor,
                 maxLines = 1,
-                modifier = Modifier.padding(start = ExtremeSmallPadding)
+                modifier = Modifier.padding(start = PaddingXs)
             )
             if (trailingIcon != null) {
                 VerticalDivider(
                     modifier = Modifier
                         .layoutId("divider")
-                        .padding(horizontal = LargePadding)
+                        .padding(horizontal = PaddingLg)
                         .padding(vertical = verticalPadding)
                         .clip(CircleShape),
                     color = dividerColor,
@@ -85,7 +85,7 @@ fun StateChip(
                     contentColor = trailingIconColor
                 ) {
                     Icon(
-                        modifier = Modifier.padding(ExtremeSmallPadding / 2),
+                        modifier = Modifier.padding(PaddingXs / 2),
                         imageVector = trailingIcon,
                         contentDescription = trailingIcon.name,
                         tint = trailingIconColor

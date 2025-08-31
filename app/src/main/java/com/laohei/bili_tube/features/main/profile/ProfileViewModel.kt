@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
-import com.laohei.bili_tube.features.main.profile.data.repository.BiliProfileRepository
-import com.laohei.bili_tube.features.playlist.data.repository.BiliPlaylistRepository
-import com.laohei.bili_tube.utill.withRefreshing
+import com.laohei.bili_tube.data.repository.BiliProfileRepository
+import com.laohei.bili_tube.data.repository.BiliPlaylistRepository
+import com.laohei.bili_tube.core.extension.withRefreshing
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

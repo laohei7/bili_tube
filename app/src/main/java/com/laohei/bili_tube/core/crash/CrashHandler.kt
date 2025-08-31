@@ -6,7 +6,7 @@ import android.os.Environment
 import android.util.Log
 import com.laohei.bili_tube.BuildConfig
 import com.laohei.bili_tube.core.SAVE_CRASH_DOCS_KEY
-import com.laohei.bili_tube.utill.PreferencesUtil
+import com.laohei.bili_tube.data.local.prefs.PreferencesUtil
 import java.io.File
 
 class CrashHandler private constructor() : Thread.UncaughtExceptionHandler {

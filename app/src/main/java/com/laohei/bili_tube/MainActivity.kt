@@ -44,12 +44,14 @@ import com.laohei.bili_tube.core.VIP_STATUS_KEY
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.core.runtime.LifecycleEffect
+import com.laohei.bili_tube.data.local.datastore.dataStore
 import com.laohei.bili_tube.nav.AppNav
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.theme.Bili_tubeTheme
 import com.laohei.bili_tube.network.HttpClientFactory
-import com.laohei.bili_tube.utill.setValue
-import com.laohei.bili_tube.utill.useLightSystemBarIcon
+import com.laohei.bili_tube.core.extension.setValue
+import com.laohei.bili_tube.core.extension.useLightSystemBarIcon
+import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull

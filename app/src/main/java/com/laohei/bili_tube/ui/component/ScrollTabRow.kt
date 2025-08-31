@@ -18,8 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingSm
 
 @Composable
 fun ScrollTabRow(
@@ -32,13 +32,13 @@ fun ScrollTabRow(
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(LargePadding)
+        horizontalArrangement = Arrangement.spacedBy(PaddingLg)
     ) {
         Spacer(Modifier)
         tabs.fastForEachIndexed { index, tab ->
             AssistChip(
                 onClick = { onTabClick(index) },
-                shape = RoundedCornerShape(SmallPadding),
+                shape = RoundedCornerShape(PaddingSm),
                 colors = when {
                     selectedTabIndex == index -> {
                         AssistChipDefaults.assistChipColors(

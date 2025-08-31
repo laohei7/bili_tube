@@ -30,21 +30,21 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMap
 import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.module_v2.search.SearchResultItemType
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.SharedViewModel
+import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.model.UIModel
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
-import com.laohei.bili_tube.ui.component.placeholder.NoMoreData
+import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
-import com.laohei.bili_tube.ui.theme.MediumPadding
+import com.laohei.bili_tube.ui.theme.PaddingMd
 import com.laohei.bili_tube.ui.theme.Pink
-import com.laohei.bili_tube.utill.completeUrl
-import com.laohei.bili_tube.utill.formatDateToYearString
-import com.laohei.bili_tube.utill.toTimeAgoString
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.util.toAbsoluteUrl
+import com.laohei.bili_tube.util.toYearString
+import com.laohei.bili_tube.util.toTimeAgoString
+import com.laohei.bili_tube.util.toViewString
 import org.koin.compose.koinInject
 
 
@@ -75,8 +75,8 @@ internal fun SearchResultList(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = paddingValues.calculateTopPadding()),
-            verticalArrangement = Arrangement.spacedBy(MediumPadding),
-            horizontalArrangement = Arrangement.spacedBy(MediumPadding)
+            verticalArrangement = Arrangement.spacedBy(PaddingMd),
+            horizontalArrangement = Arrangement.spacedBy(PaddingMd)
         ) {
             items(
                 count = list.itemCount,
@@ -115,7 +115,7 @@ internal fun SearchResultList(
                     }
                 }
             }
-            item(span = { GridItemSpan(fixedCount) }) { NoMoreData(list.loadState.append) }
+            item(span = { GridItemSpan(fixedCount) }) { LoadingStatePlaceholder(list.loadState.append) }
             item(span = { GridItemSpan(fixedCount) }) {
                 Spacer(modifier = Modifier.navigationBarsPadding())
             }
@@ -196,7 +196,7 @@ private fun GetSearchItem(
                 title = item.title,
                 cover = item.cover,
                 areas = item.areas,
-                date = item.pubTime.formatDateToYearString(false),
+                date = item.pubTime.toYearString(false),
                 styles = item.styles,
                 score = item.mediaScore.score,
                 userCount = item.mediaScore.userCount.toViewString(),
@@ -220,7 +220,7 @@ private fun GetSearchItem(
                 title = item.title,
                 cover = item.cover,
                 areas = item.areas,
-                date = item.pubTime.formatDateToYearString(false),
+                date = item.pubTime.toYearString(false),
                 styles = item.styles,
                 score = item.mediaScore.score,
                 userCount = item.mediaScore.userCount.toViewString(),
@@ -241,7 +241,7 @@ private fun GetSearchItem(
 
         is SearchResultItemType.VideoItem -> {
             HorizontalVideoItem(
-                cover = item.pic.completeUrl(),
+                cover = item.pic.toAbsoluteUrl(),
                 title = item.title,
                 ownerName = item.author,
                 rcmdReason = "",

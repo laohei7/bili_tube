@@ -4,7 +4,7 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.laohei.bili_tube.features.main.home.data.repository.BiliHomeRepository
+import com.laohei.bili_tube.data.repository.BiliHomeRepository
 
 class RecommendViewModel(
     biliHomeRepository: BiliHomeRepository,

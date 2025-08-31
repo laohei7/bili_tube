@@ -1,11 +1,10 @@
 package com.laohei.bili_tube.di
 
 import android.annotation.SuppressLint
-import com.laohei.bili_tube.SharedViewModel
+import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
+import com.laohei.bili_tube.data.local.prefs.PreferencesUtil
 import com.laohei.bili_tube.network.HttpClientFactory
-import com.laohei.bili_tube.utill.NetworkUtil
-import com.laohei.bili_tube.utill.PreferencesUtil
-import com.laohei.bili_tube.utill.download.DownloadManager
+import com.laohei.bili_tube.network.NetworkUtil
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
@@ -15,5 +14,4 @@ val appModule = module {
     singleOf(::NetworkUtil)
     singleOf(::SharedViewModel)
     single { HttpClientFactory.client }
-    singleOf(::DownloadManager)
 }

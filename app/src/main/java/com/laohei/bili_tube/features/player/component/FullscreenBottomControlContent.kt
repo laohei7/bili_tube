@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.component.lottie.LottieIconLike
+import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedLikeIcon
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 import com.laohei.bili_tube.ui.theme.Pink
@@ -82,9 +82,8 @@ internal fun FullscreenBottomControlContent(
                 Popup(
                     offset = IntOffset(10, -120)
                 ) {
-                    LottieIconLike(
+                    AnimatedLikeIcon(
                         modifier = Modifier.size(46.dp),
-                        iterateForever = false,
                         onAnimationEndCallback = {
                             onScreenAction.invoke(
                                 ScreenAction.SetLikeAnimationVisible(false)

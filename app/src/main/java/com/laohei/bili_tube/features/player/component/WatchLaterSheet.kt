@@ -23,11 +23,11 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_sdk.module_v2.video.VideoView
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
-import com.laohei.bili_tube.ui.theme.LargePadding
+import com.laohei.bili_tube.ui.theme.PaddingLg
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +60,7 @@ internal fun WatchLaterSheet(
             modifier = modifier
                 .fillMaxSize(),
             sheetState = sheetState,
-            shape = RoundedCornerShape(topStart = LargePadding, topEnd = LargePadding),
+            shape = RoundedCornerShape(topStart = PaddingLg, topEnd = PaddingLg),
             containerColor = MaterialTheme.colorScheme.background,
             scrimColor = Color.Transparent,
             onDismissRequest = { onDismiss.invoke() },
@@ -69,12 +69,12 @@ internal fun WatchLaterSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.background),
-                verticalArrangement = Arrangement.spacedBy(LargePadding)
+                verticalArrangement = Arrangement.spacedBy(PaddingLg)
             ) {
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = LargePadding),
+                        .padding(horizontal = PaddingLg),
                     text = buildAnnotatedString {
                         append(playParam.title)
                         withStyle(

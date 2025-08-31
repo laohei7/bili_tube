@@ -3,7 +3,7 @@ package com.laohei.bili_tube.features.playlist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
-import com.laohei.bili_tube.features.playlist.data.repository.BiliPlaylistRepository
+import com.laohei.bili_tube.data.repository.BiliPlaylistRepository
 import com.laohei.bili_tube.nav.AppRoute
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll

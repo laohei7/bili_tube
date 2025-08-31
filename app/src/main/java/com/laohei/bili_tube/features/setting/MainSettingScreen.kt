@@ -37,7 +37,7 @@ import com.laohei.bili_tube.core.WRITE_STORAGE_PERMISSION
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.ui.component.SwitchListItem
-import com.laohei.bili_tube.utill.checkedPermissions
+import com.laohei.bili_tube.core.extension.checkedPermissions
 import kotlinx.coroutines.launch
 
 private val VideoAndAudioSettings = listOf(

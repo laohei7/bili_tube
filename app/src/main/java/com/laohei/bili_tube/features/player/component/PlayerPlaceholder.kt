@@ -26,7 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.laohei.bili_tube.ui.component.placeholder.RecommendPlaceholder
+import com.laohei.bili_tube.ui.component.state.RecommendationPlaceholder
 
 @Preview
 @Composable
@@ -140,7 +140,7 @@ fun PlayerPlaceholder(
             )
             Spacer(Modifier.height(8.dp))
             repeat(10) {
-                RecommendPlaceholder()
+                RecommendationPlaceholder()
                 Spacer(Modifier.height(8.dp))
             }
         }

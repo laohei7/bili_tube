@@ -17,11 +17,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.component.lottie.LottieIconSpeed
-import com.laohei.bili_tube.ui.theme.ExtremeSmallPadding
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.MediumPadding
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedSpeedIcon
+import com.laohei.bili_tube.ui.theme.PaddingXs
+import com.laohei.bili_tube.ui.theme.PaddingSm
 
 @Composable
 internal fun SpeedHint(
@@ -32,16 +30,16 @@ internal fun SpeedHint(
         modifier = modifier,
         color = Color.Black.copy(alpha = 0.5f),
         contentColor = Color.White,
-        shape = RoundedCornerShape(SmallPadding)
+        shape = RoundedCornerShape(PaddingSm)
     ) {
         Row(
             modifier = Modifier.padding(
-                horizontal = SmallPadding,
-                vertical = ExtremeSmallPadding
+                horizontal = PaddingSm,
+                vertical = PaddingXs
             ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(
-                ExtremeSmallPadding,
+                PaddingXs,
                 Alignment.CenterHorizontally
             )
         ) {
@@ -52,7 +50,7 @@ internal fun SpeedHint(
 
                 )
 
-            LottieIconSpeed(
+            AnimatedSpeedIcon(
                 modifier = Modifier
                     .size(20.dp)
                     .rotate(180f)

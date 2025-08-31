@@ -1,7 +1,7 @@
 package com.laohei.bili_tube.features.player
 
 import com.laohei.bili_sdk.apis.UserRelationAction
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 
 sealed class VideoMenuAction {
     data class Like(val like: Int) : VideoMenuAction() // 1点赞，2取消

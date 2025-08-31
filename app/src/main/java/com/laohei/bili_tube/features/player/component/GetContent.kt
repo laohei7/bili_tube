@@ -25,7 +25,7 @@ import com.laohei.bili_sdk.module_v2.user.InfoCardModel
 import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoPageModel
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.VideoMenuAction
@@ -33,10 +33,10 @@ import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 import com.laohei.bili_tube.features.player.state.screen.ScreenState
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
 import com.laohei.bili_tube.ui.component.video.VerticalVideoItem
-import com.laohei.bili_tube.ui.theme.MediumPadding
-import com.laohei.bili_tube.utill.formatTimeString
-import com.laohei.bili_tube.utill.toTimeAgoString
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.ui.theme.PaddingMd
+import com.laohei.bili_tube.util.toTimeString
+import com.laohei.bili_tube.util.toTimeAgoString
+import com.laohei.bili_tube.util.toViewString
 
 
 @Composable
@@ -129,7 +129,7 @@ private fun VideoContent(
     ) {
         LazyColumn(
             state = lazyListState,
-            verticalArrangement = Arrangement.spacedBy(MediumPadding),
+            verticalArrangement = Arrangement.spacedBy(PaddingMd),
         ) {
             item {
                 VideoSimpleInfoBar(
@@ -202,7 +202,7 @@ private fun VideoContent(
                     ownerName = video.owner.name,
                     view = video.stat.view.toViewString(),
                     pubDate = video.pubdate.toTimeAgoString(),
-                    duration = video.duration.formatTimeString(false),
+                    duration = video.duration.toTimeString(false),
                     trailingIcon = Icons.Outlined.MoreVert,
                     onClick = {
                         onVideoMenuAction(
@@ -259,7 +259,7 @@ private fun BangumiContent(
             .padding(horizontal = 16.dp)
         LazyColumn(
             state = lazyListState,
-            verticalArrangement = Arrangement.spacedBy(MediumPadding)
+            verticalArrangement = Arrangement.spacedBy(PaddingMd)
         ) {
             item {
                 BangumiTitleWidget(

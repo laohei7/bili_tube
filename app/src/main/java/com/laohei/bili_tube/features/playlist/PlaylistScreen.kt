@@ -76,10 +76,10 @@ import com.laohei.bili_sdk.module_v2.folder.FolderModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.MediumPadding
-import com.laohei.bili_tube.utill.toNonHardwareBitmap
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingMd
+import com.laohei.bili_tube.ui.util.toNonHardwareBitmap
+import com.laohei.bili_tube.util.toViewString
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -135,8 +135,8 @@ fun PlaylistScreen(
                         color = MaterialTheme.colorScheme.background
                     ),
                     columns = GridCells.Fixed(fixedCount),
-                    horizontalArrangement = Arrangement.spacedBy(MediumPadding),
-                    verticalArrangement = Arrangement.spacedBy(LargePadding)
+                    horizontalArrangement = Arrangement.spacedBy(PaddingMd),
+                    verticalArrangement = Arrangement.spacedBy(PaddingLg)
                 ) {
                     getPlaylistWidget(
                         folderList = state.folderList,

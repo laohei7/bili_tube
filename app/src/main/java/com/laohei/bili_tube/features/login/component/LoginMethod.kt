@@ -13,7 +13,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.constraintlayout.compose.layoutId
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.theme.PaddingSm
 
 @Composable
 internal fun LoginMethod(
@@ -21,7 +21,7 @@ internal fun LoginMethod(
 ) {
     Column(
         modifier = Modifier.layoutId("login_method"),
-        verticalArrangement = Arrangement.spacedBy(SmallPadding)
+        verticalArrangement = Arrangement.spacedBy(PaddingSm)
     ) {
         Text(
             text = stringResource(R.string.str_login_method),
@@ -30,7 +30,7 @@ internal fun LoginMethod(
         )
 
         Row(
-            horizontalArrangement = Arrangement.spacedBy(SmallPadding),
+            horizontalArrangement = Arrangement.spacedBy(PaddingSm),
             verticalAlignment = Alignment.CenterVertically
         ) {
             content()

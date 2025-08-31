@@ -10,13 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import com.laohei.bili_sdk.module_v2.video.VideoView
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
-import com.laohei.bili_tube.ui.theme.MediumPadding
-import com.laohei.bili_tube.utill.formatTimeString
-import com.laohei.bili_tube.utill.toTimeAgoString
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.ui.theme.PaddingMd
+import com.laohei.bili_tube.util.toTimeString
+import com.laohei.bili_tube.util.toTimeAgoString
+import com.laohei.bili_tube.util.toViewString
 
 @Composable
 internal fun WatchLaterList(
@@ -29,14 +29,14 @@ internal fun WatchLaterList(
 ) {
     LazyColumn(
         state = listState,
-        verticalArrangement = Arrangement.spacedBy(MediumPadding)
+        verticalArrangement = Arrangement.spacedBy(PaddingMd)
     ) {
         itemsIndexed(watchLaterList) { index, item ->
             HorizontalVideoItem(
                 cover = item.pic,
                 title = item.title,
                 ownerName = item.owner.name,
-                duration = item.duration.formatTimeString(false),
+                duration = item.duration.toTimeString(false),
                 view = item.stat.view.toViewString(),
                 publishDate = item.pubdate.toTimeAgoString(),
                 isCurrentPlaying = currentWatchLaterIndex == index,

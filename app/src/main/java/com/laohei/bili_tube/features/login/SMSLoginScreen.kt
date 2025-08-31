@@ -36,8 +36,8 @@ import com.laohei.bili_tube.features.login.component.SmsBackground
 import com.laohei.bili_tube.features.login.nav.LoginRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.utill.underDevelopment
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.util.underDevelopment
 
 @Composable
 fun SmsLoginScreen(
@@ -234,20 +234,20 @@ private fun portraitDecoupledConstraints(): ConstraintSet {
         }
         constrain(title) {
             bottom.linkTo(background.bottom, 164.5.dp)
-            start.linkTo(parent.start, LargePadding * 3)
+            start.linkTo(parent.start, PaddingLg * 3)
         }
         constrain(codeInput) {
             top.linkTo(background.bottom)
         }
         constrain(phoneInput) {
-            bottom.linkTo(codeInput.top, LargePadding * 2)
+            bottom.linkTo(codeInput.top, PaddingLg * 2)
         }
         constrain(loginBtn) {
             bottom.linkTo(parent.bottom, 120.dp)
-            end.linkTo(parent.end, LargePadding * 2)
+            end.linkTo(parent.end, PaddingLg * 2)
         }
         constrain(loginMethod) {
-            start.linkTo(parent.start, LargePadding)
+            start.linkTo(parent.start, PaddingLg)
             top.linkTo(loginBtn.top)
             bottom.linkTo(loginBtn.bottom)
         }
@@ -269,7 +269,7 @@ private fun landscapeDecoupledConstraints(): ConstraintSet {
         constrain(title) {
             top.linkTo(background.top)
             bottom.linkTo(background.bottom)
-            start.linkTo(parent.start, LargePadding * 3)
+            start.linkTo(parent.start, PaddingLg * 3)
         }
         constrain(codeInput) {
             top.linkTo(background.bottom)
@@ -277,17 +277,17 @@ private fun landscapeDecoupledConstraints(): ConstraintSet {
             end.linkTo(background.end)
         }
         constrain(phoneInput) {
-            bottom.linkTo(codeInput.top, LargePadding * 2)
+            bottom.linkTo(codeInput.top, PaddingLg * 2)
             start.linkTo(title.end)
             end.linkTo(background.end)
         }
         constrain(loginBtn) {
-            top.linkTo(codeInput.bottom, LargePadding * 3)
+            top.linkTo(codeInput.bottom, PaddingLg * 3)
             end.linkTo(codeInput.end)
             start.linkTo(codeInput.start)
         }
         constrain(loginMethod) {
-            start.linkTo(parent.start, LargePadding * 3)
+            start.linkTo(parent.start, PaddingLg * 3)
             top.linkTo(background.bottom)
             bottom.linkTo(parent.bottom)
         }

@@ -46,8 +46,8 @@ import coil3.compose.AsyncImage
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.USERNAME_KEY
 import com.laohei.bili_tube.nav.AppRoute
-import com.laohei.bili_tube.utill.getValue
-import com.laohei.bili_tube.utill.toNonHardwareBitmap
+import com.laohei.bili_tube.core.extension.getValue
+import com.laohei.bili_tube.ui.util.toNonHardwareBitmap
 import kotlinx.coroutines.launch
 
 

@@ -13,7 +13,7 @@ import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoPageModel
 import com.laohei.bili_sdk.module_v2.video.VideoView
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 

@@ -93,13 +93,13 @@ dependencies {
     implementation(libs.lottie.compose)
     implementation(libs.bundles.adaptive.layout)
 
-    implementation(libs.ffmpeg.kit.full)
+//    implementation(libs.ffmpeg.kit.full)
 
     ksp(libs.androidx.room.compiler)
     implementation(libs.bundles.room)
-    implementation("org.jellyfin.media3:media3-ffmpeg-decoder:1.8.0+1")
     implementation(libs.sensebot)
     implementation(libs.reorderable)
     implementation(libs.androidx.constraintlayout.compose)
+    implementation(libs.conscrypt.android)
     implementation(project(":bili_sdk"))
 }

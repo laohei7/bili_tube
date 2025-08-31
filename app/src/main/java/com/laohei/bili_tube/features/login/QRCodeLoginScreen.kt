@@ -28,7 +28,7 @@ import com.laohei.bili_tube.features.login.component.Qrcode
 import com.laohei.bili_tube.features.login.component.SmsBackground
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
-import com.laohei.bili_tube.ui.theme.LargePadding
+import com.laohei.bili_tube.ui.theme.PaddingLg
 
 @Composable
 fun QrcodeLoginScreen(
@@ -128,10 +128,10 @@ private fun portraitDecoupledConstraints(): ConstraintSet {
         }
         constrain(title) {
             bottom.linkTo(background.bottom, 164.5.dp)
-            start.linkTo(parent.start, LargePadding * 3)
+            start.linkTo(parent.start, PaddingLg * 3)
         }
         constrain(backBtn) {
-            start.linkTo(parent.start, LargePadding)
+            start.linkTo(parent.start, PaddingLg)
             bottom.linkTo(title.top)
         }
         constrain(qrcode) {
@@ -157,11 +157,11 @@ private fun landscapeDecoupledConstraints(): ConstraintSet {
         constrain(title) {
             top.linkTo(background.top)
             bottom.linkTo(background.bottom)
-            start.linkTo(parent.start, LargePadding * 3)
+            start.linkTo(parent.start, PaddingLg * 3)
         }
         constrain(backBtn) {
-            start.linkTo(parent.start, LargePadding)
-            top.linkTo(background.top, LargePadding)
+            start.linkTo(parent.start, PaddingLg)
+            top.linkTo(background.top, PaddingLg)
         }
         constrain(qrcode) {
             bottom.linkTo(background.bottom)

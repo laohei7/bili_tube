@@ -18,7 +18,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.ui.component.painter.rememberQrBitmapPainter
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.theme.PaddingSm
 
 @Composable
 internal fun Qrcode(
@@ -32,7 +32,7 @@ internal fun Qrcode(
             fadeIn() togetherWith fadeOut()
         },
     ) { target ->
-        val shape = RoundedCornerShape(SmallPadding)
+        val shape = RoundedCornerShape(PaddingSm)
         val contentModifier = Modifier
             .size(200.dp)
             .clip(shape)

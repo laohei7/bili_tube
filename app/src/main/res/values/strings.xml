@@ -164,4 +164,8 @@
     <string name="str_input_folder_name">输入收藏夹名称</string>
     <string name="str_is_pravite">是否为私有？</string>
     <string name="str_submit">提交</string>
+    <string name="str_video_play_and_date">%1$s 观看 · %2$s</string>
+    <string name="str_loading_faild">加载失败，点击重试</string>
+    <string name="str_no_more_data">已没有更多了，亲😙~</string>
+    <string name="str_detail">详情</string>
 </resources>

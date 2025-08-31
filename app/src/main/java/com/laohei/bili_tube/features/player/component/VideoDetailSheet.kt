@@ -44,8 +44,8 @@ import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.component.TagItem
 import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
-import com.laohei.bili_tube.utill.formatDateToString
-import com.laohei.bili_tube.utill.toViewString
+import com.laohei.bili_tube.util.toDateString
+import com.laohei.bili_tube.util.toViewString
 import kotlinx.coroutines.launch
 
 
@@ -72,7 +72,7 @@ internal fun VideoDetailSheet(
 
     if (isShowVideoDetailUI) {
         val publishDate =
-            videoDetail?.view?.pubdate?.formatDateToString(false)
+            videoDetail?.view?.pubdate?.toDateString(false)
         val tags = videoDetail?.tags?.fastMap { it.tagName } ?: emptyList()
         LaunchedEffect(sheetState) {
             snapshotFlow { sheetState.requireOffset() }

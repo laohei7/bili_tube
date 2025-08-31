@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.dp
 import com.laohei.bili_sdk.module_v2.video.EpisodeModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.ui.component.lottie.LottieIconPlaying
-import com.laohei.bili_tube.ui.theme.MediumPadding
+import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedPlayingIcon
+import com.laohei.bili_tube.ui.theme.PaddingMd
 import com.laohei.bili_tube.ui.theme.Pink
 
 @Composable
@@ -48,8 +48,8 @@ internal fun GridBangumiEpisodeList(
         modifier = modifier,
         state = listState,
         columns = GridCells.Fixed(4),
-        verticalArrangement = Arrangement.spacedBy(MediumPadding),
-        horizontalArrangement = Arrangement.spacedBy(MediumPadding)
+        verticalArrangement = Arrangement.spacedBy(PaddingMd),
+        horizontalArrangement = Arrangement.spacedBy(PaddingMd)
     ) {
         items(episodeList) {
             EpisodeItem(
@@ -131,7 +131,7 @@ private fun EpisodeItem(
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 if (selected) {
-                    LottieIconPlaying(modifier = Modifier.size(16.dp))
+                    AnimatedPlayingIcon(modifier = Modifier.size(16.dp))
                 }
                 val title = episode.title.toDoubleOrNull()
                 Text(

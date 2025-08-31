@@ -10,12 +10,12 @@ import androidx.paging.map
 import com.laohei.bili_sdk.module_v2.search.SearchResultItemType
 import com.laohei.bili_sdk.search.SearchRequest
 import com.laohei.bili_tube.core.KeywordPattern
-import com.laohei.bili_tube.features.search.data.repository.BiliSearchRepository
-import com.laohei.bili_tube.features.search.data.repository.SearchHistoryRepository
+import com.laohei.bili_tube.data.repository.BiliSearchRepository
+import com.laohei.bili_tube.data.repository.SearchHistoryRepository
 import com.laohei.bili_tube.model.SearchResults
 import com.laohei.bili_tube.model.UIModel
-import com.laohei.bili_tube.room.entity.SearchHistory
-import com.laohei.bili_tube.utill.withRefreshing
+import com.laohei.bili_tube.data.local.room.entity.SearchHistory
+import com.laohei.bili_tube.core.extension.withRefreshing
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow

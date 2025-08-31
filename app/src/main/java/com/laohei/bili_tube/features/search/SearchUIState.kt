@@ -3,7 +3,7 @@ package com.laohei.bili_tube.features.search
 import androidx.paging.PagingData
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.model.UIModel
-import com.laohei.bili_tube.room.entity.SearchHistory
+import com.laohei.bili_tube.data.local.room.entity.SearchHistory
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 

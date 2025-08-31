@@ -45,9 +45,6 @@ private val EmotePattern = "\\[.*?]".toRegex()
 
 private val UrlPattern =
     """(https?://|www\.)[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}([-a-zA-Z0-9()@:%_+.~#?&/=!;]*)""".toRegex()
-
-private val KeywordPattern = "<em class=\"keyword\">(.*?)</em>".toRegex()
-
 private const val DEFAULT_MINIMUM_TEXT_LINE = 6
 
 @Composable
@@ -84,7 +81,6 @@ fun RichText(
         derivedStateOf {
             val emotes = EmotePattern.findAll(displayText)
             val urls = UrlPattern.findAll(displayText)
-//            val keywords = KeywordPattern.findAll(displayText)
             (emotes + urls).sortedBy { it.range.first }
         }
     }
@@ -96,18 +92,6 @@ fun RichText(
             for (matchResult in allMatches) {
                 append(displayText.substring(currentIndex, matchResult.range.first))
                 when {
-//                    KeywordPattern.matches(matchResult.value) -> {
-//                        val keyword = matchResult.groupValues[0]
-//                        withStyle(
-//                            SpanStyle(
-//                                color = Pink,
-//                                fontWeight = FontWeight.Bold
-//                            )
-//                        ) {
-//                            append(keyword)
-//                        }
-//                    }
-
                     EmotePattern.matches(matchResult.value) -> {
                         val tag = matchResult.groupValues[0]
                         val placeholderId = "tag-${matchResult.range.first}"
@@ -195,8 +179,9 @@ fun RichText(
                         && cutText == null -> {
                     isOverflow = true
                     val lastVisibleLine = collapsedMaxLine - 1
-                    val endIndex = (layoutResult.getLineEnd(lastVisibleLine, visibleEnd = true) - 10)
-                        .coerceAtLeast(0)
+                    val endIndex =
+                        (layoutResult.getLineEnd(lastVisibleLine, visibleEnd = true) - 10)
+                            .coerceAtLeast(0)
                     cutText = text.substring(0, endIndex).trimEnd()
                 }
             }

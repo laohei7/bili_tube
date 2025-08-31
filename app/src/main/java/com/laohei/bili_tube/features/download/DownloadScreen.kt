@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -36,7 +35,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -50,17 +48,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.PlayParam
-import com.laohei.bili_tube.SharedViewModel
-import com.laohei.bili_tube.room.entity.DownloadStatus
-import com.laohei.bili_tube.room.entity.DownloadTask
+import com.laohei.bili_tube.data.local.room.entity.DownloadStatus
+import com.laohei.bili_tube.data.local.room.entity.DownloadTask
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.nav.AppRoute
-import kotlinx.coroutines.launch
+import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -72,7 +68,7 @@ fun DownloadScreen(
     upPress: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val downloadQueue by viewModel.downloadQueue.collectAsStateWithLifecycle()
+//    val downloadQueue by viewModel.downloadQueue.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     Scaffold(
         topBar = {
@@ -105,21 +101,21 @@ fun DownloadScreen(
                 columns = GridCells.Fixed(fixedCount),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(downloadQueue) {
-                    DownloadItem(it) { action ->
-                        when (action) {
-                            is DownloadAction.NavigateAction -> navigateToAppRoute.invoke(action.route)
-                            is DownloadAction.PauseDownloadAction -> viewModel.pauseTask(action.task)
-                            is DownloadAction.StartDownloadAction -> viewModel.startTask(action.task)
-                            is DownloadAction.ShowSnackbarAction -> {
-                                scope.launch { snackbarHostState.showSnackbar(action.message) }
-                            }
-
-                            is DownloadAction.DeleteTaskAction -> viewModel.deleteTask(action.task)
-                            else -> {}
-                        }
-                    }
-                }
+//                items(downloadQueue) {
+//                    DownloadItem(it) { action ->
+//                        when (action) {
+//                            is DownloadAction.NavigateAction -> navigateToAppRoute.invoke(action.route)
+//                            is DownloadAction.PauseDownloadAction -> viewModel.pauseTask(action.task)
+//                            is DownloadAction.StartDownloadAction -> viewModel.startTask(action.task)
+//                            is DownloadAction.ShowSnackbarAction -> {
+//                                scope.launch { snackbarHostState.showSnackbar(action.message) }
+//                            }
+//
+//                            is DownloadAction.DeleteTaskAction -> viewModel.deleteTask(action.task)
+//                            else -> {}
+//                        }
+//                    }
+//                }
             }
         }
 

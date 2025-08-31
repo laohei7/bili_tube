@@ -37,19 +37,19 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.laohei.bili_sdk.module_v2.history.HistoryItem
-import com.laohei.bili_tube.PlayParam
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.SharedViewModel
+import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.model.UIModel
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.component.placeholder.NoMoreData
+import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
-import com.laohei.bili_tube.ui.theme.LargePadding
-import com.laohei.bili_tube.ui.theme.MediumPadding
-import com.laohei.bili_tube.utill.formatDateTimeToString
-import com.laohei.bili_tube.utill.formatTimeString
-import com.laohei.bili_tube.utill.toTimeAgoString2
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingMd
+import com.laohei.bili_tube.util.formatAs
+import com.laohei.bili_tube.util.toTimeString
+import com.laohei.bili_tube.util.toFriendlyDateString
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 
@@ -103,8 +103,8 @@ fun HistoryScreen(
                         ),
                     columns = GridCells.Fixed(fixedCount),
                     contentPadding = PaddingValues(horizontal = if (fixedCount == 1) 0.dp else 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(MediumPadding),
-                    verticalArrangement = Arrangement.spacedBy(LargePadding)
+                    horizontalArrangement = Arrangement.spacedBy(PaddingMd),
+                    verticalArrangement = Arrangement.spacedBy(PaddingLg)
                 ) {
                     items(
                         histories.itemCount,
@@ -127,7 +127,7 @@ fun HistoryScreen(
                         }
                     }
                     item(span = { GridItemSpan(fixedCount) }) {
-                        NoMoreData(histories.loadState.append)
+                        LoadingStatePlaceholder(histories.loadState.append)
                     }
                 }
             }
@@ -167,12 +167,12 @@ private fun GetHistoryItem(
                 cover = it.cover,
                 title = it.title,
                 ownerName = it.authorName,
-                duration = it.duration.formatTimeString(false),
+                duration = it.duration.toTimeString(false),
                 progress = progress,
                 viewAt = buildString {
-                    append(it.viewAt.toTimeAgoString2(false))
+                    append(it.viewAt.toFriendlyDateString(false))
                     append(" ")
-                    append(it.viewAt.formatDateTimeToString(false))
+                    append(it.viewAt.formatAs(false))
                 },
                 onClick = {
                     sharedViewModel.setPlayParam(

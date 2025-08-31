@@ -38,8 +38,8 @@ import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 import com.laohei.bili_tube.ui.component.chip.StateChip
-import com.laohei.bili_tube.ui.component.lottie.LottieIconLike
-import com.laohei.bili_tube.ui.theme.SmallPadding
+import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedLikeIcon
+import com.laohei.bili_tube.ui.theme.PaddingSm
 
 
 @Composable
@@ -75,7 +75,7 @@ internal fun VideoActionBar(
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SmallPadding)
+        horizontalArrangement = Arrangement.spacedBy(PaddingSm)
     ) {
         Spacer(modifier = Modifier)
         Box {
@@ -94,9 +94,8 @@ internal fun VideoActionBar(
                 Popup(
                     offset = IntOffset(10, -120)
                 ) {
-                    LottieIconLike(
+                    AnimatedLikeIcon(
                         modifier = Modifier.size(46.dp),
-                        iterateForever = false,
                         onAnimationEndCallback = onAnimationEndCallback
                     )
                 }
