@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.Placeholder
@@ -116,15 +117,16 @@ fun ExpandableRichText(
     minLines: Int = 1,
     maxLines: Int = Int.MAX_VALUE,
     collapsedMaxLine: Int = DEFAULT_MINIMUM_TEXT_LINE,
-    actionTextColor: Color = Pink,
+    actionTextColor: Color = MaterialTheme.colorScheme.primaryContainer,
 ) {
     val textMeasurer = rememberTextMeasurer()
     var expanded by rememberSaveable { mutableStateOf(false) }
-    var cutText by remember { mutableStateOf(text) }
+    var cutText by remember { mutableStateOf<String?>(null) }
     var actionTextVisible by rememberSaveable { mutableStateOf(true) }
 
-    val actionText = if (expanded) "收起" else "...展开"
-    val displayText = if (expanded) text else cutText
+    val actionText =
+        if (expanded) stringResource(R.string.str_collapse) else "...${stringResource(R.string.str_unfold)}"
+    val displayText = if (expanded) text else cutText ?: text
 
     val (annotatedString, inlineContentMap) = rememberRichTextContent(
         text = displayText,
@@ -154,13 +156,13 @@ fun ExpandableRichText(
         maxLines = maxLines,
         overflow = overflow,
         onTextLayout = { layoutResult ->
-            if (expanded) {
-                return@Text
-            }
+            if (cutText != null || expanded) return@Text
             if (layoutResult.lineCount <= collapsedMaxLine) {
                 actionTextVisible = false
+                cutText = text
                 return@Text
             }
+
             val lastLineIndex = collapsedMaxLine
             val lastLineWidth =
                 layoutResult.getLineRight(lastLineIndex) - layoutResult.getLineLeft(lastLineIndex)
@@ -173,6 +175,7 @@ fun ExpandableRichText(
                 endIndex++
             }
             cutText = text.substring(startIndex = 0, endIndex = endIndex)
+            actionTextVisible = true
         }
     )
 }

@@ -168,4 +168,6 @@
     <string name="str_loading_faild">加载失败，点击重试</string>
     <string name="str_no_more_data">已没有更多了，亲😙~</string>
     <string name="str_detail">详情</string>
+    <string name="str_collapse">收起</string>
+    <string name="str_unfold">展开</string>
 </resources>
