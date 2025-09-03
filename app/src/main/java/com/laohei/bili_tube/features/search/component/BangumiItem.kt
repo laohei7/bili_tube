@@ -40,10 +40,9 @@ import coil3.request.crossfade
 import coil3.request.error
 import coil3.request.placeholder
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.component.text.RichText
 import com.laohei.bili_tube.ui.theme.Pink
-import com.laohei.bili_tube.util.toYearString
 import com.laohei.bili_tube.util.toViewString
+import com.laohei.bili_tube.util.toYearString
 
 
 @Composable
@@ -92,12 +91,9 @@ internal fun BangumiItem(
                 modifier = Modifier.weight(2.5f),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                RichText(
+                Text(
                     text = title,
                     style = MaterialTheme.typography.bodyMedium,
-                    collapsedMaxLine = 2,
-                    emote = emptyMap(),
-                    enabledExpanded = false,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )

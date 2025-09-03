@@ -64,7 +64,7 @@ import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.component.reply.VideoReplyAction
 import com.laohei.bili_tube.ui.component.animation.slideFadeHorizontal
 import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
-import com.laohei.bili_tube.ui.component.text.RichText
+import com.laohei.bili_tube.ui.component.text.rich_text.ExpandableRichText
 import com.laohei.bili_tube.util.toTimeAgoString
 import com.laohei.bili_tube.util.toViewString
 
@@ -350,7 +350,7 @@ private fun VideoCommentItem(
         Spacer(modifier = Modifier.height(4.dp))
 
         // 评论内容
-        RichText(
+        ExpandableRichText(
             text = item.content.message,
             style = MaterialTheme.typography.bodyMedium,
             emote = item.content.emote?.map { it.key to it.value.url }?.toMap() ?: emptyMap(),

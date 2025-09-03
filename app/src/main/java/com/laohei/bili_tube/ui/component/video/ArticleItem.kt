@@ -47,10 +47,10 @@ import coil3.request.placeholder
 import coil3.size.Size
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.component.layout.NineGridLayout
-import com.laohei.bili_tube.ui.component.text.RichText
-import com.laohei.bili_tube.ui.theme.PaddingXs
+import com.laohei.bili_tube.ui.component.text.rich_text.ExpandableRichText
 import com.laohei.bili_tube.ui.theme.PaddingNone
 import com.laohei.bili_tube.ui.theme.PaddingSm
+import com.laohei.bili_tube.ui.theme.PaddingXs
 
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
@@ -79,7 +79,7 @@ fun ArticleItem(
         )
 
         if (desc.isNotBlank()) {
-            RichText(
+            ExpandableRichText(
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
                     .padding(top = 18.dp)

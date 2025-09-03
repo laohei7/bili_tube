@@ -48,11 +48,10 @@ import coil3.request.crossfade
 import coil3.request.error
 import coil3.request.placeholder
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedPlayingIcon
 import com.laohei.bili_tube.ui.component.chip.RecommendationTag
 import com.laohei.bili_tube.ui.component.chip.UpTag
 import com.laohei.bili_tube.ui.component.chip.VideoDurationTag
-import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedPlayingIcon
-import com.laohei.bili_tube.ui.component.text.RichText
 import com.laohei.bili_tube.ui.component.widget.ViewAndDateLabel
 import com.laohei.bili_tube.ui.component.widget.ViewAtLabel
 import com.laohei.bili_tube.ui.theme.PaddingSm
@@ -147,13 +146,10 @@ fun HorizontalVideoItem(
                     .padding(end = 22.dp),
                 verticalArrangement = Arrangement.spacedBy(3.dp)
             ) {
-                RichText(
+                Text(
                     text = title,
                     style = MaterialTheme.typography.bodySmall,
-                    collapsedMaxLine = 2,
                     minLines = 2,
-                    emote = emptyMap(),
-                    enabledExpanded = false,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
