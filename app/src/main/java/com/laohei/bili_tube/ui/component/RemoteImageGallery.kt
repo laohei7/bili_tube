@@ -15,6 +15,7 @@ import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,16 +32,21 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -48,9 +54,9 @@ import coil3.request.error
 import coil3.request.placeholder
 import coil3.size.Size
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.theme.PaddingXs
 import com.laohei.bili_tube.ui.theme.PaddingLg
 import com.laohei.bili_tube.ui.theme.PaddingSm
+import com.laohei.bili_tube.ui.theme.PaddingXs
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.abs
@@ -65,6 +71,10 @@ fun RemoteImageGallery(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+    val density = LocalDensity.current
+
     val pager = rememberPagerState(initialPage = initialIndex) { images.size }
     val imageIndexLabel by remember {
         derivedStateOf { "${pager.currentPage + 1}/${images.size}" }
@@ -87,6 +97,7 @@ fun RemoteImageGallery(
                 val animatedOffsetX = remember { Animatable(0f) }
                 val animatedOffsetY = remember { Animatable(0f) }
                 val item = images[index]
+                var imageAspectRatio by remember { mutableStateOf<Float?>(null) }
                 val imageRequest = rememberAsyncImagePainter(
                     ImageRequest.Builder(context)
                         .data(item.second)
@@ -94,8 +105,21 @@ fun RemoteImageGallery(
                         .size(Size.ORIGINAL)
                         .placeholder(R.drawable.icon_loading_1_1)
                         .error(R.drawable.icon_loading_1_1)
+                        .listener(
+                            onSuccess = { _, result ->
+                                val width = result.image.width
+                                val height = result.image.height
+                                imageAspectRatio = width.toFloat() / height
+                            }
+                        )
                         .build()
                 )
+                val allowVerticalDrag = remember(imageAspectRatio) {
+                    imageAspectRatio?.let { ratio ->
+                        val imageHeightPx = with(density) { (screenWidth * 1f / ratio).toPx() }
+                        imageHeightPx > with(density) { screenHeight.toPx() }
+                    } ?: false
+                }
                 Image(
                     painter = imageRequest,
                     contentDescription = "picture-${item.first}",
@@ -111,6 +135,10 @@ fun RemoteImageGallery(
                             }
                         )
                         .fillMaxWidth()
+                        .then(
+                            if (imageAspectRatio != null) Modifier.aspectRatio(imageAspectRatio!!)
+                            else Modifier
+                        )
                         .graphicsLayer {
                             translationX = animatedOffsetX.value
                             translationY = animatedOffsetY.value
@@ -128,6 +156,7 @@ fun RemoteImageGallery(
                             zoomFactor = 2f
                         )
                         .pinchAndDrag(
+                            allowVerticalDrag = allowVerticalDrag,
                             scale = scale,
                             offsetX = offsetX,
                             offsetY = offsetY,
@@ -138,7 +167,7 @@ fun RemoteImageGallery(
                             minScale = 1f,
                             maxScale = 5f
                         ),
-                    contentScale = ContentScale.FillWidth,
+                    contentScale = ContentScale.Fit,
                 )
             }
 
@@ -229,6 +258,7 @@ fun Modifier.doubleTapZoom(
 )
 
 private fun Modifier.pinchAndDrag(
+    allowVerticalDrag: Boolean = false,
     scale: MutableState<Float>,
     offsetX: MutableState<Float>,
     offsetY: MutableState<Float>,
@@ -271,7 +301,7 @@ private fun Modifier.pinchAndDrag(
                 scale.value = newScale
                 coroutineScope.launch { animatedScale.snapTo(newScale) }
 
-                if (scale.value > 1f || zoomChange != 1f) {
+                if (allowVerticalDrag || scale.value > 1f || zoomChange != 1f) {
                     offsetX.value += panChange.x
                     offsetY.value += panChange.y
                     coroutineScope.launch {
