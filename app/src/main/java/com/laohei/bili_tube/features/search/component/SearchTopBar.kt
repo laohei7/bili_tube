@@ -58,7 +58,7 @@ private fun SearchTopBar(
         expanded = expanded,
         onExpandedChange = onExpandedChange,
         inputField = {
-            val textStyle = MaterialTheme.typography.bodySmall
+            val textStyle = MaterialTheme.typography.bodyMedium
             CustomTextField(
                 value = value,
                 onValueChanged = onValueChange,
