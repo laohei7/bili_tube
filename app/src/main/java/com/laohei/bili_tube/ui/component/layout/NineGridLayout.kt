@@ -32,7 +32,7 @@ fun NineGridLayout(
         when (measurables.size) {
             1 -> {
                 val placeable = measurables.first().measure(constraints)
-                layout(placeable.width, placeable.height) {
+                layout(constraints.maxWidth, placeable.height) {
                     placeable.placeRelative(0, 0)
                 }
             }

@@ -1,7 +1,6 @@
-package com.laohei.bili_tube.ui.component.video
+package com.laohei.bili_tube.ui.component.widget
 
 import android.content.Context
-import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -44,7 +44,6 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.request.error
 import coil3.request.placeholder
-import coil3.size.Size
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.component.layout.NineGridLayout
 import com.laohei.bili_tube.ui.component.text.rich_text.ExpandableRichText
@@ -55,122 +54,154 @@ import com.laohei.bili_tube.ui.theme.PaddingXs
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun ArticleItem(
-    articleKey: String,
-    face: String,
-    ownerName: String,
-    date: String,
-    desc: String,
+fun ArticleCard(
+    modifier: Modifier = Modifier,
+    articleId: String,
+    avatarUrl: String,
+    authorName: String,
+    publishDate: String,
+    description: String,
     images: List<String>?,
     shape: Shape = RoundedCornerShape(PaddingNone),
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope,
-    onTrailingClick: () -> Unit,
-    onImageClick: ((Int, List<Pair<String, String>>) -> Unit)? = null
+    onMenuClick: () -> Unit,
+    onImagePreview: ((Int, List<Pair<String, String>>) -> Unit)? = null
 ) {
     Column(
-        modifier = Modifier.background(MaterialTheme.colorScheme.background)
+        modifier = modifier
     ) {
-        ArticleUserBar(
-            face = face,
-            username = ownerName,
-            pubDate = date,
-            onTrailingClick = { onTrailingClick.invoke() }
+        ArticleHeader(
+            avatarUrl = avatarUrl,
+            username = authorName,
+            date = publishDate,
+            onMenuClick = { onMenuClick.invoke() }
         )
 
-        if (desc.isNotBlank()) {
+        if (description.isNotBlank()) {
             ExpandableRichText(
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
                     .padding(top = 18.dp)
                     .padding(bottom = 12.dp),
-                text = desc, style = MaterialTheme.typography.bodyMedium,
+                text = description, style = MaterialTheme.typography.bodyMedium,
                 emote = emptyMap(),
                 color = MaterialTheme.colorScheme.onBackground
             )
         }
 
-        images?.let { list ->
-            fun onImageClick(index: Int) {
-                onImageClick?.invoke(
-                    index,
-                    list.mapIndexed { itemIndex, url -> "img-$articleKey-$itemIndex" to url })
-            }
-
-            NineGridLayout(
-                rowSpacing = PaddingSm,
-                columnSpacing = PaddingSm
-            ) {
-                with(sharedTransitionScope) {
-                    list.fastForEachIndexed { index, url ->
-                        if (index == 8 && list.size > 9) {
-                            Box(
-                                modifier = Modifier
-                                    .aspectRatio(1f)
-                            ) {
-                                ImageItem(
-                                    url = url,
-                                    modifier = Modifier
-                                        .sharedElement(
-                                            state = rememberSharedContentState("img-$articleKey-$index"),
-                                            animatedVisibilityScope = animatedVisibilityScope
-                                        )
-                                        .fillMaxSize()
-                                )
-                                BadgeMore(
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    onImageClick(index)
-                                }
-                            }
-                        } else {
-                            ImageItem(
-                                url = url,
-                                modifier = Modifier
-                                    .sharedElement(
-                                        state = rememberSharedContentState("img-$articleKey-$index"),
-                                        animatedVisibilityScope = animatedVisibilityScope
-                                    )
-                                    .aspectRatio(1f)
-                                    .clickable { onImageClick(index) }
-                            )
-                        }
-                    }
-                }
-            }
-
-
+        images?.let {
+            ArticleImageGrid(
+                articleId = articleId,
+                images = it,
+                shape = shape,
+                sharedTransitionScope = sharedTransitionScope,
+                animatedVisibilityScope = animatedVisibilityScope,
+                onImagePreview = onImagePreview
+            )
         }
-
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
+@Composable
+private fun ArticleImageGrid(
+    articleId: String,
+    images: List<String>,
+    shape: Shape,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    onImagePreview: ((Int, List<Pair<String, String>>) -> Unit)? = null
+) {
+    fun triggerPreview(index: Int) {
+        onImagePreview?.invoke(
+            index,
+            images.mapIndexed { i, url -> "img-$articleId-$i" to url }
+        )
+    }
+
+    NineGridLayout(
+        modifier = Modifier.fillMaxWidth(),
+        rowSpacing = PaddingSm,
+        columnSpacing = PaddingSm
+    ) {
+        with(sharedTransitionScope) {
+            val placeholder = when {
+                images.size == 1 -> R.drawable.icon_loading_142_80
+                images.size > 4 || images.size == 3 -> R.drawable.icon_loading_240
+                else -> R.drawable.icon_loading_375
+            }
+            images.fastForEachIndexed { index, url ->
+                if (index == 8 && images.size > 9) {
+                    Box(modifier = Modifier.aspectRatio(1f)) {
+                        ArticleImage(
+                            url = url,
+                            modifier = Modifier
+                                .sharedElement(
+                                    state = rememberSharedContentState("img-$articleId-$index"),
+                                    animatedVisibilityScope = animatedVisibilityScope
+                                )
+                                .fillMaxSize()
+                                .clip(shape),
+                            placeholder = placeholder
+                        )
+                        ImageOverflowBadge(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(shape)
+                        ) { triggerPreview(index) }
+                    }
+                } else {
+                    ArticleImage(
+                        url = url,
+                        modifier = Modifier
+                            .sharedElement(
+                                state = rememberSharedContentState("img-$articleId-$index"),
+                                animatedVisibilityScope = animatedVisibilityScope
+                            )
+                            .then(
+                                if (images.size == 1) Modifier
+                                    .heightIn(max = 280.dp)
+                                    .fillMaxWidth()
+                                else Modifier.aspectRatio(1f)
+                            )
+                            .clip(shape)
+                            .clickable { triggerPreview(index) },
+                        placeholder = placeholder,
+                        contentScale = if (images.size == 1) ContentScale.FillWidth else ContentScale.Crop
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Composable
-private fun ImageItem(
+private fun ArticleImage(
     modifier: Modifier = Modifier,
     url: String,
+    placeholder: Int,
+    contentScale: ContentScale = ContentScale.Crop
 ) {
     val context = LocalContext.current
-    val imageRequest = rememberAsyncImagePainter(
+    val painter = rememberAsyncImagePainter(
         ImageRequest.Builder(context)
             .data(url)
             .crossfade(true)
-            .size(Size(1280, 720))
-            .placeholder(R.drawable.icon_loading_1_1)
-            .error(R.drawable.icon_loading_1_1)
+            .placeholder(placeholder)
+            .error(placeholder)
             .build()
     )
     Image(
-        painter = imageRequest,
+        painter = painter,
         contentDescription = url,
         modifier = modifier,
-        contentScale = ContentScale.Crop,
+        contentScale = contentScale
     )
 }
 
 @Composable
-private fun BadgeMore(
+private fun ImageOverflowBadge(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -181,7 +212,8 @@ private fun BadgeMore(
         contentColor = Color.White
     ) {
         Text(
-            text = "9+", style = MaterialTheme.typography.bodyLarge,
+            text = "9+",
+            style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.wrapContentSize(),
             textAlign = TextAlign.Center
@@ -190,21 +222,19 @@ private fun BadgeMore(
 }
 
 @Composable
-private fun ArticleUserBar(
+private fun ArticleHeader(
     context: Context = LocalContext.current,
-    face: String,
+    avatarUrl: String,
     username: String,
-    pubDate: String,
-    @DrawableRes infoPlaceholder: Int = R.drawable.icon_loading_small,
-    @DrawableRes infoError: Int = R.drawable.icon_loading_small,
-    onTrailingClick: () -> Unit
+    date: String,
+    onMenuClick: () -> Unit
 ) {
     val facePainter = rememberAsyncImagePainter(
         ImageRequest.Builder(context)
-            .data(face)
+            .data(avatarUrl)
             .crossfade(true)
-            .placeholder(infoPlaceholder)
-            .error(infoError)
+            .placeholder(R.drawable.icon_loading_84)
+            .error(R.drawable.icon_loading_84)
             .build()
     )
 
@@ -236,7 +266,7 @@ private fun ArticleUserBar(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = pubDate,
+                text = date,
                 maxLines = 1,
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.Gray
@@ -247,7 +277,7 @@ private fun ArticleUserBar(
         Surface(
             shape = CircleShape,
             color = MaterialTheme.colorScheme.background,
-            onClick = { onTrailingClick.invoke() }
+            onClick = { onMenuClick.invoke() }
         ) {
             Icon(
                 imageVector = Icons.Rounded.MoreVert,

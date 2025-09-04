@@ -39,27 +39,27 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
-import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.features.main.component.LogoTopAppBar
 import com.laohei.bili_tube.features.main.component.VideoMenuSheet
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
+import com.laohei.bili_tube.ui.component.sheet.FolderSheet
 import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
 import com.laohei.bili_tube.ui.component.state.RecommendationPlaceholder
-import com.laohei.bili_tube.ui.component.sheet.FolderSheet
-import com.laohei.bili_tube.ui.component.video.ArticleItem
 import com.laohei.bili_tube.ui.component.video.VerticalVideoItem
+import com.laohei.bili_tube.ui.component.widget.ArticleCard
+import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.theme.PaddingLg
 import com.laohei.bili_tube.ui.theme.PaddingNone
 import com.laohei.bili_tube.ui.theme.PaddingSm
-import com.laohei.bili_tube.util.toTimeAgoString
 import com.laohei.bili_tube.ui.util.underDevelopment
+import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
+import com.laohei.bili_tube.util.toTimeAgoString
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.koin.androidx.compose.koinViewModel
@@ -371,18 +371,19 @@ private fun GetDynamicItem(
         DynamicItem.DYNAMIC_TYPE_DRAW -> {
             val draw = item.modules.moduleDynamic.major?.draw
             val desc = item.modules.moduleDynamic.desc?.text ?: ""
-            ArticleItem(
-                articleKey = draw?.id.toString(),
-                face = author.face,
-                ownerName = author.name,
-                date = author.pubTs.toTimeAgoString(),
-                desc = desc,
+            ArticleCard(
+                modifier = Modifier.clip(shape),
+                articleId = draw?.id.toString(),
+                avatarUrl = author.face,
+                authorName = author.name,
+                publishDate = author.pubTs.toTimeAgoString(false),
+                description = desc,
                 images = draw?.items?.map { it.src },
                 shape = shape,
                 sharedTransitionScope = sharedTransitionScope,
                 animatedVisibilityScope = animatedVisibilityScope,
-                onImageClick = onImageClick,
-                onTrailingClick = {
+                onImagePreview = onImageClick,
+                onMenuClick = {
                     underDevelopment(scope)
                 }
             )
@@ -390,18 +391,19 @@ private fun GetDynamicItem(
 
         DynamicItem.DYNAMIC_TYPE_ARTICLE -> {
             item.modules.moduleDynamic.major?.article?.let { article ->
-                ArticleItem(
-                    articleKey = article.id.toString(),
-                    face = author.face,
-                    ownerName = author.name,
-                    date = author.pubTs.toTimeAgoString(),
-                    desc = article.desc,
+                ArticleCard(
+                    modifier = Modifier.clip(shape),
+                    articleId = article.id.toString(),
+                    avatarUrl = author.face,
+                    authorName = author.name,
+                    publishDate = author.pubTs.toTimeAgoString(false),
+                    description = article.desc,
                     images = article.covers,
+                    shape = shape,
                     sharedTransitionScope = sharedTransitionScope,
                     animatedVisibilityScope = animatedVisibilityScope,
-                    onImageClick = onImageClick,
-                    onTrailingClick = {
-//                    onSubscriptionAction(SubscriptionAction.MenuUIAction(true))
+                    onImagePreview = onImageClick,
+                    onMenuClick = {
                         underDevelopment(scope)
                     }
                 )

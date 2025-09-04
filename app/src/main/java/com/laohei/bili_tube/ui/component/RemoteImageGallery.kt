@@ -138,7 +138,7 @@ fun RemoteImageGallery(
                             minScale = 1f,
                             maxScale = 5f
                         ),
-                    contentScale = ContentScale.Fit,
+                    contentScale = ContentScale.FillWidth,
                 )
             }
 
