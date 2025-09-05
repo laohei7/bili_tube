@@ -41,7 +41,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.component.TagItem
+import com.laohei.bili_tube.ui.component.chip.TagChip
 import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
 import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
 import com.laohei.bili_tube.util.toDateString
@@ -193,7 +193,7 @@ internal fun VideoDetailSheet(
                                 horizontalArrangement = Arrangement.spacedBy(16.dp)
                             ) {
                                 tags.fastForEach {
-                                    TagItem(it)
+                                    TagChip(it)
                                 }
                             }
                         }

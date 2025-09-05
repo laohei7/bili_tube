@@ -1,4 +1,4 @@
-package com.laohei.bili_tube.ui.component
+package com.laohei.bili_tube.ui.component.widget
 
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -63,7 +63,7 @@ import kotlin.math.abs
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun RemoteImageGallery(
+fun ZoomableImageViewer(
     images: List<Pair<String, String>>,
     initialIndex: Int = 0,
     sharedTransitionScope: SharedTransitionScope,

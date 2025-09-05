@@ -16,7 +16,7 @@ import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.model.FolderMedia
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
+import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
 import com.laohei.bili_tube.ui.theme.PaddingLg
 import com.laohei.bili_tube.ui.theme.PaddingMd
 import com.laohei.bili_tube.ui.util.HorizontalItemRules
@@ -52,13 +52,13 @@ internal fun WatchLaterList(
                 PlaylistInfoCard(param = param)
             }
             items(watchLaterList, { it.bvid }) { item ->
-                HorizontalVideoItem(
-                    cover = item.pic,
+                HorizontalVideoCard(
+                    coverUrl = item.pic,
                     title = item.title,
                     ownerName = item.owner.name,
                     duration = item.duration.toTimeString(false),
-                    view = item.stat.view.toViewString(),
-                    publishDate = item.pubdate.toTimeAgoString(),
+                    viewCount = item.stat.view.toViewString(),
+                    publishDate = item.pubdate.toTimeAgoString(false),
                     leadingIcon = null,
                     onClick = {
                         sharedViewModel.setPlayParam(

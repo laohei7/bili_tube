@@ -37,7 +37,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.search.SearchTabs
 import com.laohei.bili_tube.data.local.room.entity.SearchHistory
-import com.laohei.bili_tube.ui.component.ScrollTabRow
+import com.laohei.bili_tube.ui.component.widget.ChipTabRow
 import com.laohei.bili_tube.ui.component.text.CustomTextField
 import kotlinx.coroutines.flow.flowOf
 
@@ -163,7 +163,7 @@ internal fun SearchTopBar(
             onSearch = onSearch
         )
 
-        ScrollTabRow(
+        ChipTabRow(
             tabs = tabs.map { stringResource(it) },
             selectedTabIndex = selectedTabIndex,
             onTabClick = onTabClick

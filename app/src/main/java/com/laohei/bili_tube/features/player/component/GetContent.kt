@@ -31,8 +31,8 @@ import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 import com.laohei.bili_tube.features.player.state.screen.ScreenState
-import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
-import com.laohei.bili_tube.ui.component.video.VerticalVideoItem
+import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
+import com.laohei.bili_tube.ui.component.video.VerticalVideoCard
 import com.laohei.bili_tube.ui.theme.PaddingMd
 import com.laohei.bili_tube.util.toTimeString
 import com.laohei.bili_tube.util.toTimeAgoString
@@ -135,7 +135,7 @@ private fun VideoContent(
                 VideoSimpleInfoBar(
                     title = videoDetail.view.title,
                     view = videoDetail.view.stat.view.toViewString(),
-                    date = videoDetail.view.pubdate.toTimeAgoString(),
+                    date = videoDetail.view.pubdate.toTimeAgoString(false),
                     tag = when {
                         videoDetail.tags.isNotEmpty() -> videoDetail.tags.first().tagName
                         else -> null
@@ -194,14 +194,14 @@ private fun VideoContent(
                 Spacer(modifier = Modifier.height(12.dp))
             }
             items(videoDetail.related) { video ->
-                VerticalVideoItem(
+                VerticalVideoCard(
                     bvid = video.bvid,
-                    cover = video.pic,
+                    coverUrl = video.pic,
                     title = video.title,
-                    ownerFace = video.owner.face,
+                    ownerFaceUrl = video.owner.face,
                     ownerName = video.owner.name,
-                    view = video.stat.view.toViewString(),
-                    pubDate = video.pubdate.toTimeAgoString(),
+                    viewCount = video.stat.view.toViewString(),
+                    publishDate = video.pubdate.toTimeAgoString(false),
                     duration = video.duration.toTimeString(false),
                     trailingIcon = Icons.Outlined.MoreVert,
                     onClick = {
@@ -326,15 +326,15 @@ private fun BangumiContent(
                 Spacer(Modifier.height(8.dp))
             }
             items(relatedBangumis, key = { it.seasonId }) {
-                HorizontalVideoItem(
-                    cover = it.cover,
+                HorizontalVideoCard(
+                    coverUrl = it.cover,
                     title = it.title,
                     ownerName = "",
-                    rcmdReason = it.rcmdReason.ifBlank {
+                    recommendation = it.rcmdReason.ifBlank {
                         it.rating?.score?.run { "$this" + stringResource(R.string.str_score) }
                             ?: stringResource(R.string.str_no_score)
                     },
-                    view = it.stat.view.toViewString(),
+                    viewCount = it.stat.view.toViewString(),
                     publishDate = it.stat.follow.toViewString() + "追番",
                     leadingIcon = null,
                     onClick = {

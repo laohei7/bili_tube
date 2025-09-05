@@ -10,9 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.laohei.bili_tube.features.playlist.component.FolderMediaList
+import com.laohei.bili_tube.features.playlist.component.PlaylistContentTopBar
 import com.laohei.bili_tube.features.playlist.component.WatchLaterList
 import com.laohei.bili_tube.nav.AppRoute
-import com.laohei.bili_tube.ui.component.BackTopAppBar
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -31,11 +31,8 @@ fun PlaylistContentScreen(
 
     Scaffold(
         topBar = {
-            BackTopAppBar(
-                backup = upPress,
-                search = {
-                    navigateToAppRoute.invoke(AppRoute.Search)
-                }
+            PlaylistContentTopBar(
+                upPress = upPress
             )
         }
     ) { innerPadding ->

@@ -65,7 +65,6 @@ import com.laohei.bili_sdk.module_v2.user.InfoCardModel
 import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
 import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
-import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.VideoMenuAction
@@ -73,9 +72,10 @@ import com.laohei.bili_tube.features.player.component.control.PlayerControl
 import com.laohei.bili_tube.features.player.state.media.MediaState
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 import com.laohei.bili_tube.features.player.state.screen.ScreenState
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.model.toUserProfile
-import com.laohei.bili_tube.ui.component.ScrollTabRow
-import com.laohei.bili_tube.ui.component.TagItem
+import com.laohei.bili_tube.ui.component.chip.TagChip
+import com.laohei.bili_tube.ui.component.widget.ChipTabRow
 import com.laohei.bili_tube.ui.preview.FakePlayerState
 import com.laohei.bili_tube.ui.theme.PaddingLg
 import com.laohei.bili_tube.ui.theme.PaddingMd
@@ -405,7 +405,7 @@ private fun ColumnScope.LandscapeInfoArea(
                 overflow = FlowRowOverflow.Clip
             ) {
                 tags.fastForEach {
-                    TagItem(it)
+                    TagChip(it)
                 }
             }
         }
@@ -463,14 +463,15 @@ private fun RowScope.OtherListArea(
             .clip(RoundedCornerShape(PaddingSm))
             .background(MaterialTheme.colorScheme.background)
     ) {
-        ScrollTabRow(
+        ChipTabRow(
             tabs = menus,
-            selectedTabIndex = pager.currentPage
-        ) {
-            scope.launch {
-                pager.animateScrollToPage(it)
+            selectedTabIndex = pager.currentPage,
+            onTabClick = {
+                scope.launch {
+                    pager.animateScrollToPage(it)
+                }
             }
-        }
+        )
 
         HorizontalPager(
             state = pager

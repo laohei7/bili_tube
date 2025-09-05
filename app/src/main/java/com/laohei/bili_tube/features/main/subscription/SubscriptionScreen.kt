@@ -51,7 +51,7 @@ import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.sheet.FolderSheet
 import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
 import com.laohei.bili_tube.ui.component.state.RecommendationPlaceholder
-import com.laohei.bili_tube.ui.component.video.VerticalVideoItem
+import com.laohei.bili_tube.ui.component.video.VerticalVideoCard
 import com.laohei.bili_tube.ui.component.widget.ArticleCard
 import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.theme.PaddingLg
@@ -332,18 +332,18 @@ private fun GetDynamicItem(
     when (item.type) {
         DynamicItem.DYNAMIC_TYPE_AV -> {
             val archive = item.modules.moduleDynamic.major!!.archive!!
-            VerticalVideoItem(
+            VerticalVideoCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(shape),
                 coverShape = shape,
                 bvid = archive.bvid,
-                cover = archive.cover,
+                coverUrl = archive.cover,
                 title = archive.title,
-                ownerFace = author.face,
+                ownerFaceUrl = author.face,
                 ownerName = author.name,
-                view = archive.stat.play,
-                pubDate = author.pubTs.toTimeAgoString(),
+                viewCount = archive.stat.play,
+                publishDate = author.pubTs.toTimeAgoString(false),
                 duration = archive.durationText,
                 trailingIcon = Icons.Outlined.MoreVert,
                 onClick = {

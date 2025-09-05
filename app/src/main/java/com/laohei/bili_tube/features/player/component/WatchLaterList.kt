@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.Dp
 import com.laohei.bili_sdk.module_v2.video.VideoView
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
+import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
 import com.laohei.bili_tube.ui.theme.PaddingMd
 import com.laohei.bili_tube.util.toTimeString
 import com.laohei.bili_tube.util.toTimeAgoString
@@ -32,14 +32,14 @@ internal fun WatchLaterList(
         verticalArrangement = Arrangement.spacedBy(PaddingMd)
     ) {
         itemsIndexed(watchLaterList) { index, item ->
-            HorizontalVideoItem(
-                cover = item.pic,
+            HorizontalVideoCard(
+                coverUrl = item.pic,
                 title = item.title,
                 ownerName = item.owner.name,
                 duration = item.duration.toTimeString(false),
-                view = item.stat.view.toViewString(),
-                publishDate = item.pubdate.toTimeAgoString(),
-                isCurrentPlaying = currentWatchLaterIndex == index,
+                viewCount = item.stat.view.toViewString(),
+                publishDate = item.pubdate.toTimeAgoString(false),
+                isPlaying = currentWatchLaterIndex == index,
                 leadingIcon = null,
                 onClick = {
                     onVideoMenuAction(

@@ -24,7 +24,7 @@ import com.laohei.bili_tube.AppState
 import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.features.download.DownloadScreen
 import com.laohei.bili_tube.features.history.HistoryScreen
-import com.laohei.bili_tube.features.image.RemoteImageGalleryScreen
+import com.laohei.bili_tube.features.image.ZoomableImagePagerScreen
 import com.laohei.bili_tube.features.login.LoginNav
 import com.laohei.bili_tube.features.main.MainNav
 import com.laohei.bili_tube.features.player.VideoScreen
@@ -158,7 +158,7 @@ fun AppNav(
                 )
             }
             composable<AppRoute.Gallery> {
-                RemoteImageGalleryScreen(
+                ZoomableImagePagerScreen(
                     galleryParam = it.toRoute(),
                     sharedTransitionScope = this@SharedTransitionLayout,
                     animatedVisibilityScope = this

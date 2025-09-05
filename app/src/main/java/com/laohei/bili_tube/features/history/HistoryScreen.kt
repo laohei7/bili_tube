@@ -44,7 +44,7 @@ import com.laohei.bili_tube.model.UIModel
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
-import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
+import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
 import com.laohei.bili_tube.ui.theme.PaddingLg
 import com.laohei.bili_tube.ui.theme.PaddingMd
 import com.laohei.bili_tube.util.formatAs
@@ -163,8 +163,8 @@ private fun GetHistoryItem(
 
                 else -> 0f
             }
-            HorizontalVideoItem(
-                cover = it.cover,
+            HorizontalVideoCard(
+                coverUrl = it.cover,
                 title = it.title,
                 ownerName = it.authorName,
                 duration = it.duration.toTimeString(false),

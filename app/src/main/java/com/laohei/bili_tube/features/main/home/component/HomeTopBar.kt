@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.IntOffset
 import com.laohei.bili_tube.features.main.component.LogoTopAppBar
 import com.laohei.bili_tube.features.main.home.HomeTabs
 import com.laohei.bili_tube.nav.AppRoute
-import com.laohei.bili_tube.ui.component.ScrollTabRow
+import com.laohei.bili_tube.ui.component.widget.ChipTabRow
 
 @Composable
 internal fun HomeTopBar(
@@ -46,7 +46,7 @@ internal fun HomeTopBar(
             )
         }
 
-        ScrollTabRow(
+        ChipTabRow(
             tabs = tabs,
             selectedTabIndex = selectedTabIndex,
             onTabClick = onTabClick

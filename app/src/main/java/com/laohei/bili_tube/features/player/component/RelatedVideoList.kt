@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import com.laohei.bili_sdk.module_v2.video.VideoView
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
+import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
 import com.laohei.bili_tube.ui.theme.PaddingMd
 import com.laohei.bili_tube.util.toTimeString
 import com.laohei.bili_tube.util.toTimeAgoString
@@ -22,13 +22,13 @@ internal fun RelatedVideoList(
         verticalArrangement = Arrangement.spacedBy(PaddingMd)
     ) {
         items(relatedList) {
-            HorizontalVideoItem(
-                cover = it.pic,
+            HorizontalVideoCard(
+                coverUrl = it.pic,
                 title = it.title,
                 ownerName = it.owner.name,
                 duration = it.duration.toTimeString(false),
-                view = it.stat.view.toViewString(),
-                publishDate = it.pubdate.toTimeAgoString(),
+                viewCount = it.stat.view.toViewString(),
+                publishDate = it.pubdate.toTimeAgoString(false),
                 onClick = {
                     onVideoMenuAction(
                         VideoMenuAction.SwitchVideo(
@@ -40,7 +40,7 @@ internal fun RelatedVideoList(
                         )
                     )
                 },
-                trailingOnClick = {
+                onMoreClick = {
 
                 },
                 leadingIcon = null

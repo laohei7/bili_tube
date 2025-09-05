@@ -16,7 +16,7 @@ import com.laohei.bili_tube.model.FolderMedia
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
-import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
+import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
 import com.laohei.bili_tube.ui.theme.PaddingLg
 import com.laohei.bili_tube.ui.theme.PaddingMd
 import com.laohei.bili_tube.ui.util.HorizontalItemRules
@@ -55,13 +55,13 @@ internal fun FolderMediaList(
             }
             items(resources.itemCount, { resources[it]!!.bvid }) { index ->
                 val item = resources[index] ?: return@items
-                HorizontalVideoItem(
-                    cover = item.cover,
+                HorizontalVideoCard(
+                    coverUrl = item.cover,
                     title = item.title,
                     ownerName = item.upper.name,
                     duration = item.duration.toTimeString(false),
-                    view = item.cntInfo.play.toViewString(),
-                    publishDate = item.pubtime.toTimeAgoString(),
+                    viewCount = item.cntInfo.play.toViewString(),
+                    publishDate = item.pubtime.toTimeAgoString(false),
                     leadingIcon = null,
                     onClick = {
                         sharedViewModel.setPlayParam(

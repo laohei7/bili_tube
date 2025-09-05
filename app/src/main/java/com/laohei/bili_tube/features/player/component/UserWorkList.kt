@@ -53,7 +53,7 @@ import com.laohei.bili_tube.ui.component.icons.Level4
 import com.laohei.bili_tube.ui.component.icons.Level5
 import com.laohei.bili_tube.ui.component.icons.Level6
 import com.laohei.bili_tube.ui.component.widget.LabeledData
-import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem2
+import com.laohei.bili_tube.ui.component.video.HorizontalVideoCompactCard
 import com.laohei.bili_tube.util.toTimeString
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -125,13 +125,13 @@ internal fun UserWorkList(
         items(works.itemCount) { index ->
             val item = works[index]
             item?.let {
-                HorizontalVideoItem2(
-                    cover = it.cover,
+                HorizontalVideoCompactCard(
+                    coverUrl = it.cover,
                     title = it.title,
-                    view = it.viewContent,
-                    pubdate = it.publishTimeText,
+                    viewCount = it.viewContent,
+                    publishDate = it.publishTimeText,
                     progress = 0f,
-                    isCurrentPlaying = it.bvid == currentBvid,
+                    isPlaying = it.bvid == currentBvid,
                     onClick = {
                         onVideoMenuAction(
                             VideoMenuAction.SwitchVideo(

@@ -36,7 +36,7 @@ import com.laohei.bili_tube.app.Route
 import com.laohei.bili_tube.core.WRITE_STORAGE_PERMISSION
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
-import com.laohei.bili_tube.ui.component.SwitchListItem
+import com.laohei.bili_tube.ui.component.widget.ListItemWithSwitch
 import com.laohei.bili_tube.core.extension.checkedPermissions
 import kotlinx.coroutines.launch
 
@@ -167,7 +167,7 @@ private fun GetLogSettingsItem(
     val scope = rememberCoroutineScope()
     when (item.second) {
         R.string.str_export_crash_doc -> {
-            SwitchListItem(
+            ListItemWithSwitch(
                 leadingContent = {
                     Icon(
                         imageVector = item.first,
@@ -205,7 +205,7 @@ private fun GetSharedSettingsItem(
 ) {
     when (item.second) {
         R.string.str_shared_super_quality_source -> {
-            SwitchListItem(
+            ListItemWithSwitch(
                 leadingContent = {
                     Icon(
                         imageVector = item.first,
@@ -260,7 +260,7 @@ private fun GetDownloadSettingsItem(
 ) {
     when (item.second) {
         R.string.str_merge_source -> {
-            SwitchListItem(
+            ListItemWithSwitch(
                 leadingContent = {
                     Icon(
                         imageVector = item.first,

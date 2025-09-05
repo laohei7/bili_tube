@@ -31,7 +31,7 @@ import com.laohei.bili_tube.features.main.home.HomeAction
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
-import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
+import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
 import com.laohei.bili_tube.ui.theme.PaddingLg
 import com.laohei.bili_tube.ui.theme.PaddingMd
 import com.laohei.bili_tube.util.toTimeString
@@ -108,14 +108,14 @@ fun HotScreen(
 
                 items(hotVideos.itemCount) { index ->
                     hotVideos[index]?.let {
-                        HorizontalVideoItem(
-                            cover = it.pic,
+                        HorizontalVideoCard(
+                            coverUrl = it.pic,
                             title = it.title,
                             ownerName = it.owner.name,
-                            rcmdReason = it.rcmdReason.content ?: "",
+                            recommendation = it.rcmdReason.content ?: "",
                             duration = it.duration.toTimeString(false),
-                            view = it.stat.view.toViewString(),
-                            publishDate = it.pubdate.toTimeAgoString(),
+                            viewCount = it.stat.view.toViewString(),
+                            publishDate = it.pubdate.toTimeAgoString(false),
                             onClick = {
                                 sharedViewModel.setPlayParam(
                                     PlayParam.VideoParam(
@@ -128,7 +128,7 @@ fun HotScreen(
                                 )
                                 navigateToAppRoute(AppRoute.Play)
                             },
-                            trailingOnClick = {
+                            onMoreClick = {
                                 onHomeAction(HomeAction.MenuSheetUIAction(true, it.aid, it.bvid))
                             },
                             leadingIcon = null

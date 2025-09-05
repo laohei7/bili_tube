@@ -12,7 +12,7 @@ import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.module_v2.folder.FolderMediaItem
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
+import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
 import com.laohei.bili_tube.ui.theme.PaddingMd
 import com.laohei.bili_tube.util.toTimeString
 import com.laohei.bili_tube.util.toTimeAgoString
@@ -33,14 +33,14 @@ internal fun FolderMediaList(
     ) {
         items(folderMediaList.itemCount) { index ->
             val item = folderMediaList[index] ?: return@items
-            HorizontalVideoItem(
-                cover = item.cover,
+            HorizontalVideoCard(
+                coverUrl = item.cover,
                 title = item.title,
                 ownerName = item.upper.name,
                 duration = item.duration.toTimeString(false),
-                view = item.cntInfo.play.toViewString(),
-                publishDate = item.pubtime.toTimeAgoString(),
-                isCurrentPlaying = currentFolderMediaIndex == index,
+                viewCount = item.cntInfo.play.toViewString(),
+                publishDate = item.pubtime.toTimeAgoString(false),
+                isPlaying = currentFolderMediaIndex == index,
                 leadingIcon = null,
                 onClick = {
                     onVideoMenuAction(

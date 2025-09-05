@@ -9,7 +9,7 @@ import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiItem
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem
+import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
 import com.laohei.bili_tube.ui.theme.PaddingMd
 import com.laohei.bili_tube.util.toViewString
 
@@ -22,15 +22,15 @@ internal fun RelatedBangumiList(
         verticalArrangement = Arrangement.spacedBy(PaddingMd)
     ) {
         items(relatedList) {
-            HorizontalVideoItem(
-                cover = it.cover,
+            HorizontalVideoCard(
+                coverUrl = it.cover,
                 title = it.title,
                 ownerName = "",
-                rcmdReason = it.rcmdReason.ifBlank {
+                recommendation = it.rcmdReason.ifBlank {
                     it.rating?.score?.run { "$this" + stringResource(R.string.str_score) }
                         ?: stringResource(R.string.str_no_score)
                 },
-                view = it.stat.view.toViewString(),
+                viewCount = it.stat.view.toViewString(),
                 publishDate = it.stat.follow.toViewString() + "追番",
                 leadingIcon = null,
                 onClick = {

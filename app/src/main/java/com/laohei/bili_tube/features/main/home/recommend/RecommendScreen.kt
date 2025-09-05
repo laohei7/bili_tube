@@ -41,7 +41,7 @@ import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
 import com.laohei.bili_tube.ui.component.state.RecommendationPlaceholder
-import com.laohei.bili_tube.ui.component.video.VerticalVideoItem
+import com.laohei.bili_tube.ui.component.video.VerticalVideoCard
 import com.laohei.bili_tube.ui.theme.PaddingLg
 import com.laohei.bili_tube.ui.theme.PaddingNone
 import com.laohei.bili_tube.ui.theme.PaddingSm
@@ -145,18 +145,18 @@ fun RecommendScreen(
                             key = { recommends[it]?.bvid ?: Uuid.random().toString() }
                         ) { index ->
                             recommends[index]?.let {
-                                VerticalVideoItem(
+                                VerticalVideoCard(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .clip(shape),
                                     coverShape = shape,
                                     bvid = it.bvid,
-                                    cover = it.pic,
+                                    coverUrl = it.pic,
                                     title = remember(it.bvid) { it.title },
-                                    ownerFace = it.owner?.face ?: "",
+                                    ownerFaceUrl = it.owner?.face ?: "",
                                     ownerName = it.owner?.name ?: "",
-                                    view = it.stat?.view?.toViewString() ?: "",
-                                    pubDate = it.pubDate.toTimeAgoString(),
+                                    viewCount = it.stat?.view?.toViewString() ?: "",
+                                    publishDate = it.pubDate.toTimeAgoString(false),
                                     duration = it.duration.toTimeString(false),
                                     trailingIcon = Icons.Outlined.MoreVert,
                                     onClick = {

@@ -5,16 +5,16 @@ import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
 import com.laohei.bili_tube.nav.AppRoute
-import com.laohei.bili_tube.ui.component.RemoteImageGallery
+import com.laohei.bili_tube.ui.component.widget.ZoomableImageViewer
 
 @OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
-fun RemoteImageGalleryScreen(
+fun ZoomableImagePagerScreen(
     galleryParam: AppRoute.Gallery,
     sharedTransitionScope: SharedTransitionScope,
     animatedVisibilityScope: AnimatedVisibilityScope
 ) {
-    RemoteImageGallery(
+    ZoomableImageViewer(
         images = galleryParam.images,
         initialIndex = galleryParam.initialIndex,
         sharedTransitionScope = sharedTransitionScope,

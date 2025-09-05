@@ -1,4 +1,4 @@
-package com.laohei.bili_tube.ui.component
+package com.laohei.bili_tube.ui.component.widget
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.horizontalScroll
@@ -10,6 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.ChipColors
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,13 +23,22 @@ import com.laohei.bili_tube.ui.theme.PaddingLg
 import com.laohei.bili_tube.ui.theme.PaddingSm
 
 @Composable
-fun ScrollTabRow(
+fun ChipTabRow(
     tabs: List<String>,
     selectedTabIndex: Int,
     onTabClick: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+    selectedColors: ChipColors = AssistChipDefaults.assistChipColors(
+        containerColor = MaterialTheme.colorScheme.primary,
+        labelColor = MaterialTheme.colorScheme.onPrimary
+    ),
+    unselectedColors: ChipColors = AssistChipDefaults.assistChipColors(
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        labelColor = MaterialTheme.colorScheme.onBackground
+    )
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically,
@@ -39,25 +49,9 @@ fun ScrollTabRow(
             AssistChip(
                 onClick = { onTabClick(index) },
                 shape = RoundedCornerShape(PaddingSm),
-                colors = when {
-                    selectedTabIndex == index -> {
-                        AssistChipDefaults.assistChipColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
-                            labelColor = MaterialTheme.colorScheme.onPrimary
-                        )
-                    }
-
-                    else -> {
-                        AssistChipDefaults.assistChipColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                            labelColor = MaterialTheme.colorScheme.onBackground
-                        )
-                    }
-                },
+                colors = if (selectedTabIndex == index) selectedColors else unselectedColors,
                 border = BorderStroke(0.dp, Color.Transparent),
-                label = {
-                    Text(text = tab)
-                }
+                label = { Text(text = tab) }
             )
         }
         Spacer(Modifier)

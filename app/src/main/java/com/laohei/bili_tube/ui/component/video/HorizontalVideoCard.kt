@@ -19,8 +19,8 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.PlayCircleOutline
-import androidx.compose.material.icons.outlined.Update
+import androidx.compose.material.icons.rounded.PlayCircleOutline
+import androidx.compose.material.icons.rounded.Update
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -29,19 +29,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ImageRequest
 import coil3.request.crossfade
@@ -52,36 +51,41 @@ import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedPlayingIcon
 import com.laohei.bili_tube.ui.component.chip.RecommendationTag
 import com.laohei.bili_tube.ui.component.chip.UpTag
 import com.laohei.bili_tube.ui.component.chip.VideoDurationTag
+import com.laohei.bili_tube.ui.component.widget.IconWithText
 import com.laohei.bili_tube.ui.component.widget.ViewAndDateLabel
 import com.laohei.bili_tube.ui.component.widget.ViewAtLabel
+import com.laohei.bili_tube.ui.theme.CornerRadiusMd
+import com.laohei.bili_tube.ui.theme.CornerRadiusXs
+import com.laohei.bili_tube.ui.theme.PaddingMd
+import com.laohei.bili_tube.ui.theme.PaddingNone
 import com.laohei.bili_tube.ui.theme.PaddingSm
+import com.laohei.bili_tube.ui.theme.PaddingXs
 import com.laohei.bili_tube.util.toViewString
 
 
 @Composable
-fun HorizontalVideoItem(
+fun HorizontalVideoCard(
     modifier: Modifier = Modifier,
-    cover: String,
+    coverUrl: String,
     title: String,
     ownerName: String,
     progress: Float? = null,
-    isCurrentPlaying: Boolean = false,
+    isPlaying: Boolean = false,
     duration: String? = null,
     viewAt: String? = null,
-    rcmdReason: String? = null,
-    view: String? = null,
+    recommendation: String? = null,
+    viewCount: String? = null,
     publishDate: String? = null,
     onClick: () -> Unit = {},
-    trailingOnClick: () -> Unit = {},
+    onMoreClick: () -> Unit = {},
     leadingIcon: (@Composable () -> Unit)? = null
 ) {
     val coverRequest = rememberAsyncImagePainter(
         ImageRequest.Builder(LocalContext.current)
-            .data(cover)
+            .data(coverUrl)
             .crossfade(true)
-            .size(12880, 720)
-            .placeholder(R.drawable.icon_loading_16_9)
-            .error(R.drawable.icon_loading_16_9)
+            .placeholder(R.drawable.icon_loading_375_211)
+            .error(R.drawable.icon_loading_375_211)
             .build()
     )
     Row(
@@ -91,9 +95,8 @@ fun HorizontalVideoItem(
             .clickable {
                 onClick.invoke()
             }
-//            .padding(vertical = 8.dp)
-            .padding(end = 8.dp)
-            .padding(start = if (leadingIcon == null) 8.dp else 0.dp),
+            .padding(end = PaddingSm)
+            .padding(start = if (leadingIcon == null) PaddingSm else PaddingNone),
     ) {
         leadingIcon?.let {
             Box(Modifier.align(Alignment.CenterVertically)) { it.invoke() }
@@ -131,7 +134,7 @@ fun HorizontalVideoItem(
                         .padding(bottom = 8.dp, end = 8.dp)
                 )
             }
-            if (isCurrentPlaying) {
+            if (isPlaying) {
                 AnimatedPlayingIcon(Modifier.align(Alignment.Center))
             }
         }
@@ -153,18 +156,18 @@ fun HorizontalVideoItem(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-                rcmdReason?.let { RecommendationTag(it) }
+                recommendation?.let { RecommendationTag(it) }
                 if (ownerName.isNotBlank()) {
                     UpTag(ownerName)
                 }
                 viewAt?.let { ViewAtLabel(it) }
-                if (view != null && publishDate != null) {
-                    ViewAndDateLabel(view = view, publishDate = publishDate)
+                if (viewCount != null && publishDate != null) {
+                    ViewAndDateLabel(view = viewCount, publishDate = publishDate)
                 }
             }
 
             IconButton(
-                onClick = { trailingOnClick.invoke() },
+                onClick = { onMoreClick.invoke() },
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .offset {
@@ -187,24 +190,23 @@ fun HorizontalVideoItem(
 
 
 @Composable
-fun HorizontalVideoItem2(
+fun HorizontalVideoCompactCard(
     modifier: Modifier = Modifier,
-    cover: String,
+    coverUrl: String,
     title: String,
-    view: String,
+    viewCount: String,
     duration: String,
     progress: Float,
-    pubdate: String,
-    isCurrentPlaying: Boolean,
+    publishDate: String,
+    isPlaying: Boolean,
     onClick: () -> Unit,
 ) {
     val coverRequest = rememberAsyncImagePainter(
         ImageRequest.Builder(LocalContext.current)
-            .data(cover)
+            .data(coverUrl)
             .crossfade(true)
-            .size(12880, 720)
-            .error(R.drawable.icon_loading_16_9)
-            .placeholder(R.drawable.icon_loading_16_9)
+            .error(R.drawable.icon_loading_375_211)
+            .placeholder(R.drawable.icon_loading_375_211)
             .build()
     )
     Row(
@@ -214,10 +216,10 @@ fun HorizontalVideoItem2(
             .clickable {
                 onClick.invoke()
             }
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(horizontal = PaddingSm, vertical = PaddingXs),
+        horizontalArrangement = Arrangement.spacedBy(PaddingMd)
     ) {
-        val shape = remember { RoundedCornerShape(12.dp) }
+        val shape = RoundedCornerShape(CornerRadiusMd)
         val coverModifier = Modifier
             .weight(1f)
             .aspectRatio(16 / 9f)
@@ -246,79 +248,62 @@ fun HorizontalVideoItem2(
             Surface(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(bottom = 8.dp, end = 8.dp),
+                    .padding(bottom = PaddingSm, end = PaddingSm),
                 color = Color.Black.copy(alpha = 0.5f),
                 contentColor = Color.White,
-                shape = RoundedCornerShape(4.dp)
+                shape = RoundedCornerShape(CornerRadiusXs)
             ) {
                 Text(
                     text = duration,
                     style = MaterialTheme.typography.labelSmall,
                     modifier = Modifier
                         .wrapContentSize()
-                        .padding(3.dp)
+                        .padding(PaddingXs)
                 )
             }
 
-            if (isCurrentPlaying) {
+            if (isPlaying) {
                 AnimatedPlayingIcon(Modifier.align(Alignment.Center))
             }
         }
         Column(
             modifier = Modifier
                 .weight(1f),
-            verticalArrangement = Arrangement.spacedBy(3.dp)
+            verticalArrangement = Arrangement.spacedBy(PaddingXs)
         ) {
             Text(
                 text = title,
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.bodySmall,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Bold,
             )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
-            ) {
 
-                Icon(
-                    imageVector = Icons.Outlined.Update,
-                    contentDescription = Icons.Outlined.Update.name,
-                    modifier = Modifier
-                        .size(16.dp),
-                    tint = Color.Gray
-                )
+            IconWithText(
+                icon = {
+                    Icon(
+                        imageVector = Icons.Rounded.Update,
+                        contentDescription = Icons.Rounded.Update.name,
+                        modifier = Modifier
+                            .size(16.dp),
+                        tint = Color.Gray
+                    )
+                },
+                label = publishDate
+            )
 
-                Text(
-                    text = pubdate,
-                    maxLines = 1,
-                    style = MaterialTheme.typography.labelSmall
-                        .copy(fontSize = 10.sp),
-                    color = Color.Gray
-                )
-            }
-
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
-            ) {
-
-                Icon(
-                    imageVector = Icons.Outlined.PlayCircleOutline,
-                    contentDescription = Icons.Outlined.PlayCircleOutline.name,
-                    modifier = Modifier
-                        .size(16.dp),
-                    tint = Color.Gray
-                )
-
-                Text(
-                    text = "${view}观看",
-                    maxLines = 1,
-                    style = MaterialTheme.typography.labelSmall
-                        .copy(fontSize = 10.sp),
-                    color = Color.Gray
-                )
-            }
+            IconWithText(
+                icon = {
+                    Icon(
+                        imageVector = Icons.Rounded.PlayCircleOutline,
+                        contentDescription = Icons.Rounded.PlayCircleOutline.name,
+                        modifier = Modifier
+                            .size(16.dp),
+                        tint = Color.Gray
+                    )
+                },
+                label = stringResource(R.string.str_view_count, viewCount)
+            )
         }
     }
 }
@@ -327,13 +312,13 @@ fun HorizontalVideoItem2(
 @Preview
 @Composable
 private fun HotVideoItemPreview() {
-    HorizontalVideoItem(
-        cover = "",
+    HorizontalVideoCard(
+        coverUrl = "",
         title = "【预告片】《三体2：黑暗森林（中篇）》（个人自制）",
         ownerName = "六时许_liujun",
-        rcmdReason = "7万点赞",
+        recommendation = "7万点赞",
         duration = "07:29",
-        view = "56.7万",
+        viewCount = "56.7万",
         publishDate = "4小时前",
         leadingIcon = null
     )
@@ -343,8 +328,8 @@ private fun HotVideoItemPreview() {
 @Preview
 @Composable
 private fun HistoryVideoItemPreview() {
-    HorizontalVideoItem(
-        cover = "",
+    HorizontalVideoCard(
+        coverUrl = "",
         title = "连升两台纯血鸿蒙，我悟了...",
         ownerName = "大宽大宽",
         viewAt = "今天 19:05",
@@ -357,12 +342,12 @@ private fun HistoryVideoItemPreview() {
 @Preview
 @Composable
 private fun ToViewVideoItemPreview() {
-    HorizontalVideoItem(
-        cover = "",
+    HorizontalVideoCard(
+        coverUrl = "",
         title = "不要抢走我的整活啊！2025年1月新番完结吐槽！【泛式】",
         ownerName = "泛式",
         duration = "05:20",
-        view = "144.03万",
+        viewCount = "144.03万",
         publishDate = "23小时前",
     )
 }
@@ -371,14 +356,14 @@ private fun ToViewVideoItemPreview() {
 @Preview
 @Composable
 private fun ToViewVideoItem2Preview() {
-    HorizontalVideoItem2(
-        cover = "",
+    HorizontalVideoCompactCard(
+        coverUrl = "",
         title = "不要抢走我的整活啊！2025年1月新番完结吐槽！【泛式】",
-        view = 100000.toViewString(),
+        viewCount = 100000.toViewString(),
         duration = "05:20",
         progress = 0f,
-        pubdate = "23小时前",
-        isCurrentPlaying = true,
+        publishDate = "23小时前",
+        isPlaying = true,
         onClick = {}
     )
 }

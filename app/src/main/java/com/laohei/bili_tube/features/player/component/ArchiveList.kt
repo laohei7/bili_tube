@@ -21,7 +21,7 @@ import com.laohei.bili_sdk.module_v2.video.ArchiveItem
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.ui.component.video.HorizontalVideoItem2
+import com.laohei.bili_tube.ui.component.video.HorizontalVideoCompactCard
 import com.laohei.bili_tube.util.toTimeString
 import com.laohei.bili_tube.util.toTimeAgoString
 import com.laohei.bili_tube.util.toViewString
@@ -53,14 +53,14 @@ internal fun ArchiveList(
             )
         }
         itemsIndexed(archiveList) { index, item ->
-            HorizontalVideoItem2(
-                cover = item.pic,
+            HorizontalVideoCompactCard(
+                coverUrl = item.pic,
                 title = item.title,
-                view = item.stat.view.toViewString(),
+                viewCount = item.stat.view.toViewString(),
                 duration = item.duration.toTimeString(false),
                 progress = item.playbackPosition.toFloat() / item.duration,
-                pubdate = item.pubdate.toTimeAgoString(),
-                isCurrentPlaying = index == currentArchiveIndex,
+                publishDate = item.pubdate.toTimeAgoString(false),
+                isPlaying = index == currentArchiveIndex,
                 onClick = {
                     onVideoMenuAction(
                         VideoMenuAction.SwitchVideo(

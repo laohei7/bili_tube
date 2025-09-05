@@ -339,7 +339,7 @@ private fun VideoCommentItem(
                 text = stringResource(
                     R.string.str_user_and_date,
                     item.member.uname,
-                    item.ctime.toTimeAgoString()
+                    item.ctime.toTimeAgoString(false)
                 ),
                 style = MaterialTheme.typography.labelMedium,
                 color = Color.Gray

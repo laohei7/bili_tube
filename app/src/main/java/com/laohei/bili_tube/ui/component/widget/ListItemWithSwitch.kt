@@ -1,4 +1,4 @@
-package com.laohei.bili_tube.ui.component
+package com.laohei.bili_tube.ui.component.widget
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material3.ListItem
@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 
 @Composable
-fun SwitchListItem(
+fun ListItemWithSwitch(
     headlineContent: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     overlineContent: @Composable (() -> Unit)? = null,
