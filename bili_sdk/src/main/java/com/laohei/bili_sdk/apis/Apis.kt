@@ -31,6 +31,8 @@ const val URL_USER_STAT = "$BILIBILI_API/x/web-interface/nav/stat"
 // 稍后观看
 const val URL_TO_VIEW = "$BILIBILI_API/x/v2/history/toview"
 const val URL_ADD_TO_VIEW = "$BILIBILI_API/x/v2/history/toview/add"
+const val URL_DEL_TO_VIEW = "$BILIBILI_API/x/v2/history/toview/del"
+const val URL_CLEAR_TO_VIEW = "$BILIBILI_API/x/v2/history/toview/clear"
 
 // 合集
 const val URL_FOLDER = "$BILIBILI_API/x/v3/fav/folder/list4navigate"
@@ -69,7 +71,8 @@ const val URL_VIDEO_REPLY = "$BILIBILI_API/x/v2/reply"
 // 历史记录
 const val URL_VIDEO_HISTORY_REPORT = "$BILIBILI_API/x/v2/history/report"
 const val URL_HISTORY = "$BILIBILI_API/x/web-interface/history/cursor"
-
+const val URL_DEL_HISTORY = "$BILIBILI_API/x/v2/history/delete"
+const val URL_CLEAR_HISTORY = "$BILIBILI_API/x/v2/history/clear"
 
 const val VIDEO_INFO = "$BILIBILI_API/x/web-interface/wbi/view"
 const val VIDEO_HEART_BEAT_URL = "$BILIBILI_API/x/click-interface/web/heartbeat"

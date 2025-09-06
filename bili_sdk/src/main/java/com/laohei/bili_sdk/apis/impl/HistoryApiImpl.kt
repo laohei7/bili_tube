@@ -1,18 +1,24 @@
 package com.laohei.bili_sdk.apis.impl
 
+import android.util.Log
 import com.laohei.bili_sdk.apis.BILIBILI
-import com.laohei.bili_sdk.apis.URL_HISTORY
 import com.laohei.bili_sdk.apis.HistoryApi
 import com.laohei.bili_sdk.apis.URL_ADD_TO_VIEW
+import com.laohei.bili_sdk.apis.URL_CLEAR_HISTORY
+import com.laohei.bili_sdk.apis.URL_CLEAR_TO_VIEW
+import com.laohei.bili_sdk.apis.URL_DEL_HISTORY
+import com.laohei.bili_sdk.apis.URL_DEL_TO_VIEW
+import com.laohei.bili_sdk.apis.URL_HISTORY
 import com.laohei.bili_sdk.apis.URL_TO_VIEW
 import com.laohei.bili_sdk.apis.URL_VIDEO_HISTORY_REPORT
 import com.laohei.bili_sdk.exception.globalSDKExceptionHandle
-import com.laohei.bili_sdk.module_v2.common.BiliResponse
-import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
-import com.laohei.bili_sdk.module_v2.history.HistoryCursor
-import com.laohei.bili_sdk.module_v2.history.HistoryModel
-import com.laohei.bili_sdk.module_v2.history.ToViewModel
+import com.laohei.bili_sdk.model_v2.common.BiliResponse
+import com.laohei.bili_sdk.model_v2.common.BiliResponseNoData
+import com.laohei.bili_sdk.model_v2.history.HistoryCursor
+import com.laohei.bili_sdk.model_v2.history.HistoryModel
+import com.laohei.bili_sdk.model_v2.history.ToViewModel
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.get
 import io.ktor.client.request.header
@@ -49,21 +55,17 @@ class HistoryApiImpl(
                 }
                 parameter("pn", pn.toString())
                 parameter("ps", ps.toString())
+                if (DBG) {
+                    Log.d(TAG, "getToView: $url")
+                }
             }
             Json.decodeFromString<BiliResponse<ToViewModel>>(response.bodyAsText())
-        }.fold(
-            onSuccess = { it },
-            onFailure = {
-                if (DBG) {
-                    globalSDKExceptionHandle(TAG.toString(), it)
-                }
-                BiliResponse(
-                    code = 400,
-                    message = "EMPTY",
-                    data = ToViewModel.EMPTY
-                )
+        }.getOrElse {
+            if (DBG) {
+                globalSDKExceptionHandle(TAG.toString(), it)
             }
-        )
+            BiliResponse.ERROR
+        }
     }
 
     override suspend fun addToView(
@@ -99,6 +101,59 @@ class HistoryApiImpl(
         )
     }
 
+    override suspend fun delToView(
+        cookie: String?,
+        viewed: Boolean,
+        aid: Long?,
+        csrf: String?
+    ): BiliResponseNoData = withContext(Dispatchers.IO) {
+        runCatching {
+            val response = client.post(URL_DEL_TO_VIEW) {
+                cookie?.let {
+                    header(HttpHeaders.Cookie, it)
+                }
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    FormDataContent(
+                        Parameters.build {
+                            append("viewed", viewed.toString())
+                            aid?.let { append("aid", it.toString()) }
+                            csrf?.let { append("csrf", it) }
+                        }
+                    )
+                )
+            }
+            response.body<BiliResponseNoData>()
+        }.getOrElse {
+            BiliResponseNoData.ERROR
+        }
+    }
+
+    override suspend fun clearToView(
+        cookie: String?,
+        csrf: String?
+    ): BiliResponseNoData =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val response = client.post(URL_CLEAR_TO_VIEW) {
+                    cookie?.let {
+                        header(HttpHeaders.Cookie, it)
+                    }
+                    contentType(ContentType.Application.FormUrlEncoded)
+                    setBody(
+                        FormDataContent(
+                            Parameters.build {
+                                csrf?.let { append("csrf", it) }
+                            }
+                        )
+                    )
+                }
+                response.body<BiliResponseNoData>()
+            }.getOrElse {
+                BiliResponseNoData.ERROR
+            }
+        }
+
     override suspend fun getHistories(
         cookie: String?,
         ps: Int,
@@ -121,24 +176,24 @@ class HistoryApiImpl(
                     parameter("view_at", it.toString())
                 }
                 parameter("ps", ps.toString())
+                if (DBG) {
+                    Log.d(TAG, "getHistories: $url")
+                }
             }
             Json.decodeFromString<BiliResponse<HistoryModel>>(response.bodyAsText())
-        }.fold(
-            onSuccess = { it },
-            onFailure = {
-                if (DBG) {
-                    globalSDKExceptionHandle(TAG.toString(), it)
-                }
-                BiliResponse(
-                    code = 400,
-                    message = "EMPTY",
-                    data = HistoryModel(
-                        cursor = HistoryCursor(),
-                        list = emptyList()
-                    )
-                )
+        }.getOrElse {
+            if (DBG) {
+                globalSDKExceptionHandle(TAG.toString(), it)
             }
-        )
+            BiliResponse(
+                code = 400,
+                message = "EMPTY",
+                data = HistoryModel(
+                    cursor = HistoryCursor(),
+                    list = emptyList()
+                )
+            )
+        }
     }
 
     override suspend fun postHistory(
@@ -180,4 +235,52 @@ class HistoryApiImpl(
             )
         }
     )
+
+    override suspend fun delHistory(
+        cookie: String?,
+        kid: String,
+        csrf: String?
+    ): BiliResponseNoData = withContext(Dispatchers.IO) {
+        runCatching {
+            val response = client.post(URL_DEL_HISTORY) {
+                cookie?.let {
+                    header(HttpHeaders.Cookie, it)
+                }
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    FormDataContent(
+                        Parameters.build {
+                            append("kid", kid)
+                            csrf?.let { append("csrf", it) }
+                        }
+                    )
+                )
+            }
+            response.body<BiliResponseNoData>()
+        }.getOrElse {
+            BiliResponseNoData.ERROR
+        }
+    }
+
+    override suspend fun clearHistory(cookie: String?, csrf: String?): BiliResponseNoData =
+        withContext(Dispatchers.IO) {
+            runCatching {
+                val response = client.post(URL_CLEAR_HISTORY) {
+                    cookie?.let {
+                        header(HttpHeaders.Cookie, it)
+                    }
+                    contentType(ContentType.Application.FormUrlEncoded)
+                    setBody(
+                        FormDataContent(
+                            Parameters.build {
+                                csrf?.let { append("csrf", it) }
+                            }
+                        )
+                    )
+                }
+                response.body<BiliResponseNoData>()
+            }.getOrElse {
+                BiliResponseNoData.ERROR
+            }
+        }
 }

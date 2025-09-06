@@ -1,9 +1,9 @@
 package com.laohei.bili_sdk.apis
 
-import com.laohei.bili_sdk.module_v2.common.BiliResponse
-import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
-import com.laohei.bili_sdk.module_v2.history.HistoryModel
-import com.laohei.bili_sdk.module_v2.history.ToViewModel
+import com.laohei.bili_sdk.model_v2.common.BiliResponse
+import com.laohei.bili_sdk.model_v2.common.BiliResponseNoData
+import com.laohei.bili_sdk.model_v2.history.HistoryModel
+import com.laohei.bili_sdk.model_v2.history.ToViewModel
 
 interface HistoryApi {
     suspend fun getToView(
@@ -16,6 +16,18 @@ interface HistoryApi {
         cookie: String? = null,
         aid: Long,
         bvid: String,
+        csrf: String? = null
+    ): BiliResponseNoData
+
+    suspend fun delToView(
+        cookie: String? = null,
+        viewed: Boolean = false,
+        aid: Long? = null,
+        csrf: String? = null
+    ): BiliResponseNoData
+
+    suspend fun clearToView(
+        cookie: String? = null,
         csrf: String? = null
     ): BiliResponseNoData
 
@@ -33,5 +45,16 @@ interface HistoryApi {
         cid: String,
         progress: Long = 0L,
         biliJct: String
+    ): BiliResponseNoData
+
+    suspend fun delHistory(
+        cookie: String? = null,
+        kid: String,
+        csrf: String? = null
+    ): BiliResponseNoData
+
+    suspend fun clearHistory(
+        cookie: String? = null,
+        csrf: String? = null
     ): BiliResponseNoData
 }
