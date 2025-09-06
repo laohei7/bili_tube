@@ -7,11 +7,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import com.laohei.bili_tube.features.playlist.PlaylistContentAction
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun PlaylistContentTopBar(
-    upPress: () -> Unit
+    isToView: Boolean = false,
+    upPress: () -> Unit,
+    onPlaylistContentAction: (PlaylistContentAction) -> Unit
 ) {
     TopAppBar(
         navigationIcon = {
@@ -24,6 +27,13 @@ internal fun PlaylistContentTopBar(
                 )
             }
         },
-        title = {}
+        title = {},
+        actions = {
+            if (isToView) {
+                WatchLaterMenuButton(
+                    onPlaylistContentAction = onPlaylistContentAction
+                )
+            }
+        }
     )
 }

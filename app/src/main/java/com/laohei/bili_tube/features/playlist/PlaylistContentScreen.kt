@@ -13,6 +13,7 @@ import com.laohei.bili_tube.features.playlist.component.FolderMediaList
 import com.laohei.bili_tube.features.playlist.component.PlaylistContentTopBar
 import com.laohei.bili_tube.features.playlist.component.WatchLaterList
 import com.laohei.bili_tube.nav.AppRoute
+import com.laohei.bili_tube.ui.component.widget.ShareSheet
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -32,7 +33,9 @@ fun PlaylistContentScreen(
     Scaffold(
         topBar = {
             PlaylistContentTopBar(
-                upPress = upPress
+                upPress = upPress,
+                isToView = uiState.param.isToView,
+                onPlaylistContentAction = viewModel::onPlaylistContentAction
             )
         }
     ) { innerPadding ->
@@ -42,10 +45,11 @@ fun PlaylistContentScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding),
-                    param = param,
+                    param = uiState.param,
                     gridState = uiState.watchLaterListState,
                     watchLaterList = uiState.watchLaterList,
-                    navigateToAppRoute = navigateToAppRoute
+                    navigateToAppRoute = navigateToAppRoute,
+                    onPlaylistContentAction = viewModel::onPlaylistContentAction
                 )
             }
 
@@ -55,12 +59,20 @@ fun PlaylistContentScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding),
-                    param = param,
+                    param = uiState.param,
                     gridState = uiState.folderMediaListState,
                     resources = folderMediaList,
                     navigateToAppRoute = navigateToAppRoute
                 )
             }
         }
+
+        ShareSheet(
+            isSheetVisible = uiState.isShareLinkVisible,
+            shareContent = uiState.shareLink,
+            onDismissRequest = {
+                viewModel.onPlaylistContentAction(PlaylistContentAction.ShareLink(false))
+            }
+        )
     }
 }
