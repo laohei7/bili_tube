@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.laohei.bili_sdk.module_v2.video.ArchiveItem
+import com.laohei.bili_sdk.model_v2.video.ArchiveItem
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction

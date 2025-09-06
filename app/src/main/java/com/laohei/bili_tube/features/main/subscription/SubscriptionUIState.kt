@@ -1,7 +1,7 @@
 package com.laohei.bili_tube.features.main.subscription
 
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
-import com.laohei.bili_sdk.module_v2.folder.SimpleFolderItem
+import com.laohei.bili_sdk.model_v2.folder.SimpleFolderItem
 
 data class SubscriptionUIState(
     val gridState: LazyStaggeredGridState = LazyStaggeredGridState(),

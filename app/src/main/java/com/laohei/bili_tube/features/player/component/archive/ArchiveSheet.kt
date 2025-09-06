@@ -49,8 +49,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
-import com.laohei.bili_sdk.module_v2.video.ArchiveItem
-import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
+import com.laohei.bili_sdk.model_v2.video.ArchiveItem
+import com.laohei.bili_sdk.model_v2.video.ArchiveMeta
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.features.player.component.ArchiveList

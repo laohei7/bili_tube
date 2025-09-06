@@ -3,7 +3,7 @@ package com.laohei.bili_tube.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.laohei.bili_sdk.apis.BangumiApi
-import com.laohei.bili_sdk.module_v2.bangumi.AnimeScheduleModel
+import com.laohei.bili_sdk.model_v2.bangumi.AnimeScheduleModel
 
 class TimelinePaging(
     private val bangumiApi: BangumiApi,

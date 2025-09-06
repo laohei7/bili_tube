@@ -14,7 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
-import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
+import com.laohei.bili_sdk.model_v2.user.UploadedVideoItem
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.model.UserProfile
 import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet

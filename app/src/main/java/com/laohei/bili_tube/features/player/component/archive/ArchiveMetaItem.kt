@@ -20,7 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.laohei.bili_sdk.module_v2.video.ArchiveMeta
+import com.laohei.bili_sdk.model_v2.video.ArchiveMeta
 import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedPlayingIcon
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 

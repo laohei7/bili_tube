@@ -2,9 +2,9 @@ package com.laohei.bili_tube.data.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.laohei.bili_sdk.module_v2.search.SearchResultItemType
-import com.laohei.bili_sdk.module_v2.search.SearchResultModel
-import com.laohei.bili_sdk.module_v2.search.SearchResultModel2
+import com.laohei.bili_sdk.model_v2.search.SearchResultItemType
+import com.laohei.bili_sdk.model_v2.search.SearchResultModel
+import com.laohei.bili_sdk.model_v2.search.SearchResultModel2
 import com.laohei.bili_sdk.search.SearchRequest
 
 class SearchPaging(

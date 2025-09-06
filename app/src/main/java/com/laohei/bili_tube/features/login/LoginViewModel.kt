@@ -6,9 +6,9 @@ import androidx.core.text.isDigitsOnly
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.laohei.bili_sdk.module_v2.captcha.CaptchaModel
-import com.laohei.bili_sdk.module_v2.captcha.GeetestSuccessModel
-import com.laohei.bili_sdk.module_v2.location.CountryItem
+import com.laohei.bili_sdk.model_v2.captcha.CaptchaModel
+import com.laohei.bili_sdk.model_v2.captcha.GeetestSuccessModel
+import com.laohei.bili_sdk.model_v2.location.CountryItem
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.core.IS_LOGIN_KEY
 import com.laohei.bili_tube.core.REFRESH_TOKEN_KEY

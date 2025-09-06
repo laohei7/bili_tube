@@ -25,7 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
-import com.laohei.bili_sdk.module_v2.location.CountryItem
+import com.laohei.bili_sdk.model_v2.location.CountryItem
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.login.component.CodeInput
 import com.laohei.bili_tube.features.login.component.LoginBtn

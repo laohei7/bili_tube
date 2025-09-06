@@ -23,9 +23,9 @@ import androidx.media3.exoplayer.source.MergingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.upstream.DefaultAllocator
-import com.laohei.bili_sdk.module_v2.video.DashItem
-import com.laohei.bili_sdk.module_v2.video.SkipModel
-import com.laohei.bili_sdk.module_v2.video.VideoURLModel
+import com.laohei.bili_sdk.model_v2.video.DashItem
+import com.laohei.bili_sdk.model_v2.video.SkipModel
+import com.laohei.bili_sdk.model_v2.video.VideoURLModel
 import com.laohei.bili_tube.core.NormalAudioQuality
 import com.laohei.bili_tube.data.PlayerDataSourceFactory
 import kotlinx.coroutines.CoroutineScope

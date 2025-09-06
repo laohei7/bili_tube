@@ -1,12 +1,11 @@
 package com.laohei.bili_sdk.apis
 
-import com.laohei.bili_sdk.module_v2.common.BiliResponse
-import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
-import com.laohei.bili_sdk.module_v2.folder.FolderDealModel
-import com.laohei.bili_sdk.module_v2.folder.FolderItem
-import com.laohei.bili_sdk.module_v2.folder.FolderModel
-import com.laohei.bili_sdk.module_v2.folder.FolderResourceModel
-import com.laohei.bili_sdk.module_v2.folder.SimpleFolderModel
+import com.laohei.bili_sdk.model_v2.common.BiliResponse
+import com.laohei.bili_sdk.model_v2.folder.FolderDealModel
+import com.laohei.bili_sdk.model_v2.folder.FolderItem
+import com.laohei.bili_sdk.model_v2.folder.FolderModel
+import com.laohei.bili_sdk.model_v2.folder.FolderResourceModel
+import com.laohei.bili_sdk.model_v2.folder.SimpleFolderModel
 
 interface FolderApi {
 

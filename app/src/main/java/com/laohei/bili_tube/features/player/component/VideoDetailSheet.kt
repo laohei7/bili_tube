@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
-import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
+import com.laohei.bili_sdk.model_v2.video.VideoDetailModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.component.chip.TagChip
 import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet

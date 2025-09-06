@@ -60,11 +60,11 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import coil3.Bitmap
 import coil3.compose.AsyncImage
-import com.laohei.bili_sdk.module_v2.reply.ReplyItem
-import com.laohei.bili_sdk.module_v2.user.InfoCardModel
-import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
-import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
-import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
+import com.laohei.bili_sdk.model_v2.reply.ReplyItem
+import com.laohei.bili_sdk.model_v2.user.InfoCardModel
+import com.laohei.bili_sdk.model_v2.user.UploadedVideoItem
+import com.laohei.bili_sdk.model_v2.video.BangumiDetailModel
+import com.laohei.bili_sdk.model_v2.video.VideoDetailModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.VideoMenuAction

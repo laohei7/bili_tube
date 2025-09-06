@@ -76,8 +76,8 @@ fun HorizontalVideoCard(
     recommendation: String? = null,
     viewCount: String? = null,
     publishDate: String? = null,
-    onClick: () -> Unit = {},
-    onMoreClick: () -> Unit = {},
+    onClick: (() -> Unit)? = null,
+    onMoreClick: (() -> Unit)? = null,
     leadingIcon: (@Composable () -> Unit)? = null
 ) {
     val coverRequest = rememberAsyncImagePainter(
@@ -92,9 +92,13 @@ fun HorizontalVideoCard(
         modifier = modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.background)
-            .clickable {
-                onClick.invoke()
-            }
+            .then(
+                if (onClick != null) {
+                    Modifier.clickable { onClick.invoke() }
+                } else {
+                    Modifier
+                }
+            )
             .padding(end = PaddingSm)
             .padding(start = if (leadingIcon == null) PaddingSm else PaddingNone),
     ) {
@@ -166,23 +170,25 @@ fun HorizontalVideoCard(
                 }
             }
 
-            IconButton(
-                onClick = { onMoreClick.invoke() },
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .offset {
-                        IntOffset(60, -30)
-                    },
-                colors = IconButtonDefaults.iconButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onBackground
-                )
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.MoreVert,
-                    contentDescription = Icons.Outlined.MoreVert.name,
+            onMoreClick?.let {
+                IconButton(
+                    onClick = { it.invoke() },
                     modifier = Modifier
-                        .size(16.dp)
-                )
+                        .align(Alignment.TopEnd)
+                        .offset {
+                            IntOffset(60, -30)
+                        },
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onBackground
+                    )
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.MoreVert,
+                        contentDescription = Icons.Outlined.MoreVert.name,
+                        modifier = Modifier
+                            .size(16.dp)
+                    )
+                }
             }
         }
     }

@@ -1,17 +1,17 @@
 package com.laohei.bili_sdk.apis
 
-import com.laohei.bili_sdk.module_v2.common.BiliResponse
-import com.laohei.bili_sdk.module_v2.common.BiliResponse2
-import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
-import com.laohei.bili_sdk.module_v2.reply.ReplyModel
-import com.laohei.bili_sdk.module_v2.video.AddCoinModel
-import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
-import com.laohei.bili_sdk.module_v2.video.CoinModel
-import com.laohei.bili_sdk.module_v2.video.FavouredModel
-import com.laohei.bili_sdk.module_v2.video.VideoArchiveModel
-import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
-import com.laohei.bili_sdk.module_v2.video.VideoPageModel
-import com.laohei.bili_sdk.module_v2.video.VideoURLModel
+import com.laohei.bili_sdk.model_v2.common.BiliResponse
+import com.laohei.bili_sdk.model_v2.common.BiliResponse2
+import com.laohei.bili_sdk.model_v2.common.BiliResponseNoData
+import com.laohei.bili_sdk.model_v2.reply.ReplyModel
+import com.laohei.bili_sdk.model_v2.video.AddCoinModel
+import com.laohei.bili_sdk.model_v2.video.BangumiDetailModel
+import com.laohei.bili_sdk.model_v2.video.CoinModel
+import com.laohei.bili_sdk.model_v2.video.FavouredModel
+import com.laohei.bili_sdk.model_v2.video.VideoArchiveModel
+import com.laohei.bili_sdk.model_v2.video.VideoDetailModel
+import com.laohei.bili_sdk.model_v2.video.VideoPageModel
+import com.laohei.bili_sdk.model_v2.video.VideoURLModel
 
 interface PlayApi {
     suspend fun getVideoURL(

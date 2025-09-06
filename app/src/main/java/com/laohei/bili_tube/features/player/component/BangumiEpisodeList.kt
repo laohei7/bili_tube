@@ -29,7 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.laohei.bili_sdk.module_v2.video.EpisodeModel
+import com.laohei.bili_sdk.model_v2.video.EpisodeModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedPlayingIcon

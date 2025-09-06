@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.paging.compose.LazyPagingItems
-import com.laohei.bili_sdk.module_v2.folder.FolderMediaItem
+import com.laohei.bili_sdk.model_v2.folder.FolderMediaItem
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard

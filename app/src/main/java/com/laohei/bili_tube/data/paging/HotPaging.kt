@@ -3,7 +3,7 @@ package com.laohei.bili_tube.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.laohei.bili_sdk.apis.VideoApi
-import com.laohei.bili_sdk.module_v2.hot.HotItem
+import com.laohei.bili_sdk.model_v2.hot.HotItem
 
 class HotPaging(
     private val videoApi: VideoApi,

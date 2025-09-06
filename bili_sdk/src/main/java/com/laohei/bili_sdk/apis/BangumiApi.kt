@@ -1,10 +1,10 @@
 package com.laohei.bili_sdk.apis
 
-import com.laohei.bili_sdk.module_v2.bangumi.AnimeScheduleModel
-import com.laohei.bili_sdk.module_v2.bangumi.BangumiModel
-import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiModel
-import com.laohei.bili_sdk.module_v2.common.BiliResponse2
-import com.laohei.bili_sdk.module_v2.common.BiliResponse3
+import com.laohei.bili_sdk.model_v2.bangumi.AnimeScheduleModel
+import com.laohei.bili_sdk.model_v2.bangumi.BangumiModel
+import com.laohei.bili_sdk.model_v2.bangumi.RelatedBangumiModel
+import com.laohei.bili_sdk.model_v2.common.BiliResponse2
+import com.laohei.bili_sdk.model_v2.common.BiliResponse3
 
 interface BangumiApi {
     suspend fun searchBangumis(

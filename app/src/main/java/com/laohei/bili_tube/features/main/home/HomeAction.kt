@@ -7,7 +7,8 @@ sealed interface HomeAction {
     data class MenuSheetUIAction(
         val flag: Boolean,
         val aid: Long? = null,
-        val bvid: String? = null
+        val bvid: String? = null,
+        val shareLink: String=""
     ) : HomeAction
 
     data class FolderSheetUIAction(
@@ -33,4 +34,6 @@ sealed interface HomeAction {
         val delAids: Set<Long>,
         val aid: Long
     ) : HomeAction
+
+    data class ShareLink(val flag: Boolean, val link: String = "") : HomeAction
 }

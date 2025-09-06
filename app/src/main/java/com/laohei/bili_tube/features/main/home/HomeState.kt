@@ -3,10 +3,10 @@ package com.laohei.bili_tube.features.main.home
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.pager.PagerState
 import androidx.paging.PagingData
-import com.laohei.bili_sdk.module_v2.bangumi.BangumiItem
-import com.laohei.bili_sdk.module_v2.folder.SimpleFolderItem
-import com.laohei.bili_sdk.module_v2.hot.HotItem
-import com.laohei.bili_sdk.module_v2.recommend.RecommendItem
+import com.laohei.bili_sdk.model_v2.bangumi.BangumiItem
+import com.laohei.bili_sdk.model_v2.folder.SimpleFolderItem
+import com.laohei.bili_sdk.model_v2.hot.HotItem
+import com.laohei.bili_sdk.model_v2.recommend.RecommendItem
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.model.BangumiFilterModel
 import kotlinx.coroutines.flow.Flow
@@ -39,6 +39,9 @@ data class HomeState(
     // anime or bangumi filter
     val bangumiFilter: BangumiFilterModel = BangumiFilterModel(),
     val animeFilter: BangumiFilterModel = BangumiFilterModel(),
+
+    val isShareLinkVisible: Boolean = false,
+    val shareLink: String = ""
 )
 
 internal val HomeTabs =

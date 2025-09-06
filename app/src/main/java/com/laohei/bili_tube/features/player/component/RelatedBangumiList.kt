@@ -5,7 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiItem
+import com.laohei.bili_sdk.model_v2.bangumi.RelatedBangumiItem
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction

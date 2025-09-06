@@ -2,10 +2,10 @@ package com.laohei.bili_sdk.apis
 
 import com.laohei.bili_sdk.model.BiliQRCode
 import com.laohei.bili_sdk.model.BiliQRCodeStatus
-import com.laohei.bili_sdk.module_v2.captcha.CaptchaModel
-import com.laohei.bili_sdk.module_v2.common.BiliResponse
-import com.laohei.bili_sdk.module_v2.login.LoginSuccessModel
-import com.laohei.bili_sdk.module_v2.login.SMSCodeModel
+import com.laohei.bili_sdk.model_v2.captcha.CaptchaModel
+import com.laohei.bili_sdk.model_v2.common.BiliResponse
+import com.laohei.bili_sdk.model_v2.login.LoginSuccessModel
+import com.laohei.bili_sdk.model_v2.login.SMSCodeModel
 import io.ktor.http.Headers
 
 interface AuthApi {

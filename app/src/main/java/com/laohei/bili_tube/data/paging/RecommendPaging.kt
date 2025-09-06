@@ -7,7 +7,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.laohei.bili_sdk.apis.VideoApi
-import com.laohei.bili_sdk.module_v2.recommend.RecommendItem
+import com.laohei.bili_sdk.model_v2.recommend.RecommendItem
 import com.laohei.bili_tube.core.LAST_SHOW_LIST_KEY
 import com.laohei.bili_tube.data.local.datastore.dataStore
 import kotlinx.coroutines.flow.firstOrNull

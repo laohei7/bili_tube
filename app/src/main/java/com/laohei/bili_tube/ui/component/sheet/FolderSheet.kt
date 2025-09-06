@@ -33,7 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
-import com.laohei.bili_sdk.module_v2.folder.SimpleFolderItem
+import com.laohei.bili_sdk.model_v2.folder.SimpleFolderItem
 import com.laohei.bili_tube.R
 import kotlinx.coroutines.launch
 

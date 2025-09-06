@@ -33,7 +33,7 @@ import coil3.request.crossfade
 import coil3.request.error
 import coil3.request.placeholder
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.component.widget.VideoCoverWithDuration
+import com.laohei.bili_tube.ui.component.widget.VideoCoverOverlay
 import com.laohei.bili_tube.ui.preview.FakeVerticalVideoCardData
 import com.laohei.bili_tube.ui.theme.CornerRadiusNone
 import com.laohei.bili_tube.ui.theme.PaddingLg
@@ -62,7 +62,7 @@ fun VerticalVideoCard(
         modifier = modifier
             .clickable { onClick() }
     ) {
-        VideoCoverWithDuration(
+        VideoCoverOverlay(
             modifier = Modifier
                 .fillMaxWidth(),
             contentDescription = bvid,

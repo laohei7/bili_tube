@@ -20,11 +20,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiItem
-import com.laohei.bili_sdk.module_v2.user.InfoCardModel
-import com.laohei.bili_sdk.module_v2.video.BangumiDetailModel
-import com.laohei.bili_sdk.module_v2.video.VideoDetailModel
-import com.laohei.bili_sdk.module_v2.video.VideoPageModel
+import com.laohei.bili_sdk.model_v2.bangumi.RelatedBangumiItem
+import com.laohei.bili_sdk.model_v2.user.InfoCardModel
+import com.laohei.bili_sdk.model_v2.video.BangumiDetailModel
+import com.laohei.bili_sdk.model_v2.video.VideoDetailModel
+import com.laohei.bili_sdk.model_v2.video.VideoPageModel
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.MediaPlayerUIState

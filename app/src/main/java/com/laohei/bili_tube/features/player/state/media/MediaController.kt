@@ -2,7 +2,7 @@ package com.laohei.bili_tube.features.player.state.media
 
 import androidx.media3.datasource.DataSource
 import androidx.media3.exoplayer.ExoPlayer
-import com.laohei.bili_sdk.module_v2.video.VideoURLModel
+import com.laohei.bili_sdk.model_v2.video.VideoURLModel
 import kotlinx.coroutines.flow.StateFlow
 
 internal interface MediaController {

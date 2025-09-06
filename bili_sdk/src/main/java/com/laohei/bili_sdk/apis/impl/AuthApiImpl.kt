@@ -10,11 +10,11 @@ import com.laohei.bili_sdk.apis.URL_SMS_LOGIN
 import com.laohei.bili_sdk.exception.globalSDKExceptionHandle
 import com.laohei.bili_sdk.model.BiliQRCode
 import com.laohei.bili_sdk.model.BiliQRCodeStatus
-import com.laohei.bili_sdk.module_v2.captcha.CaptchaModel
-import com.laohei.bili_sdk.module_v2.captcha.GeetestModel
-import com.laohei.bili_sdk.module_v2.common.BiliResponse
-import com.laohei.bili_sdk.module_v2.login.LoginSuccessModel
-import com.laohei.bili_sdk.module_v2.login.SMSCodeModel
+import com.laohei.bili_sdk.model_v2.captcha.CaptchaModel
+import com.laohei.bili_sdk.model_v2.captcha.GeetestModel
+import com.laohei.bili_sdk.model_v2.common.BiliResponse
+import com.laohei.bili_sdk.model_v2.login.LoginSuccessModel
+import com.laohei.bili_sdk.model_v2.login.SMSCodeModel
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.get

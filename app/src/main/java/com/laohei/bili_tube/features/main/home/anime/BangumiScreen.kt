@@ -25,7 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
-import com.laohei.bili_sdk.module_v2.bangumi.BangumiItem
+import com.laohei.bili_sdk.model_v2.bangumi.BangumiItem
 import com.laohei.bili_tube.features.main.home.HomeAction
 import com.laohei.bili_tube.features.main.home.anime.component.BangumiWidget
 import com.laohei.bili_tube.features.main.home.anime.component.FilterWidget

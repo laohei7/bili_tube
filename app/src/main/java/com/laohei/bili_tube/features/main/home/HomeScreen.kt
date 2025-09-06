@@ -40,8 +40,9 @@ import com.laohei.bili_tube.features.main.home.recommend.RecommendScreen
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.sheet.FolderSheet
+import com.laohei.bili_tube.ui.component.widget.ShareSheet
+import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import kotlin.math.abs
@@ -248,6 +249,10 @@ fun HomeScreen(
                     )
                 }
 
+                R.string.str_shared -> {
+                    HomeAction.ShareLink(true, homeState.shareLink)
+                }
+
                 else -> HomeAction.NoneAction
             }
             homeViewModel.onHomeAction(action)
@@ -287,6 +292,14 @@ fun HomeScreen(
             onDismiss = {
                 homeViewModel.onFolderNameChanged("")
                 homeViewModel.onHomeAction(HomeAction.FolderCreatedUIAction(false))
+            }
+        )
+
+        ShareSheet(
+            isSheetVisible = homeState.isShareLinkVisible,
+            shareContent = homeState.shareLink,
+            onDismissRequest = {
+                homeViewModel.onHomeAction(HomeAction.ShareLink(false))
             }
         )
     }

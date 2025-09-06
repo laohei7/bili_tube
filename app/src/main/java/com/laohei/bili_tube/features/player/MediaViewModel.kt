@@ -9,9 +9,9 @@ import androidx.paging.cachedIn
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import com.laohei.bili_sdk.apis.UserRelationAction
-import com.laohei.bili_sdk.module_v2.common.BiliResponseNoData
-import com.laohei.bili_sdk.module_v2.folder.FolderMediaItem
-import com.laohei.bili_sdk.module_v2.video.VideoURLModel
+import com.laohei.bili_sdk.model_v2.common.BiliResponseNoData
+import com.laohei.bili_sdk.model_v2.folder.FolderMediaItem
+import com.laohei.bili_sdk.model_v2.video.VideoURLModel
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.AUTO_SKIP_KEY

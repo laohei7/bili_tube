@@ -5,11 +5,11 @@ import com.laohei.bili_sdk.apis.BangumiApi
 import com.laohei.bili_sdk.apis.URL_RELATED_BANGUMI
 import com.laohei.bili_sdk.apis.URL_BANGUMI_TIMELINE
 import com.laohei.bili_sdk.exception.globalSDKExceptionHandle
-import com.laohei.bili_sdk.module_v2.bangumi.AnimeScheduleModel
-import com.laohei.bili_sdk.module_v2.bangumi.BangumiModel
-import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiModel
-import com.laohei.bili_sdk.module_v2.common.BiliResponse2
-import com.laohei.bili_sdk.module_v2.common.BiliResponse3
+import com.laohei.bili_sdk.model_v2.bangumi.AnimeScheduleModel
+import com.laohei.bili_sdk.model_v2.bangumi.BangumiModel
+import com.laohei.bili_sdk.model_v2.bangumi.RelatedBangumiModel
+import com.laohei.bili_sdk.model_v2.common.BiliResponse2
+import com.laohei.bili_sdk.model_v2.common.BiliResponse3
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.header

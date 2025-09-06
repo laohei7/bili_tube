@@ -24,8 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.laohei.bili_sdk.module_v2.common.Dimension
-import com.laohei.bili_sdk.module_v2.video.VideoPageModel
+import com.laohei.bili_sdk.model_v2.common.Dimension
+import com.laohei.bili_sdk.model_v2.video.VideoPageModel
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedPlayingIcon
 import com.laohei.bili_tube.ui.theme.PaddingSm

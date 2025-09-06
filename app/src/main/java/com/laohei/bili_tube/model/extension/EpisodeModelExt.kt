@@ -1,6 +1,6 @@
 package com.laohei.bili_tube.model.extension
 
-import com.laohei.bili_sdk.module_v2.video.EpisodeModel
+import com.laohei.bili_sdk.model_v2.video.EpisodeModel
 
 fun EpisodeModel.displayTitle(): String {
     val str = title.toDoubleOrNull()

@@ -7,7 +7,7 @@ import androidx.paging.cachedIn
 import androidx.paging.filter
 import androidx.paging.insertSeparators
 import androidx.paging.map
-import com.laohei.bili_sdk.module_v2.search.SearchResultItemType
+import com.laohei.bili_sdk.model_v2.search.SearchResultItemType
 import com.laohei.bili_sdk.search.SearchRequest
 import com.laohei.bili_tube.core.KeywordPattern
 import com.laohei.bili_tube.data.repository.BiliSearchRepository

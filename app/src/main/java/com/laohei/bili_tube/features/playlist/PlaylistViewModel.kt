@@ -34,8 +34,8 @@ class PlaylistViewModel(
 
     private suspend fun getFolderList() {
         playlistRepository.getFolderList().apply {
-            _mState.update {
-                it.copy(
+            _mState.update { state ->
+                state.copy(
                     isLoading = false,
                     folderList = this.sortedByDescending { it.id }
                 )

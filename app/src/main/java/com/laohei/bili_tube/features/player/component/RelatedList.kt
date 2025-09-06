@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.laohei.bili_sdk.module_v2.bangumi.RelatedBangumiItem
-import com.laohei.bili_sdk.module_v2.video.VideoView
+import com.laohei.bili_sdk.model_v2.bangumi.RelatedBangumiItem
+import com.laohei.bili_sdk.model_v2.video.VideoView
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.util.toTimeString

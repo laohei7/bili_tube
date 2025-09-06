@@ -147,7 +147,8 @@ class HomeViewModel(
                     it.copy(
                         showMenuSheet = action.flag,
                         selectedAid = action.aid,
-                        selectedBvid = action.bvid
+                        selectedBvid = action.bvid,
+                        shareLink = action.shareLink
                     )
                 }
             }
@@ -163,6 +164,17 @@ class HomeViewModel(
             }
 
             HomeAction.NoneAction -> {}
+            is HomeAction.ShareLink -> shareLink(action)
+        }
+    }
+
+    private fun shareLink(action: HomeAction.ShareLink) {
+        mHomeState.update { state ->
+            state.copy(
+                isShareLinkVisible = action.flag,
+                shareLink = action.link,
+                showMenuSheet = false
+            )
         }
     }
 

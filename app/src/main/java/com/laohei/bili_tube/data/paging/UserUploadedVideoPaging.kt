@@ -3,7 +3,7 @@ package com.laohei.bili_tube.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.laohei.bili_sdk.apis.UserApi
-import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
+import com.laohei.bili_sdk.model_v2.user.UploadedVideoItem
 
 class UserUploadedVideoPaging(
     private val userApi: UserApi,

@@ -4,7 +4,7 @@ import androidx.compose.ui.util.fastFilter
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.laohei.bili_sdk.apis.VideoApi
-import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
+import com.laohei.bili_sdk.model_v2.dynamic.DynamicItem
 
 class SubscriptionPaging(
     private val videoApi: VideoApi,

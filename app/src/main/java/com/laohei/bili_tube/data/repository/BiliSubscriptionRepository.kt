@@ -5,7 +5,7 @@ import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.laohei.bili_sdk.apis.VideoApi
-import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
+import com.laohei.bili_sdk.model_v2.dynamic.DynamicItem
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.data.local.datastore.dataStore
 import com.laohei.bili_tube.data.paging.SubscriptionPaging

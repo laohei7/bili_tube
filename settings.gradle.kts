@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "bili_tube"
 include(":app")
 include(":bili_sdk")
+include(":common_ui_core")

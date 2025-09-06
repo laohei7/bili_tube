@@ -38,7 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.laohei.bili_sdk.module_v2.dynamic.DynamicItem
+import com.laohei.bili_sdk.model_v2.dynamic.DynamicItem
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus

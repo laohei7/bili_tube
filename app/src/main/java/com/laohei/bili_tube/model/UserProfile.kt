@@ -1,6 +1,6 @@
 package com.laohei.bili_tube.model
 
-import com.laohei.bili_sdk.module_v2.user.InfoCardModel
+import com.laohei.bili_sdk.model_v2.user.InfoCardModel
 
 data class UserProfile(
     val face: String,

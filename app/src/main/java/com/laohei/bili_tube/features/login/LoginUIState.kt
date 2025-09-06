@@ -1,10 +1,10 @@
 package com.laohei.bili_tube.features.login
 
 import com.laohei.bili_sdk.model.BiliQRCode
-import com.laohei.bili_sdk.module_v2.captcha.CaptchaModel
-import com.laohei.bili_sdk.module_v2.captcha.GeetestSuccessModel
-import com.laohei.bili_sdk.module_v2.location.CountryItem
-import com.laohei.bili_sdk.module_v2.login.SMSCodeModel
+import com.laohei.bili_sdk.model_v2.captcha.CaptchaModel
+import com.laohei.bili_sdk.model_v2.captcha.GeetestSuccessModel
+import com.laohei.bili_sdk.model_v2.location.CountryItem
+import com.laohei.bili_sdk.model_v2.login.SMSCodeModel
 import com.laohei.bili_tube.core.ChainCountryId
 
 data class LoginUIState(

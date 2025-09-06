@@ -59,7 +59,7 @@ import androidx.paging.compose.LazyPagingItems
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.laohei.bili_sdk.module_v2.reply.ReplyItem
+import com.laohei.bili_sdk.model_v2.reply.ReplyItem
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.component.reply.VideoReplyAction
 import com.laohei.bili_tube.ui.component.animation.slideFadeHorizontal

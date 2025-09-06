@@ -5,8 +5,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.rounded.BookmarkBorder
+import androidx.compose.material.icons.rounded.History
+import androidx.compose.material.icons.rounded.IosShare
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
@@ -31,8 +32,9 @@ private fun listItemBackgroundColor(): ListItemColors {
 }
 
 private val videoMenus = listOf(
-    Pair(R.string.str_save_watch_later, Icons.Outlined.History),
-    Pair(R.string.str_save_playlist, Icons.Outlined.BookmarkBorder),
+    Pair(R.string.str_save_watch_later, Icons.Rounded.History),
+    Pair(R.string.str_save_playlist, Icons.Rounded.BookmarkBorder),
+    Pair(R.string.str_shared, Icons.Rounded.IosShare),
 )
 
 @OptIn(ExperimentalMaterial3Api::class)

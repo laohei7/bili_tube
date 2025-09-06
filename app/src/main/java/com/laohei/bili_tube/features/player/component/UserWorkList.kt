@@ -39,7 +39,7 @@ import coil3.request.crossfade
 import coil3.request.error
 import coil3.request.placeholder
 import com.laohei.bili_sdk.apis.UserRelationAction
-import com.laohei.bili_sdk.module_v2.user.UploadedVideoItem
+import com.laohei.bili_sdk.model_v2.user.UploadedVideoItem
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction

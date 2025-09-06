@@ -5,7 +5,7 @@ import androidx.compose.ui.util.fastFilter
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.laohei.bili_sdk.apis.FolderApi
-import com.laohei.bili_sdk.module_v2.folder.FolderMediaItem
+import com.laohei.bili_sdk.model_v2.folder.FolderMediaItem
 
 class FolderResourcePaging(
     private val folderApi: FolderApi,

@@ -72,7 +72,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.request.error
 import coil3.request.placeholder
-import com.laohei.bili_sdk.module_v2.folder.FolderModel
+import com.laohei.bili_sdk.model_v2.folder.FolderModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout

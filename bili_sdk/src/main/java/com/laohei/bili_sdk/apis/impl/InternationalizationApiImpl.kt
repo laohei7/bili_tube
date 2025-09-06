@@ -3,8 +3,8 @@ package com.laohei.bili_sdk.apis.impl
 import com.laohei.bili_sdk.apis.InternationalizationApi
 import com.laohei.bili_sdk.apis.URL_COUNTRY_LIST
 import com.laohei.bili_sdk.exception.globalSDKExceptionHandle
-import com.laohei.bili_sdk.module_v2.common.BiliResponse
-import com.laohei.bili_sdk.module_v2.location.CountryModel
+import com.laohei.bili_sdk.model_v2.common.BiliResponse
+import com.laohei.bili_sdk.model_v2.location.CountryModel
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText

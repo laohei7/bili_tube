@@ -4,7 +4,7 @@ import android.content.Context
 import com.laohei.bili_sdk.apis.AuthApi
 import com.laohei.bili_sdk.apis.InternationalizationApi
 import com.laohei.bili_sdk.model.BiliQRCodeStatus
-import com.laohei.bili_sdk.module_v2.login.LoginSuccessModel
+import com.laohei.bili_sdk.model_v2.login.LoginSuccessModel
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.data.local.datastore.dataStore

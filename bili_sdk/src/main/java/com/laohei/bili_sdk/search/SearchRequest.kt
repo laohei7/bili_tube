@@ -3,10 +3,10 @@ package com.laohei.bili_sdk.search
 import android.util.Log
 import com.laohei.bili_sdk.apis.SEARCH_TYPE_URL
 import com.laohei.bili_sdk.apis.SEARCH_URL
-import com.laohei.bili_sdk.module_v2.common.BiliResponse
-import com.laohei.bili_sdk.module_v2.search.SearchResultItemType
-import com.laohei.bili_sdk.module_v2.search.SearchResultModel
-import com.laohei.bili_sdk.module_v2.search.SearchResultModel2
+import com.laohei.bili_sdk.model_v2.common.BiliResponse
+import com.laohei.bili_sdk.model_v2.search.SearchResultItemType
+import com.laohei.bili_sdk.model_v2.search.SearchResultModel
+import com.laohei.bili_sdk.model_v2.search.SearchResultModel2
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter

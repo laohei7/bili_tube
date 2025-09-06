@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
-import com.laohei.bili_sdk.module_v2.search.SearchResultItemType
+import com.laohei.bili_sdk.model_v2.search.SearchResultItemType
 import com.laohei.bili_sdk.search.SearchRequest
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.data.local.datastore.dataStore

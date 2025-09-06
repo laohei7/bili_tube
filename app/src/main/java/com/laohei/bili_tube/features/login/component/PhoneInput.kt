@@ -40,7 +40,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.constraintlayout.compose.layoutId
-import com.laohei.bili_sdk.module_v2.location.CountryItem
+import com.laohei.bili_sdk.model_v2.location.CountryItem
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.theme.PaddingXs
 import com.laohei.bili_tube.ui.theme.PaddingLg

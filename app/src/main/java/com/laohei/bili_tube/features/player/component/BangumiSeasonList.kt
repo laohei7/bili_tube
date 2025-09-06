@@ -13,7 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.laohei.bili_sdk.module_v2.video.SeasonModel
+import com.laohei.bili_sdk.model_v2.video.SeasonModel
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.theme.Pink
 

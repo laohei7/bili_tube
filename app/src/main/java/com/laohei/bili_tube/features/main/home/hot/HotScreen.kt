@@ -23,19 +23,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
-import com.laohei.bili_sdk.module_v2.hot.HotItem
-import com.laohei.bili_tube.model.play.PlayParam
-import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
-import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
+import com.laohei.bili_sdk.model_v2.hot.HotItem
 import com.laohei.bili_tube.features.main.home.HomeAction
+import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
+import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
+import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.theme.PaddingLg
 import com.laohei.bili_tube.ui.theme.PaddingMd
-import com.laohei.bili_tube.util.toTimeString
+import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.util.toTimeAgoString
+import com.laohei.bili_tube.util.toTimeString
 import com.laohei.bili_tube.util.toViewString
 import org.koin.compose.koinInject
 
@@ -92,16 +92,20 @@ fun HotScreen(
                     when (uiType) {
                         DeviceConfiguration.MOBILE_PORTRAIT,
                         DeviceConfiguration.TABLE_PORTRAIT -> {
-                            Spacer(Modifier
-                                .statusBarsPadding()
-                                .height(72.dp))
+                            Spacer(
+                                Modifier
+                                    .statusBarsPadding()
+                                    .height(72.dp)
+                            )
                         }
 
                         DeviceConfiguration.MOBILE_LANDSCAPE,
                         DeviceConfiguration.TABLE_LANDSCAPE,
                         DeviceConfiguration.DESKTOP -> {
-                            Spacer(Modifier
-                                .height(42.dp))
+                            Spacer(
+                                Modifier
+                                    .height(42.dp)
+                            )
                         }
                     }
                 }
@@ -129,7 +133,12 @@ fun HotScreen(
                                 navigateToAppRoute(AppRoute.Play)
                             },
                             onMoreClick = {
-                                onHomeAction(HomeAction.MenuSheetUIAction(true, it.aid, it.bvid))
+                                onHomeAction(
+                                    HomeAction.MenuSheetUIAction(
+                                        true, it.aid, it.bvid,
+                                        "【${it.owner.name}】${it.title} ${it.shortLinkV2}"
+                                    )
+                                )
                             },
                             leadingIcon = null
                         )
