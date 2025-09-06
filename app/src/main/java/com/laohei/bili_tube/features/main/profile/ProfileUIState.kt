@@ -1,8 +1,8 @@
 package com.laohei.bili_tube.features.main.profile
 
-import com.laohei.bili_sdk.module_v2.folder.FolderItem
-import com.laohei.bili_sdk.module_v2.history.HistoryItem
-import com.laohei.bili_sdk.module_v2.video.VideoView
+import com.laohei.bili_sdk.model_v2.folder.FolderItem
+import com.laohei.bili_sdk.model_v2.history.HistoryItem
+import com.laohei.bili_sdk.model_v2.video.VideoView
 
 data class ProfileUIState(
     val watchlist: List<VideoView> = emptyList(),
@@ -15,5 +15,6 @@ data class ProfileUIState(
     val isRefreshing: Boolean = false,
     val isShowAddFolder: Boolean = false,
     val folderName: String = "",
-    val isPrivateFolder: Boolean = false
+    val isPrivateFolder: Boolean = false,
+    val isHistoryOptionsVisible: Boolean = false
 )

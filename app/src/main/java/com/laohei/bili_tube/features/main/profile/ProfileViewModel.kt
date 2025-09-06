@@ -6,9 +6,9 @@ import androidx.lifecycle.viewModelScope
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
-import com.laohei.bili_tube.data.repository.BiliProfileRepository
-import com.laohei.bili_tube.data.repository.BiliPlaylistRepository
 import com.laohei.bili_tube.core.extension.withRefreshing
+import com.laohei.bili_tube.data.repository.BiliPlaylistRepository
+import com.laohei.bili_tube.data.repository.BiliProfileRepository
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,8 +18,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(
-    private val biliMineRepository: BiliProfileRepository,
-    private val biliPlaylistRepository: BiliPlaylistRepository
+    private val userProfileRepository: BiliProfileRepository,
+    private val userPlaylistRepository: BiliPlaylistRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileUIState())
@@ -32,6 +32,8 @@ class ProfileViewModel(
             _uiState.value
         )
 
+    private var _selectedKid: String? = null
+
     private suspend fun initData() = coroutineScope {
         launch { getUserStat() }
         launch { getShortHistoryList() }
@@ -40,7 +42,7 @@ class ProfileViewModel(
     }
 
     private suspend fun getUserStat() {
-        val userStat = biliMineRepository.getUserStat()
+        val userStat = userProfileRepository.getUserStat()
         _uiState.update {
             it.copy(
                 following = userStat.following,
@@ -51,19 +53,19 @@ class ProfileViewModel(
     }
 
     private suspend fun getShortHistoryList() {
-        val historyList = biliMineRepository.getHistoryList()
+        val historyList = userProfileRepository.getHistoryList()
         _uiState.update { it.copy(historyList = historyList.list) }
     }
 
     private suspend fun getShortWatchlist() {
-        val watchlist = biliMineRepository.getWatchLaterList(ps = 3)
+        val watchlist = userProfileRepository.getWatchLaterList(ps = 3)
         _uiState.update {
             it.copy(watchlist = watchlist.list, watchLaterCount = watchlist.count)
         }
     }
 
     private suspend fun getFolderList() {
-        val folders = biliMineRepository.getFolderList()
+        val folders = userProfileRepository.getFolderList()
             .fastFilter { it.id == 1 }
             .firstOrNull()
             ?.mediaListResponse
@@ -84,7 +86,14 @@ class ProfileViewModel(
             is ProfileAction.FolderCreatedUIAction -> displayCreateFolder(action)
 
             ProfileAction.RefreshAction -> refresh()
+
+            is ProfileAction.HistoryOptionsVisible -> displayHistoryOptions(action)
         }
+    }
+
+    private fun displayHistoryOptions(action: ProfileAction.HistoryOptionsVisible) {
+        _selectedKid = action.kid
+        _uiState.update { it.copy(isHistoryOptionsVisible = action.flag) }
     }
 
     private fun displayCreateFolder(action: ProfileAction.FolderCreatedUIAction) {
@@ -109,7 +118,7 @@ class ProfileViewModel(
                 )
                 return@launch
             }
-            val success = biliPlaylistRepository.addNewFolder(
+            val success = userPlaylistRepository.addNewFolder(
                 title = folderName,
                 privacy = privacy
             )
@@ -124,6 +133,20 @@ class ProfileViewModel(
                     Event.AppEvent.ToastEvent(R.string.str_folder_created_failed)
                 )
             }
+        }
+    }
+
+    fun delHistory() {
+        if (_selectedKid == null) return
+        viewModelScope.launch {
+            val response = userProfileRepository.delHistory(_selectedKid!!)
+            if (response.code != 0) {
+                EventBus.send(Event.AppEvent.ToastTextEvent(message = response.message))
+                return@launch
+            }
+            EventBus.send(Event.AppEvent.ToastEvent(R.string.str_delete_success))
+            getShortHistoryList()
+            onProfileAction(ProfileAction.HistoryOptionsVisible(false))
         }
     }
 

@@ -4,4 +4,6 @@ sealed interface ProfileAction {
     data object RefreshAction : ProfileAction
 
     data class FolderCreatedUIAction(val flag: Boolean) : ProfileAction
+
+    data class HistoryOptionsVisible(val flag: Boolean, val kid: String? = null) : ProfileAction
 }

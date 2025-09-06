@@ -43,7 +43,9 @@ import coil3.request.placeholder
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.FACE_URL_KEY
 import com.laohei.bili_tube.core.USERNAME_KEY
+import com.laohei.bili_tube.core.extension.getValue
 import com.laohei.bili_tube.features.main.profile.component.FolderList
+import com.laohei.bili_tube.features.main.profile.component.HistoryOptionsSheet
 import com.laohei.bili_tube.features.main.profile.component.OtherMenuList
 import com.laohei.bili_tube.features.main.profile.component.ProfileTopBar
 import com.laohei.bili_tube.features.main.profile.component.ShortHistoryList
@@ -52,9 +54,8 @@ import com.laohei.bili_tube.features.main.profile.component.VIPWidget
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
-import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.component.widget.LabeledData
-import com.laohei.bili_tube.core.extension.getValue
+import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import org.koin.androidx.compose.koinViewModel
 
 
@@ -100,6 +101,18 @@ fun ProfileScreen(
                 viewModel.onProfileAction(ProfileAction.FolderCreatedUIAction(false))
             }
         )
+
+        HistoryOptionsSheet(
+            isSheetVisible = state.isHistoryOptionsVisible,
+            onItemClick = { strId ->
+                when (strId) {
+                    R.string.str_delete -> viewModel.delHistory()
+                }
+            },
+            onDismissRequest = {
+                viewModel.onProfileAction(ProfileAction.HistoryOptionsVisible(false))
+            }
+        )
     }
 
 }
@@ -142,7 +155,10 @@ private fun PortraitContent(
 
                 ShortHistoryList(
                     histories = state.historyList,
-                    navigateToAppRoute = navigateToAppRoute
+                    navigateToAppRoute = navigateToAppRoute,
+                    onMoreClick = {
+                        onProfileAction(ProfileAction.HistoryOptionsVisible(true, it))
+                    }
                 )
                 Spacer(Modifier.height(12.dp))
                 FolderList(
@@ -227,7 +243,7 @@ private fun LandscapeContent(
     onProfileAction: (ProfileAction) -> Unit
 ) {
     val refreshState = rememberPullToRefreshState()
-    Scaffold{ innerPadding ->
+    Scaffold { innerPadding ->
         PullToRefreshBox(
             modifier = Modifier
                 .fillMaxSize()
@@ -253,7 +269,10 @@ private fun LandscapeContent(
 
                 ShortHistoryList(
                     histories = state.historyList,
-                    navigateToAppRoute = navigateToAppRoute
+                    navigateToAppRoute = navigateToAppRoute,
+                    onMoreClick = {
+                        onProfileAction(ProfileAction.HistoryOptionsVisible(true, it))
+                    }
                 )
                 Spacer(Modifier.height(12.dp))
                 FolderList(

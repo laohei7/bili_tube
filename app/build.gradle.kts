@@ -102,4 +102,5 @@ dependencies {
     implementation(libs.androidx.constraintlayout.compose)
     implementation(libs.conscrypt.android)
     implementation(project(":bili_sdk"))
+    implementation(project(":common_ui_core"))
 }

@@ -171,4 +171,13 @@
     <string name="str_collapse">收起</string>
     <string name="str_unfold">展开</string>
     <string name="str_view_count">%s观看</string>
+    <string name="str_delete_success">删除成功</string>
+    <string name="str_delete_all_viewd">删除已观看视频</string>
+    <string name="str_clear_to_view">清空稍后观看</string>
+    <string name="str_clear_success">清除成功</string>
+    <string name="str_clear_history">清空历史记录</string>
+    <string name="str_delete">删除</string>
+    <string name="str_copy_link">复制链接</string>
+    <string name="str_copy_to_clipboard">已复制到剪切板</string>
+    <string name="str_not_install_app">未安装目标 App</string>
 </resources>
