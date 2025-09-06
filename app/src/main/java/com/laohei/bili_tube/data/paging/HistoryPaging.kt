@@ -3,8 +3,8 @@ package com.laohei.bili_tube.data.paging
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.laohei.bili_sdk.apis.HistoryApi
-import com.laohei.bili_sdk.module_v2.history.HistoryCursor
-import com.laohei.bili_sdk.module_v2.history.HistoryItem
+import com.laohei.bili_sdk.model_v2.history.HistoryCursor
+import com.laohei.bili_sdk.model_v2.history.HistoryItem
 
 class HistoryPaging(
     private val historyApi: HistoryApi,

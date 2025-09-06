@@ -4,14 +4,15 @@ import android.content.Context
 import com.laohei.bili_sdk.apis.FolderApi
 import com.laohei.bili_sdk.apis.HistoryApi
 import com.laohei.bili_sdk.apis.UserApi
-import com.laohei.bili_sdk.module_v2.folder.FolderModel
-import com.laohei.bili_sdk.module_v2.history.HistoryModel
-import com.laohei.bili_sdk.module_v2.history.ToViewModel
-import com.laohei.bili_sdk.module_v2.user.UserStatModel
+import com.laohei.bili_sdk.model_v2.common.BiliResponseNoData
+import com.laohei.bili_sdk.model_v2.folder.FolderModel
+import com.laohei.bili_sdk.model_v2.history.HistoryModel
+import com.laohei.bili_sdk.model_v2.history.ToViewModel
+import com.laohei.bili_sdk.model_v2.user.UserStatModel
 import com.laohei.bili_tube.core.COOKIE_KEY
 import com.laohei.bili_tube.data.local.datastore.dataStore
+import com.laohei.bili_tube.util.extractBiliJct
 import kotlinx.coroutines.flow.firstOrNull
-import kotlin.collections.get
 
 class BiliProfileRepository(
     private val context: Context,
@@ -37,5 +38,16 @@ class BiliProfileRepository(
     suspend fun getUserStat(): UserStatModel {
         val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
         return userApi.getUserStat(cookie).data
+    }
+
+    suspend fun delHistory(
+        kid: String
+    ): BiliResponseNoData {
+        val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
+        return historyApi.delHistory(
+            kid = kid,
+            cookie = cookie,
+            csrf = cookie.extractBiliJct()
+        )
     }
 }
