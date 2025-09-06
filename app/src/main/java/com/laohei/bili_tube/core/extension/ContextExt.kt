@@ -3,12 +3,14 @@ package com.laohei.bili_tube.core.extension
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Environment
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import com.laohei.bili_tube.core.SHARED_FILE
+import com.laohei.bili_tube.model.ShareTarget
 
 fun Context.setValue(key: String, value: Any) {
     getSharedPreferences(SHARED_FILE, Activity.MODE_PRIVATE).edit().apply {
@@ -56,5 +58,22 @@ fun Context.isAutoRotateEnabled(): Boolean {
         Settings.System.getInt(contentResolver, Settings.System.ACCELEROMETER_ROTATION) == 1
     } catch (_: Settings.SettingNotFoundException) {
         false
+    }
+}
+
+fun Context.getShareTargets(type: String = "text/plain"): List<ShareTarget> {
+    val intent = Intent(Intent.ACTION_SEND).apply {
+        this.type = type
+    }
+
+    val pm = packageManager
+    val resolveInfos = pm.queryIntentActivities(intent, PackageManager.MATCH_DEFAULT_ONLY)
+
+    return resolveInfos.map { info ->
+        ShareTarget(
+            label = info.loadLabel(pm).toString(),
+            packageName = info.activityInfo.packageName,
+            icon = info.loadIcon(pm)
+        )
     }
 }
