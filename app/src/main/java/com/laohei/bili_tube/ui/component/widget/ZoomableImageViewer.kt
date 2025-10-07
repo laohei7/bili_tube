@@ -28,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -74,11 +75,11 @@ fun ZoomableImageViewer(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
     val density = LocalDensity.current
-
     val pager = rememberPagerState(initialPage = initialIndex) { images.size }
     val imageIndexLabel by remember {
         derivedStateOf { "${pager.currentPage + 1}/${images.size}" }
     }
+    var isCurrentImageZoomed by remember { mutableStateOf(false) }
     with(sharedTransitionScope) {
         Box(
             modifier = Modifier
@@ -88,6 +89,8 @@ fun ZoomableImageViewer(
         ) {
             HorizontalPager(
                 modifier = Modifier.fillMaxSize(),
+                pageSpacing = 16.dp,
+                userScrollEnabled = !isCurrentImageZoomed,
                 state = pager,
             ) { index ->
                 val scale = remember { mutableFloatStateOf(1f) }
@@ -120,6 +123,12 @@ fun ZoomableImageViewer(
                         imageHeightPx > with(density) { screenHeight.toPx() }
                     } ?: false
                 }
+                if (pager.currentPage == index) {
+                    LaunchedEffect(scale.floatValue) {
+                        isCurrentImageZoomed = scale.floatValue > 1.01f
+                    }
+                }
+
                 Image(
                     painter = imageRequest,
                     contentDescription = "picture-${item.first}",
