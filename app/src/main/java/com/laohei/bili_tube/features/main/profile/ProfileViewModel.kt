@@ -32,8 +32,6 @@ class ProfileViewModel(
             _uiState.value
         )
 
-    private var _selectedKid: String? = null
-
     private suspend fun initData() = coroutineScope {
         launch { getUserStat() }
         launch { getShortHistoryList() }
@@ -88,12 +86,16 @@ class ProfileViewModel(
             ProfileAction.RefreshAction -> refresh()
 
             is ProfileAction.HistoryOptionsVisible -> displayHistoryOptions(action)
+            is ProfileAction.FolderOptionsVisible -> displayFolderOptions(action)
         }
     }
 
     private fun displayHistoryOptions(action: ProfileAction.HistoryOptionsVisible) {
-        _selectedKid = action.kid
-        _uiState.update { it.copy(isHistoryOptionsVisible = action.flag) }
+        _uiState.update { it.copy(isHistoryOptionsVisible = action.flag, selectedKid = action.kid) }
+    }
+
+    private fun displayFolderOptions(action: ProfileAction.FolderOptionsVisible) {
+        _uiState.update { it.copy(isFolderOptionsVisible = action.flag, selectedFid = action.fid) }
     }
 
     private fun displayCreateFolder(action: ProfileAction.FolderCreatedUIAction) {
@@ -137,9 +139,10 @@ class ProfileViewModel(
     }
 
     fun delHistory() {
-        if (_selectedKid == null) return
+        val selectedKid = _uiState.value.selectedKid
+        if (selectedKid == null) return
         viewModelScope.launch {
-            val response = userProfileRepository.delHistory(_selectedKid!!)
+            val response = userProfileRepository.delHistory(selectedKid)
             if (response.code != 0) {
                 EventBus.send(Event.AppEvent.ToastTextEvent(message = response.message))
                 return@launch

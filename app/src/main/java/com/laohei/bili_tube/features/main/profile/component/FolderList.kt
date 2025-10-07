@@ -1,32 +1,26 @@
 package com.laohei.bili_tube.features.main.profile.component
 
-import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.PlaylistPlay
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.icons.outlined.WatchLater
+import androidx.compose.material.icons.automirrored.rounded.PlaylistPlay
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.WatchLater
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -45,11 +39,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.palette.graphics.Palette
@@ -63,6 +57,16 @@ import com.laohei.bili_sdk.model_v2.folder.FolderItem
 import com.laohei.bili_sdk.model_v2.video.VideoView
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.nav.AppRoute
+import com.laohei.bili_tube.ui.component.chip.IconWithTextTag
+import com.laohei.bili_tube.ui.component.widget.HeaderWithMenu
+import com.laohei.bili_tube.ui.theme.CornerRadiusMd
+import com.laohei.bili_tube.ui.theme.CornerRadiusNone
+import com.laohei.bili_tube.ui.theme.CornerRadiusSm
+import com.laohei.bili_tube.ui.theme.CornerRadiusXs
+import com.laohei.bili_tube.ui.theme.PaddingLg
+import com.laohei.bili_tube.ui.theme.PaddingMd
+import com.laohei.bili_tube.ui.theme.PaddingSm
+import com.laohei.bili_tube.ui.theme.PaddingXs
 import com.laohei.bili_tube.ui.util.toNonHardwareBitmap
 import com.laohei.bili_tube.util.toViewString
 import kotlinx.coroutines.launch
@@ -74,8 +78,10 @@ fun FolderList(
     watchLaterCount: Int = 0,
     folderList: List<FolderItem>,
     navigateToAppRoute: (AppRoute) -> Unit,
-    showCreatedFolder: () -> Unit
+    showCreatedFolder: () -> Unit,
+    onMoreClick: (Long?) -> Unit,
 ) {
+    if (folderList.isEmpty() && watchLaterList.isEmpty()) return
     val context = LocalContext.current
     ListItem(
         headlineContent = {
@@ -87,13 +93,13 @@ fun FolderList(
         },
         trailingContent = {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(PaddingSm),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = { showCreatedFolder.invoke() }) {
                     Icon(
-                        imageVector = Icons.Outlined.Add,
-                        contentDescription = Icons.Outlined.Add.name,
+                        imageVector = Icons.Rounded.Add,
+                        contentDescription = Icons.Rounded.Add.name,
                     )
                 }
                 TextButton(onClick = {
@@ -108,107 +114,86 @@ fun FolderList(
     LazyRow(
         modifier = Modifier
             .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        horizontalArrangement = Arrangement.spacedBy(PaddingLg)
     ) {
         item { Spacer(Modifier) }
-        if (folderList.isNotEmpty()) {
-            item {
-                PlaylistItem(
-                    cover = watchLaterList.firstOrNull()?.pic.orEmpty(),
-                    title = stringResource(R.string.str_watch_later),
-                    label = stringResource(R.string.str_private),
-                    onClick = {
-                        navigateToAppRoute(
-                            AppRoute.PlaylistContent(
-                                cover = watchLaterList.firstOrNull()?.pic.orEmpty(),
-                                title = context.getString(R.string.str_watch_later),
-                                count = watchLaterCount,
-                                isPrivate = true
-                            )
+        item {
+            FolderCard(
+                modifier = Modifier
+                    .width(180.dp)
+                    .clip(RoundedCornerShape(CornerRadiusMd)),
+                cover = watchLaterList.firstOrNull()?.pic.orEmpty(),
+                title = stringResource(R.string.str_watch_later),
+                label = stringResource(R.string.str_private),
+                onClick = {
+                    navigateToAppRoute(
+                        AppRoute.PlaylistContent(
+                            cover = watchLaterList.firstOrNull()?.pic.orEmpty(),
+                            title = context.getString(R.string.str_watch_later),
+                            count = watchLaterCount,
+                            isPrivate = true
                         )
-                    },
-                    icon = {
-                        Column(
-                            modifier = Modifier
-                                .width(180.dp)
-                                .aspectRatio(16 / 9f)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(
-                                    color = Color.Black.copy(alpha = 0.5f),
-                                    shape = RoundedCornerShape(12.dp)
-                                ),
-                            verticalArrangement = Arrangement.spacedBy(
-                                4.dp,
-                                Alignment.CenterVertically
+                    )
+                },
+                icon = {
+                    StatCard(
+                        modifier = Modifier
+                            .padding(top = PaddingMd)
+                            .width(180.dp)
+                            .aspectRatio(16 / 9f)
+                            .clip(RoundedCornerShape(CornerRadiusMd))
+                            .background(
+                                color = Color.Black.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(CornerRadiusMd)
                             ),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.WatchLater,
-                                contentDescription = Icons.Outlined.WatchLater.name,
-                                tint = Color.White
-                            )
-
-                            Text(
-                                text = "$watchLaterCount",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White
-                            )
-                        }
-                    }
-                )
-            }
-            items(folderList) {
-                Log.d("TAG", "PlaylistWidget: $it")
-                PlaylistItem(
-                    cover = it.cover,
-                    title = it.title,
-                    label = if (it.attr == 23) {
-                        stringResource(R.string.str_private)
-                    } else {
-                        stringResource(R.string.str_public)
-                    },
-                    onClick = {
-                        navigateToAppRoute(
-                            AppRoute.PlaylistContent(
-                                cover = it.cover,
-                                title = it.title,
-                                count = it.mediaCount,
-                                isPrivate = false,
-                                isToView = false,
-                                fid = it.id
-                            )
+                        label = watchLaterCount.toViewString(),
+                        icon = Icons.Rounded.WatchLater
+                    )
+                },
+                onMoreClick = { onMoreClick(null) }
+            )
+        }
+        items(folderList) {
+            FolderCard(
+                modifier = Modifier
+                    .width(180.dp)
+                    .clip(RoundedCornerShape(CornerRadiusMd)),
+                cover = it.cover,
+                title = it.title,
+                label = if (it.attr == 23) {
+                    stringResource(R.string.str_private)
+                } else {
+                    stringResource(R.string.str_public)
+                },
+                onClick = {
+                    navigateToAppRoute(
+                        AppRoute.PlaylistContent(
+                            cover = it.cover,
+                            title = it.title,
+                            count = it.mediaCount,
+                            isPrivate = false,
+                            isToView = false,
+                            fid = it.id
                         )
-                    },
-                    icon = {
-                        Row(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(end = 12.dp, bottom = 12.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(
-                                    color = Color.Black.copy(alpha = 0.5f),
-                                    shape = RoundedCornerShape(4.dp)
-                                )
-                                .padding(vertical = 3.dp, horizontal = 4.dp),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Outlined.PlaylistPlay,
-                                contentDescription = Icons.AutoMirrored.Outlined.PlaylistPlay.name,
-                                tint = Color.White,
-                                modifier = Modifier.size(16.dp)
+                    )
+                },
+                icon = {
+                    IconWithTextTag(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(PaddingMd)
+                            .clip(RoundedCornerShape(CornerRadiusXs))
+                            .background(
+                                color = Color.Black.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(CornerRadiusXs)
                             )
-                            Text(
-                                text = it.mediaCount.toViewString(),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = Color.White
-                            )
-                        }
-                    }
-                )
-            }
+                            .padding(vertical = PaddingXs, horizontal = PaddingSm),
+                        icon = Icons.AutoMirrored.Rounded.PlaylistPlay,
+                        label = it.mediaCount.toViewString(),
+                    )
+                },
+                onMoreClick = { onMoreClick(it.id) }
+            )
         }
         item { Spacer(Modifier) }
     }
@@ -216,14 +201,42 @@ fun FolderList(
 
 
 @Composable
-private fun PlaylistItem(
-    isDark: Boolean = isSystemInDarkTheme(),
+private fun StatCard(
+    modifier: Modifier = Modifier,
+    label: String,
+    icon: ImageVector,
+    contentColor: Color = Color.White
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(PaddingXs, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = icon.name,
+            tint = contentColor
+        )
+
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = contentColor
+        )
+    }
+}
+
+@Composable
+private fun FolderCard(
+    modifier: Modifier = Modifier,
     cover: String,
     title: String,
     label: String,
     onClick: () -> Unit,
-    icon: @Composable (BoxScope.() -> Unit)? = null
+    icon: @Composable (BoxScope.() -> Unit)? = null,
+    onMoreClick: () -> Unit,
 ) {
+    val isDark = isSystemInDarkTheme()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var dominantColor by remember { mutableStateOf(Color.LightGray) }
@@ -231,40 +244,34 @@ private fun PlaylistItem(
         ImageRequest.Builder(context)
             .data(cover)
             .crossfade(true)
-            .size(1280, 720)
-            .placeholder(R.drawable.icon_loading_16_9)
-            .error(R.drawable.icon_loading_16_9)
+            .placeholder(R.drawable.icon_loading_375_211)
+            .error(R.drawable.icon_loading_375_211)
             .build()
     }
     Column(
-        modifier = Modifier
-            .width(IntrinsicSize.Min)
-            .clickable {
-                onClick.invoke()
-            },
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        modifier = modifier
+            .clickable { onClick.invoke() },
+        verticalArrangement = Arrangement.spacedBy(PaddingSm)
     ) {
         Box {
-            val shape = remember { RoundedCornerShape(12.dp) }
-            val coverModifier = Modifier
-                .width(180.dp)
-                .aspectRatio(16 / 9f)
-                .clip(shape)
             Box(
                 modifier = Modifier
-                    .offset {
-                        IntOffset(0, -30)
-                    }
                     .graphicsLayer {
                         scaleY = 0.9f
                         scaleX = 0.9f
                     }
-                    .then(coverModifier)
-                    .background(
-                        color = dominantColor,
-                        shape = shape
-                    ),
-            )
+                    .then(modifier)
+                    .aspectRatio(16 / 9f)
+                    .background(color = dominantColor),
+            ) {
+                HorizontalDivider(
+                    modifier = Modifier
+                        .padding(top = PaddingXs * 3 / 2)
+                        .clip(RoundedCornerShape(CornerRadiusNone)),
+                    color = MaterialTheme.colorScheme.background,
+                    thickness = PaddingXs
+                )
+            }
 
             AsyncImage(
                 model = coverRequest,
@@ -288,49 +295,20 @@ private fun PlaylistItem(
                         }
                     }
                 },
-                modifier = coverModifier
-                    .background(color = Color.LightGray)
-                    .border(
-                        border = BorderStroke(
-                            color = Color.White,
-                            width = 1.dp
-                        ),
-                        shape = shape
-                    ),
+                modifier = Modifier
+                    .padding(top = PaddingMd)
+                    .then(modifier)
+                    .aspectRatio(16 / 9f)
+                    .background(color = Color.LightGray),
                 contentScale = ContentScale.Crop
             )
             icon?.invoke(this)
         }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.Gray
-                )
-            }
-
-            IconButton(
-                onClick = {},
-                modifier = Modifier.offset {
-                    IntOffset(60, -30)
-                }) {
-                Icon(
-                    imageVector = Icons.Outlined.MoreVert,
-                    contentDescription = Icons.Outlined.MoreVert.name,
-                    modifier = Modifier
-                        .size(16.dp)
-                )
-            }
-        }
+        HeaderWithMenu(
+            title = title,
+            subtitle = label,
+            onMoreClick = onMoreClick
+        )
     }
 
 }

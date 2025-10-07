@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.paging.compose.LazyPagingItems
-import com.laohei.bili_sdk.model_v2.folder.FolderMediaItem
+import com.laohei.bili_sdk.model_v2.folder.MediaItem
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
@@ -20,7 +20,7 @@ import com.laohei.bili_tube.util.toViewString
 
 @Composable
 internal fun FolderMediaList(
-    folderMediaList: LazyPagingItems<FolderMediaItem>,
+    folderMediaList: LazyPagingItems<MediaItem>,
     playParam: PlayParam.MediaList,
     listState: LazyListState,
     currentFolderMediaIndex: Int,
@@ -39,7 +39,7 @@ internal fun FolderMediaList(
                 ownerName = item.upper.name,
                 duration = item.duration.toTimeString(false),
                 viewCount = item.cntInfo.play.toViewString(),
-                publishDate = item.pubtime.toTimeAgoString(false),
+                publishDate = item.pubTime.toTimeAgoString(false),
                 isPlaying = currentFolderMediaIndex == index,
                 leadingIcon = null,
                 onClick = {

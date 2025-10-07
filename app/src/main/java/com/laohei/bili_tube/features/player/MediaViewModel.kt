@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import com.laohei.bili_sdk.apis.UserRelationAction
 import com.laohei.bili_sdk.model_v2.common.BiliResponseNoData
-import com.laohei.bili_sdk.model_v2.folder.FolderMediaItem
+import com.laohei.bili_sdk.model_v2.folder.MediaItem
 import com.laohei.bili_sdk.model_v2.video.VideoURLModel
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
@@ -52,12 +52,12 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import kotlin.math.ceil
 
-private object MediaDiffCallback : DiffUtil.ItemCallback<FolderMediaItem>() {
-    override fun areItemsTheSame(oldItem: FolderMediaItem, newItem: FolderMediaItem): Boolean {
+private object MediaDiffCallback : DiffUtil.ItemCallback<MediaItem>() {
+    override fun areItemsTheSame(oldItem: MediaItem, newItem: MediaItem): Boolean {
         return oldItem.bvid == newItem.bvid
     }
 
-    override fun areContentsTheSame(oldItem: FolderMediaItem, newItem: FolderMediaItem): Boolean {
+    override fun areContentsTheSame(oldItem: MediaItem, newItem: MediaItem): Boolean {
         return oldItem == newItem
     }
 }

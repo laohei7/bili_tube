@@ -16,5 +16,8 @@ data class ProfileUIState(
     val isShowAddFolder: Boolean = false,
     val folderName: String = "",
     val isPrivateFolder: Boolean = false,
-    val isHistoryOptionsVisible: Boolean = false
+    val selectedKid: String? = null, // history id
+    val isHistoryOptionsVisible: Boolean = false,
+    val selectedFid: Long? = null, // folder id, null means watch later
+    val isFolderOptionsVisible: Boolean = false,
 )

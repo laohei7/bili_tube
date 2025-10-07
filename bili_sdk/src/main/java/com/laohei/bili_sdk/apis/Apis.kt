@@ -40,6 +40,7 @@ const val URL_SIMPLE_FOLDER = "$BILIBILI_API/x/v3/fav/folder/created/list-all"
 const val URL_FOLDER_DEAL = "$BILIBILI_API/medialist/gateway/coll/resource/deal"
 const val URL_FOLDER_RESOURCE_LIST = "$BILIBILI_API/x/v3/fav/resource/list"
 const val URL_ADD_FOLDER = "$BILIBILI_API/x/v3/fav/folder/add"
+const val URL_EDIT_FOLDER = "${BILIBILI_API}/x/v3/fav/folder/edit"
 
 // 番剧
 const val URL_BANGUMI_FILTER = "$BILIBILI_API/pgc/season/index/result"

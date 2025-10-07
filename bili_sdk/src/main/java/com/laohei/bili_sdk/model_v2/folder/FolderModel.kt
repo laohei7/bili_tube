@@ -65,6 +65,6 @@ data class SimpleFolderItem(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class FolderDealModel(
+data class ModifyFavoriteModel(
     val prompt: Boolean
 )

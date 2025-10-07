@@ -2,7 +2,7 @@ package com.laohei.bili_tube.features.player
 
 import androidx.paging.PagingData
 import com.laohei.bili_sdk.model_v2.bangumi.RelatedBangumiItem
-import com.laohei.bili_sdk.model_v2.folder.FolderMediaItem
+import com.laohei.bili_sdk.model_v2.folder.MediaItem
 import com.laohei.bili_sdk.model_v2.folder.SimpleFolderItem
 import com.laohei.bili_sdk.model_v2.reply.ReplyItem
 import com.laohei.bili_sdk.model_v2.user.InfoCardModel
@@ -59,7 +59,7 @@ data class MediaPlayerUIState(
 
     // watch later list or favorites
     val watchLaterList: List<VideoView> = emptyList(),
-    val folderMediaFlow: Flow<PagingData<FolderMediaItem>> = flow { PagingData.empty<FolderMediaItem>() },
+    val folderMediaFlow: Flow<PagingData<MediaItem>> = flow { PagingData.empty<MediaItem>() },
     val playlistIndex: Int = 0,
     val playlistCount: Int = 0,
     val playlistTitle: String = "",

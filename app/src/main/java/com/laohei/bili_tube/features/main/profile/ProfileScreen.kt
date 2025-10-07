@@ -45,6 +45,7 @@ import com.laohei.bili_tube.core.FACE_URL_KEY
 import com.laohei.bili_tube.core.USERNAME_KEY
 import com.laohei.bili_tube.core.extension.getValue
 import com.laohei.bili_tube.features.main.profile.component.FolderList
+import com.laohei.bili_tube.features.main.profile.component.FolderOptionsSheet
 import com.laohei.bili_tube.features.main.profile.component.HistoryOptionsSheet
 import com.laohei.bili_tube.features.main.profile.component.OtherMenuList
 import com.laohei.bili_tube.features.main.profile.component.ProfileTopBar
@@ -113,6 +114,18 @@ fun ProfileScreen(
                 viewModel.onProfileAction(ProfileAction.HistoryOptionsVisible(false))
             }
         )
+
+        FolderOptionsSheet(
+            isSheetVisible = state.isFolderOptionsVisible,
+            onItemClick = { strId ->
+                when (strId) {
+                    R.string.str_delete -> viewModel.delHistory()
+                }
+            },
+            onDismissRequest = {
+                viewModel.onProfileAction(ProfileAction.FolderOptionsVisible(false))
+            }
+        )
     }
 
 }
@@ -168,6 +181,9 @@ private fun PortraitContent(
                     navigateToAppRoute = navigateToAppRoute,
                     showCreatedFolder = {
                         onProfileAction(ProfileAction.FolderCreatedUIAction(true))
+                    },
+                    onMoreClick = {
+                        onProfileAction(ProfileAction.FolderOptionsVisible(true, it))
                     }
                 )
                 Spacer(Modifier.height(12.dp))
@@ -282,6 +298,9 @@ private fun LandscapeContent(
                     navigateToAppRoute = navigateToAppRoute,
                     showCreatedFolder = {
                         onProfileAction(ProfileAction.FolderCreatedUIAction(true))
+                    },
+                    onMoreClick = {
+                        onProfileAction(ProfileAction.FolderOptionsVisible(true, it))
                     }
                 )
                 Spacer(Modifier.height(12.dp))

@@ -9,10 +9,10 @@ import com.laohei.bili_sdk.apis.URL_FOLDER_RESOURCE_LIST
 import com.laohei.bili_sdk.apis.URL_SIMPLE_FOLDER
 import com.laohei.bili_sdk.exception.globalSDKExceptionHandle
 import com.laohei.bili_sdk.model_v2.common.BiliResponse
-import com.laohei.bili_sdk.model_v2.folder.FolderDealModel
+import com.laohei.bili_sdk.model_v2.folder.ModifyFavoriteModel
 import com.laohei.bili_sdk.model_v2.folder.FolderItem
 import com.laohei.bili_sdk.model_v2.folder.FolderModel
-import com.laohei.bili_sdk.model_v2.folder.FolderResourceModel
+import com.laohei.bili_sdk.model_v2.folder.FolderContent
 import com.laohei.bili_sdk.model_v2.folder.SimpleFolderModel
 import io.ktor.client.HttpClient
 import io.ktor.client.request.forms.FormDataContent
@@ -91,14 +91,14 @@ class FolderApiImpl(
         )
     }
 
-    override suspend fun dealFolder(
+    override suspend fun modifyFavorite(
         aid: Long,
         type: FolderApi.FolderAction,
         addMediaIds: Set<Long>,
         delMediaIds: Set<Long>,
         cookie: String?,
         biliJct: String?
-    ): BiliResponse<FolderDealModel> = withContext(Dispatchers.IO) {
+    ): BiliResponse<ModifyFavoriteModel> = withContext(Dispatchers.IO) {
         runCatching {
             val response = client.post(URL_FOLDER_DEAL) {
                 cookie?.apply {
@@ -118,7 +118,7 @@ class FolderApiImpl(
                     )
                 )
             }
-            Json.decodeFromString<BiliResponse<FolderDealModel>>(response.bodyAsText())
+            Json.decodeFromString<BiliResponse<ModifyFavoriteModel>>(response.bodyAsText())
         }.fold(
             onSuccess = { it },
             onFailure = {
@@ -128,7 +128,7 @@ class FolderApiImpl(
                 BiliResponse(
                     code = 400,
                     message = "ERROR",
-                    data = FolderDealModel(false)
+                    data = ModifyFavoriteModel(false)
                 )
             }
         )
@@ -139,7 +139,7 @@ class FolderApiImpl(
         mlid: Long,
         ps: Int,
         pn: Int
-    ): BiliResponse<FolderResourceModel> = withContext(Dispatchers.IO) {
+    ): BiliResponse<FolderContent> = withContext(Dispatchers.IO) {
         runCatching {
             val response = client.get(URL_FOLDER_RESOURCE_LIST) {
                 cookie?.let { header(HttpHeaders.Cookie, it) }
@@ -147,7 +147,7 @@ class FolderApiImpl(
                 parameter("ps", ps.toString())
                 parameter("pn", pn.toString())
             }
-            Json.decodeFromString<BiliResponse<FolderResourceModel>>(response.bodyAsText())
+            Json.decodeFromString<BiliResponse<FolderContent>>(response.bodyAsText())
         }.fold(
             onSuccess = { it },
             onFailure = {
@@ -157,7 +157,7 @@ class FolderApiImpl(
                 BiliResponse(
                     code = 400,
                     message = "ERROR",
-                    data = FolderResourceModel.ERROR
+                    data = FolderContent.ERROR
                 )
             }
         )

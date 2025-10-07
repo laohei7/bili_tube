@@ -12,7 +12,7 @@ import com.laohei.bili_sdk.model_v2.bangumi.AnimeScheduleModel
 import com.laohei.bili_sdk.model_v2.bangumi.BangumiItem
 import com.laohei.bili_sdk.model_v2.common.BiliResponse
 import com.laohei.bili_sdk.model_v2.common.BiliResponseNoData
-import com.laohei.bili_sdk.model_v2.folder.FolderDealModel
+import com.laohei.bili_sdk.model_v2.folder.ModifyFavoriteModel
 import com.laohei.bili_sdk.model_v2.hot.HotItem
 import com.laohei.bili_sdk.model_v2.recommend.RecommendItem
 import com.laohei.bili_tube.core.COOKIE_KEY
@@ -127,9 +127,9 @@ class BiliHomeRepository(
         aid: Long,
         addMediaIds: Set<Long>,
         delMediaIds: Set<Long>,
-    ): BiliResponse<FolderDealModel>? {
+    ): BiliResponse<ModifyFavoriteModel>? {
         val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
-        return folderApi.dealFolder(
+        return folderApi.modifyFavorite(
             aid = aid,
             addMediaIds = addMediaIds,
             delMediaIds = delMediaIds,

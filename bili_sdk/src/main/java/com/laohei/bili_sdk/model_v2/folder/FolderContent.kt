@@ -8,40 +8,49 @@ import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class FolderResourceModel(
-    val info: FolderInfoModel,
-    val medias: List<FolderMediaItem>,
+data class FolderContent(
+    val info: FolderInfo,
+    val medias: List<MediaItem>,
     @SerialName("has_more") val hasMore: Boolean
 ) {
     companion object {
-        val ERROR = FolderResourceModel(
-            info = FolderInfoModel(0, 0,0, 0, "", "", UpperModel(0, "", ""), 0, 0, 0),
-            medias = emptyList(),
-            hasMore = false
-        )
+        val ERROR by lazy {
+            FolderContent(
+                info = FolderInfo.ERROR,
+                medias = emptyList(),
+                hasMore = false
+            )
+        }
     }
 }
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class FolderInfoModel(
+data class FolderInfo(
     val id: Long,
     val fid: Long,
     val mid: Long,
     val attr: Int,
     val title: String,
     val cover: String,
-    val upper: UpperModel,
-    @SerialName("media_count") val mediaCount: Int,
-    val ctime: Long,
-    val mtime: Long
-)
+    val upper: UpperInfo,
+    val intro: String = "",
+    @SerialName("media_count") val mediaCount: Int = 0,
+    @SerialName("ctime") val cTime: Long,
+    @SerialName("mtime") val mTime: Long
+) {
+    companion object {
+        val ERROR by lazy {
+            FolderInfo(0, 0, 0, 0, "", "", UpperInfo(0, "", ""), "", 0, 0, 0)
+        }
+    }
+}
 
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class FolderMediaItem(
+data class MediaItem(
     val id: Long,
     val type: Int,
     val title: String,
@@ -50,11 +59,11 @@ data class FolderMediaItem(
     val intro: String,
     val page: Int,
     val duration: Long,
-    val upper: UpperModel,
-    @SerialName("cnt_info") val cntInfo: CNTInfoModel,
+    val upper: UpperInfo,
+    @SerialName("cnt_info") val cntInfo: CNTInfo,
     val link: String,
-    val ctime: Long,
-    val pubtime: Long,
+    @SerialName("ctime") val cTime: Long,
+    @SerialName("pubtime") val pubTime: Long,
     @SerialName("fav_time") val favTime: Long,
     val bvid: String,
 )
@@ -62,7 +71,7 @@ data class FolderMediaItem(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class UpperModel(
+data class UpperInfo(
     val mid: Long,
     val name: String,
     val face: String,
@@ -74,7 +83,7 @@ data class UpperModel(
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
-data class CNTInfoModel(
+data class CNTInfo(
     val collect: Long,
     val play: Long,
     @SerialName("thumb_up") val thumbUp: Long = 0,

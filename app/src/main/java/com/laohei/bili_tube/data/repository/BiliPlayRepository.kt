@@ -12,7 +12,7 @@ import com.laohei.bili_sdk.apis.UserApi
 import com.laohei.bili_sdk.apis.UserRelationAction
 import com.laohei.bili_sdk.model_v2.common.BiliResponse
 import com.laohei.bili_sdk.model_v2.common.BiliResponseNoData
-import com.laohei.bili_sdk.model_v2.folder.FolderDealModel
+import com.laohei.bili_sdk.model_v2.folder.ModifyFavoriteModel
 import com.laohei.bili_sdk.model_v2.reply.ReplyItem
 import com.laohei.bili_sdk.model_v2.user.UploadedVideoItem
 import com.laohei.bili_sdk.model_v2.video.AddCoinModel
@@ -209,9 +209,9 @@ class BiliPlayRepository(
         aid: Long,
         addMediaIds: Set<Long>,
         delMediaIds: Set<Long>,
-    ): BiliResponse<FolderDealModel>? {
+    ): BiliResponse<ModifyFavoriteModel>? {
         val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
-        return folderApi.dealFolder(
+        return folderApi.modifyFavorite(
             aid = aid,
             addMediaIds = addMediaIds,
             delMediaIds = delMediaIds,

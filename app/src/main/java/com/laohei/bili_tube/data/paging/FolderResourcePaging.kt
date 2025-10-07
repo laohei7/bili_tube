@@ -5,27 +5,27 @@ import androidx.compose.ui.util.fastFilter
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.laohei.bili_sdk.apis.FolderApi
-import com.laohei.bili_sdk.model_v2.folder.FolderMediaItem
+import com.laohei.bili_sdk.model_v2.folder.MediaItem
 
 class FolderResourcePaging(
     private val folderApi: FolderApi,
     private val cookie: String?,
     private val mlid: Long
-) : PagingSource<Int, FolderMediaItem>() {
+) : PagingSource<Int, MediaItem>() {
 
     companion object {
         private val TAG = FolderResourcePaging::class.simpleName
         private const val DBG = true
     }
 
-    override fun getRefreshKey(state: PagingState<Int, FolderMediaItem>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, MediaItem>): Int? {
         return state.anchorPosition?.let { anchor ->
             state.closestPageToPosition(anchor)?.prevKey?.plus(1)
                 ?: state.closestPageToPosition(anchor)?.nextKey?.minus(1)
         }
     }
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, FolderMediaItem> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, MediaItem> {
         return runCatching {
             val page = params.key ?: 1
             val res = folderApi.getFolderResources(

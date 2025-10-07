@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.paging.compose.LazyPagingItems
-import com.laohei.bili_sdk.model_v2.folder.FolderMediaItem
+import com.laohei.bili_sdk.model_v2.folder.MediaItem
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.model.FolderMedia
@@ -32,7 +32,7 @@ internal fun FolderMediaList(
     modifier: Modifier = Modifier,
     gridState: LazyGridState,
     param: AppRoute.PlaylistContent,
-    resources: LazyPagingItems<FolderMediaItem>,
+    resources: LazyPagingItems<MediaItem>,
     navigateToAppRoute: (AppRoute) -> Unit
 ) {
     val sharedViewModel = koinInject<SharedViewModel>()
@@ -61,7 +61,7 @@ internal fun FolderMediaList(
                     ownerName = item.upper.name,
                     duration = item.duration.toTimeString(false),
                     viewCount = item.cntInfo.play.toViewString(),
-                    publishDate = item.pubtime.toTimeAgoString(false),
+                    publishDate = item.pubTime.toTimeAgoString(false),
                     leadingIcon = null,
                     onClick = {
                         sharedViewModel.setPlayParam(

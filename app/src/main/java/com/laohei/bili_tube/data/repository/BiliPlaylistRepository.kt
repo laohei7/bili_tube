@@ -8,8 +8,8 @@ import com.laohei.bili_sdk.apis.FolderApi
 import com.laohei.bili_sdk.apis.HistoryApi
 import com.laohei.bili_sdk.model_v2.common.BiliResponse
 import com.laohei.bili_sdk.model_v2.common.BiliResponseNoData
-import com.laohei.bili_sdk.model_v2.folder.FolderDealModel
-import com.laohei.bili_sdk.model_v2.folder.FolderMediaItem
+import com.laohei.bili_sdk.model_v2.folder.ModifyFavoriteModel
+import com.laohei.bili_sdk.model_v2.folder.MediaItem
 import com.laohei.bili_sdk.model_v2.folder.FolderModel
 import com.laohei.bili_sdk.model_v2.folder.SimpleFolderModel
 import com.laohei.bili_sdk.model_v2.history.ToViewModel
@@ -55,7 +55,7 @@ class BiliPlaylistRepository(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun folderMediaPagingFlow(
         mlid: Long
-    ): Flow<PagingData<FolderMediaItem>> {
+    ): Flow<PagingData<MediaItem>> {
         return flow {
             val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
             emit(
@@ -122,9 +122,9 @@ class BiliPlaylistRepository(
         aid: Long,
         addMediaIds: Set<Long>,
         delMediaIds: Set<Long>,
-    ): BiliResponse<FolderDealModel>? {
+    ): BiliResponse<ModifyFavoriteModel>? {
         val cookie = context.dataStore.data.firstOrNull()?.get(COOKIE_KEY)
-        return folderApi.dealFolder(
+        return folderApi.modifyFavorite(
             aid = aid,
             addMediaIds = addMediaIds,
             delMediaIds = delMediaIds,
