@@ -1,31 +1,14 @@
 package com.laohei.bili_sdk.apis.impl
 
-import com.laohei.bili_sdk.apis.BILIBILI
-import com.laohei.bili_sdk.apis.FolderApi
-import com.laohei.bili_sdk.apis.URL_ADD_FOLDER
-import com.laohei.bili_sdk.apis.URL_FOLDER
-import com.laohei.bili_sdk.apis.URL_FOLDER_DEAL
-import com.laohei.bili_sdk.apis.URL_FOLDER_RESOURCE_LIST
-import com.laohei.bili_sdk.apis.URL_SIMPLE_FOLDER
+import com.laohei.bili_sdk.apis.*
 import com.laohei.bili_sdk.exception.globalSDKExceptionHandle
 import com.laohei.bili_sdk.model_v2.common.BiliResponse
-import com.laohei.bili_sdk.model_v2.folder.ModifyFavoriteModel
-import com.laohei.bili_sdk.model_v2.folder.FolderItem
-import com.laohei.bili_sdk.model_v2.folder.FolderModel
-import com.laohei.bili_sdk.model_v2.folder.FolderContent
-import com.laohei.bili_sdk.model_v2.folder.SimpleFolderModel
-import io.ktor.client.HttpClient
-import io.ktor.client.request.forms.FormDataContent
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.request.parameter
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.Parameters
-import io.ktor.http.contentType
+import com.laohei.bili_sdk.model_v2.folder.*
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -200,5 +183,42 @@ class FolderApiImpl(
                 )
             }
         )
+    }
+
+    override suspend fun editFolder(
+        cookie: String?,
+        mediaId: Long,
+        title: String,
+        intro: String?,
+        privacy: Boolean,
+        csrf: String?
+    ): BiliResponse<FolderInfo> = withContext(Dispatchers.IO) {
+        runCatching {
+            val response = client.post(URL_EDIT_FOLDER) {
+                cookie?.apply {
+                    header(HttpHeaders.Cookie, cookie)
+                }
+                header(HttpHeaders.Referrer, BILIBILI)
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody(
+                    FormDataContent(
+                        Parameters.build {
+                            append("media_id", mediaId.toString())
+                            append("title", title)
+                            append("privacy", if (privacy) "1" else "0")
+                            intro?.let { append("intro", it) }
+                            csrf?.let { append("csrf", it) }
+                        }
+                    )
+                )
+            }
+            Json.decodeFromString<BiliResponse<FolderInfo>>(response.bodyAsText())
+        }.getOrElse {
+            BiliResponse(
+                code = 400,
+                message = "ERROR",
+                data = FolderInfo.ERROR
+            )
+        }
     }
 }

@@ -5,6 +5,7 @@ import com.laohei.bili_sdk.model_v2.folder.ModifyFavoriteModel
 import com.laohei.bili_sdk.model_v2.folder.FolderItem
 import com.laohei.bili_sdk.model_v2.folder.FolderModel
 import com.laohei.bili_sdk.model_v2.folder.FolderContent
+import com.laohei.bili_sdk.model_v2.folder.FolderInfo
 import com.laohei.bili_sdk.model_v2.folder.SimpleFolderModel
 
 interface FolderApi {
@@ -43,10 +44,11 @@ interface FolderApi {
     ): BiliResponse<FolderItem?>
 
     suspend fun editFolder(
+        cookie: String? = null,
         mediaId: Long,
         title: String,
         intro: String? = null,
         privacy: Boolean = false,
         csrf: String? = null
-    )
+    ):BiliResponse<FolderInfo>
 }

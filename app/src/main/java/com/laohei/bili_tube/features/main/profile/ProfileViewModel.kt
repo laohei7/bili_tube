@@ -139,8 +139,7 @@ class ProfileViewModel(
     }
 
     fun delHistory() {
-        val selectedKid = _uiState.value.selectedKid
-        if (selectedKid == null) return
+        val selectedKid = _uiState.value.selectedKid ?: return
         viewModelScope.launch {
             val response = userProfileRepository.delHistory(selectedKid)
             if (response.code != 0) {
@@ -151,6 +150,10 @@ class ProfileViewModel(
             getShortHistoryList()
             onProfileAction(ProfileAction.HistoryOptionsVisible(false))
         }
+    }
+
+    fun delFolder(){
+
     }
 
 }
