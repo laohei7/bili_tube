@@ -1,5 +1,6 @@
 package com.laohei.bili_sdk.model_v2.folder
 
+import com.feature.annotations.FeatureTag
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -24,6 +25,15 @@ data class FolderContent(
     }
 }
 
+@FeatureTag(
+    module = "bili_sdk",
+    layer = "data",
+    feature = "Folder Info",
+    desc = """
+        Represents basic folder information returned by the Bili SDK.
+        Used in folder resource list and folder editor.
+    """
+)
 @OptIn(ExperimentalSerializationApi::class)
 @Serializable
 @JsonIgnoreUnknownKeys
