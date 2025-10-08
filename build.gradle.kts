@@ -7,4 +7,6 @@ plugins {
     kotlin("plugin.serialization") version "2.1.0"
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.androidx.room) apply false
+    alias(libs.plugins.kotzilla) apply false
+    alias(libs.plugins.jetbrains.kotlin.jvm) apply false
 }
