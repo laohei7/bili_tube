@@ -119,7 +119,7 @@ fun ProfileScreen(
             isSheetVisible = state.isFolderOptionsVisible,
             onItemClick = { strId ->
                 when (strId) {
-                    R.string.str_delete -> viewModel.delHistory()
+                    R.string.str_delete -> viewModel.delFolder()
                 }
             },
             onDismissRequest = {

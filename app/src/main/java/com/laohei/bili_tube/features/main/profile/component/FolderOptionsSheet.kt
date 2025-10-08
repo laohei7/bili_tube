@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -39,6 +40,11 @@ private fun buildFolderOptions(): List<FolderOption> {
     val colorScheme = MaterialTheme.colorScheme
     return remember {
         listOf(
+            FolderOption(
+                icon = Icons.Rounded.Edit,
+                labelId = R.string.str_edit,
+                color = colorScheme.error
+            ),
             FolderOption(
                 icon = Icons.Rounded.Delete,
                 labelId = R.string.str_delete,

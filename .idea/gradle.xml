@@ -13,6 +13,7 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/bili_sdk" />
             <option value="$PROJECT_DIR$/common_ui_core" />
+            <option value="$PROJECT_DIR$/feature_annotations" />
           </set>
         </option>
       </GradleProjectSettings>
