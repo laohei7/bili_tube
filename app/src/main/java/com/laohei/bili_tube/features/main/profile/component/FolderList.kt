@@ -125,6 +125,7 @@ fun FolderList(
                 cover = watchLaterList.firstOrNull()?.pic.orEmpty(),
                 title = stringResource(R.string.str_watch_later),
                 label = stringResource(R.string.str_private),
+                isTrailingVisible = false,
                 onClick = {
                     navigateToAppRoute(
                         AppRoute.PlaylistContent(
@@ -232,6 +233,7 @@ private fun FolderCard(
     cover: String,
     title: String,
     label: String,
+    isTrailingVisible: Boolean = true,
     onClick: () -> Unit,
     icon: @Composable (BoxScope.() -> Unit)? = null,
     onMoreClick: () -> Unit,
@@ -307,6 +309,7 @@ private fun FolderCard(
         HeaderWithMenu(
             title = title,
             subtitle = label,
+            isTrailingVisible = isTrailingVisible,
             onMoreClick = onMoreClick
         )
     }

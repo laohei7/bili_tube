@@ -26,6 +26,7 @@ fun HeaderWithMenu(
     subtitle: String,
     maxTitleLines: Int = 2,
     maxOwnerLines: Int = 1,
+    isTrailingVisible: Boolean = true,
     onMoreClick: () -> Unit,
 ) {
     Layout(
@@ -83,10 +84,12 @@ fun HeaderWithMenu(
             titlePlaceable.place(0, 0)
             ownerPlaceable.place(0, titlePlaceable.height)
 
-            morePlaceable.place(
-                x = layoutWidth - morePlaceable.width,
-                y = 0
-            )
+            if (isTrailingVisible) {
+                morePlaceable.place(
+                    x = layoutWidth - morePlaceable.width,
+                    y = 0
+                )
+            }
         }
     }
 }
