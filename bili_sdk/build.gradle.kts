@@ -44,4 +44,5 @@ dependencies {
 
     implementation(libs.bundles.ktor.client)
     implementation(libs.kotlinx.serialization.json)
+    implementation(project(":feature_annotations"))
 }

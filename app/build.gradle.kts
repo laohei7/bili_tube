@@ -103,4 +103,5 @@ dependencies {
     implementation(libs.conscrypt.android)
     implementation(project(":bili_sdk"))
     implementation(project(":common_ui_core"))
+    implementation(project(":feature_annotations"))
 }
