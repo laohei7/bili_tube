@@ -81,12 +81,12 @@ class SheetState(
     /** Whether the sheet has an expanded state defined. */
     @OptIn(ExperimentalFoundationApi::class)
     val hasExpandedState: Boolean
-        get() = anchoredDraggableState.anchors.hasAnchorFor(SheetValue.Expanded)
+        get() = anchoredDraggableState.anchors.hasPositionFor(SheetValue.Expanded)
 
     /** Whether the modal bottom sheet has a partially expanded state defined. */
     @OptIn(ExperimentalFoundationApi::class)
     val hasPartiallyExpandedState: Boolean
-        get() = anchoredDraggableState.anchors.hasAnchorFor(SheetValue.PartiallyExpanded)
+        get() = anchoredDraggableState.anchors.hasPositionFor(SheetValue.PartiallyExpanded)
 
     /**
      * Fully expand the bottom sheet with animation and suspend until it is fully expanded or

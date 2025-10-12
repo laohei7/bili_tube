@@ -136,7 +136,7 @@ fun ZoomableImageViewer(
                         .then(
                             if (pager.currentPage == index) {
                                 Modifier.sharedElement(
-                                    state = rememberSharedContentState(item.first),
+                                    sharedContentState = rememberSharedContentState(item.first),
                                     animatedVisibilityScope = animatedVisibilityScope
                                 )
                             } else {

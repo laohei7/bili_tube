@@ -353,10 +353,10 @@ internal fun BoxScope.ModalBottomSheetContent(
                             PartiallyExpanded,
                             Expanded -> {
                                 val hasPartiallyExpandedState =
-                                    newAnchors.hasAnchorFor(PartiallyExpanded)
+                                    newAnchors.hasPositionFor(PartiallyExpanded)
                                 val newTarget =
                                     if (hasPartiallyExpandedState) PartiallyExpanded
-                                    else if (newAnchors.hasAnchorFor(Expanded)) Expanded else Hidden
+                                    else if (newAnchors.hasPositionFor(Expanded)) Expanded else Hidden
                                 newTarget
                             }
                         }

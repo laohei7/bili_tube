@@ -1,17 +1,20 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.laohei.bili_tube.util
 
 import android.os.Build
-import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
-import java.time.format.TextStyle
 import java.util.Calendar
 import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.round
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 private val WEEK_DAYS =
     arrayOf("星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六")
@@ -93,8 +96,8 @@ fun Long.formatAs(
 
     return pattern
         .replace("yyyy", dt.year.toString())
-        .replace("MM", "%02d".format(dt.monthNumber))
-        .replace("dd", "%02d".format(dt.dayOfMonth))
+        .replace("MM", "%02d".format(dt.month.number))
+        .replace("dd", "%02d".format(dt.day))
         .replace("HH", "%02d".format(dt.hour))
         .replace("mm", "%02d".format(dt.minute))
         .replace("ss", "%02d".format(dt.second))
@@ -114,21 +117,21 @@ fun Long.toFriendlyDateString(isMillis: Boolean = true): String {
         targetDate == nowDate.minus(1, DateTimeUnit.DAY) -> "昨天"
         targetDate >= nowDate.minus(nowDate.dayOfWeek.ordinal, DateTimeUnit.DAY) -> { // 本周内
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                targetDate.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.CHINA)
+                targetDate.dayOfWeek.name
             } else {
                 this.toWeekdayName() // 兼容低版本
             }
         }
 
         targetDate.year == nowDate.year -> "%02d月%02d日".format(
-            targetDate.monthNumber,
-            targetDate.dayOfMonth
+            targetDate.month.number,
+            targetDate.day
         )
 
         else -> "%04d年%02d月%02d日".format(
             targetDate.year,
-            targetDate.monthNumber,
-            targetDate.dayOfMonth
+            targetDate.month.number,
+            targetDate.day
         )
     }
 }

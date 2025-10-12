@@ -1,3 +1,5 @@
+@file:kotlin.OptIn(ExperimentalTime::class)
+
 package com.laohei.bili_tube.features.player
 
 import android.annotation.SuppressLint
@@ -61,6 +63,8 @@ import kotlinx.datetime.Clock
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.math.roundToInt
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 private const val TAG = "VideoScreen"
 

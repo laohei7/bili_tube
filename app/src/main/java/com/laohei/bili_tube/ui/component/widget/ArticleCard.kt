@@ -138,7 +138,7 @@ private fun ArticleImageGrid(
                             url = url,
                             modifier = Modifier
                                 .sharedElement(
-                                    state = rememberSharedContentState("img-$articleId-$index"),
+                                    sharedContentState = rememberSharedContentState("img-$articleId-$index"),
                                     animatedVisibilityScope = animatedVisibilityScope
                                 )
                                 .fillMaxSize()
@@ -156,7 +156,7 @@ private fun ArticleImageGrid(
                         url = url,
                         modifier = Modifier
                             .sharedElement(
-                                state = rememberSharedContentState("img-$articleId-$index"),
+                                sharedContentState = rememberSharedContentState("img-$articleId-$index"),
                                 animatedVisibilityScope = animatedVisibilityScope
                             )
                             .then(

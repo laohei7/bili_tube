@@ -388,7 +388,7 @@ internal class AnchoredDraggableState<T>(
         dragPriority: MutatePriority = MutatePriority.Default,
         block: suspend AnchoredDragScope.(anchors: DraggableAnchors<T>, targetValue: T) -> Unit
     ) {
-        if (anchors.hasAnchorFor(targetValue)) {
+        if (anchors.hasPositionFor(targetValue)) {
             try {
                 dragMutex.mutate(dragPriority) {
                     dragTarget = targetValue
@@ -416,8 +416,8 @@ internal class AnchoredDraggableState<T>(
     @OptIn(ExperimentalFoundationApi::class)
     internal fun newOffsetForDelta(delta: Float) =
         ((if (offset.isNaN()) 0f else offset) + delta).coerceIn(
-            anchors.minAnchor(),
-            anchors.maxAnchor()
+            anchors.minPosition(),
+            anchors.maxPosition()
         )
 
     /**
@@ -530,9 +530,8 @@ private fun <T> emptyDraggableAnchors() = MapDraggableAnchors<T>(emptyMap())
 private class MapDraggableAnchors<T>(private val anchors: Map<T, Float>) :
     DraggableAnchors<T> {
 
-    override fun positionOf(value: T): Float = anchors[value] ?: Float.NaN
-
-    override fun hasAnchorFor(value: T) = anchors.containsKey(value)
+    override fun positionOf(anchor: T): Float = anchors[anchor] ?: Float.NaN
+    override fun hasPositionFor(anchor: T): Boolean = anchors.containsKey(anchor)
 
     override fun closestAnchor(position: Float): T? =
         anchors.minByOrNull { abs(position - it.value) }?.key
@@ -546,13 +545,17 @@ private class MapDraggableAnchors<T>(private val anchors: Map<T, Float>) :
             ?.key
     }
 
-    override fun forEach(block: (T, Float) -> Unit) {
+    override fun minPosition(): Float = anchors.values.maxOrNull() ?: Float.NaN
 
+    override fun maxPosition(): Float = anchors.values.minOrNull() ?: Float.NaN
+
+    override fun anchorAt(index: Int): T? {
+        return anchors.keys.elementAtOrNull(index)
     }
 
-    override fun minAnchor() = anchors.values.minOrNull() ?: Float.NaN
-
-    override fun maxAnchor() = anchors.values.maxOrNull() ?: Float.NaN
+    override fun positionAt(index: Int): Float {
+        return anchors.values.elementAtOrNull(index) ?: Float.NaN
+    }
 
     override val size: Int
         get() = anchors.size
