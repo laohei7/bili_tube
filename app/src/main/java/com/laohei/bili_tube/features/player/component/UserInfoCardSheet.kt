@@ -17,8 +17,8 @@ import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.model_v2.user.UploadedVideoItem
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.model.UserProfile
-import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
-import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
+import com.laohei.bili_tube.ui.bottomsheet.ModalBottomSheet
+import com.laohei.bili_tube.ui.bottomsheet.rememberModalBottomSheet
 
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
@@ -35,38 +35,33 @@ fun UserInfoCardSheet(
     onMaskAlphaChange: (Float) -> Unit,
     onVideoMenuAction: (VideoMenuAction) -> Unit
 ) {
-    val sheetState = rememberModalBottomSheet(
-        skipPartiallyExpanded = true
-    )
-    BackHandler(enabled = isShowSheet) {
-        onDismiss.invoke()
-    }
-    if (isShowSheet) {
-        LaunchedEffect(sheetState) {
-            snapshotFlow { sheetState.requireOffset() }
-                .collect { offset ->
-                    onMaskAlphaChange.invoke(offset)
-                }
-        }
-        ModalBottomSheet(
-            modifier = modifier,
-            sheetState = sheetState,
-            scrimColor = Color.Transparent,
-            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-            containerColor = MaterialTheme.colorScheme.background,
-            onDismissRequest = { onDismiss.invoke() },
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator()
-            } else {
-                UserWorkList(
-                    works = uploadedVideos,
-                    userProfile = userProfile,
-                    currentBvid = currentBvid,
-                    bottomPadding = bottomPadding,
-                    onVideoMenuAction = onVideoMenuAction
-                )
+    if (!isShowSheet) return
+    val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true)
+//    BackHandler(enabled = true) { onDismiss.invoke() }
+    LaunchedEffect(sheetState) {
+        snapshotFlow { sheetState.requireOffset() }
+            .collect { offset ->
+                onMaskAlphaChange.invoke(offset)
             }
+    }
+    ModalBottomSheet(
+        modifier = modifier,
+        sheetState = sheetState,
+        scrimColor = Color.Transparent,
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+        containerColor = MaterialTheme.colorScheme.background,
+        onDismissRequest = { onDismiss.invoke() },
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator()
+        } else {
+            UserWorkList(
+                works = uploadedVideos,
+                userProfile = userProfile,
+                currentBvid = currentBvid,
+                bottomPadding = bottomPadding,
+                onVideoMenuAction = onVideoMenuAction
+            )
         }
     }
 

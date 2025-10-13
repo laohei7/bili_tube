@@ -3,27 +3,10 @@ package com.laohei.bili_tube.features.player.component
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,9 +21,6 @@ import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.component.animation.SpriteAnimation
-import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
-import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheetProperties
-import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
 import kotlinx.coroutines.launch
 
 
@@ -52,7 +32,7 @@ internal fun AddCoinSheet(
     onVideoMenuAction: (VideoMenuAction) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     fun closeSheet() {
         scope.launch {
             sheetState.hide()
@@ -62,13 +42,12 @@ internal fun AddCoinSheet(
     if (isShowAddCoinUI) {
         var selectCoin by remember { mutableIntStateOf(1) }
         ModalBottomSheet(
-            shape = RoundedCornerShape(12.dp),
+            shape = MaterialTheme.shapes.medium,
             sheetState = sheetState,
             modifier = Modifier
                 .padding(8.dp)
                 .navigationBarsPadding(),
             containerColor = MaterialTheme.colorScheme.background,
-            properties = ModalBottomSheetProperties(shouldDispatcherEvent = false),
             onDismissRequest = { closeSheet() }
         ) {
             Column(

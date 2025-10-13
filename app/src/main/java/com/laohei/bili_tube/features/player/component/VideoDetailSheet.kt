@@ -3,29 +3,12 @@ package com.laohei.bili_tube.features.player.component
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
@@ -41,9 +24,9 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import com.laohei.bili_sdk.model_v2.video.VideoDetailModel
 import com.laohei.bili_tube.R
+import com.laohei.bili_tube.ui.bottomsheet.ModalBottomSheet
+import com.laohei.bili_tube.ui.bottomsheet.rememberModalBottomSheet
 import com.laohei.bili_tube.ui.component.chip.TagChip
-import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
-import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
 import com.laohei.bili_tube.util.toDateString
 import com.laohei.bili_tube.util.toViewString
 import kotlinx.coroutines.launch
@@ -62,145 +45,139 @@ internal fun VideoDetailSheet(
     onDismiss: () -> Unit = {},
     onMaskAlphaChange: (Float) -> Unit = { _ -> }
 ) {
-    BackHandler(enabled = isShowVideoDetailUI) {
-        onDismiss.invoke()
-    }
-    val sheetState = rememberModalBottomSheet(
-        skipPartiallyExpanded = true
-    )
+    if (!isShowVideoDetailUI) return
+    val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-
-    if (isShowVideoDetailUI) {
-        val publishDate =
-            videoDetail?.view?.pubdate?.toDateString(false)
-        val tags = videoDetail?.tags?.fastMap { it.tagName } ?: emptyList()
-        LaunchedEffect(sheetState) {
-            snapshotFlow { sheetState.requireOffset() }
-                .collect { offset ->
-                    onMaskAlphaChange.invoke(offset)
-                }
-        }
-        ModalBottomSheet(
-            modifier = modifier.fillMaxSize(),
-            sheetState = sheetState,
-            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-            containerColor = MaterialTheme.colorScheme.background,
-            scrimColor = Color.Transparent,
-            onDismissRequest = { onDismiss.invoke() },
+    val publishDate =
+        videoDetail?.view?.pubdate?.toDateString(false)
+    val tags = videoDetail?.tags?.fastMap { it.tagName } ?: emptyList()
+    LaunchedEffect(sheetState) {
+        snapshotFlow { sheetState.requireOffset() }
+            .collect { offset ->
+                onMaskAlphaChange.invoke(offset)
+            }
+    }
+//    BackHandler(enabled = true) { onDismiss.invoke() }
+    ModalBottomSheet(
+        modifier = modifier.fillMaxSize(),
+        sheetState = sheetState,
+        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+        containerColor = MaterialTheme.colorScheme.background,
+        scrimColor = Color.Transparent,
+        onDismissRequest = { onDismiss.invoke() },
+    ) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                stickyHeader {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(IntrinsicSize.Min)
-                            .background(MaterialTheme.colorScheme.background)
-                            .padding(horizontal = 16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+            stickyHeader {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(IntrinsicSize.Min)
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(horizontal = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = stringResource(R.string.str_description),
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(
+                        onClick = {
+                            scope.launch {
+                                sheetState.hide()
+                                onDismiss.invoke()
+                            }
+                        }
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = Icons.Default.Close.name,
+                            modifier = Modifier.padding(4.dp)
+                        )
+                    }
+                }
+            }
+            item {
+                ListItem(
+                    headlineContent = {
                         Text(
-                            text = stringResource(R.string.str_description),
+                            text = videoDetail?.view?.title ?: "",
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold
-                            ),
-                            modifier = Modifier.weight(1f)
-                        )
-                        IconButton(
-                            onClick = {
-                                scope.launch {
-                                    sheetState.hide()
-                                    onDismiss.invoke()
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Close,
-                                contentDescription = Icons.Default.Close.name,
-                                modifier = Modifier.padding(4.dp)
                             )
-                        }
-                    }
-                }
-                item {
-                    ListItem(
-                        headlineContent = {
-                            Text(
-                                text = videoDetail?.view?.title ?: "",
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold
-                                )
-                            )
-                        }
-                    )
-                }
-                item {
-                    ListItem(
-                        headlineContent = {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.SpaceAround
-                            ) {
-                                TitleAndLabel(
-                                    title = videoDetail?.view?.stat?.like?.toViewString() ?: "-",
-                                    label = "赞"
-                                )
-                                TitleAndLabel(
-                                    title = videoDetail?.view?.stat?.view?.toViewString() ?: "-",
-                                    label = "观看次数"
-                                )
-                                TitleAndLabel(
-                                    title = ((publishDate?.substringBefore("年") + ("年"))),
-                                    label = publishDate?.substringAfter("年") ?: ""
-                                )
-                            }
-                        }
-                    )
-                }
-
-                videoDetail?.view?.desc?.let {
-                    item {
-                        ListItem(
-                            headlineContent = {
-                                Surface(
-                                    color = MaterialTheme.colorScheme.surfaceContainer,
-                                    shape = RoundedCornerShape(16.dp)
-                                ) {
-                                    Text(
-                                        text = it.ifBlank { stringResource(R.string.str_empty) },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(12.dp),
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
-                            }
                         )
                     }
-                }
-
-                item {
-                    ListItem(
-                        headlineContent = {
-                            FlowRow(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalArrangement = Arrangement.spacedBy(12.dp),
-                                horizontalArrangement = Arrangement.spacedBy(16.dp)
-                            ) {
-                                tags.fastForEach {
-                                    TagChip(it)
-                                }
-                            }
-                        }
-                    )
-                }
-                item { Spacer(Modifier.height(bottomPadding)) }
+                )
             }
+            item {
+                ListItem(
+                    headlineContent = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceAround
+                        ) {
+                            TitleAndLabel(
+                                title = videoDetail?.view?.stat?.like?.toViewString() ?: "-",
+                                label = "赞"
+                            )
+                            TitleAndLabel(
+                                title = videoDetail?.view?.stat?.view?.toViewString() ?: "-",
+                                label = "观看次数"
+                            )
+                            TitleAndLabel(
+                                title = ((publishDate?.substringBefore("年") + ("年"))),
+                                label = publishDate?.substringAfter("年") ?: ""
+                            )
+                        }
+                    }
+                )
+            }
+
+            videoDetail?.view?.desc?.let {
+                item {
+                    ListItem(
+                        headlineContent = {
+                            Surface(
+                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                shape = RoundedCornerShape(16.dp)
+                            ) {
+                                Text(
+                                    text = it.ifBlank { stringResource(R.string.str_empty) },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+
+            item {
+                ListItem(
+                    headlineContent = {
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            tags.fastForEach {
+                                TagChip(it)
+                            }
+                        }
+                    }
+                )
+            }
+            item { Spacer(Modifier.height(bottomPadding)) }
         }
     }
 }

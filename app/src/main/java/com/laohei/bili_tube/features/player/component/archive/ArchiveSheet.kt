@@ -54,8 +54,8 @@ import com.laohei.bili_sdk.model_v2.video.ArchiveMeta
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.features.player.component.ArchiveList
-import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
-import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
+import com.laohei.bili_tube.ui.bottomsheet.ModalBottomSheet
+import com.laohei.bili_tube.ui.bottomsheet.rememberModalBottomSheet
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 

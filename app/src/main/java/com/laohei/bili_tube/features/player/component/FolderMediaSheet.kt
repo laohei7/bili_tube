@@ -26,8 +26,8 @@ import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.model_v2.folder.MediaItem
 import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
-import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
+import com.laohei.bili_tube.ui.bottomsheet.ModalBottomSheet
+import com.laohei.bili_tube.ui.bottomsheet.rememberModalBottomSheet
 import com.laohei.bili_tube.ui.theme.PaddingLg
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,67 +44,64 @@ internal fun FolderMediaSheet(
     onMaskAlphaChange: (Float) -> Unit,
     onVideoMenuAction: (VideoMenuAction) -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheet(
-        skipPartiallyExpanded = true
-    )
-    if (isFolderMediaVisible) {
-        LaunchedEffect(sheetState) {
-            snapshotFlow { sheetState.requireOffset() }
-                .collect { offset ->
-                    onMaskAlphaChange.invoke(offset)
-                }
-        }
-        LaunchedEffect(currentFolderMediaIndex) {
-            lazyListState.scrollToItem(currentFolderMediaIndex)
-        }
-        ModalBottomSheet(
-            modifier = modifier
-                .fillMaxSize(),
-            sheetState = sheetState,
-            shape = RoundedCornerShape(topStart = PaddingLg, topEnd = PaddingLg),
-            containerColor = MaterialTheme.colorScheme.background,
-            scrimColor = Color.Transparent,
-            onDismissRequest = { onDismiss.invoke() },
+    if (!isFolderMediaVisible) return
+    val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true)
+    LaunchedEffect(sheetState) {
+        snapshotFlow { sheetState.requireOffset() }
+            .collect { offset ->
+                onMaskAlphaChange.invoke(offset)
+            }
+    }
+    LaunchedEffect(currentFolderMediaIndex) {
+        lazyListState.scrollToItem(currentFolderMediaIndex)
+    }
+    ModalBottomSheet(
+        modifier = modifier
+            .fillMaxSize(),
+        sheetState = sheetState,
+        shape = RoundedCornerShape(topStart = PaddingLg, topEnd = PaddingLg),
+        containerColor = MaterialTheme.colorScheme.background,
+        scrimColor = Color.Transparent,
+        onDismissRequest = { onDismiss.invoke() },
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background),
+            verticalArrangement = Arrangement.spacedBy(PaddingLg)
         ) {
-            Column(
+            Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background),
-                verticalArrangement = Arrangement.spacedBy(PaddingLg)
-            ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = PaddingLg),
-                    text = buildAnnotatedString {
-                        append(playParam.title)
-                        withStyle(
-                            style = SpanStyle(
-                                fontSize = MaterialTheme.typography.labelMedium.fontSize,
-                                color = Color.Gray
-                            )
-                        ) {
-                            append("(")
-                            append("${currentFolderMediaIndex + 1}")
-                            append("/")
-                            append("${playParam.count}")
-                            append(")")
-                        }
+                    .padding(horizontal = PaddingLg),
+                text = buildAnnotatedString {
+                    append(playParam.title)
+                    withStyle(
+                        style = SpanStyle(
+                            fontSize = MaterialTheme.typography.labelMedium.fontSize,
+                            color = Color.Gray
+                        )
+                    ) {
+                        append("(")
+                        append("${currentFolderMediaIndex + 1}")
+                        append("/")
+                        append("${playParam.count}")
+                        append(")")
+                    }
 
-                    },
-                    maxLines = 1,
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                },
+                maxLines = 1,
+                style = MaterialTheme.typography.titleMedium,
+            )
 
-                FolderMediaList(
-                    listState = lazyListState,
-                    playParam = playParam,
-                    folderMediaList = folderMediaList,
-                    bottomPadding = bottomPadding,
-                    currentFolderMediaIndex = currentFolderMediaIndex,
-                    onVideoMenuAction = onVideoMenuAction
-                )
-            }
+            FolderMediaList(
+                listState = lazyListState,
+                playParam = playParam,
+                folderMediaList = folderMediaList,
+                bottomPadding = bottomPadding,
+                currentFolderMediaIndex = currentFolderMediaIndex,
+                onVideoMenuAction = onVideoMenuAction
+            )
         }
     }
 }

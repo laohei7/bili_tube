@@ -18,7 +18,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -29,9 +31,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.component.icons.SleepTimer
-import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
-import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheetProperties
-import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.features.player.state.screen.ScreenAction
@@ -51,7 +50,7 @@ internal fun VideoSettingSheet(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     fun closeSheet() {
         scope.launch {
             sheetState.hide()
@@ -66,7 +65,6 @@ internal fun VideoSettingSheet(
                 .padding(8.dp)
                 .navigationBarsPadding(),
             containerColor = MaterialTheme.colorScheme.background,
-            properties = ModalBottomSheetProperties(shouldDispatcherEvent = false),
             onDismissRequest = { closeSheet() }
         ) {
             Column(

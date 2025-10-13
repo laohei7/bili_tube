@@ -1,11 +1,7 @@
 package com.laohei.bili_tube.features.player.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,10 +19,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_sdk.model_v2.video.VideoView
-import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.ui.component.sheet.ModalBottomSheet
-import com.laohei.bili_tube.ui.component.sheet.rememberModalBottomSheet
+import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.ui.bottomsheet.ModalBottomSheet
+import com.laohei.bili_tube.ui.bottomsheet.rememberModalBottomSheet
 import com.laohei.bili_tube.ui.theme.PaddingLg
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,67 +39,67 @@ internal fun WatchLaterSheet(
     onMaskAlphaChange: (Float) -> Unit,
     onVideoMenuAction: (VideoMenuAction) -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheet(
-        skipPartiallyExpanded = true
-    )
-    if (isWatchLaterVisible) {
-        LaunchedEffect(sheetState) {
-            snapshotFlow { sheetState.requireOffset() }
-                .collect { offset ->
-                    onMaskAlphaChange.invoke(offset)
-                }
-        }
-        LaunchedEffect(currentWatchLaterIndex) {
-            lazyListState.scrollToItem(currentWatchLaterIndex)
-        }
-        ModalBottomSheet(
-            modifier = modifier
-                .fillMaxSize(),
-            sheetState = sheetState,
-            shape = RoundedCornerShape(topStart = PaddingLg, topEnd = PaddingLg),
-            containerColor = MaterialTheme.colorScheme.background,
-            scrimColor = Color.Transparent,
-            onDismissRequest = { onDismiss.invoke() },
+    if (!isWatchLaterVisible) return
+    val sheetState = rememberModalBottomSheet(skipPartiallyExpanded = true)
+    LaunchedEffect(sheetState) {
+        snapshotFlow { sheetState.requireOffset() }
+            .collect { offset ->
+                onMaskAlphaChange.invoke(offset)
+            }
+    }
+    LaunchedEffect(currentWatchLaterIndex) {
+        lazyListState.scrollToItem(currentWatchLaterIndex)
+    }
+
+//    BackHandler(enabled = true) { onDismiss.invoke() }
+
+    ModalBottomSheet(
+        modifier = modifier
+            .fillMaxSize(),
+        sheetState = sheetState,
+        shape = RoundedCornerShape(topStart = PaddingLg, topEnd = PaddingLg),
+        containerColor = MaterialTheme.colorScheme.background,
+        scrimColor = Color.Transparent,
+        onDismissRequest = { onDismiss.invoke() },
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background),
+            verticalArrangement = Arrangement.spacedBy(PaddingLg)
         ) {
-            Column(
+            Text(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.background),
-                verticalArrangement = Arrangement.spacedBy(PaddingLg)
-            ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = PaddingLg),
-                    text = buildAnnotatedString {
-                        append(playParam.title)
-                        withStyle(
-                            style = SpanStyle(
-                                fontSize = MaterialTheme.typography.labelMedium.fontSize,
-                                color = Color.Gray
-                            )
-                        ) {
-                            append("(")
-                            append("${currentWatchLaterIndex + 1}")
-                            append("/")
-                            append("${playParam.count}")
-                            append(")")
-                        }
+                    .padding(horizontal = PaddingLg),
+                text = buildAnnotatedString {
+                    append(playParam.title)
+                    withStyle(
+                        style = SpanStyle(
+                            fontSize = MaterialTheme.typography.labelMedium.fontSize,
+                            color = Color.Gray
+                        )
+                    ) {
+                        append("(")
+                        append("${currentWatchLaterIndex + 1}")
+                        append("/")
+                        append("${playParam.count}")
+                        append(")")
+                    }
 
-                    },
-                    maxLines = 1,
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                },
+                maxLines = 1,
+                style = MaterialTheme.typography.titleMedium,
+            )
 
-                WatchLaterList(
-                    listState = lazyListState,
-                    playParam = playParam,
-                    watchLaterList = watchLaterList,
-                    bottomPadding = bottomPadding,
-                    currentWatchLaterIndex = currentWatchLaterIndex,
-                    onVideoMenuAction = onVideoMenuAction
-                )
-            }
+            WatchLaterList(
+                listState = lazyListState,
+                playParam = playParam,
+                watchLaterList = watchLaterList,
+                bottomPadding = bottomPadding,
+                currentWatchLaterIndex = currentWatchLaterIndex,
+                onVideoMenuAction = onVideoMenuAction
+            )
         }
     }
 }
