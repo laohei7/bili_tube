@@ -1,4 +1,4 @@
-package com.laohei.bili_tube.ui.component.sheet
+package com.laohei.bili_tube.ui.bottomsheet
 
 import android.view.WindowManager
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -10,6 +10,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.SecureFlagPolicy
 
 @Immutable
@@ -42,6 +43,10 @@ object ModalBottomSheetDefaults {
         isFocusable: Boolean = true,
         shouldDismissOnBackPress: Boolean = true
     ) = ModalBottomSheetProperties(securePolicy, shouldDismissOnBackPress)
+
+    internal val PositionalThreshold = 56.dp
+
+    internal val VelocityThreshold = 125.dp
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)

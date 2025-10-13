@@ -1,4 +1,4 @@
-package com.laohei.bili_tube.ui.component.sheet
+package com.laohei.bili_tube.ui.bottomsheet
 
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.AnimationSpec
@@ -9,20 +9,9 @@ import androidx.compose.foundation.gestures.AnchoredDragScope
 import androidx.compose.foundation.gestures.DragScope
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.DraggableState
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
-import androidx.compose.runtime.structuralEqualityPolicy
-import com.laohei.bili_tube.ui.component.sheet.AnchoredDraggableState.Companion.Saver
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import androidx.compose.runtime.*
+import com.laohei.bili_tube.ui.bottomsheet.AnchoredDraggableState.Companion.Saver
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.util.concurrent.atomic.AtomicReference
@@ -34,7 +23,7 @@ internal class AnchoredDraggableState<T>(
     initialValue: T,
     internal val positionalThreshold: (totalDistance: Float) -> Float,
     internal val velocityThreshold: () -> Float,
-    val animationSpec: AnimationSpec<Float>,
+    val animationSpec: () -> AnimationSpec<Float>,
     internal val confirmValueChange: (newValue: T) -> Boolean = { true }
 ) {
 
@@ -61,14 +50,14 @@ internal class AnchoredDraggableState<T>(
         anchors: DraggableAnchors<T>,
         positionalThreshold: (totalDistance: Float) -> Float,
         velocityThreshold: () -> Float,
-        animationSpec: AnimationSpec<Float>,
-        confirmValueChange: (newValue: T) -> Boolean = { true }
+        animationSpec: () -> AnimationSpec<Float>,
+        confirmValueChange: (newValue: T) -> Boolean = { true },
     ) : this(
         initialValue,
         positionalThreshold,
         velocityThreshold,
         animationSpec,
-        confirmValueChange
+        confirmValueChange,
     ) {
         this.anchors = anchors
         trySnapTo(initialValue)
@@ -465,12 +454,12 @@ internal class AnchoredDraggableState<T>(
                 restore = {
                     AnchoredDraggableState(
                         initialValue = it,
-                        animationSpec = animationSpec,
+                        animationSpec = { animationSpec },
                         confirmValueChange = confirmValueChange,
                         positionalThreshold = positionalThreshold,
-                        velocityThreshold = velocityThreshold
+                        velocityThreshold = velocityThreshold,
                     )
-                }
+                },
             )
     }
 }
@@ -511,7 +500,7 @@ internal suspend fun <T> AnchoredDraggableState<T>.animateTo(
         val targetOffset = anchors.positionOf(latestTarget)
         if (!targetOffset.isNaN()) {
             var prev = if (offset.isNaN()) 0f else offset
-            animate(prev, targetOffset, velocity, animationSpec) { value, velocity ->
+            animate(prev, targetOffset, velocity, animationSpec.invoke()) { value, velocity ->
                 // Our onDrag coerces the value within the bounds, but an animation may
                 // overshoot, for example a spring animation or an overshooting interpolator
                 // We respect the user's intention and allow the overshoot, but still use

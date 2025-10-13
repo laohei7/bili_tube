@@ -1,4 +1,4 @@
-package com.laohei.bili_tube.ui.component.sheet
+package com.laohei.bili_tube.ui.bottomsheet
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -6,20 +6,21 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.dp
-import com.laohei.bili_tube.ui.component.sheet.SheetState.Companion.Saver
+import com.laohei.bili_tube.ui.bottomsheet.SheetState.Companion.Saver
 import kotlinx.coroutines.CancellationException
 
 @Stable
 @ExperimentalMaterial3Api
 class SheetState(
     internal val skipPartiallyExpanded: Boolean,
-    density: Density,
-    initialValue: SheetValue = SheetValue.Hidden,
-    confirmValueChange: (SheetValue) -> Boolean = { true },
+    positionalThreshold: () -> Float,
+    velocityThreshold: () -> Float,
+    initialValue: SheetValue = Hidden,
+    internal val confirmValueChange: (SheetValue) -> Boolean = { true },
     internal val skipHiddenState: Boolean = false,
 ) {
     init {
@@ -179,24 +180,27 @@ class SheetState(
         anchoredDraggableState.settle(velocity)
     }
 
+    internal var anchoredDraggableMotionSpec: AnimationSpec<Float> = BottomSheetAnimationSpec
+
     internal var anchoredDraggableState =
         AnchoredDraggableState(
             initialValue = initialValue,
-            animationSpec = BottomSheetAnimationSpec,
+            animationSpec = { anchoredDraggableMotionSpec },
             confirmValueChange = confirmValueChange,
-            positionalThreshold = { with(density) { 56.dp.toPx() } },
-            velocityThreshold = { with(density) { 125.dp.toPx() } },
+            positionalThreshold = { positionalThreshold() },
+            velocityThreshold = velocityThreshold,
         )
 
-    internal val offset: Float?
+    internal val offset: Float
         get() = anchoredDraggableState.offset
 
     companion object {
         /** The default [Saver] implementation for [SheetState]. */
         fun Saver(
             skipPartiallyExpanded: Boolean,
+            positionalThreshold: () -> Float,
+            velocityThreshold: () -> Float,
             confirmValueChange: (SheetValue) -> Boolean,
-            density: Density,
             skipHiddenState: Boolean,
         ) =
             Saver<SheetState, SheetValue>(
@@ -204,12 +208,35 @@ class SheetState(
                 restore = { savedValue ->
                     SheetState(
                         skipPartiallyExpanded,
-                        density,
+                        positionalThreshold,
+                        velocityThreshold,
                         savedValue,
                         confirmValueChange,
                         skipHiddenState,
                     )
-                }
+                },
+            )
+
+        @Deprecated(
+            level = DeprecationLevel.HIDDEN,
+            message = "Maintained for binary compatibility.",
+        )
+        fun Saver(
+            skipPartiallyExpanded: Boolean,
+            confirmValueChange: (SheetValue) -> Boolean,
+            density: Density,
+            skipHiddenState: Boolean,
+        ) =
+            SheetState.Saver(
+                skipPartiallyExpanded = skipPartiallyExpanded,
+                confirmValueChange = confirmValueChange,
+                skipHiddenState = skipHiddenState,
+                positionalThreshold = {
+                    with(density) { ModalBottomSheetDefaults.PositionalThreshold.toPx() }
+                },
+                velocityThreshold = {
+                    with(density) { ModalBottomSheetDefaults.VelocityThreshold.toPx() }
+                },
             )
     }
 }

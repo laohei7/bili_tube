@@ -1,4 +1,4 @@
-package com.laohei.bili_tube.ui.component.sheet
+package com.laohei.bili_tube.ui.bottomsheet
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.DraggableAnchors
