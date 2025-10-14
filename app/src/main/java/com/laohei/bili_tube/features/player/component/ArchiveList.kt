@@ -18,7 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_sdk.model_v2.video.ArchiveItem
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoCompactCard
@@ -64,7 +64,7 @@ internal fun ArchiveList(
                 onClick = {
                     onVideoMenuAction(
                         VideoMenuAction.SwitchVideo(
-                            PlayParam.VideoParam(
+                            MediaPlayConfig.BasicVideoConfig(
                                 aid = item.aid,
                                 bvid = item.bvid,
                                 cid = -1

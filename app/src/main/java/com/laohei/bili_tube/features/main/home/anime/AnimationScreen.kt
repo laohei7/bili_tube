@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.model_v2.bangumi.BangumiItem
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.features.main.home.HomeAction
 import com.laohei.bili_tube.features.main.home.anime.component.BangumiWidget
@@ -129,7 +129,7 @@ fun AnimationScreen(
                                 .padding(horizontal = 8.dp)
                                 .clickable {
                                     sharedViewModel.setPlayParam(
-                                        PlayParam.BangumiParam(
+                                        MediaPlayConfig.BangumiPlayConfig(
                                             seasonId = it.seasonId,
                                             epId = it.firstEp.epId,
                                             mediaId = it.mediaId,

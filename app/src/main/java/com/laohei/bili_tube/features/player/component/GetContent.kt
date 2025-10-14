@@ -25,7 +25,7 @@ import com.laohei.bili_sdk.model_v2.user.InfoCardModel
 import com.laohei.bili_sdk.model_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.model_v2.video.VideoDetailModel
 import com.laohei.bili_sdk.model_v2.video.VideoPageModel
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.VideoMenuAction
@@ -207,7 +207,7 @@ private fun VideoContent(
                     onClick = {
                         onVideoMenuAction(
                             VideoMenuAction.SwitchVideo(
-                                PlayParam.VideoParam(
+                                MediaPlayConfig.BasicVideoConfig(
                                     width = video.dimension.width,
                                     height = video.dimension.height,
                                     aid = video.aid,
@@ -340,7 +340,7 @@ private fun BangumiContent(
                     onClick = {
                         onVideoMenuAction(
                             VideoMenuAction.SwitchVideo(
-                                PlayParam.BangumiParam(
+                                MediaPlayConfig.BangumiPlayConfig(
                                     seasonId = it.seasonId,
                                     bvid = "",
                                     aid = -1,

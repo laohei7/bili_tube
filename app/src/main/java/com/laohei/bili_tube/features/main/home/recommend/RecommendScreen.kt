@@ -34,7 +34,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.model_v2.recommend.RecommendItem
 import com.laohei.bili_tube.features.main.home.HomeAction
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
@@ -165,7 +165,7 @@ fun RecommendScreen(
                                     trailingIcon = Icons.Outlined.MoreVert,
                                     onClick = {
                                         sharedViewModel.setPlayParam(
-                                            PlayParam.VideoParam(
+                                            MediaPlayConfig.BasicVideoConfig(
                                                 aid = it.id,
                                                 bvid = it.bvid,
                                                 cid = it.cid,

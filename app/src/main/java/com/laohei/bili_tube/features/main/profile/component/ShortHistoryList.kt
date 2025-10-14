@@ -23,7 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_sdk.model_v2.history.HistoryItem
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.widget.HeaderWithMenu
 import com.laohei.bili_tube.ui.component.widget.VideoCoverOverlay
@@ -78,7 +78,7 @@ internal fun ShortHistoryList(
                 },
                 onClick = {
                     sharedViewModel.setPlayParam(
-                        PlayParam.VideoParam(
+                        MediaPlayConfig.BasicVideoConfig(
                             aid = it.history.oid,
                             bvid = it.history.bvid,
                             cid = it.history.cid

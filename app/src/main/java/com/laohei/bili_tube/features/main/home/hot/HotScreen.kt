@@ -25,7 +25,7 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.model_v2.hot.HotItem
 import com.laohei.bili_tube.features.main.home.HomeAction
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
@@ -122,7 +122,7 @@ fun HotScreen(
                             publishDate = it.pubdate.toTimeAgoString(false),
                             onClick = {
                                 sharedViewModel.setPlayParam(
-                                    PlayParam.VideoParam(
+                                    MediaPlayConfig.BasicVideoConfig(
                                         aid = it.aid,
                                         bvid = it.bvid,
                                         cid = it.cid,

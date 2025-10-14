@@ -10,7 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.model_v2.folder.MediaItem
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.model.FolderMedia
 import com.laohei.bili_tube.nav.AppRoute
@@ -65,7 +65,7 @@ internal fun FolderMediaList(
                     leadingIcon = null,
                     onClick = {
                         sharedViewModel.setPlayParam(
-                            PlayParam.MediaList(
+                            MediaPlayConfig.MediaFolderConfig(
                                 medias = mediaKeys,
                                 aid = item.id,
                                 bvid = item.bvid,

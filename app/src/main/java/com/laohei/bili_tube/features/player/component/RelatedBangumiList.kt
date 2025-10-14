@@ -6,7 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.laohei.bili_sdk.model_v2.bangumi.RelatedBangumiItem
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
@@ -36,7 +36,7 @@ internal fun RelatedBangumiList(
                 onClick = {
                     onVideoMenuAction(
                         VideoMenuAction.SwitchVideo(
-                            PlayParam.BangumiParam(
+                            MediaPlayConfig.BangumiPlayConfig(
                                 seasonId = it.seasonId,
                                 bvid = "",
                                 aid = -1,

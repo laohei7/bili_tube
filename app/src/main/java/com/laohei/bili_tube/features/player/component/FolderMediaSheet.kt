@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.model_v2.folder.MediaItem
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.bottomsheet.ModalBottomSheet
 import com.laohei.bili_tube.ui.bottomsheet.rememberModalBottomSheet
@@ -34,7 +34,7 @@ import com.laohei.bili_tube.ui.theme.PaddingLg
 @Composable
 internal fun FolderMediaSheet(
     modifier: Modifier = Modifier,
-    playParam: PlayParam.MediaList,
+    playParam: MediaPlayConfig.MediaFolderConfig,
     isFolderMediaVisible: Boolean = false,
     folderMediaList: LazyPagingItems<MediaItem>,
     lazyListState: LazyListState = rememberLazyListState(),

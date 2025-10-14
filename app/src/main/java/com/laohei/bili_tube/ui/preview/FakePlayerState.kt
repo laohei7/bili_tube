@@ -20,7 +20,7 @@ import com.laohei.bili_sdk.model_v2.video.VideoOwner
 import com.laohei.bili_sdk.model_v2.video.VideoStat
 import com.laohei.bili_sdk.model_v2.video.VideoTagItem
 import com.laohei.bili_sdk.model_v2.video.VideoView
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.state.media.MediaState
 import com.laohei.bili_tube.features.player.state.screen.ScreenState
@@ -31,7 +31,7 @@ class FakePlayerState :
         get() = sequenceOf(
             Triple(
                 MediaPlayerUIState(
-                    playParam = PlayParam.VideoParam(bvid = "video"),
+                    playParam = MediaPlayConfig.BasicVideoConfig(bvid = "video"),
                     videoDetail = VideoDetailFakeData.fakeVideoDetail()
                 ),
                 MediaState(),
@@ -42,7 +42,7 @@ class FakePlayerState :
             ),
             Triple(
                 MediaPlayerUIState(
-                    playParam = PlayParam.BangumiParam(bvid = "bangumi"),
+                    playParam = MediaPlayConfig.BangumiPlayConfig(bvid = "bangumi"),
                     bangumiDetail = BangumiFakeData.fakeBangumiDetail()
                 ),
                 MediaState(),

@@ -34,14 +34,14 @@ import coil3.request.crossfade
 import com.laohei.bili_sdk.model_v2.bangumi.RelatedBangumiItem
 import com.laohei.bili_sdk.model_v2.video.VideoView
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.util.toTimeString
 
 @Composable
 internal fun RelatedHorizontalList(
     modifier: Modifier = Modifier,
     related: List<VideoView>,
-    onClick: (PlayParam) -> Unit
+    onClick: (MediaPlayConfig) -> Unit
 ) {
     LazyRow(
         modifier = modifier,
@@ -57,7 +57,7 @@ internal fun RelatedHorizontalList(
                 author = it.owner.name,
                 onClick = {
                     onClick.invoke(
-                        PlayParam.VideoParam(
+                        MediaPlayConfig.BasicVideoConfig(
                             aid = it.aid,
                             bvid = it.bvid,
                             cid = it.cid,
@@ -76,7 +76,7 @@ internal fun RelatedHorizontalList(
 internal fun RelatedBangumiHorizontalList(
     modifier: Modifier = Modifier,
     related: List<RelatedBangumiItem>,
-    onClick: (PlayParam) -> Unit
+    onClick: (MediaPlayConfig) -> Unit
 ) {
     LazyRow(
         modifier = modifier,
@@ -92,7 +92,7 @@ internal fun RelatedBangumiHorizontalList(
                 author = it.newEp.indexShow,
                 onClick = {
                     onClick.invoke(
-                        PlayParam.BangumiParam(
+                        MediaPlayConfig.BangumiPlayConfig(
                             seasonId = it.seasonId,
                             bvid = "", aid = -1, cid = -1
                         )

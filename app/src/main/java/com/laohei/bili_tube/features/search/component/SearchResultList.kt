@@ -30,7 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMap
 import androidx.paging.compose.LazyPagingItems
 import com.laohei.bili_sdk.model_v2.search.SearchResultItemType
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import com.laohei.bili_tube.model.UIModel
@@ -203,7 +203,7 @@ private fun GetSearchItem(
                 episodes = item.eps?.fastMap { it.title },
                 onClick = {
                     sharedViewModel.setPlayParam(
-                        PlayParam.BangumiParam(
+                        MediaPlayConfig.BangumiPlayConfig(
                             mediaId = item.mediaId,
                             seasonId = item.seasonId,
                             epId = item.eps?.first()?.id,
@@ -227,7 +227,7 @@ private fun GetSearchItem(
                 episodes = item.eps?.fastMap { it.title },
                 onClick = {
                     sharedViewModel.setPlayParam(
-                        PlayParam.BangumiParam(
+                        MediaPlayConfig.BangumiPlayConfig(
                             mediaId = item.mediaId,
                             seasonId = item.seasonId,
                             epId = item.eps?.first()?.id,
@@ -250,7 +250,7 @@ private fun GetSearchItem(
                 publishDate = item.pubDate.toTimeAgoString(false),
                 onClick = {
                     sharedViewModel.setPlayParam(
-                        PlayParam.VideoParam(
+                        MediaPlayConfig.BasicVideoConfig(
                             aid = item.aid,
                             bvid = item.bvid,
                             cid = -1L,

@@ -30,7 +30,7 @@ import com.laohei.bili_tube.features.main.home.HomeAction
 import com.laohei.bili_tube.features.main.home.anime.component.BangumiWidget
 import com.laohei.bili_tube.features.main.home.anime.component.FilterWidget
 import com.laohei.bili_tube.model.BangumiFilterModel
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
@@ -133,7 +133,7 @@ fun BangumiScreen(
                                 .padding(horizontal = 8.dp)
                                 .clickable {
                                     sharedViewModel.setPlayParam(
-                                        PlayParam.BangumiParam(
+                                        MediaPlayConfig.BangumiPlayConfig(
                                             seasonId = it.seasonId,
                                             epId = it.firstEp.epId,
                                             mediaId = it.mediaId,

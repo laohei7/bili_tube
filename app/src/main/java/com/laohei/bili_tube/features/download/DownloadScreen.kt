@@ -54,7 +54,7 @@ import coil3.request.crossfade
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.data.local.room.entity.DownloadStatus
 import com.laohei.bili_tube.data.local.room.entity.DownloadTask
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.viewmodel.SharedViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -180,7 +180,7 @@ private fun DownloadItem(task: DownloadTask, onClick: (DownloadAction) -> Unit) 
 
                     DownloadStatus.COMPLETED -> {
                         sharedViewModel.setPlayParam(
-                            PlayParam.VideoParam(
+                            MediaPlayConfig.BasicVideoConfig(
                                 aid = task.aid,
                                 bvid = task.id,
                                 cid = task.cid,

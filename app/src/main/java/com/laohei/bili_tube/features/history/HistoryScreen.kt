@@ -52,7 +52,7 @@ import com.laohei.bili_sdk.model_v2.history.HistoryItem
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.history.component.HistoryMenuButton
 import com.laohei.bili_tube.model.UIModel
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.state.LoadingStatePlaceholder
@@ -263,7 +263,7 @@ private fun GetHistoryItem(
                         resetOpenBvid()
                     } else {
                         sharedViewModel.setPlayParam(
-                            PlayParam.VideoParam(
+                            MediaPlayConfig.BasicVideoConfig(
                                 aid = historyItem.history.oid,
                                 bvid = historyItem.history.bvid,
                                 cid = historyItem.history.cid

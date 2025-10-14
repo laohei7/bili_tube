@@ -5,7 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import com.laohei.bili_sdk.model_v2.video.VideoView
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
 import com.laohei.bili_tube.ui.theme.PaddingMd
@@ -32,7 +32,7 @@ internal fun RelatedVideoList(
                 onClick = {
                     onVideoMenuAction(
                         VideoMenuAction.SwitchVideo(
-                            PlayParam.VideoParam(
+                            MediaPlayConfig.BasicVideoConfig(
                                 aid = it.aid,
                                 bvid = it.bvid,
                                 cid = it.cid

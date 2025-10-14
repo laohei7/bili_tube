@@ -44,7 +44,7 @@ import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
 import com.laohei.bili_tube.features.main.component.LogoTopAppBar
 import com.laohei.bili_tube.features.main.component.VideoMenuSheet
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
@@ -348,7 +348,7 @@ private fun GetDynamicItem(
                 trailingIcon = Icons.Outlined.MoreVert,
                 onClick = {
                     sharedViewModel.setPlayParam(
-                        PlayParam.VideoParam(
+                        MediaPlayConfig.BasicVideoConfig(
                             aid = archive.aid.toLong(),
                             bvid = archive.bvid,
                             cid = -1,

@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_sdk.model_v2.video.VideoView
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.ui.bottomsheet.ModalBottomSheet
 import com.laohei.bili_tube.ui.bottomsheet.rememberModalBottomSheet
 import com.laohei.bili_tube.ui.theme.PaddingLg
@@ -29,7 +29,7 @@ import com.laohei.bili_tube.ui.theme.PaddingLg
 @Composable
 internal fun WatchLaterSheet(
     modifier: Modifier = Modifier,
-    playParam: PlayParam.MediaList,
+    playParam: MediaPlayConfig.MediaFolderConfig,
     isWatchLaterVisible: Boolean = false,
     watchLaterList: List<VideoView>,
     lazyListState: LazyListState = rememberLazyListState(),

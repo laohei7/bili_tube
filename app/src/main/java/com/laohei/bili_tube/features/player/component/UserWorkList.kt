@@ -40,7 +40,7 @@ import coil3.request.error
 import coil3.request.placeholder
 import com.laohei.bili_sdk.apis.UserRelationAction
 import com.laohei.bili_sdk.model_v2.user.UploadedVideoItem
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.model.UserProfile
@@ -135,7 +135,7 @@ internal fun UserWorkList(
                     onClick = {
                         onVideoMenuAction(
                             VideoMenuAction.SwitchVideo(
-                                PlayParam.VideoParam(
+                                MediaPlayConfig.BasicVideoConfig(
                                     aid = item.aid.toLong(),
                                     bvid = item.bvid,
                                     cid = it.cid

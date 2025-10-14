@@ -27,7 +27,7 @@ import androidx.compose.ui.util.fastMap
 import com.laohei.bili_sdk.model_v2.video.VideoView
 import com.laohei.bili_tube.features.playlist.PlaylistContentAction
 import com.laohei.bili_tube.model.FolderMedia
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.nav.AppRoute
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
@@ -103,7 +103,7 @@ internal fun WatchLaterList(
                             resetOpenBvid()
                         } else {
                             sharedViewModel.setPlayParam(
-                                PlayParam.MediaList(
+                                MediaPlayConfig.MediaFolderConfig(
                                     medias = mediaKeys,
                                     aid = item.aid,
                                     bvid = item.bvid,

@@ -3,7 +3,7 @@ package com.laohei.bili_tube.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.laohei.bili_tube.AppState
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -26,13 +26,13 @@ class SharedViewModel : ViewModel() {
         mAppState.value
     )
 
-    var mPlayParam: PlayParam = PlayParam.NONE
+    var mPlayParam: MediaPlayConfig = MediaPlayConfig.NONE
         private set
 
     lateinit var mDRAWItemParam: DRAWItemParam
         private set
 
-    fun setPlayParam(playParam: PlayParam) {
+    fun setPlayParam(playParam: MediaPlayConfig) {
         mPlayParam = playParam
     }
 
