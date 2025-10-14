@@ -181,4 +181,5 @@
     <string name="str_copy_to_clipboard">已复制到剪切板</string>
     <string name="str_not_install_app">未安装目标 App</string>
     <string name="str_edit">编辑</string>
+    <string name="str_speed_label">%.2fx</string>
 </resources>

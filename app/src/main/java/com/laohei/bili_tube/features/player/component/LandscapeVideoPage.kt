@@ -2,15 +2,12 @@ package com.laohei.bili_tube.features.player.component
 
 import android.content.Context
 import android.view.TextureView
-import androidx.annotation.OptIn
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.FlowRowOverflow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -47,18 +44,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
-import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import coil3.Bitmap
 import coil3.compose.AsyncImage
 import com.laohei.bili_sdk.model_v2.reply.ReplyItem
 import com.laohei.bili_sdk.model_v2.user.InfoCardModel
@@ -69,14 +62,13 @@ import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.VideoMenuAction
 import com.laohei.bili_tube.features.player.component.control.PlayerControl
-import com.laohei.bili_tube.features.player.state.media.MediaState
-import com.laohei.bili_tube.features.player.state.screen.ScreenAction
-import com.laohei.bili_tube.features.player.state.screen.ScreenState
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.features.player.state.media_v2.MediaUIState
+import com.laohei.bili_tube.features.player.state.screen_v2.ScreenEvent
+import com.laohei.bili_tube.features.player.state.screen_v2.ScreenState
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.model.toUserProfile
 import com.laohei.bili_tube.ui.component.chip.TagChip
 import com.laohei.bili_tube.ui.component.widget.ChipTabRow
-import com.laohei.bili_tube.ui.preview.FakePlayerState
 import com.laohei.bili_tube.ui.theme.PaddingLg
 import com.laohei.bili_tube.ui.theme.PaddingMd
 import com.laohei.bili_tube.ui.theme.PaddingNone
@@ -91,17 +83,15 @@ import kotlinx.coroutines.launch
 internal fun LandscapeVideoPage(
     exoPlayer: ExoPlayer,
     playerUIState: MediaPlayerUIState,
-    mediaState: MediaState,
+    mediaUIState: MediaUIState,
     screenState: ScreenState,
     replies: LazyPagingItems<ReplyItem>,
     works: LazyPagingItems<UploadedVideoItem>,
-    onVideoFrameChange: (Bitmap) -> Unit,
-    onControlUIChange: (Boolean) -> Unit,
+    handleScreenEvent: (ScreenEvent) -> Unit,
     onBackPress: () -> Unit,
-    onProgressChange: (Float) -> Unit,
+    onProgressUpdate: (Float) -> Unit,
     onPlayChange: (Boolean) -> Unit,
     onFullscreenChange: (Boolean) -> Unit,
-    onScreenAction: (ScreenAction) -> Unit,
     onDoubleSpeedChange: (Boolean) -> Unit,
     resetHideTimer: () -> Unit,
     onVideoMenuAction: (VideoMenuAction) -> Unit,
@@ -118,15 +108,13 @@ internal fun LandscapeVideoPage(
         LandscapeMainArea(
             exoPlayer = exoPlayer,
             playerUIState = playerUIState,
-            mediaState = mediaState,
+            mediaUIState = mediaUIState,
             screenState = screenState,
-            onVideoFrameChange = onVideoFrameChange,
-            onControlUIChange = onControlUIChange,
             onBackPress = onBackPress,
-            onProgressChange = onProgressChange,
+            onProgressChange = onProgressUpdate,
             onPlayChange = onPlayChange,
             onFullscreenChange = onFullscreenChange,
-            onScreenAction = onScreenAction,
+            handleScreenEvent = handleScreenEvent,
             onDoubleSpeedChange = onDoubleSpeedChange,
             resetHideTimer = resetHideTimer,
             onVideoMenuAction = onVideoMenuAction
@@ -145,15 +133,13 @@ internal fun LandscapeVideoPage(
 private fun RowScope.LandscapeMainArea(
     exoPlayer: ExoPlayer,
     playerUIState: MediaPlayerUIState,
-    mediaState: MediaState,
+    mediaUIState: MediaUIState,
     screenState: ScreenState,
-    onVideoFrameChange: (Bitmap) -> Unit,
-    onControlUIChange: (Boolean) -> Unit,
+    handleScreenEvent: (ScreenEvent) -> Unit,
     onBackPress: () -> Unit,
     onProgressChange: (Float) -> Unit,
     onPlayChange: (Boolean) -> Unit,
     onFullscreenChange: (Boolean) -> Unit,
-    onScreenAction: (ScreenAction) -> Unit,
     onDoubleSpeedChange: (Boolean) -> Unit,
     resetHideTimer: () -> Unit,
     onVideoMenuAction: (VideoMenuAction) -> Unit,
@@ -167,16 +153,14 @@ private fun RowScope.LandscapeMainArea(
         LandscapeVideoArea(
             exoPlayer = exoPlayer,
             playerUIState = playerUIState,
-            mediaState = mediaState,
+            mediaUIState = mediaUIState,
             screenState = screenState,
-            onVideoFrameChange = onVideoFrameChange,
-            onControlUIChange = onControlUIChange,
             onBackPress = onBackPress,
             onProgressChange = onProgressChange,
             onPlayChange = onPlayChange,
             onFullscreenChange = onFullscreenChange,
-            onScreenAction = onScreenAction,
             onDoubleSpeedChange = onDoubleSpeedChange,
+            handleScreenEvent = handleScreenEvent,
             resetHideTimer = resetHideTimer
         )
         LandscapeInfoArea(
@@ -187,9 +171,9 @@ private fun RowScope.LandscapeMainArea(
             hasCoin = playerUIState.hasCoin,
             hasLike = playerUIState.hasLike,
             isDownloaded = playerUIState.isDownloaded,
-            isShowLikeAnimation = screenState.isShowLikeAnimation,
-            isFullscreen = screenState.isFullscreen,
-            onScreenAction = onScreenAction,
+            isShowLikeAnimation = screenState.showLikeAnimation,
+            isFullscreen = screenState.isFullScreenActive,
+            handleScreenEvent = handleScreenEvent,
             onVideoMenuAction = onVideoMenuAction
         )
     }
@@ -200,15 +184,13 @@ private fun ColumnScope.LandscapeVideoArea(
     context: Context = LocalContext.current,
     exoPlayer: ExoPlayer,
     playerUIState: MediaPlayerUIState,
-    mediaState: MediaState,
+    mediaUIState: MediaUIState,
     screenState: ScreenState,
-    onVideoFrameChange: (Bitmap) -> Unit,
-    onControlUIChange: (Boolean) -> Unit,
     onBackPress: () -> Unit,
     onProgressChange: (Float) -> Unit,
     onPlayChange: (Boolean) -> Unit,
     onFullscreenChange: (Boolean) -> Unit,
-    onScreenAction: (ScreenAction) -> Unit,
+    handleScreenEvent: (ScreenEvent) -> Unit,
     onDoubleSpeedChange: (Boolean) -> Unit,
     resetHideTimer: () -> Unit,
 ) {
@@ -216,15 +198,15 @@ private fun ColumnScope.LandscapeVideoArea(
         playerUIState.videoDetail?.view?.pic
             ?: playerUIState.bangumiDetail?.episodes?.find { it.epId == playerUIState.currentEpId }
     )
-    val aspectRatio by rememberUpdatedState(mediaState.width.toFloat() / mediaState.height)
+    val aspectRatio by rememberUpdatedState(mediaUIState.videoAspect)
 
     val textureView = remember { TextureView(context) }
 
-    LaunchedEffect(mediaState.isPlaying) {
-        while (mediaState.isPlaying) {
+    LaunchedEffect(mediaUIState.isPlaying) {
+        while (mediaUIState.isPlaying) {
             val bitmap = textureView.bitmap
             bitmap?.let {
-                onVideoFrameChange(it)
+                handleScreenEvent(ScreenEvent.SetBackgroundImage(it))
             }
             delay(8000)
         }
@@ -238,7 +220,7 @@ private fun ColumnScope.LandscapeVideoArea(
             .background(Color.Black)
     ) {
         BlurBackground(
-            bitmap = screenState.background,
+            bitmap = screenState.backgroundImage,
             isDrag = false,
             isFullscreen = false,
         )
@@ -248,29 +230,29 @@ private fun ColumnScope.LandscapeVideoArea(
                 .fillMaxSize()
                 .zIndex(99f),
             title = playerUIState.title,
-            progress = mediaState.progress,
-            bufferProgress = mediaState.bufferProgress,
-            isShowUI = screenState.isShowControlUI,
-            isShowRelatedList = screenState.isShowRelatedList,
-            isFullscreen = screenState.isFullscreen,
-            isLockScreen = screenState.isLockScreen,
-            isPlaying = mediaState.isPlaying,
-            isLoading = mediaState.isLoading,
-            totalDuration = mediaState.totalDuration.toTimeString(),
-            currentDuration = mediaState.currentDuration.toTimeString(),
-            onFullscreenChange = onFullscreenChange,
-            onPlayChange = onPlayChange,
-            onProgressChange = onProgressChange,
+            progress = mediaUIState.progress,
+            bufferProgress = mediaUIState.bufferProgress,
+            isShowUI = screenState.showControlUI,
+            isShowRelatedList = screenState.showRelatedList,
+            isFullscreen = screenState.isFullScreenActive,
+            isLockScreen = screenState.isScreenLocked,
+            isPlaying = mediaUIState.isPlaying,
+            isLoading = mediaUIState.isLoading,
+            totalDuration = mediaUIState.duration.toTimeString(),
+            currentDuration = mediaUIState.currentPosition.toTimeString(),
+            onFullscreenToggle = onFullscreenChange,
+            onPlaybackStateChanged = onPlayChange,
+            onProgressUpdate = onProgressChange,
             onLongPressStart = { onDoubleSpeedChange(true) },
             onLongPressEnd = { onDoubleSpeedChange(false) },
-            onControlUIChange = onControlUIChange,
-            onSetting = { onScreenAction(ScreenAction.SetSettingVisible(true)) },
-            onBackPress = onBackPress,
-            hintContent = { SpeedHint(speed = mediaState.speed) },
+            onControlUIVisibilityChange = { handleScreenEvent(ScreenEvent.ControlVisibility(it)) },
+            onOpenSettings = { handleScreenEvent(ScreenEvent.SettingsVisibility(true)) },
+            onBackPressed = onBackPress,
+            hintContent = { SpeedHint(speed = mediaUIState.activeSpeed) },
             unlockScreen = {},
-            resetHideTimer = resetHideTimer
+            restartHideTimer = resetHideTimer
         ) {
-            if (mediaState.showCover && cover != null) {
+            if (mediaUIState.isCoverVisible && cover != null) {
                 AsyncImage(
                     modifier = Modifier
                         .fillMaxSize(),
@@ -296,7 +278,6 @@ private fun ColumnScope.LandscapeVideoArea(
 }
 
 
-@kotlin.OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ColumnScope.LandscapeInfoArea(
     videoDetail: VideoDetailModel?,
@@ -308,7 +289,7 @@ private fun ColumnScope.LandscapeInfoArea(
     isDownloaded: Boolean,
     isShowLikeAnimation: Boolean,
     isFullscreen: Boolean,
-    onScreenAction: (ScreenAction) -> Unit,
+    handleScreenEvent: (ScreenEvent) -> Unit,
     onVideoMenuAction: (VideoMenuAction) -> Unit,
 ) {
     val title by rememberUpdatedState(videoDetail?.view?.title ?: bangumiDetail?.title ?: "")
@@ -341,7 +322,7 @@ private fun ColumnScope.LandscapeInfoArea(
                 name = detail.view.owner.name,
                 fans = detail.card.card.fans.toViewString(),
                 isSubscribed = infoCard?.following == true,
-                onScreenAction = {},
+                onClick = {},
                 onVideoMenuAction = { }
             )
         }
@@ -366,11 +347,15 @@ private fun ColumnScope.LandscapeInfoArea(
                 isDownloaded = isDownloaded,
                 showLikeAnimation = isShowLikeAnimation,
                 isFullscreen = isFullscreen,
-                onScreenAction = {},
-                onVideoMenuAction = {},
                 onAnimationEndCallback = {
-
-                }
+                    handleScreenEvent(ScreenEvent.LikeAnimationVisibility(false))
+                },
+                onLikeClick = {},
+                onDislikeClick = {},
+                onCoinClick = {},
+                onStarClick = {},
+                onShareClick = {},
+                onDownloadClick = {}
             )
         } ?: bangumiDetail?.let { detail ->
             Spacer(Modifier.height(PaddingMd))
@@ -385,11 +370,15 @@ private fun ColumnScope.LandscapeInfoArea(
                 isDownloaded = isDownloaded,
                 showLikeAnimation = isShowLikeAnimation,
                 isFullscreen = isFullscreen,
-                onScreenAction = onScreenAction,
-                onVideoMenuAction = onVideoMenuAction,
                 onAnimationEndCallback = {
-                    onScreenAction(ScreenAction.SetLikeAnimationVisible(false))
+                    handleScreenEvent(ScreenEvent.LikeAnimationVisibility(false))
                 },
+                onLikeClick = {},
+                onDislikeClick = {},
+                onCoinClick = {},
+                onStarClick = {},
+                onShareClick = {},
+                onDownloadClick = {}
             )
         }
 
@@ -402,7 +391,6 @@ private fun ColumnScope.LandscapeInfoArea(
                 verticalArrangement = Arrangement.spacedBy(PaddingMd),
                 horizontalArrangement = Arrangement.spacedBy(PaddingLg),
                 maxLines = 2,
-                overflow = FlowRowOverflow.Clip
             ) {
                 tags.fastForEach {
                     TagChip(it)
@@ -428,17 +416,17 @@ private fun RowScope.OtherListArea(
         playerUIState.videoArchives,
         playerUIState.videoDetail,
         playerUIState.relatedBangumis,
-        playerUIState.playParam is PlayParam.MediaList
+        playerUIState.mediaPlayConfig is MediaPlayConfig.MediaFolderConfig
     ) {
         derivedStateOf {
-            val playParam = playerUIState.playParam
+            val playParam = playerUIState.mediaPlayConfig
             buildList {
                 playerUIState.videoPageList?.let { add(context.getString(R.string.str_video_page_list)) }
                     ?: playerUIState.bangumiDetail?.episodes?.let {
                         add(context.getString(R.string.str_video_page_list))
                     }
                 when (playParam) {
-                    is PlayParam.MediaList -> {
+                    is MediaPlayConfig.MediaFolderConfig -> {
                         add(playParam.title)
                     }
 
@@ -509,7 +497,7 @@ private fun RowScope.OtherListArea(
                         UserWorkList(
                             works = works,
                             userProfile = playerUIState.infoCardModel.toUserProfile(),
-                            currentBvid = playerUIState.playParam.bvid,
+                            currentBvid = playerUIState.mediaPlayConfig.bvid,
                             bottomPadding = PaddingNone,
                             onVideoMenuAction = onVideoMenuAction
                         )
@@ -527,7 +515,7 @@ private fun RowScope.OtherListArea(
                     ArchiveList(
                         modifier = Modifier
                             .fillMaxWidth(),
-                        listState = screenState.archiveListState,
+                        listState = screenState.archiveListScrollState,
                         bottomPadding = PaddingNone,
                         currentArchiveIndex = playerUIState.currentArchiveIndex,
                         archiveList = playerUIState.videoArchives ?: emptyList(),
@@ -562,7 +550,7 @@ private fun RowScope.OtherListArea(
                 }
 
                 stringResource(R.string.str_watch_later) -> {
-                    val playParam = playerUIState.playParam as PlayParam.MediaList
+                    val playParam = playerUIState.mediaPlayConfig as MediaPlayConfig.MediaFolderConfig
                     val currentIndex by remember(playParam.bvid) {
                         derivedStateOf {
                             playParam.medias.indexOfFirst { it.bvid == playParam.bvid }
@@ -579,7 +567,7 @@ private fun RowScope.OtherListArea(
                 }
 
                 else -> {
-                    val playParam = playerUIState.playParam as PlayParam.MediaList
+                    val playParam = playerUIState.mediaPlayConfig as MediaPlayConfig.MediaFolderConfig
                     val folderMediaList = playerUIState.folderMediaFlow.collectAsLazyPagingItems()
                     val currentIndex by remember(playParam.bvid, folderMediaList.itemCount) {
                         derivedStateOf {
@@ -633,34 +621,4 @@ private fun BangumiSeasonAndEpisodeWidget(
             onVideoMenuAction = onVideoMenuAction
         )
     }
-}
-
-@OptIn(UnstableApi::class)
-@Preview(showBackground = true, device = "id:pixel_tablet")
-@Composable
-private fun LandscapeVideoPagePreview(
-    @PreviewParameter(FakePlayerState::class) uiStates: Triple<MediaPlayerUIState, MediaState, ScreenState>
-) {
-    val context = LocalContext.current
-    val exoPlayer = remember {
-        ExoPlayer.Builder(context).build()
-    }
-    LandscapeVideoPage(
-        exoPlayer = exoPlayer,
-        playerUIState = uiStates.first,
-        mediaState = uiStates.second,
-        screenState = uiStates.third,
-        replies = uiStates.first.repliesFlow.collectAsLazyPagingItems(),
-        works = uiStates.first.uploadedVideosFlow.collectAsLazyPagingItems(),
-        onVideoFrameChange = {},
-        onControlUIChange = {},
-        onBackPress = {},
-        onProgressChange = {},
-        onPlayChange = {},
-        onFullscreenChange = {},
-        onScreenAction = {},
-        onDoubleSpeedChange = {},
-        resetHideTimer = {},
-        onVideoMenuAction = {}
-    )
 }

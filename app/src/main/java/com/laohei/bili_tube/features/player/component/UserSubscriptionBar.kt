@@ -32,9 +32,8 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.laohei.bili_sdk.apis.UserRelationAction
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.component.button.SubscribeButton
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.features.player.state.screen.ScreenAction
+import com.laohei.bili_tube.ui.component.button.SubscribeButton
 import com.laohei.bili_tube.util.toViewString
 
 @Composable
@@ -43,7 +42,7 @@ internal fun UserSubscriptionBar(
     name: String,
     fans: String,
     isSubscribed: Boolean,
-    onScreenAction: (ScreenAction) -> Unit,
+    onClick: () -> Unit,
     onVideoMenuAction: (VideoMenuAction) -> Unit
 ) {
     var localIsSubscribed by remember { mutableStateOf(isSubscribed) }
@@ -58,7 +57,7 @@ internal fun UserSubscriptionBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onScreenAction.invoke(ScreenAction.SetUpInfoVisible(true)) }
+            .clickable { onClick() }
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
@@ -116,7 +115,7 @@ internal fun UserSubscriptionBarPreview() {
         name = "IC实验室",
         fans = 10000.toViewString(),
         isSubscribed = false,
-        onScreenAction = {},
+        onClick = {},
         onVideoMenuAction = {}
     )
 }
@@ -129,7 +128,7 @@ internal fun UserSubscriptionBarPreview2() {
         name = "IC实验室",
         fans = 10000.toViewString(),
         isSubscribed = true,
-        onScreenAction = {},
+        onClick = {},
         onVideoMenuAction = {}
     )
 }

@@ -35,10 +35,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.features.player.state.screen.ScreenAction
-import com.laohei.bili_tube.ui.component.chip.StateChip
 import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedLikeIcon
+import com.laohei.bili_tube.ui.component.chip.StateChip
 import com.laohei.bili_tube.ui.theme.PaddingSm
 
 
@@ -54,9 +52,13 @@ internal fun VideoActionBar(
     isDownloaded: Boolean,
     showLikeAnimation: Boolean,
     isFullscreen: Boolean,
-    onVideoMenuAction: (VideoMenuAction) -> Unit,
-    onScreenAction: (ScreenAction) -> Unit,
-    onAnimationEndCallback: (() -> Unit)? = null
+    onAnimationEndCallback: (() -> Unit)? = null,
+    onLikeClick: () -> Unit,
+    onDislikeClick: () -> Unit,
+    onCoinClick: () -> Unit,
+    onStarClick: () -> Unit,
+    onShareClick: () -> Unit,
+    onDownloadClick: () -> Unit,
 ) {
     val localHasLike by rememberUpdatedState(hasLike)
     var localHasCoin by remember { mutableStateOf(hasCoin) }
@@ -86,9 +88,10 @@ internal fun VideoActionBar(
                 label = great,
                 iconColor = if (localHasLike) Color.Red else MaterialTheme.colorScheme.onBackground,
                 onClick = {
-                    onVideoMenuAction(VideoMenuAction.Like(if (localHasLike) 2 else 1))
+//                    onVideoMenuAction(VideoMenuAction.Like(if (localHasLike) 2 else 1))
+                    onLikeClick()
                 },
-                onTrailingClick = {}
+                onTrailingClick = { onDislikeClick() }
             )
             if (showLikeAnimation && !isFullscreen) {
                 Popup(
@@ -108,9 +111,8 @@ internal fun VideoActionBar(
             label = coin,
             iconColor = if (localHasCoin) Color.Red else MaterialTheme.colorScheme.onBackground,
             onClick = {
-                if (localHasCoin.not()) {
-                    onScreenAction(ScreenAction.SetAddCoinVisible(true))
-                }
+                if (localHasCoin) return@StateChip
+                onCoinClick()
             },
         )
         Spacer(modifier = Modifier)
@@ -119,17 +121,14 @@ internal fun VideoActionBar(
             icon = if (localHasFavoured) Icons.Rounded.Star else Icons.Rounded.StarOutline,
             label = star,
             iconColor = if (localHasFavoured) Color.Red else MaterialTheme.colorScheme.onBackground,
-            onClick = {
-                onScreenAction(ScreenAction.SetModifyFolderVisible(true))
-            },
+            onClick = { onStarClick() },
         )
         Spacer(modifier = Modifier)
         StateChip(
             modifier = chipModifier,
             icon = Icons.Rounded.Share,
             label = share,
-            onClick = {
-            },
+            onClick = { onShareClick() },
         )
         Spacer(modifier = Modifier)
         StateChip(
@@ -140,9 +139,7 @@ internal fun VideoActionBar(
                 isDownloaded -> stringResource(R.string.str_downloaded)
                 else -> stringResource(R.string.str_download)
             },
-            onClick = {
-                onScreenAction(ScreenAction.SetDownloadVisible(true))
-            },
+            onClick = { onDownloadClick() },
         )
         Spacer(modifier = Modifier)
     }

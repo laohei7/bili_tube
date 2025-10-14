@@ -31,7 +31,7 @@ internal class DefaultScreenController(
         private val TAG = DefaultScreenController::class.simpleName
     }
 
-    private var _currentAspect: Float? = null
+    private var currentAspect: Float? = null
     private val _isAutoRotateEnabled = Settings.System.getInt(
         context.contentResolver, Settings.System.ACCELEROMETER_ROTATION
     ) == 1
@@ -433,10 +433,10 @@ internal class DefaultScreenController(
 
     override fun computeScreenSize(videoWidth: Int, videoHeight: Int) {
         val newAspectRatio = videoWidth.toFloat() / videoHeight.toFloat()
-        if (newAspectRatio.isNearlyEqual(_currentAspect)) {
+        if (newAspectRatio.isNearlyEqual(currentAspect)) {
             return
         }
-        _currentAspect = newAspectRatio
+        currentAspect = newAspectRatio
         val newState =
             computeInitialScreenState(
                 _screenState.value.screenWidth,
@@ -447,7 +447,7 @@ internal class DefaultScreenController(
         _screenState.update {
             it.copy(
                 originalVideoHeight = newState.originalVideoHeight,
-                videoHeight = newState.originalVideoHeight,
+                videoHeight = if (it.isFullscreen) it.videoHeight else newState.originalVideoHeight,
                 minBound = newState.minBound,
                 maxBound = newState.maxBound
             )

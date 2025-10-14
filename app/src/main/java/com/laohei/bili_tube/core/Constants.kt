@@ -57,7 +57,29 @@ internal val VideoSuperQualities = listOf(
     Pair(125, "HDR 真彩色"),
     Pair(120, "4K 超清"),
     Pair(116, "1080P60 高帧率"),
-    Pair(112, "1080P+ 高码率"),
+    Pair(112, "1080P 高码率"),
+)
+
+internal val VideoQualityMap = mapOf(
+    127 to "8K 超高清",
+    126 to "杜比视界",
+    125 to "HDR 真彩色",
+    120 to "4K 超清",
+    116 to "1080P60 高帧率",
+    112 to "1080P 高码率",
+    80 to "1080P 高清",
+    74 to "720P60 高帧率",
+    64 to "720P 高清",
+    32 to "480P 清晰",
+    16 to "360P 流畅",
+)
+
+internal val AudioQualityMap = mapOf(
+    30251 to "Hi-Res无损",
+    30250 to "杜比全景声",
+    30280 to "高质量",
+    30232 to "中质量",
+    30216 to "低质量",
 )
 
 internal val VideoQualities = listOf(

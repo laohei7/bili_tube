@@ -1,7 +1,6 @@
 package com.laohei.bili_tube.features.player.component
 
 import android.content.Context
-import android.util.Log
 import android.view.TextureView
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -19,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
@@ -44,11 +44,9 @@ import androidx.compose.ui.zIndex
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import coil3.Bitmap
 import coil3.compose.AsyncImage
 import com.laohei.bili_sdk.model_v2.reply.ReplyItem
 import com.laohei.bili_sdk.model_v2.user.UploadedVideoItem
-import com.laohei.bili_tube.model.play.PlayParam
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
@@ -59,20 +57,20 @@ import com.laohei.bili_tube.features.player.component.archive.ArchiveSheet
 import com.laohei.bili_tube.features.player.component.control.PlayerControl
 import com.laohei.bili_tube.features.player.component.reply.VideoReplySheet
 import com.laohei.bili_tube.features.player.component.setting.DownloadSheet
-import com.laohei.bili_tube.features.player.state.media.MediaState
-import com.laohei.bili_tube.features.player.state.screen.ScreenAction
-import com.laohei.bili_tube.features.player.state.screen.ScreenState
+import com.laohei.bili_tube.features.player.state.media_v2.MediaUIState
+import com.laohei.bili_tube.features.player.state.screen_v2.ScreenEvent
+import com.laohei.bili_tube.features.player.state.screen_v2.ScreenState
 import com.laohei.bili_tube.model.UserProfile
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.model.toUserProfile
 import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedPlayingIcon
 import com.laohei.bili_tube.ui.theme.PaddingLg
 import com.laohei.bili_tube.ui.util.SystemUtil
-import com.laohei.bili_tube.util.toTimeString
 import com.laohei.bili_tube.ui.util.isOrientationPortrait
+import com.laohei.bili_tube.util.toTimeString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.roundToInt
 
 
 @Composable
@@ -80,47 +78,42 @@ internal fun PortraitVideoPage(
     scope: CoroutineScope = rememberCoroutineScope(),
     context: Context,
     exoPlayer: ExoPlayer,
+    mediaUIState: MediaUIState,
     nestedScrollConnection: NestedScrollConnection,
-    playParam: PlayParam,
+    playParam: MediaPlayConfig,
     screenState: ScreenState,
-    mediaState: MediaState,
     playerState: MediaPlayerUIState,
     replies: LazyPagingItems<ReplyItem>,
     userVideos: LazyPagingItems<UploadedVideoItem>,
-    onVideoFrameChange: (Bitmap) -> Unit,
     onPostHistory: ((Long) -> Unit)? = null,
-    onControlUIChange: (Boolean) -> Unit,
     onBackPress: () -> Unit,
-    onProgressChange: (Float) -> Unit,
+    onProgressUpdate: (Float) -> Unit,
     onPlayChange: (Boolean) -> Unit,
     onFullscreenChange: (Boolean) -> Unit,
     onVideoMenuAction: (VideoMenuAction) -> Unit,
-    onScreenAction: (ScreenAction) -> Unit,
-    resetHideTimer: () -> Unit,
+    handleScreenEvent: (ScreenEvent) -> Unit,
+    restartHideTimer: () -> Unit,
     onMaskAlphaChange: (Float) -> Unit,
-    onDownload: (Pair<Int, String>) -> Unit,
     onSelectedAidChange: (Long) -> Unit,
     onSelectedBvidChange: (String) -> Unit,
     onDoubleSpeedChange: (Boolean) -> Unit
 ) {
     val statusBarHeight by rememberUpdatedState(SystemUtil.getStatusBarHeightDp())
-    val isFullscreen by rememberUpdatedState(screenState.isFullscreen)
+    val isFullScreenActive by rememberUpdatedState(screenState.isFullScreenActive)
     val cover by rememberUpdatedState(
         playerState.videoDetail?.view?.pic
             ?: playerState.bangumiDetail?.episodes?.find { it.epId == playerState.currentEpId }
     )
     val animatedVideoHeight by animateDpAsState(
-        targetValue = screenState.videoHeight
+        targetValue = screenState.currentVideoHeight
     )
     val videoContainerColor by animateColorAsState(
-        targetValue = if (isFullscreen) Color.Transparent else Color.Black
+        targetValue = if (isFullScreenActive) Color.Transparent else Color.Black
     )
-    val topPadding by animateDpAsState(
-        targetValue = if (isFullscreen) 0.dp else statusBarHeight
-    )
+
     val animatedContentOffset by animateDpAsState(
-        targetValue = screenState.videoHeight + when {
-            screenState.isFullscreen -> 0.dp
+        targetValue = screenState.currentVideoHeight + when {
+            isFullScreenActive -> 0.dp
             else -> statusBarHeight
         }
     )
@@ -129,44 +122,44 @@ internal fun PortraitVideoPage(
         .fillMaxHeight()
     val otherSheetModifier = contentModifier
         .offset { with(density) { IntOffset(0, animatedContentOffset.toPx().toInt()) } }
-    val videoContentModifier = contentModifier
-        .offset {
-            with(density) {
-                IntOffset(0, animatedContentOffset.toPx().roundToInt())
-            }
-        }
+    val videoContentModifier = otherSheetModifier
         .nestedScroll(connection = nestedScrollConnection)
         .draggable(
             orientation = Orientation.Vertical,
             state = rememberDraggableState { },
         )
 
+    val aspectRatio = mediaUIState.videoAspect
+
     val videoModifier = Modifier
         .height(animatedVideoHeight)
-        .width(animatedVideoHeight * mediaState.width.toFloat() / mediaState.height)
+        .width(animatedVideoHeight * aspectRatio)
 
     val videoControlModifier = Modifier
+        .then(
+            if (isFullScreenActive) Modifier else Modifier.statusBarsPadding()
+        )
         .fillMaxWidth()
         .height(IntrinsicSize.Min)
 
-    val sheetBottomPadding = screenState.videoHeight + 80.dp
+    val sheetBottomPadding = screenState.currentVideoHeight + 80.dp
 
     val textureView = remember { TextureView(context) }
-    val aspectRatio = mediaState.width.toFloat() / mediaState.height
 
-    LaunchedEffect(mediaState.isPlaying) {
-        while (mediaState.isPlaying) {
+
+    LaunchedEffect(mediaUIState.isPlaying) {
+        while (mediaUIState.isPlaying) {
             val bitmap = textureView.bitmap
             bitmap?.let {
-                onVideoFrameChange(it)
+                handleScreenEvent(ScreenEvent.SetBackgroundImage(it))
             }
             delay(8000)
         }
     }
 
-    LaunchedEffect(mediaState.isPlaying) {
-        while (mediaState.isPlaying) {
-            val history = exoPlayer.currentPosition / 1000
+    LaunchedEffect(mediaUIState.isPlaying) {
+        while (mediaUIState.isPlaying) {
+            val history = mediaUIState.currentPosition / 1000
             onPostHistory?.invoke(history)
             delay(15000)
         }
@@ -178,36 +171,34 @@ internal fun PortraitVideoPage(
             .background(Color.Black)
     ) {
         BlurBackground(
-            bitmap = screenState.background,
-            isDrag = screenState.isDrag,
-            isFullscreen = screenState.isFullscreen,
+            bitmap = screenState.backgroundImage,
+            isDrag = screenState.isDragging,
+            isFullscreen = screenState.isFullScreenActive,
         )
 
         PlayerControl(
             modifier = videoControlModifier.zIndex(99f),
             title = playerState.title,
-            progress = mediaState.progress,
-            bufferProgress = mediaState.bufferProgress,
-            isShowUI = screenState.isShowControlUI,
-            isShowRelatedList = screenState.isShowRelatedList,
-            isFullscreen = screenState.isFullscreen,
-            isLockScreen = screenState.isLockScreen,
-            onFullscreenChange = onFullscreenChange,
-            isPlaying = mediaState.isPlaying,
-            isLoading = mediaState.isLoading,
-            totalDuration = mediaState.totalDuration.toTimeString(),
-            currentDuration = mediaState.currentDuration.toTimeString(),
-            onPlayChange = onPlayChange,
-            onProgressChange = onProgressChange,
+            progress = mediaUIState.progress,
+            bufferProgress = mediaUIState.bufferProgress,
+            isShowUI = screenState.showControlUI,
+            isShowRelatedList = screenState.showRelatedList,
+            isFullscreen = screenState.isFullScreenActive,
+            isLockScreen = screenState.isScreenLocked,
+            onFullscreenToggle = onFullscreenChange,
+            isPlaying = mediaUIState.isPlaying,
+            isLoading = mediaUIState.isLoading,
+            totalDuration = mediaUIState.duration.toTimeString(),
+            currentDuration = mediaUIState.currentPosition.toTimeString(),
+            onPlaybackStateChanged = onPlayChange,
+            onProgressUpdate = onProgressUpdate,
             onLongPressStart = { onDoubleSpeedChange(true) },
             onLongPressEnd = { onDoubleSpeedChange(false) },
-            onControlUIChange = onControlUIChange,
-            onSetting = { onScreenAction(ScreenAction.SetSettingVisible(true)) },
-            onBackPress = onBackPress,
-            hintContent = {
-                SpeedHint(speed = mediaState.speed)
-            },
-            bottomControlContent = {
+            onControlUIVisibilityChange = { handleScreenEvent(ScreenEvent.ControlVisibility(it)) },
+            onOpenSettings = { handleScreenEvent(ScreenEvent.SettingsVisibility(true)) },
+            onBackPressed = onBackPress,
+            hintContent = { SpeedHint(speed = mediaUIState.activeSpeed) },
+            bottomControls = {
                 FullscreenBottomControlContent(
                     images = when {
                         playerState.isVideo -> {
@@ -220,30 +211,30 @@ internal fun PortraitVideoPage(
                     },
                     hasLike = playerState.hasLike,
                     hasFavoured = playerState.hasFavoured,
-                    showLikeAnimation = screenState.isShowLikeAnimation,
-                    isFullscreen = screenState.isFullscreen,
-                    showLabel = screenState.isFullscreen && !isOrientationPortrait(),
-                    onScreenAction = {
-                        if (it is ScreenAction.SetModifyFolderVisible) {
+                    showLikeAnimation = screenState.showLikeAnimation,
+                    isFullscreen = screenState.isFullScreenActive,
+                    showLabel = screenState.isFullScreenActive && !isOrientationPortrait(),
+                    handleScreenEvent = {
+                        if (it is ScreenEvent.FolderModificationVisibility) {
                             onSelectedAidChange(playParam.aid)
                         }
-                        onScreenAction(it)
+                        handleScreenEvent(it)
                     },
                     onVideoMenuAction = onVideoMenuAction,
                 )
             },
             unlockScreen = {},
-            resetHideTimer = resetHideTimer
+            restartHideTimer = restartHideTimer
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(top = topPadding)
+//                    .padding(top = topPadding)
                     .background(color = videoContainerColor),
                 contentAlignment = Alignment.Center
             ) {
-                if (mediaState.showCover && cover != null) {
+                if (mediaUIState.isCoverVisible && cover != null) {
                     AsyncImage(
                         modifier = videoModifier
                             .aspectRatio(aspectRatio),
@@ -270,15 +261,12 @@ internal fun PortraitVideoPage(
             modifier = videoContentModifier,
             playerState = playerState,
             screenState = screenState,
-            bottomPadding = screenState.videoHeight + 80.dp,
-            onScreenAction = {
-                if (it is ScreenAction.SetModifyFolderVisible) {
+            handleScreenEvent = {
+                if (it is ScreenEvent.FolderModificationVisibility) {
                     onSelectedAidChange(playParam.aid)
-                }
-                if (it is ScreenAction.SetModifyFolderVisible) {
                     onVideoMenuAction(VideoMenuAction.LoadSimpleFolders)
                 }
-                onScreenAction(it)
+                handleScreenEvent(it)
             },
             onVideoMenuAction = onVideoMenuAction,
             onSelectedAidChange = onSelectedAidChange,
@@ -289,15 +277,15 @@ internal fun PortraitVideoPage(
         // Sheet Shadow Gradient Layer
         Box(
             modifier = contentModifier
-                .graphicsLayer { alpha = screenState.maskAlpha }
+                .graphicsLayer { alpha = screenState.maskOpacity }
                 .background(Color.Black)
         )
 
         VideoReplySheet(
-            isShowReplyUI = screenState.isShowReplyUI,
-            shouldHideSystemBar = !isOrientationPortrait() && screenState.isFullscreen,
+            isShowReplyUI = screenState.showReplyUI,
+            shouldHideSystemBar = !isOrientationPortrait() && screenState.isFullScreenActive,
             replies = replies,
-            onDismiss = { onScreenAction(ScreenAction.SetReplyVisible(false)) },
+            onDismiss = { handleScreenEvent(ScreenEvent.ReplyVisibility(false)) },
             modifier = otherSheetModifier,
             onMaskAlphaChange = { onMaskAlphaChange(it) },
             bottomPadding = sheetBottomPadding
@@ -305,14 +293,14 @@ internal fun PortraitVideoPage(
 
         VideoDetailSheet(
             videoDetail = playerState.videoDetail,
-            isShowVideoDetailUI = screenState.isShowVideoDetailUI,
-            onDismiss = { onScreenAction(ScreenAction.SetVideoDetailVisible(false)) },
+            isShowVideoDetailUI = screenState.showVideoDetailUI,
+            onDismiss = { handleScreenEvent(ScreenEvent.VideoDetailVisibility(false)) },
             modifier = otherSheetModifier,
             onMaskAlphaChange = { onMaskAlphaChange(it) },
-            bottomPadding = screenState.videoHeight + 80.dp
+            bottomPadding = screenState.currentVideoHeight + 80.dp
         )
 
-        if (playerState.videoArchiveMeta != null && !screenState.isFullscreen) {
+        if (playerState.videoArchiveMeta != null && !screenState.isFullScreenActive) {
             val archive = playerState.videoArchiveMeta
 
             val currentArchiveIndex by rememberUpdatedState(playerState.currentArchiveIndex)
@@ -337,27 +325,27 @@ internal fun PortraitVideoPage(
                     AnimatedPlayingIcon(Modifier.size(12.dp))
                 },
                 onClick = {
-                    onScreenAction(ScreenAction.SetArchiveVisible(true))
+                    handleScreenEvent(ScreenEvent.ArchiveVisibility(true))
                 }
             )
             ArchiveSheet(
-                lazyListState = screenState.archiveListState,
+                lazyListState = screenState.archiveListScrollState,
                 modifier = otherSheetModifier,
                 currentArchiveIndex = playerState.currentArchiveIndex,
                 archiveMeta = playerState.videoArchiveMeta,
                 archives = playerState.videoArchives,
-                isShowArchiveUI = screenState.isShowArchiveUI,
+                isShowArchiveUI = screenState.showArchiveUI,
                 onMaskAlphaChange = { onMaskAlphaChange(it) },
-                onDismiss = { onScreenAction(ScreenAction.SetArchiveVisible(false)) },
+                onDismiss = { handleScreenEvent(ScreenEvent.ArchiveVisibility(false)) },
                 onVideoMenuAction = onVideoMenuAction,
-                bottomPadding = screenState.videoHeight + 80.dp
+                bottomPadding = screenState.currentVideoHeight + 80.dp
             )
         }
 
-        if (playerState.playParam is PlayParam.MediaList && playerState.playParam.isToView
-            && !screenState.isFullscreen
+        if (playerState.mediaPlayConfig is MediaPlayConfig.MediaFolderConfig && playerState.mediaPlayConfig.isToView
+            && !screenState.isFullScreenActive
         ) {
-            val playParam = playerState.playParam
+            val playParam = playerState.mediaPlayConfig
             val currentIndex by remember(playParam.bvid) {
                 derivedStateOf {
                     playParam.medias.indexOfFirst { it.bvid == playParam.bvid }
@@ -381,30 +369,30 @@ internal fun PortraitVideoPage(
                     AnimatedPlayingIcon(Modifier.size(12.dp))
                 },
                 onClick = {
-                    onScreenAction(ScreenAction.SetWatchLaterVisible(true))
+                    handleScreenEvent(ScreenEvent.WatchLaterVisibility(true))
                 }
             )
             WatchLaterSheet(
                 lazyListState = screenState.watchLaterListState,
-                playParam = playerState.playParam,
+                playParam = playerState.mediaPlayConfig,
                 modifier = otherSheetModifier,
                 isWatchLaterVisible = screenState.isWatchLaterVisible,
                 watchLaterList = playerState.watchLaterList,
                 currentWatchLaterIndex = currentIndex,
                 onMaskAlphaChange = { onMaskAlphaChange(it) },
-                onDismiss = { onScreenAction(ScreenAction.SetWatchLaterVisible(false)) },
+                onDismiss = { handleScreenEvent(ScreenEvent.WatchLaterVisibility(false)) },
                 onVideoMenuAction = onVideoMenuAction,
-                bottomPadding = screenState.videoHeight + 80.dp
+                bottomPadding = screenState.currentVideoHeight + 80.dp
             )
         }
 
-        if (playerState.playParam is PlayParam.MediaList && !playerState.playParam.isToView
-            && !screenState.isFullscreen
+        if (playerState.mediaPlayConfig is MediaPlayConfig.MediaFolderConfig && !playerState.mediaPlayConfig.isToView
+            && !screenState.isFullScreenActive
         ) {
-            val playParam = playerState.playParam
+            val playParam = playerState.mediaPlayConfig
             val folderMediaList = playerState.folderMediaFlow.collectAsLazyPagingItems()
             var lastValidIndex by remember { mutableIntStateOf(-1) }
-            val currentIndex by remember(playParam.bvid,folderMediaList.itemCount) {
+            val currentIndex by remember(playParam.bvid, folderMediaList.itemCount) {
                 derivedStateOf {
                     val idx = folderMediaList.itemSnapshotList
                         .indexOfFirst { it?.bvid == playParam.bvid }
@@ -414,7 +402,6 @@ internal fun PortraitVideoPage(
                     lastValidIndex
                 }
             }
-            Log.d("TAG", "PortraitVideoPage: $currentIndex")
             val nextItem by rememberUpdatedState(
                 folderMediaList.itemSnapshotList.getOrNull(currentIndex + 1)
             )
@@ -435,79 +422,66 @@ internal fun PortraitVideoPage(
                     AnimatedPlayingIcon(Modifier.size(12.dp))
                 },
                 onClick = {
-                    onScreenAction(ScreenAction.SetFolderMediaVisible(true))
+                    handleScreenEvent(ScreenEvent.FolderMediaVisibility(true))
                 }
             )
             FolderMediaSheet(
                 lazyListState = screenState.folderMediaListState,
-                playParam = playerState.playParam,
+                playParam = playerState.mediaPlayConfig,
                 modifier = otherSheetModifier,
                 isFolderMediaVisible = screenState.isFolderMediaVisible,
                 folderMediaList = folderMediaList,
                 currentFolderMediaIndex = currentIndex,
                 onMaskAlphaChange = { onMaskAlphaChange(it) },
-                onDismiss = { onScreenAction(ScreenAction.SetFolderMediaVisible(false)) },
+                onDismiss = { handleScreenEvent(ScreenEvent.FolderMediaVisibility(false)) },
                 onVideoMenuAction = onVideoMenuAction,
-                bottomPadding = screenState.videoHeight + 80.dp
+                bottomPadding = screenState.currentVideoHeight + 80.dp
             )
         }
 
         AddCoinSheet(
-            isShowAddCoinUI = screenState.isShowAddCoinUI,
-            onDismiss = {
-                onScreenAction(ScreenAction.SetAddCoinVisible(false))
-            },
+            isShowAddCoinUI = screenState.showAddCoinUI,
+            onDismiss = { handleScreenEvent(ScreenEvent.AddCoinVisibility(false)) },
             onVideoMenuAction = {
-                onScreenAction(ScreenAction.SetAddCoinVisible(false))
+                handleScreenEvent(ScreenEvent.AddCoinVisibility(false))
                 onVideoMenuAction(it)
             }
         )
 
         UserInfoCardSheet(
-            isShowSheet = screenState.isShowUpInfoSheet,
+            isShowSheet = screenState.showUpInfoSheet,
             isLoading = playerState.infoCardModel == null,
             userProfile = playerState.infoCardModel?.toUserProfile() ?: UserProfile.Empty,
             uploadedVideos = userVideos,
             currentBvid = playParam.bvid,
-            onDismiss = {
-                onScreenAction(ScreenAction.SetUpInfoVisible(false))
-            },
+            onDismiss = { handleScreenEvent(ScreenEvent.UpInfoVisibility(false)) },
             modifier = otherSheetModifier,
             onMaskAlphaChange = { onMaskAlphaChange(it) },
             onVideoMenuAction = onVideoMenuAction,
-            bottomPadding = screenState.videoHeight + 80.dp
+            bottomPadding = screenState.currentVideoHeight + 80.dp
         )
 
         DownloadSheet(
-            isShowSheet = screenState.isShowDownloadSheet,
-            quality = mediaState.quality,
-            defaultQuality = mediaState.videoQuality,
-            onDismiss = {
-                onScreenAction(ScreenAction.SetDownloadVisible(false))
-            },
+            isShowSheet = screenState.showDownloadSheet,
+            quality = mediaUIState.supportQualities.map { it.id to it.label },
+            defaultQuality = mediaUIState.activeQuality.id to mediaUIState.activeQuality.label,
+            onDismiss = { handleScreenEvent(ScreenEvent.DownloadVisibility(false)) },
             onDownloadClick = {
                 scope.launch {
-//                    if (!context.checkedPermissions(WRITE_STORAGE_PERMISSION)) {
-//                        EventBus.send(Event.AppEvent.PermissionRequestEvent(WRITE_STORAGE_PERMISSION))
-//                    } else {
-//                        onDownload(it)
-//                    }
                     EventBus.send(Event.AppEvent.ToastEvent(R.string.str_download_develop_hint))
                 }
             }
         )
 
         VideoMenuSheet(
-            isShowSheet = screenState.isShowVideoMenuUIAction,
-            onDismiss = {
-                onScreenAction(ScreenAction.SetVideoMenuVisible(false))
-            }
+            isShowSheet = screenState.showVideoMenuUIAction,
+            onDismiss = { handleScreenEvent(ScreenEvent.VideoMenuVisibility(false)) },
         ) {
             when (it) {
                 R.string.str_save_playlist -> {
-                    onScreenAction(ScreenAction.SetVideoMenuVisible(false))
+                    handleScreenEvent(ScreenEvent.VideoMenuVisibility(false))
                     onVideoMenuAction(VideoMenuAction.LoadSimpleFolders)
-                    onScreenAction(ScreenAction.SetModifyFolderVisible(true))
+                    handleScreenEvent(ScreenEvent.FolderModificationVisibility(true))
                 }
 
                 R.string.str_save_watch_later -> {

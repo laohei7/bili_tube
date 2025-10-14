@@ -18,11 +18,8 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -32,9 +29,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedLikeIcon
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.features.player.state.screen.ScreenAction
+import com.laohei.bili_tube.features.player.state.screen_v2.ScreenEvent
+import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedLikeIcon
 import com.laohei.bili_tube.ui.theme.Pink
 
 
@@ -46,13 +43,10 @@ internal fun FullscreenBottomControlContent(
     hasFavoured: Boolean,
     showLikeAnimation: Boolean,
     isFullscreen: Boolean,
-    onScreenAction: (ScreenAction) -> Unit,
+    handleScreenEvent: (ScreenEvent) -> Unit,
     onVideoMenuAction: (VideoMenuAction) -> Unit,
 ) {
-    var localHasLike by remember { mutableStateOf(hasLike) }
-    LaunchedEffect(hasLike) {
-        localHasLike = hasLike
-    }
+    val localHasLike by rememberUpdatedState(hasLike)
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -85,9 +79,7 @@ internal fun FullscreenBottomControlContent(
                     AnimatedLikeIcon(
                         modifier = Modifier.size(46.dp),
                         onAnimationEndCallback = {
-                            onScreenAction.invoke(
-                                ScreenAction.SetLikeAnimationVisible(false)
-                            )
+                            handleScreenEvent(ScreenEvent.LikeAnimationVisibility(false))
                         }
                     )
                 }
@@ -96,9 +88,7 @@ internal fun FullscreenBottomControlContent(
 
         IconButton(
             onClick = {
-                onScreenAction.invoke(
-                    ScreenAction.SetReplyVisible(true)
-                )
+                handleScreenEvent(ScreenEvent.ReplyVisibility(true))
             },
             colors = getIconButtonColor()
         ) {
@@ -110,9 +100,7 @@ internal fun FullscreenBottomControlContent(
 
         IconButton(
             onClick = {
-                onScreenAction.invoke(
-                    ScreenAction.SetModifyFolderVisible(true)
-                )
+                handleScreenEvent(ScreenEvent.FolderModificationVisibility(true))
             },
             colors = IconButtonDefaults.iconButtonColors(
                 contentColor = when {
@@ -150,7 +138,7 @@ internal fun FullscreenBottomControlContent(
             }
             MoreVideoButton(
                 images = it,
-                onClick = { onScreenAction.invoke(ScreenAction.ShowRelated) }
+                onClick = { }
             )
         }
     }

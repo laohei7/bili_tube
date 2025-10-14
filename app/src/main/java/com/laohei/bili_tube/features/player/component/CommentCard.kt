@@ -29,14 +29,13 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.core.FACE_URL_KEY
-import com.laohei.bili_tube.features.player.state.screen.ScreenAction
 import com.laohei.bili_tube.core.extension.getValue
 
 
 @Composable
 internal fun CommentCard(
     comments: String,
-    onScreenAction: (ScreenAction) -> Unit = {}
+    onClick: () -> Unit
 ) {
     val context = LocalContext.current
     Card(
@@ -48,9 +47,7 @@ internal fun CommentCard(
                 shape = CardDefaults.shape
             )
             .clip(CardDefaults.shape)
-            .clickable {
-                onScreenAction(ScreenAction.SetReplyVisible(true))
-            }
+            .clickable { onClick() }
             .padding(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer

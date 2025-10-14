@@ -31,7 +31,7 @@ class FakePlayerState :
         get() = sequenceOf(
             Triple(
                 MediaPlayerUIState(
-                    playParam = MediaPlayConfig.BasicVideoConfig(bvid = "video"),
+                    mediaPlayConfig = MediaPlayConfig.BasicVideoConfig(bvid = "video"),
                     videoDetail = VideoDetailFakeData.fakeVideoDetail()
                 ),
                 MediaState(),
@@ -42,7 +42,7 @@ class FakePlayerState :
             ),
             Triple(
                 MediaPlayerUIState(
-                    playParam = MediaPlayConfig.BangumiPlayConfig(bvid = "bangumi"),
+                    mediaPlayConfig = MediaPlayConfig.BangumiPlayConfig(bvid = "bangumi"),
                     bangumiDetail = BangumiFakeData.fakeBangumiDetail()
                 ),
                 MediaState(),

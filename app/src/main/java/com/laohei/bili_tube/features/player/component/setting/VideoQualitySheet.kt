@@ -1,13 +1,26 @@
 package com.laohei.bili_tube.features.player.component.setting
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,7 +46,7 @@ internal fun VideoQualitySheet(
     qualities: List<MediaQuality>,
     activeQuality: MediaQuality,
     onDismiss: () -> Unit = {},
-    onQualityChanged: (Pair<Int, String>) -> Unit
+    onVideoQualityChanged: (MediaQuality) -> Unit
 ) {
     if (!isShowSheet) return
     val context = LocalContext.current
@@ -85,7 +98,7 @@ internal fun VideoQualitySheet(
                 ListItem(
                     modifier = Modifier.clickable(
                         enabled = flag
-                    ) { onQualityChanged.invoke(it.id to it.label) },
+                    ) { onVideoQualityChanged(it) },
                     leadingContent = {
                         Icon(
                             imageVector = Icons.Outlined.Check,

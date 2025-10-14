@@ -25,17 +25,17 @@ import com.laohei.bili_sdk.model_v2.user.InfoCardModel
 import com.laohei.bili_sdk.model_v2.video.BangumiDetailModel
 import com.laohei.bili_sdk.model_v2.video.VideoDetailModel
 import com.laohei.bili_sdk.model_v2.video.VideoPageModel
-import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.features.player.MediaPlayerUIState
 import com.laohei.bili_tube.features.player.VideoMenuAction
-import com.laohei.bili_tube.features.player.state.screen.ScreenAction
-import com.laohei.bili_tube.features.player.state.screen.ScreenState
+import com.laohei.bili_tube.features.player.state.screen_v2.ScreenEvent
+import com.laohei.bili_tube.features.player.state.screen_v2.ScreenState
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.ui.component.video.HorizontalVideoCard
 import com.laohei.bili_tube.ui.component.video.VerticalVideoCard
 import com.laohei.bili_tube.ui.theme.PaddingMd
-import com.laohei.bili_tube.util.toTimeString
 import com.laohei.bili_tube.util.toTimeAgoString
+import com.laohei.bili_tube.util.toTimeString
 import com.laohei.bili_tube.util.toViewString
 
 
@@ -44,8 +44,7 @@ internal fun GetContent(
     modifier: Modifier,
     playerState: MediaPlayerUIState,
     screenState: ScreenState,
-    bottomPadding: Dp = 0.dp,
-    onScreenAction: (ScreenAction) -> Unit,
+    handleScreenEvent: (ScreenEvent) -> Unit,
     onVideoMenuAction: (VideoMenuAction) -> Unit,
     onSelectedAidChange: (Long) -> Unit,
     onSelectedBvidChange: (String) -> Unit,
@@ -55,18 +54,18 @@ internal fun GetContent(
             playerState.videoDetail?.let {
                 VideoContent(
                     modifier = modifier,
-                    lazyListState = screenState.listState,
+                    lazyListState = screenState.contentScrollState,
                     hasFavoured = playerState.hasFavoured,
                     hasCoin = playerState.hasCoin,
                     hasLike = playerState.hasLike,
                     isDownloaded = playerState.isDownloaded,
-                    isShowLikeAnimation = screenState.isShowLikeAnimation,
-                    isFullscreen = screenState.isFullscreen,
+                    isShowLikeAnimation = screenState.showLikeAnimation,
+                    isFullscreen = screenState.isFullScreenActive,
                     videoDetail = it,
                     infoCardModel = playerState.infoCardModel,
                     videoPageList = playerState.videoPageList,
                     currentPageListIndex = playerState.currentPageListIndex,
-                    onScreenAction = onScreenAction,
+                    handleScreenEvent = handleScreenEvent,
                     onVideoMenuAction = onVideoMenuAction,
                     onSelectedAidChange = onSelectedAidChange,
                     onSelectedBvidChange = onSelectedBvidChange
@@ -80,7 +79,7 @@ internal fun GetContent(
             playerState.bangumiDetail?.let {
                 BangumiContent(
                     modifier = modifier,
-                    lazyListState = screenState.listState,
+                    lazyListState = screenState.contentScrollState,
                     bangumiDetailModel = it,
                     currentEpId = playerState.currentEpId,
                     initialEpisodeIndex = playerState.initialEpisodeIndex,
@@ -89,11 +88,11 @@ internal fun GetContent(
                     hasCoin = playerState.hasCoin,
                     hasLike = playerState.hasLike,
                     isDownloaded = playerState.isDownloaded,
-                    isShowLikeAnimation = screenState.isShowLikeAnimation,
-                    isFullscreen = screenState.isFullscreen,
+                    isShowLikeAnimation = screenState.showLikeAnimation,
+                    isFullscreen = screenState.isFullScreenActive,
                     relatedBangumis = playerState.relatedBangumis ?: emptyList(),
-                    bottomPadding = bottomPadding,
-                    onScreenAction = onScreenAction,
+                    bottomPadding = screenState.currentVideoHeight + 80.dp,
+                    handleScreenEvent = handleScreenEvent,
                     onVideoMenuAction = onVideoMenuAction,
                 )
             } ?: run {
@@ -118,7 +117,7 @@ private fun VideoContent(
     isShowLikeAnimation: Boolean,
     isFullscreen: Boolean,
     currentPageListIndex: Int,
-    onScreenAction: (ScreenAction) -> Unit,
+    handleScreenEvent: (ScreenEvent) -> Unit,
     onVideoMenuAction: (VideoMenuAction) -> Unit,
     onSelectedAidChange: (Long) -> Unit,
     onSelectedBvidChange: (String) -> Unit,
@@ -141,7 +140,7 @@ private fun VideoContent(
                         else -> null
                     },
                     onClick = {
-                        onScreenAction(ScreenAction.SetVideoDetailVisible(true))
+                        handleScreenEvent(ScreenEvent.VideoDetailVisibility(true))
                     }
                 )
             }
@@ -151,7 +150,7 @@ private fun VideoContent(
                     name = videoDetail.view.owner.name,
                     fans = videoDetail.card.card.fans.toViewString(),
                     isSubscribed = infoCardModel?.following == true,
-                    onScreenAction = onScreenAction,
+                    onClick = { handleScreenEvent(ScreenEvent.UpInfoVisibility(true)) },
                     onVideoMenuAction = onVideoMenuAction
                 )
             }
@@ -168,11 +167,15 @@ private fun VideoContent(
                     isDownloaded = isDownloaded,
                     showLikeAnimation = isShowLikeAnimation,
                     isFullscreen = isFullscreen,
-                    onScreenAction = onScreenAction,
-                    onVideoMenuAction = onVideoMenuAction,
                     onAnimationEndCallback = {
-                        onScreenAction(ScreenAction.SetLikeAnimationVisible(false))
-                    }
+                        handleScreenEvent(ScreenEvent.LikeAnimationVisibility(false))
+                    },
+                    onLikeClick = {},
+                    onDislikeClick = {},
+                    onCoinClick = { handleScreenEvent(ScreenEvent.AddCoinVisibility(true)) },
+                    onStarClick = { handleScreenEvent(ScreenEvent.FolderModificationVisibility(true)) },
+                    onShareClick = {},
+                    onDownloadClick = { handleScreenEvent(ScreenEvent.DownloadVisibility(true)) }
                 )
             }
             videoPageList?.let {
@@ -187,7 +190,9 @@ private fun VideoContent(
             item {
                 CommentCard(
                     comments = videoDetail.view.stat.reply.toViewString(),
-                    onScreenAction = onScreenAction
+                    onClick = {
+                        handleScreenEvent(ScreenEvent.ReplyVisibility(true))
+                    }
                 )
             }
             item {
@@ -220,7 +225,7 @@ private fun VideoContent(
                     onTrailingClick = {
                         onSelectedAidChange(video.aid)
                         onSelectedBvidChange(video.bvid)
-                        onScreenAction(ScreenAction.SetVideoMenuVisible(true))
+                        handleScreenEvent(ScreenEvent.VideoMenuVisibility(true))
                     }
                 )
             }
@@ -244,7 +249,7 @@ private fun BangumiContent(
     isFullscreen: Boolean,
     relatedBangumis: List<RelatedBangumiItem>,
     bottomPadding: Dp = 0.dp,
-    onScreenAction: (ScreenAction) -> Unit,
+    handleScreenEvent: (ScreenEvent) -> Unit,
     onVideoMenuAction: (VideoMenuAction) -> Unit,
 ) {
     val seasonState = rememberLazyListState(initialFirstVisibleItemIndex = initialSeasonIndex)
@@ -288,11 +293,15 @@ private fun BangumiContent(
                     isDownloaded = isDownloaded,
                     showLikeAnimation = isShowLikeAnimation,
                     isFullscreen = isFullscreen,
-                    onScreenAction = onScreenAction,
-                    onVideoMenuAction = onVideoMenuAction,
                     onAnimationEndCallback = {
-                        onScreenAction(ScreenAction.SetLikeAnimationVisible(false))
+                        handleScreenEvent(ScreenEvent.LikeAnimationVisibility(false))
                     },
+                    onLikeClick = {},
+                    onDislikeClick = {},
+                    onCoinClick = { handleScreenEvent(ScreenEvent.AddCoinVisibility(true)) },
+                    onStarClick = { handleScreenEvent(ScreenEvent.FolderModificationVisibility(true)) },
+                    onShareClick = {},
+                    onDownloadClick = { handleScreenEvent(ScreenEvent.DownloadVisibility(true)) }
                 )
                 Spacer(Modifier.height(16.dp))
             }
@@ -319,8 +328,8 @@ private fun BangumiContent(
             item {
                 CommentCard(
                     comments = "",
-                    onScreenAction = {
-                        onScreenAction(ScreenAction.SetReplyVisible(true))
+                    onClick = {
+                        handleScreenEvent(ScreenEvent.ReplyVisibility(true))
                     }
                 )
                 Spacer(Modifier.height(8.dp))

@@ -27,26 +27,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
-import com.laohei.bili_tube.ui.component.icons.SleepTimer
 import com.laohei.bili_tube.core.correspondence.Event
 import com.laohei.bili_tube.core.correspondence.EventBus
-import com.laohei.bili_tube.features.player.state.screen.ScreenAction
+import com.laohei.bili_tube.features.player.state.screen_v2.ScreenEvent
+import com.laohei.bili_tube.ui.component.icons.SleepTimer
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview
 @Composable
 internal fun VideoSettingSheet(
     isShowSheet: Boolean = true,
     quality: String = "自动",
     speed: Float = 1.0f,
     sleepTimer: String = "关闭",
-    onDismiss: () -> Unit = {},
-    onScreenAction: (ScreenAction) -> Unit = {}
+    handleScreenEvent: (ScreenEvent) -> Unit,
+    onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -74,7 +72,7 @@ internal fun VideoSettingSheet(
             ) {
                 ListItem(
                     modifier = Modifier.clickable {
-                        onScreenAction.invoke(ScreenAction.SetSettingQualityVisible(true))
+                        handleScreenEvent(ScreenEvent.QualitySettingsVisibility(true))
                     },
                     leadingContent = {
                         Icon(
@@ -97,7 +95,7 @@ internal fun VideoSettingSheet(
                 )
                 ListItem(
                     modifier = Modifier.clickable {
-                        onScreenAction.invoke(ScreenAction.SetSettingSpeedVisible(true))
+                        handleScreenEvent(ScreenEvent.SpeedSettingsVisibility(true))
                     },
                     leadingContent = {
                         Icon(
@@ -120,7 +118,7 @@ internal fun VideoSettingSheet(
                 )
                 ListItem(
                     modifier = Modifier.clickable {
-                        onScreenAction.invoke(ScreenAction.SetLockScreen(true))
+//                        onScreenAction.invoke(ScreenAction.SetLockScreen(true))
                     },
                     leadingContent = {
                         Icon(
@@ -157,9 +155,7 @@ internal fun VideoSettingSheet(
                 )
                 ListItem(
                     modifier = Modifier.clickable {
-                        onScreenAction.invoke(
-                            ScreenAction.SetOtherSettingVisible(true)
-                        )
+                        handleScreenEvent(ScreenEvent.OtherSettingsVisibility(true))
                     },
                     leadingContent = {
                         Icon(

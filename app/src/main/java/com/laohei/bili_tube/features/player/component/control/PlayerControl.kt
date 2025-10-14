@@ -1,6 +1,9 @@
 package com.laohei.bili_tube.features.player.component.control
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -67,9 +70,9 @@ import androidx.compose.ui.unit.dp
 import com.laohei.bili_tube.R
 import com.laohei.bili_tube.ui.component.animation.lottie.AnimatedLoadingIcon
 import com.laohei.bili_tube.ui.util.SystemUtil
-import com.laohei.bili_tube.util.toTimeString
 import com.laohei.bili_tube.ui.util.isOrientationPortrait
 import com.laohei.bili_tube.ui.util.rememberHasDisplayCutout
+import com.laohei.bili_tube.util.toTimeString
 import kotlinx.coroutines.delay
 import kotlin.math.roundToInt
 
@@ -89,18 +92,18 @@ fun PlayerControl(
     totalDuration: String = 0.toTimeString(),
     currentDuration: String = 0.toTimeString(),
     isFullscreen: Boolean,
-    onFullscreenChange: (Boolean) -> Unit = {},
-    onPlayChange: (Boolean) -> Unit = {},
-    onProgressChange: (Float) -> Unit = {},
-    onLongPressStart: () -> Unit = {},
-    onLongPressEnd: () -> Unit = {},
-    onControlUIChange: (Boolean) -> Unit = {},
-    onSetting: (() -> Unit)? = null,
-    onBackPress: (() -> Unit)? = null,
+    onFullscreenToggle: (Boolean) -> Unit,
+    onPlaybackStateChanged: (Boolean) -> Unit,
+    onProgressUpdate: ((Float) -> Unit)? = null,
+    onLongPressStart: (() -> Unit)? = null,
+    onLongPressEnd: (() -> Unit)? = null,
+    onControlUIVisibilityChange: (Boolean) -> Unit,
+    onOpenSettings: (() -> Unit)? = null,
+    onBackPressed: (() -> Unit)? = null,
     unlockScreen: () -> Unit,
-    resetHideTimer: () -> Unit,
+    restartHideTimer: () -> Unit,
     hintContent: (@Composable () -> Unit)? = null,
-    bottomControlContent: (@Composable () -> Unit)? = null,
+    bottomControls: (@Composable () -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit
 ) {
 
@@ -131,36 +134,36 @@ fun PlayerControl(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
-                        resetHideTimer()
+                        restartHideTimer()
                         if (localIsLockScreen) {
                             if (!isShowUnlockHint) {
                                 isShowUnlockHint = true
                             }
                         } else {
-                            onControlUIChange.invoke(localIsShowUI.not())
+                            onControlUIVisibilityChange.invoke(localIsShowUI.not())
                         }
                     },
                     onPress = {
-                        resetHideTimer()
+                        restartHideTimer()
                         if (localIsLockScreen) {
                             return@detectTapGestures
                         }
                         awaitRelease()
                         if (isLongPress) {
                             isLongPress = false
-                            onLongPressEnd.invoke()
+                            onLongPressEnd?.invoke()
                         }
                     },
                     onLongPress = {
-                        resetHideTimer()
+                        restartHideTimer()
                         if (localIsLockScreen) {
                             return@detectTapGestures
                         }
                         isLongPress = true
-                        onLongPressStart.invoke()
+                        onLongPressStart?.invoke()
                     },
                     onDoubleTap = {
-                        resetHideTimer()
+                        restartHideTimer()
                     }
                 )
             }
@@ -176,7 +179,7 @@ fun PlayerControl(
         AnimatedVisibility(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = SystemUtil.getSystemBarHeightDp()),
+                .padding(top = if (isFullscreen) SystemUtil.getSystemBarHeightDp() else 4.dp),
             visible = isLongPress,
             enter = fadeIn(),
             exit = fadeOut()
@@ -201,10 +204,10 @@ fun PlayerControl(
             isShowRelatedList = isShowRelatedList,
             isFullscreen = localIsFullscreen,
             settingsClick = {
-                resetHideTimer()
-                onSetting?.invoke()
+                restartHideTimer()
+                onOpenSettings?.invoke()
             },
-            backPressedClick = onBackPress
+            backPressedClick = onBackPressed
         )
 
         // Center Play or Pause Button
@@ -212,8 +215,8 @@ fun PlayerControl(
             isShowUI = localIsShowUI,
             isPlaying = localIsPlaying,
             onPlayChanged = {
-                resetHideTimer()
-                onPlayChange(localIsPlaying.not())
+                restartHideTimer()
+                onPlaybackStateChanged(localIsPlaying.not())
             }
         )
 
@@ -237,22 +240,22 @@ fun PlayerControl(
             currentDuration = currentDuration,
             progress = progress,
             bufferProgress = bufferProgress,
-            fullscreenClick = {
-                resetHideTimer()
-                onFullscreenChange(localIsFullscreen.not())
+            onFullscreenClick = {
+                restartHideTimer()
+                onFullscreenToggle(localIsFullscreen.not())
             },
             progressChanged = {
-                resetHideTimer()
-                onProgressChange(it)
+                restartHideTimer()
+                onProgressUpdate?.invoke(it)
             },
-            actionContent = bottomControlContent
+            actionContent = bottomControls
         )
 
         UnlockButton(
             isLockScreen = localIsLockScreen,
             isShowUnlockHint = isShowUnlockHint,
             onClick = {
-                resetHideTimer()
+                restartHideTimer()
                 unlockScreen.invoke()
                 isShowUnlockHint = true
             }
@@ -362,7 +365,7 @@ private fun BoxScope.TopBar(
         exit = fadeOut()
     ) {
         val paddingModifier = when {
-            isOrientationPortrait && (!isFullscreen || rememberHasDisplayCutout()) -> {
+            isOrientationPortrait && (isFullscreen && rememberHasDisplayCutout()) -> {
                 Modifier.padding(top = SystemUtil.getStatusBarHeightDp())
             }
 
@@ -501,16 +504,38 @@ private fun BoxScope.BottomBar(
     currentDuration: String,
     progress: Float,
     bufferProgress: Float,
-    fullscreenClick: () -> Unit,
+    onFullscreenClick: () -> Unit,
     progressChanged: (Float) -> Unit,
     actionContent: (@Composable () -> Unit)? = null
 ) {
+    val isPortrait = isOrientationPortrait()
+
+    val shouldShowProgress = remember(isPortrait, isFullscreen, isShowUI, isShowRelatedList) {
+        ((isPortrait && !isFullscreen) || (isFullscreen && isShowUI) || (!isPortrait && !isFullscreen)) && !isShowRelatedList
+    }
+
+    val isLandscapeNormal = !isPortrait && !isFullscreen
+    val shouldAlignmentCenter = isFullscreen || isLandscapeNormal
+
+    val progressOffsetY = animateIntAsState(
+        targetValue = if (shouldAlignmentCenter) 0 else with(density) {
+            7.dp.toPx().roundToInt()
+        },
+        animationSpec = tween(durationMillis = 500)
+    )
+    val barBottomPadding = animateDpAsState(
+        targetValue = if (isFullscreen) SystemUtil.getNavigateBarHeightDp() * 2 else 0.dp,
+        animationSpec = tween(durationMillis = 500)
+    )
+    val barOffsetY = animateDpAsState(
+        targetValue = if (isFullscreen) 0.dp else 16.dp,
+        animationSpec = tween(durationMillis = 500)
+    )
     val paddingModifier = when {
-        isFullscreen && isOrientationPortrait() -> {
-            Modifier.padding(bottom = SystemUtil.getNavigateBarHeightDp())
+        isOrientationPortrait() -> {
+            Modifier.padding(bottom = barBottomPadding.value)
         }
 
-        isOrientationPortrait() -> Modifier
         rememberHasDisplayCutout() -> {
             Modifier.padding(
                 start = SystemUtil.getStatusBarHeightDp(),
@@ -536,6 +561,7 @@ private fun BoxScope.BottomBar(
         ) {
             Row(
                 modifier = Modifier
+                    .offset(y = barOffsetY.value)
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -546,23 +572,20 @@ private fun BoxScope.BottomBar(
                     color = Color.White,
                     style = MaterialTheme.typography.labelSmall
                 )
-                Icon(
-                    imageVector = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
-                    contentDescription = "fullscreen",
-                    tint = Color.White,
-                    modifier = Modifier.clickable { fullscreenClick.invoke() }
-                )
+                IconButton(
+                    onClick = { onFullscreenClick() }
+                ) {
+                    Icon(
+                        imageVector = if (isFullscreen) Icons.Default.FullscreenExit else Icons.Default.Fullscreen,
+                        contentDescription = "fullscreen",
+                        modifier = Modifier.padding(3.dp),
+                        tint = Color.White
+                    )
+                }
             }
         }
 
-        val isPortrait = isOrientationPortrait()
 
-        val shouldShowProgress = remember(isPortrait, isFullscreen, isShowUI, isShowRelatedList) {
-            ((isPortrait && !isFullscreen) || (isFullscreen && isShowUI) || (!isPortrait && !isFullscreen)) && !isShowRelatedList
-        }
-
-        val isLandscapeNormal = !isPortrait && !isFullscreen
-        val shouldAlignmentCenter = isFullscreen || isLandscapeNormal
 
         // progress indicator
         AnimatedVisibility(
@@ -574,11 +597,7 @@ private fun BoxScope.BottomBar(
                 isShowThumb = isShowUI,
                 progress = progress,
                 bufferProgress = bufferProgress,
-                modifier = Modifier.offset {
-                    with(density) {
-                        IntOffset(0, if (shouldAlignmentCenter) 0 else 7.dp.toPx().roundToInt())
-                    }
-                },
+                modifier = Modifier.offset { IntOffset(0, progressOffsetY.value) },
                 onProgressChanged = {
                     progressChanged.invoke(it)
                 }
@@ -587,8 +606,8 @@ private fun BoxScope.BottomBar(
 
         AnimatedVisibility(
             visible = isFullscreen && isShowUI && !isShowRelatedList,
-            enter = if (isFullscreen) fadeIn() else fadeIn() + expandVertically(),
-            exit = if (isFullscreen) fadeOut() else fadeOut() + shrinkVertically()
+            enter = fadeIn(tween(durationMillis = 300)) + expandVertically(tween(durationMillis = 300)),
+            exit = fadeOut(tween(durationMillis = 300)) + shrinkVertically(tween(durationMillis = 300))
         ) {
             actionContent?.invoke()
                 ?: DefaultBottomBarAction()

@@ -6,7 +6,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
-import android.content.res.Configuration
 import android.util.Log
 import android.view.View
 import androidx.activity.compose.BackHandler
@@ -27,13 +26,16 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.laohei.bili_tube.model.play.PlayParam
+import com.laohei.bili_tube.core.extension.hideSystemUI
+import com.laohei.bili_tube.core.extension.showSystemUI
 import com.laohei.bili_tube.core.runtime.LifecycleEffect
 import com.laohei.bili_tube.features.player.component.LandscapeFullscreenVideoPage
 import com.laohei.bili_tube.features.player.component.LandscapeVideoPage
@@ -43,23 +45,20 @@ import com.laohei.bili_tube.features.player.component.setting.OtherSettingsSheet
 import com.laohei.bili_tube.features.player.component.setting.PlaySpeedSheet
 import com.laohei.bili_tube.features.player.component.setting.VideoQualitySheet
 import com.laohei.bili_tube.features.player.component.setting.VideoSettingSheet
-import com.laohei.bili_tube.features.player.state.media.DefaultMediaController
-import com.laohei.bili_tube.features.player.state.screen.DefaultScreenController
-import com.laohei.bili_tube.features.player.state.screen.ScreenAction
+import com.laohei.bili_tube.features.player.state.screen_v2.ScreenControllerImpl
+import com.laohei.bili_tube.features.player.state.screen_v2.ScreenEvent
+import com.laohei.bili_tube.model.play.MediaPlayConfig
 import com.laohei.bili_tube.ui.component.dialog.CreateFolderDialog
 import com.laohei.bili_tube.ui.component.layout.AdaptiveLayout
 import com.laohei.bili_tube.ui.component.sheet.FolderSheet
 import com.laohei.bili_tube.ui.foundation.DeviceConfiguration
 import com.laohei.bili_tube.ui.util.OnOrientationChanged
 import com.laohei.bili_tube.ui.util.SystemUtil
-import com.laohei.bili_tube.core.extension.hideSystemUI
 import com.laohei.bili_tube.ui.util.isOrientationPortrait
-import com.laohei.bili_tube.core.extension.showSystemUI
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 import kotlin.math.roundToInt
@@ -71,7 +70,7 @@ private const val TAG = "VideoScreen"
 @OptIn(UnstableApi::class)
 @Composable
 fun VideoScreen(
-    playParam: PlayParam,
+    playParam: MediaPlayConfig,
     upPress: () -> Unit
 ) {
     val systemBarHeight: Dp = SystemUtil.getSystemBarHeightDp()
@@ -80,41 +79,52 @@ fun VideoScreen(
     val view: View = LocalView.current
     val scope: CoroutineScope = rememberCoroutineScope()
     val activity: Activity? = LocalActivity.current
-    val configuration: Configuration = LocalConfiguration.current
+    val configuration = LocalConfiguration.current
+    val windowInfo = LocalWindowInfo.current
+    val containerSize = windowInfo.containerSize
+    val (containerWidth, containerHeight) = remember {
+        (containerSize.width / density.density).roundToInt() to
+                (containerSize.height / density.density).roundToInt()
+    }
 
     // The Listen Control UI is automatically hidden
     var autoHideJob by remember { mutableStateOf<Job?>(null) }
     var lastTapTimestamp by remember { mutableLongStateOf(0) }
-
     val isOrientationPortrait = isOrientationPortrait()
-    val defaultMediaManager = remember {
-        DefaultMediaController(context, playParam.width, playParam.height)
+    val (screenWidthDp, screenHeightDp) = remember {
+        when {
+            isOrientationPortrait -> containerWidth
+
+            else -> containerHeight + systemBarHeight.value.roundToInt()
+        } to when {
+            isOrientationPortrait -> containerHeight + systemBarHeight.value.roundToInt()
+            else -> containerWidth
+        }
     }
-    val defaultScreenManager = remember {
-        DefaultScreenController(
-            density, context,
-            when {
-                isOrientationPortrait -> configuration.screenHeightDp + systemBarHeight.value.roundToInt()
-                else -> configuration.screenWidthDp + systemBarHeight.value.roundToInt()
-            },
-            when {
-                isOrientationPortrait -> configuration.screenWidthDp
-                else -> configuration.screenHeightDp
-            },
-            playParam.width, playParam.height
-        )
+
+    val screenControllerImpl = remember {
+        ScreenControllerImpl(density, context, screenWidthDp, screenHeightDp)
     }
     val viewModel = koinViewModel<MediaViewModel> {
-        parametersOf(playParam, defaultMediaManager, defaultScreenManager)
+        parametersOf(playParam, screenControllerImpl)
     }
 
+    val mediaController = viewModel.mediaController
+    val mediaUIState by mediaController.uiState.collectAsStateWithLifecycle()
+
     val playerState by viewModel.mediaPlayerUIState.collectAsStateWithLifecycle()
-    val mediaState by viewModel.mediaState.collectAsStateWithLifecycle()
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
     val replies = playerState.repliesFlow.collectAsLazyPagingItems()
     val userVideos = playerState.uploadedVideosFlow.collectAsLazyPagingItems()
 
+    fun togglePlayPauseState() {
+        if (mediaController.isPlaying) {
+            mediaController.pause()
+        } else {
+            mediaController.play()
+        }
+    }
 
     fun resetHideTimer() {
         autoHideJob?.cancel()
@@ -122,7 +132,7 @@ fun VideoScreen(
     }
 
     fun delayHideControl() {
-        if (!screenState.isShowControlUI) return
+        if (!screenState.showControlUI) return
 
         scope.launch {
             while (true) {
@@ -130,36 +140,32 @@ fun VideoScreen(
                 val currentTimestamp = Clock.System.now().toEpochMilliseconds()
                 val canHide = (currentTimestamp - lastTapTimestamp) > 5000
                 if (canHide) {
-                    viewModel.onScreenAction(ScreenAction.SetControlVisible(false), false)
+                    viewModel.handleScreenEvent(ScreenEvent.ControlVisibility(false))
                 }
             }
         }
     }
 
     // video size changed
-    LaunchedEffect(mediaState.width, mediaState.height) {
-        viewModel.computeScreenSize(mediaState.width, mediaState.height)
+    LaunchedEffect(mediaUIState.videoWidth, mediaUIState.videoHeight) {
+        viewModel.calculateScreenSize(mediaUIState.videoWidth, mediaUIState.videoHeight)
     }
 
-    LaunchedEffect(screenState.isFullscreen) {
-        when {
-            screenState.isFullscreen -> {
-                activity?.hideSystemUI()
-            }
-
-            else -> {
-                activity?.showSystemUI()
-            }
+    LaunchedEffect(screenState.isFullScreenActive) {
+        if (screenState.isFullScreenActive) {
+            activity?.hideSystemUI()
+        } else {
+            activity?.showSystemUI()
         }
     }
 
-    LaunchedEffect(screenState.isShowControlUI) {
+    LaunchedEffect(screenState.showControlUI) {
         delayHideControl()
     }
 
-    view.keepScreenOn = mediaState.isPlaying
+    view.keepScreenOn = mediaUIState.isPlaying
 
-    DisposableEffect(mediaState.isPlaying, view) {
+    DisposableEffect(mediaUIState.isPlaying, view) {
         onDispose { view.keepScreenOn = false }
     }
 
@@ -167,54 +173,56 @@ fun VideoScreen(
 
     LifecycleEffect(
         onResume = {
-            if (!mediaState.isLoading && !mediaState.isPlaying) {
-                viewModel.togglePlayPause()
+            if (!mediaUIState.isLoading && !mediaUIState.isPlaying) {
+                togglePlayPauseState()
             }
         },
         onPause = {
-            if (mediaState.isPlaying) {
-                viewModel.togglePlayPause()
+            if (mediaUIState.isPlaying) {
+                togglePlayPauseState()
             }
         }
     )
 
     fun enterFullscreen() {
-        val aspectRatio = mediaState.width.toFloat() / mediaState.height
-        val isAutoRotateEnabled = screenState.isAutoRotateEnabled
+        val aspectRatio = mediaUIState.videoAspect
+        val isAutoRotationEnabled = screenState.isAutoRotationEnabled
         if (isOrientationPortrait && aspectRatio <= 1f) {
-            activity?.requestedOrientation = if (isAutoRotateEnabled) {
+            activity?.requestedOrientation = if (isAutoRotationEnabled) {
                 ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
             } else {
                 ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             }
-            viewModel.onFullscreenChange(true, screenState.screenHeight.dp, true)
+            viewModel.updateFullscreenState(true, screenState.screenHeight.dp, true)
         } else {
-            activity?.requestedOrientation = if (isAutoRotateEnabled) {
+            activity?.requestedOrientation = if (isAutoRotationEnabled) {
                 ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
             } else {
                 ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
-            viewModel.onFullscreenChange(true, screenState.originalVideoHeight, false)
+            viewModel.updateFullscreenState(true, screenState.initialVideoHeight, false)
         }
     }
 
     @SuppressLint("SourceLockedOrientationActivity")
     fun exitFullscreen(uiType: DeviceConfiguration) {
-        val isAutoRotateEnabled = screenState.isAutoRotateEnabled
-        activity?.requestedOrientation = if (isAutoRotateEnabled) {
+        val isAutoRotationEnabled = screenState.isAutoRotationEnabled
+        activity?.requestedOrientation = if (isAutoRotationEnabled) {
             ActivityInfo.SCREEN_ORIENTATION_USER
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-        viewModel.onFullscreenChange(false, screenState.originalVideoHeight, isOrientationPortrait)
+        viewModel.updateFullscreenState(
+            false, screenState.initialVideoHeight, isOrientationPortrait
+        )
     }
 
     fun onBackHandler(uiType: DeviceConfiguration) {
-        Log.d("TAG", "VideoScreen: ${screenState.isFullscreen}")
+        Log.d("TAG", "VideoScreen: ${screenState.isFullScreenActive}")
         when {
-            screenState.isLockScreen -> {}
-            screenState.isFullscreen -> {
-                viewModel.onScreenAction(ScreenAction.SetUserSwitch(true), isOrientationPortrait)
+            screenState.isScreenLocked -> {}
+            screenState.isFullScreenActive -> {
+                viewModel.handleScreenEvent(ScreenEvent.SetUserFullscreenToggle(true))
                 exitFullscreen(uiType)
             }
 
@@ -226,9 +234,9 @@ fun VideoScreen(
 
 
 
-    LaunchedEffect(mediaState.isPlaying) {
-        while (mediaState.isPlaying) {
-            val history = viewModel.exoPlayer.currentPosition / 1000
+    LaunchedEffect(mediaUIState.isPlaying) {
+        while (mediaUIState.isPlaying) {
+            val history = mediaController.currentPosition / 1000
             viewModel.reportPlaybackProgress(history)
             delay(15000)
         }
@@ -236,13 +244,13 @@ fun VideoScreen(
 
     AdaptiveLayout { uiType, width, height ->
         // listener orientation
-        BackHandler(enabled = screenState.isFullscreen) {
+        BackHandler(enabled = screenState.isFullScreenActive) {
             onBackHandler(uiType)
         }
         OnOrientationChanged { orientation ->
-            if (!screenState.isAutoRotateEnabled) return@OnOrientationChanged
-            val isFullscreen = screenState.isFullscreen
-            if (!screenState.isUserSwitch) {
+            if (!screenState.isAutoRotationEnabled) return@OnOrientationChanged
+            val isFullscreen = screenState.isFullScreenActive
+            if (!screenState.isUserFullscreenToggle) {
                 when (orientation) {
                     ActivityInfo.SCREEN_ORIENTATION_PORTRAIT -> {
                         if (isFullscreen) {
@@ -267,8 +275,7 @@ fun VideoScreen(
                     else -> Unit
                 }
             }
-
-            viewModel.onScreenAction(ScreenAction.SetUserSwitch(false), isOrientationPortrait)
+            viewModel.handleScreenEvent(ScreenEvent.SetUserFullscreenToggle(false))
         }
         when (uiType) {
             DeviceConfiguration.MOBILE_PORTRAIT,
@@ -276,32 +283,19 @@ fun VideoScreen(
                 PortraitVideoPage(
                     context = context,
                     nestedScrollConnection = viewModel.nestedScrollConnection,
-                    exoPlayer = viewModel.exoPlayer,
-                    playParam = playerState.playParam,
+                    exoPlayer = mediaController.player as ExoPlayer,
+                    mediaUIState = mediaUIState,
+                    playParam = playerState.mediaPlayConfig,
                     screenState = screenState,
-                    mediaState = mediaState,
                     playerState = playerState,
                     replies = replies,
                     userVideos = userVideos,
-                    onVideoFrameChange = {
-                        viewModel.onScreenAction(
-                            ScreenAction.SetBackground(it), isOrientationPortrait
-                        )
-                    },
                     onPostHistory = {},
-                    onControlUIChange = {
-                        viewModel.onScreenAction(
-                            ScreenAction.SetControlVisible(it), isOrientationPortrait
-                        )
-                    },
                     onBackPress = { onBackHandler(uiType) },
-                    onProgressChange = { viewModel.seekToFraction(it) },
-                    onPlayChange = { viewModel.togglePlayPause() },
+                    onProgressUpdate = { mediaController.seekTo((mediaUIState.duration * it).toLong()) },
+                    onPlayChange = { togglePlayPauseState() },
                     onFullscreenChange = { isFullscreen ->
-                        viewModel.onScreenAction(
-                            ScreenAction.SetUserSwitch(true),
-                            isOrientationPortrait
-                        )
+                        viewModel.handleScreenEvent(ScreenEvent.SetUserFullscreenToggle(true))
                         if (isFullscreen) {
                             enterFullscreen()
                         } else {
@@ -309,60 +303,33 @@ fun VideoScreen(
                         }
                     },
                     onVideoMenuAction = viewModel::onVideoMenuAction,
-                    onScreenAction = {
-                        viewModel.onScreenAction(
-                            action = it, isOrientationPortrait = false,
-                            onLockScreenCallback = when (it) {
-                                is ScreenAction.SetLockScreen -> ::enterFullscreen
-
-                                else -> null
-                            }
-                        )
-                    },
-                    resetHideTimer = ::resetHideTimer,
-                    onMaskAlphaChange = viewModel::onMaskAlphaChange,
+                    handleScreenEvent = viewModel::handleScreenEvent,
+                    restartHideTimer = ::resetHideTimer,
+                    onMaskAlphaChange = viewModel::updateMaskAlpha,
                     onSelectedAidChange = viewModel::setSelectedAid,
                     onSelectedBvidChange = viewModel::setSelectedBvid,
-                    onDownload = {
-                        viewModel.download(it)
-                        viewModel.onScreenAction(
-                            ScreenAction.SetDownloadVisible(false),
-                            isOrientationPortrait
-                        )
-                    },
                     onDoubleSpeedChange = { enabled ->
-                        viewModel.onScreenAction(
-                            ScreenAction.SetHintVisible(enabled),
-                            isOrientationPortrait
-                        )
-                        val targetSpeed = if (enabled) 2.0f else mediaState.userSelectedSpeed
-                        viewModel.setPlaybackSpeed(targetSpeed, false)
-                    }
+                        viewModel.handleScreenEvent(ScreenEvent.HintVisibility(enabled))
+                        val targetSpeed = if (enabled) 2.0f else mediaUIState.sessionSpeed
+                        mediaController.setSpeed(targetSpeed)
+                    },
                 )
             }
 
             DeviceConfiguration.MOBILE_LANDSCAPE -> {
                 LandscapeFullscreenVideoPage(
                     context = context,
-                    playParam = playerState.playParam,
-                    exoPlayer = viewModel.exoPlayer,
+                    playParam = playerState.mediaPlayConfig,
+                    exoPlayer = mediaController.player as ExoPlayer,
                     screenState = screenState,
-                    mediaState = mediaState,
+                    mediaUIState = mediaUIState,
                     playerState = playerState,
-                    onVideoFrameChange = {
-                        viewModel.onScreenAction(ScreenAction.SetBackground(it), false)
-                    },
-                    onControlUIChange = {
-                        viewModel.onScreenAction(ScreenAction.SetControlVisible(it), false)
-                    },
                     onBackPress = { onBackHandler(uiType) },
-                    onProgressChange = { viewModel.seekToFraction(it) },
-                    onPlayChange = { viewModel.togglePlayPause() },
+                    onProgressUpdate = { mediaController.seekTo((mediaUIState.duration * it).toLong()) },
+                    onPlayChange = { togglePlayPauseState() },
+                    handleScreenEvent = viewModel::handleScreenEvent,
                     onFullscreenChange = { isFullscreen ->
-                        viewModel.onScreenAction(
-                            ScreenAction.SetUserSwitch(true),
-                            isOrientationPortrait
-                        )
+                        viewModel.handleScreenEvent(ScreenEvent.SetUserFullscreenToggle(true))
                         if (isFullscreen) {
                             enterFullscreen()
                         } else {
@@ -370,104 +337,72 @@ fun VideoScreen(
                         }
                     },
                     onVideoMenuAction = viewModel::onVideoMenuAction,
-                    onScreenAction = {
-                        viewModel.onScreenAction(it, false)
-                    },
                     resetHideTimer = ::resetHideTimer,
                     onSelectedAidChange = viewModel::setSelectedAid,
                     onDoubleSpeedChange = { enabled ->
-                        viewModel.onScreenAction(
-                            ScreenAction.SetHintVisible(enabled),
-                            isOrientationPortrait
-                        )
-                        val targetSpeed = if (enabled) 2.0f else mediaState.userSelectedSpeed
-                        viewModel.setPlaybackSpeed(targetSpeed, false)
-                    }
+                        viewModel.handleScreenEvent(ScreenEvent.HintVisibility(enabled))
+                        val targetSpeed = if (enabled) 2.0f else mediaUIState.sessionSpeed
+                        mediaController.setSpeed(targetSpeed)
+                    },
                 )
             }
 
             DeviceConfiguration.TABLE_LANDSCAPE,
             DeviceConfiguration.DESKTOP -> {
-                if (screenState.isFullscreen) {
+                if (screenState.isFullScreenActive) {
                     LandscapeFullscreenVideoPage(
                         context = context,
-                        playParam = playerState.playParam,
-                        exoPlayer = viewModel.exoPlayer,
+                        playParam = playerState.mediaPlayConfig,
+                        exoPlayer = mediaController.player as ExoPlayer,
                         screenState = screenState,
-                        mediaState = mediaState,
+                        mediaUIState = mediaUIState,
                         playerState = playerState,
-                        onVideoFrameChange = {
-                            viewModel.onScreenAction(ScreenAction.SetBackground(it), false)
-                        },
-                        onControlUIChange = {
-                            viewModel.onScreenAction(ScreenAction.SetControlVisible(it), false)
-                        },
                         onBackPress = { onBackHandler(uiType) },
-                        onProgressChange = { viewModel.seekToFraction(it) },
-                        onPlayChange = { viewModel.togglePlayPause() },
+                        onProgressUpdate = { mediaController.seekTo((mediaUIState.duration * it).toLong()) },
+                        onPlayChange = { togglePlayPauseState() },
                         onFullscreenChange = { isFullscreen ->
-                            viewModel.onScreenAction(
-                                ScreenAction.SetUserSwitch(true),
-                                isOrientationPortrait
-                            )
+                            viewModel.handleScreenEvent(ScreenEvent.SetUserFullscreenToggle(true))
                             if (isFullscreen) {
                                 enterFullscreen()
                             } else {
                                 exitFullscreen(uiType)
                             }
                         },
+                        handleScreenEvent = viewModel::handleScreenEvent,
                         onVideoMenuAction = viewModel::onVideoMenuAction,
-                        onScreenAction = {
-                            viewModel.onScreenAction(it, false)
-                        },
                         resetHideTimer = ::resetHideTimer,
                         onSelectedAidChange = viewModel::setSelectedAid,
                         onDoubleSpeedChange = { enabled ->
-                            viewModel.onScreenAction(
-                                ScreenAction.SetHintVisible(enabled),
-                                isOrientationPortrait
-                            )
-                            val targetSpeed = if (enabled) 2.0f else mediaState.userSelectedSpeed
-                            viewModel.setPlaybackSpeed(targetSpeed, false)
-                        }
+                            viewModel.handleScreenEvent(ScreenEvent.HintVisibility(enabled))
+                            val targetSpeed = if (enabled) 2.0f else mediaUIState.sessionSpeed
+                            mediaController.setSpeed(targetSpeed)
+                        },
                     )
                 } else {
                     LandscapeVideoPage(
-                        exoPlayer = viewModel.exoPlayer,
+                        exoPlayer = mediaController.player as ExoPlayer,
                         playerUIState = playerState,
-                        mediaState = mediaState,
+                        mediaUIState = mediaUIState,
                         screenState = screenState,
                         replies = replies,
                         works = userVideos,
-                        onVideoFrameChange = {
-                            viewModel.onScreenAction(ScreenAction.SetBackground(it), false)
-                        },
-                        onControlUIChange = {
-                            viewModel.onScreenAction(ScreenAction.SetControlVisible(it), false)
-                        },
+                        handleScreenEvent = viewModel::handleScreenEvent,
                         onBackPress = { onBackHandler(uiType) },
-                        onProgressChange = { viewModel.seekToFraction(it) },
-                        onPlayChange = { viewModel.togglePlayPause() },
+                        onProgressUpdate = { mediaController.seekTo((mediaUIState.duration * it).toLong()) },
+                        onPlayChange = { togglePlayPauseState() },
                         onFullscreenChange = { isFullscreen ->
-                            viewModel.onScreenAction(
-                                ScreenAction.SetUserSwitch(true),
-                                isOrientationPortrait
-                            )
+                            viewModel.handleScreenEvent(ScreenEvent.SetUserFullscreenToggle(true))
                             if (isFullscreen) {
                                 enterFullscreen()
                             } else {
                                 exitFullscreen(uiType)
                             }
                         },
-                        onScreenAction = { viewModel.onScreenAction(it, false) },
                         resetHideTimer = ::resetHideTimer,
                         onDoubleSpeedChange = { enabled ->
-                            viewModel.onScreenAction(
-                                ScreenAction.SetHintVisible(enabled),
-                                isOrientationPortrait
-                            )
-                            val targetSpeed = if (enabled) 2.0f else mediaState.userSelectedSpeed
-                            viewModel.setPlaybackSpeed(targetSpeed, false)
+                            viewModel.handleScreenEvent(ScreenEvent.HintVisibility(enabled))
+                            val targetSpeed = if (enabled) 2.0f else mediaUIState.sessionSpeed
+                            mediaController.setSpeed(targetSpeed)
                         },
                         onVideoMenuAction = viewModel::onVideoMenuAction
                     )
@@ -477,62 +412,41 @@ fun VideoScreen(
 
         // video setting sheets
         VideoSettingSheet(
-            isShowSheet = screenState.isShowVideoSettingsSheet,
-            speed = mediaState.speed,
-            quality = mediaState.videoQuality.second,
+            isShowSheet = screenState.showVideoSettingsSheet,
+            speed = mediaUIState.activeSpeed,
+            quality = mediaUIState.activeQuality.label,
             onDismiss = {
-                viewModel.onScreenAction(
-                    ScreenAction.SetSettingVisible(false),
-                    isOrientationPortrait
-                )
+                viewModel.handleScreenEvent(ScreenEvent.SettingsVisibility(false))
             },
-            onScreenAction = { action ->
-                viewModel.onScreenAction(
-                    ScreenAction.SetSettingVisible(false),
-                    isOrientationPortrait
-                )
-                viewModel.onScreenAction(action, isOrientationPortrait)
-            }
+            handleScreenEvent = viewModel::handleScreenEvent,
         )
         PlaySpeedSheet(
-            isShowSheet = screenState.isShowSpeedUI,
-            speed = mediaState.speed,
-            onSpeedChange = {
-                viewModel.setPlaybackSpeed(it)
+            isSheetVisible = screenState.showSpeedUI,
+            speed = mediaUIState.activeSpeed,
+            onSpeedUpdated = {
+                mediaController.setSessionSpeed(it)
             },
             onDismiss = {
-                viewModel.onScreenAction(
-                    ScreenAction.SetSettingSpeedVisible(false),
-                    isOrientationPortrait
-                )
+                viewModel.handleScreenEvent(ScreenEvent.SpeedSettingsVisibility(false))
             }
         )
         VideoQualitySheet(
-            isShowSheet = screenState.isShowQualityUI,
-            quality = mediaState.quality,
-            defaultQuality = mediaState.videoQuality,
+            isShowSheet = screenState.showQualityUI,
+            qualities = mediaUIState.supportQualities,
+            activeQuality = mediaUIState.activeQuality,
             onDismiss = {
-                viewModel.onScreenAction(
-                    ScreenAction.SetSettingQualityVisible(false),
-                    isOrientationPortrait
-                )
+                viewModel.handleScreenEvent(ScreenEvent.QualitySettingsVisibility(false))
             },
-            onQualityChanged = {
-                viewModel.onScreenAction(
-                    ScreenAction.SetSettingQualityVisible(false),
-                    isOrientationPortrait
-                )
-                viewModel.changeQuality(it)
+            onVideoQualityChanged = {
+                viewModel.handleScreenEvent(ScreenEvent.QualitySettingsVisibility(false))
+                mediaController.setQuality(it)
             }
         )
         OtherSettingsSheet(
-            isShowSheet = screenState.isShowOtherSettingUI,
+            isShowSheet = screenState.showOtherSettingUI,
             autoSkip = playerState.autoSkip,
             onDismiss = {
-                viewModel.onScreenAction(
-                    ScreenAction.SetOtherSettingVisible(false),
-                    isOrientationPortrait
-                )
+                viewModel.handleScreenEvent(ScreenEvent.OtherSettingsVisibility(false))
             },
             videoSettingActionClick = viewModel::onVideoSettingAction
         )
@@ -540,18 +454,12 @@ fun VideoScreen(
         // folder
         FolderSheet(
             folders = playerState.folders,
-            isShowSheet = screenState.isShowFolderSheet,
+            isShowSheet = screenState.showFolderSheet,
             onDismiss = {
-                viewModel.onScreenAction(
-                    ScreenAction.SetModifyFolderVisible(false),
-                    isOrientationPortrait
-                )
+                viewModel.handleScreenEvent(ScreenEvent.FolderModificationVisibility(false))
             },
             onCreateFolder = {
-                viewModel.onScreenAction(
-                    ScreenAction.SetCreatedFolderVisible(true),
-                    isOrientationPortrait
-                )
+                viewModel.handleScreenEvent(ScreenEvent.FolderCreationVisibility(true))
             },
             onAddToFolder = { addAids, delAids ->
                 viewModel.onVideoMenuAction(
@@ -560,15 +468,12 @@ fun VideoScreen(
                         delAids = delAids,
                     )
                 )
-                viewModel.onScreenAction(
-                    ScreenAction.SetModifyFolderVisible(false),
-                    isOrientationPortrait
-                )
+                viewModel.handleScreenEvent(ScreenEvent.FolderModificationVisibility(false))
             }
         )
 
         CreateFolderDialog(
-            isVisible = screenState.isShowAddFolder,
+            isVisible = screenState.showAddFolder,
             value = playerState.folderName,
             onValueChange = viewModel::onFolderNameChange,
             onSubmit = viewModel::createFolder,
@@ -576,10 +481,7 @@ fun VideoScreen(
             onCheckedChange = viewModel::onPrivateChanged,
             onDismiss = {
                 viewModel.onFolderNameChange("")
-                viewModel.onScreenAction(
-                    ScreenAction.SetCreatedFolderVisible(false),
-                    isOrientationPortrait
-                )
+                viewModel.handleScreenEvent(ScreenEvent.FolderCreationVisibility(false))
             }
         )
 
