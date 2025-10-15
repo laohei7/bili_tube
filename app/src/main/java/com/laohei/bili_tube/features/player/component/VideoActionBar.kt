@@ -15,7 +15,6 @@ import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.Paid
 import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material.icons.rounded.StarOutline
 import androidx.compose.material.icons.rounded.ThumbDown
 import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material3.MaterialTheme
@@ -118,7 +117,7 @@ internal fun VideoActionBar(
         Spacer(modifier = Modifier)
         StateChip(
             modifier = chipModifier,
-            icon = if (localHasFavoured) Icons.Rounded.Star else Icons.Rounded.StarOutline,
+            icon = if (localHasFavoured) Icons.Rounded.Star else Icons.Rounded.Star,
             label = star,
             iconColor = if (localHasFavoured) Color.Red else MaterialTheme.colorScheme.onBackground,
             onClick = { onStarClick() },
