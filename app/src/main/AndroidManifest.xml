@@ -22,6 +22,8 @@
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <uses-feature android:glEsVersion="0x00030002" android:required="true" />
+
     <queries>
         <intent>
             <action android:name="android.intent.action.SEND" />

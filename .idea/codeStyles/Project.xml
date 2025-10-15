@@ -62,6 +62,9 @@
     <JetCodeStyleSettings>
       <option name="CODE_STYLE_DEFAULTS" value="KOTLIN_OFFICIAL" />
     </JetCodeStyleSettings>
+    <codeStyleSettings language="Glsl">
+      <option name="SPACE_BEFORE_COLON" value="false" />
+    </codeStyleSettings>
     <codeStyleSettings language="XML">
       <option name="FORCE_REARRANGE_MODE" value="1" />
       <indentOptions>
