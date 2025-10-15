@@ -195,7 +195,7 @@ internal class MediaViewModel(
             if (next < it.size) {
                 val nextVideo = it[next]
                 newMediaPlayConfig =
-                    mediaPlayConfig.copy(aid = nextVideo.aid, bvid = nextVideo.bvid)
+                    mediaPlayConfig.copy(aid = nextVideo.aid, bvid = nextVideo.bvid, cid = -1)
             }
         }
         return newMediaPlayConfig
@@ -248,14 +248,13 @@ internal class MediaViewModel(
                     isVideo = newMediaPlayConfig !is MediaPlayConfig.BangumiPlayConfig
                 )
             }
-            val playerUIState = _mediaPlayerUIState.value
-            val mediaPlayConfig = playerUIState.mediaPlayConfig
-            when (mediaPlayConfig) {
-                is MediaPlayConfig.BangumiPlayConfig -> loadBangumi(mediaPlayConfig)
+            Log.d(TAG, "applyMediaPlayConfig: $newMediaPlayConfig")
+            when (newMediaPlayConfig) {
+                is MediaPlayConfig.BangumiPlayConfig -> loadBangumi(newMediaPlayConfig)
 
-                is MediaPlayConfig.BasicVideoConfig -> loadVideo(mediaPlayConfig)
+                is MediaPlayConfig.BasicVideoConfig -> loadVideo(newMediaPlayConfig)
 
-                is MediaPlayConfig.MediaFolderConfig -> loadMediaList(mediaPlayConfig)
+                is MediaPlayConfig.MediaFolderConfig -> loadMediaList(newMediaPlayConfig)
 
                 MediaPlayConfig.NONE -> {}
             }
@@ -412,6 +411,7 @@ internal class MediaViewModel(
     ) = runCatching {
         when {
             isVideo -> {
+                Log.d(TAG, "fetchPlayData: $aid $bvid $cid")
                 if (cid == -1L) return null
                 biliPlayRepository.getVideoPlayURL(aid = aid, bvid = bvid, cid = cid).data
             }
@@ -423,7 +423,10 @@ internal class MediaViewModel(
                 response.takeIf { it.code != 400 }?.result
             }
         }
-    }.getOrNull()
+    }.getOrElse {
+        Log.e(TAG, "fetchPlayData: ${it.message}")
+        null
+    }
 
     private suspend fun getBangumiDetail(seasonId: Long?, epId: Long?) {
         val playParam = _mediaPlayerUIState.value.mediaPlayConfig
