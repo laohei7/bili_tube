@@ -119,6 +119,7 @@ internal class MediaViewModel(
 
     private val onPlaybackEndListener = object : MediaController.OnPlaybackEndListener {
         override fun onPlaybackEnded() {
+            reportPlaybackProgress(mediaController.duration)
             switchToNextVideoAutomatically()
         }
     }
@@ -397,8 +398,11 @@ internal class MediaViewModel(
             MediaQuality(id = it.quality, label = it.newDescription)
         }
         mediaController.setSupportQualities(supportQualities)
+        val isRestartPlayback = (data.timeLength - data.lastPlayTime) < 2
         val sources = data.dash?.mapToMediaSources()
-            ?.map { it.copy(startPositionMs = data.lastPlayTime) } ?: return
+            ?.map {
+                it.copy(startPositionMs = if (isRestartPlayback) 0 else data.lastPlayTime)
+            } ?: return
         mediaController.load(sources)
     }
 
